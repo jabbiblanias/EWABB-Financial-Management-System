@@ -37,6 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    'members',
+    'loans',
+    'transactions',
+    'financial_reporting',
+    'appointments',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +81,12 @@ WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.appl
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'EWABB_DB',         # Replace with your actual DB name
+        'USER': 'postgres',              # Replace with your DB username
+        'PASSWORD': 'thinker1256',          # Replace with your DB password
+        'HOST': 'localhost',                  # or IP address if hosted elsewhere
+        'PORT': '5432',                       # Default PostgreSQL port
     }
 }
 
@@ -121,3 +131,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'auth.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'noreply.ewabb@gmail.com'
+EMAIL_HOST_PASSWORD = 'veodilifdponjmha'
