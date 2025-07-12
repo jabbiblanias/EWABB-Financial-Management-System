@@ -11,17 +11,11 @@ from django.contrib import messages
 def login_view(request):
     error = None
     if request.method == 'POST':
-        identifier = request.POST.get('identifier')
+        identifier = request.POST.get('identifier', '').strip()
         password = request.POST.get('password')
 
         # Find user by username or email
-        try:
-            user_obj = User.objects.get(username=identifier)
-        except User.DoesNotExist:
-            try:
-                user_obj = User.objects.get(email=identifier)
-            except User.DoesNotExist:
-                user_obj = None
+        user_obj = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
 
         if user_obj:
             user = authenticate(request, username=user_obj.username, password=password)
@@ -32,11 +26,6 @@ def login_view(request):
         error = "Invalid username/email or password"
 
     return render(request, 'accounts/login.html', {'error': error})
-
-
-@login_required
-def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
 
 def logout_view(request):
     logout(request)
