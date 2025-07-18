@@ -10,13 +10,13 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
-from .models import PersonalInfo, Spouse, MembershipApplication, Children
+#from .models import PersonalInfo, Spouse, MembershipApplication, Children
 from datetime import date
 
 def login_view(request):
     error = None
     if request.method == 'POST':
-        identifier = request.POST.get('identifier', '').strip()
+        identifier = request.POST.get('emailUsername', '').strip()
         password = request.POST.get('password')
 
         # Find user by username or email
@@ -32,11 +32,14 @@ def login_view(request):
 
     return render(request, 'accounts/login.html', {'error': error})
 
+def home_page(request):
+    return render(request, 'accounts/index.html')
+
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-def register_step1(request):
+'''def register_step1(request):
     if request.method == 'POST':
         surname = request.POST.get('surname')
         first_name = request.POST.get('firstName')
@@ -250,3 +253,4 @@ def register_step3(request):
             return redirect('login')
 
     return render(request, 'accounts/register_step3.html', {'error': error})
+'''
