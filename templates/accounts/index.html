@@ -1,3 +1,4 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,13 +6,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Empowering Women</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
-
+  {% tailwind_css %}
 </head>
-
 <body class="font-sans text-gray-700">
-
   <!-- Header -->
   <header class="bg-blue-900 text-white my-0 mx-0 px-6 py-8">
     <nav class="bg-blue-900 text-white">

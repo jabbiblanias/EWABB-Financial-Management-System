@@ -49,15 +49,19 @@ INSTALLED_APPS = [
     'appointments',
 ]
 
+if DEBUG:
+    # Add django_browser_reload only in DEBUG mode
+    INSTALLED_APPS += ['django_browser_reload']
+
 NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 # Tailwind config
 TAILWIND_APP_NAME = 'theme'
-INTERNAL_IPS = ['127.0.0.1']
+#INTERNAL_IPS = ['127.0.0.1']
 
 # Static settings
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [ BASE_DIR / "theme" / "static" ]
+#STATIC_URL = '/static/'
+#STATICFILES_DIRS = [ BASE_DIR / "theme" / "static" ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,6 +72,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    # Add django_browser_reload middleware only in DEBUG mode
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ]
 
 ROOT_URLCONF = 'ewabb_financial_management_system_with_forecasting.urls'
 
@@ -97,7 +107,7 @@ WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.appl
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'EWABB_DB',         # Replace with your actual DB name
+        'NAME': 'TEST_DB',         # Replace with your actual DB name
         'USER': 'postgres',              # Replace with your DB username
         'PASSWORD': 'thinker1256',          # Replace with your DB password
         'HOST': 'localhost',                  # or IP address if hosted elsewhere

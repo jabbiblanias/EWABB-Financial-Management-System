@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
@@ -10,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
-#from .models import PersonalInfo, Spouse, MembershipApplication, Children
+from .models import Personalinfo, Spouse, Membershipapplication, Children
 from datetime import date
 
 def login_view(request):
@@ -24,6 +23,7 @@ def login_view(request):
 
         if user_obj:
             user = authenticate(request, username=user_obj.username, password=password)
+            
             if user:
                 login(request, user)
                 return redirect('dashboard')
@@ -39,7 +39,7 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-'''def register_step1(request):
+def register_step1(request):
     if request.method == 'POST':
         surname = request.POST.get('surname')
         first_name = request.POST.get('firstName')
@@ -56,7 +56,7 @@ def logout_view(request):
         gsis_id_no = request.POST.get('gsisIdNo')
         pagibig_id_no = request.POST.get('pagibigIdNo')
         philhealth_id_no = request.POST.get('philhealthIdNo')
-        sss_no = request.POST.get('sssNo')
+        sss_id_no = request.POST.get('sssNo')
         residential_address = request.POST.get('residentialAddress')
         residential_address_zip_code = request.POST.get('residentialAddressZipCode')
         residential_address_telephone_no = request.POST.get('residentialAddressTelephoneNo')
@@ -85,7 +85,7 @@ def logout_view(request):
             'gsisIdNo': gsis_id_no,
             'pagibigIdNo': pagibig_id_no,
             'philhealthIdNo': philhealth_id_no,
-            'sssNo': sss_no,
+            'sssNo': sss_id_no,
             'residentialAddress': residential_address,
             'residentialAddressZipCode': residential_address_zip_code,
             'residentialAddressTelephoneNo': residential_address_telephone_no,
@@ -111,7 +111,9 @@ def register_step2(request):
         business_address = request.POST.get('businessAddress')
         telephone_no = request.POST.get('businessTelephoneNo')
 
-        children = request.POST.getlist('children')  # returns a list of all phone inputs
+        child_full_name = request.POST.getlist('childName')
+        child_date_of_birth = request.POST.getlist('childDateOfBirth')
+        children = list(zip(child_full_name, child_date_of_birth))
 
         emergency_contact_name = request.POST.get('emergencyContactName')
         emergency_contact_address = request.POST.get('emergencyContactAddress')
@@ -159,7 +161,7 @@ def register_step3(request):
         gsis_id_no = data.get('gsisIdNo')
         pagibig_id_no = data.get('pagibigIdNo')
         philhealth_id_no = data.get('philhealthIdNo')
-        sss_no = request.POST.get('sssNo')
+        sss_id_no = request.POST.get('sssNo')
         residential_address = data.get('residentialAddress')
         residential_zip_code = data.get('residentialAddressZipCode')
         residential_telephone_no = data.get('residentialAddressTelephoneNo')
@@ -193,58 +195,65 @@ def register_step3(request):
             error = "Email already registered."
         else:
             user = User.objects.create_user(username=username, email=email, password=password)
-            personal_info = PersonalInfo.objects.create(
-                Surname=surname,
-                FirstName=first_name,
-                NameExtension=name_extension,
-                MiddleName=middle_name,
-                DateOfBirth=date_of_birth,
-                PlaceOfBirth=place_of_birth,
-                Gender=gender,
-                CivilStatus=civil_status,
-                Citizenship=citizenship,
-                Height=height,
-                Weight=weight,
-                BloodType=blood_type,
-                GSIS_ID_No=gsis_id_no,
-                PAGIBIG_ID_No=pagibig_id_no,
-                PHILHEALTH_ID_No=philhealth_id_no,
-                SSS_No=sss_no,
-                ResidentialAddress=residential_address,
-                ResidentialaAddressZipCode=residential_zip_code,
-                ResidentialAddressTelephoneNo=residential_telephone_no,
-                PermanentAddress=permanent_address,
-                PermamentAddressZipCode=permanent_address_zip_code,
-                PermanentAddressTelephoneNo=permanent_address_telephone_no,
-                ContactEmailAddress=contact_email_address,
-                CellphoneNo=cellphone_no,
-                AgencyEmployeeNo=agency_employee_no,
-                TIN_No=tin_no
-            )
-            MembershipApplication.objects.create(
-                user=user,
-                personal_info=personal_info,
-                DateAccomplished=date.today(),
-                EmergencyContactName=emergency_contact_name,
-                EmergencyContactAddress=emergency_contact_address
-            )
-            Spouse.objects.create(
-                personal_info=personal_info,
-                Surname=spouse_surname,
-                FirstName=spouse_first_name,
-                MiddleName=spouse_middle_name,
-                Occupation=occupation,
-                EmployerBusinessName=employer_bus_name,
-                BusinessAddress=business_address,
-                TelephoneNo=telephone_no
-            )
-            Children.objects.create(
-                children=", ".join(children)
-            )
 
             # Automatically assign user to 'Member' group
             member_group = Group.objects.get(name='Member')
             user.groups.add(member_group)
+
+            personid = Personalinfo.objects.create(
+                surname=surname,
+                first_name=first_name,
+                name_extension=name_extension,
+                middle_name=middle_name,
+                date_of_birth=date_of_birth,
+                place_of_birth=place_of_birth,
+                gender=gender,
+                civil_status=civil_status,
+                citizenship=citizenship,
+                height=height,
+                weight=weight,
+                blood_type=blood_type,
+                gsis_id_no=gsis_id_no,
+                pagibig_id_no=pagibig_id_no,
+                philhealth_id_no=philhealth_id_no,
+                sss_id_no=sss_id_no,
+                residential_address=residential_address,
+                residential_zip_code=residential_zip_code,
+                residential_telephone_no=residential_telephone_no,
+                permanent_address=permanent_address,
+                permanent_address_zip_code=permanent_address_zip_code,
+                permanent_address_telephone_no=permanent_address_telephone_no,
+                contact_email_address=contact_email_address,
+                cellphone_no=cellphone_no,
+                agency_employee_no=agency_employee_no,
+                tin_no=tin_no
+            )
+            
+            Spouse.objects.create(
+                person_id=personid,
+                spouse_surname=spouse_surname,
+                spouse_first_name=spouse_first_name,
+                spouse_middle_name=spouse_middle_name,
+                occupation=occupation,
+                employer_business_name=employer_bus_name,
+                business_address=business_address,
+                telephone_no=telephone_no
+            )
+
+            for name, bday in children:
+                Children.objects.create(
+                    person_id=personid, 
+                    child_full_name=name, 
+                    child_date_of_birth=bday
+                )
+
+            Membershipapplication.objects.create(
+                user=user,
+                person_id=personid,
+                date_accomplished=date.today(),
+                emergency_contact_name=emergency_contact_name,
+                emergency_contact_address=emergency_contact_address
+            )
 
             # Clear session data
             request.session.pop('register_data', None)
@@ -253,4 +262,3 @@ def register_step3(request):
             return redirect('login')
 
     return render(request, 'accounts/register_step3.html', {'error': error})
-'''

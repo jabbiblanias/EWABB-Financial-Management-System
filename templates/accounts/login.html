@@ -1,30 +1,31 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  {% tailwind_css %}
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
   <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
-    <h2 class="text-2xl font-bold text-center mb-6">Login to your account</h2>
+    <h2 class="text-2xl font-bold text-center mb-6 text-black">Login to your account</h2>
 
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
       <!-- Email/Username -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Email or Username</label>
-        <input id="emailUsername" name="emailUsername" type="text" placeholder="Enter your username or email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+        <input id="emailUsername" name="emailUsername" type="text" placeholder="Enter your username or email" class="w-full px-4 py-2 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black" required/>
       </div>
 
       <!-- Password -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
         <div class="relative">
-          <input id="password" name="password" type="password" placeholder="Enter your password" class="w-full px-4 py-2 border rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+          <input id="password" name="password" type="password" placeholder="Enter your password" class="w-full px-4 py-2 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black" required/>
           
-          <button type="button" id="toggle" class="absolute right-2 top-2 text-sm text-black-600">Show</button>
+          <button type="button" id="toggle" class="absolute right-2 top-3 text-xs text-black">Show</button>
         </div>
         <div class="flex justify-end items-center">
           <a href="#" class="text-sm text-blue-500 hover:underline">Forgot password?</a>
