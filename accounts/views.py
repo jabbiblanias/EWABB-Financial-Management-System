@@ -250,7 +250,6 @@ def register_step3(request):
             Membershipapplication.objects.create(
                 user=user,
                 person_id=personid,
-                date_accomplished=date.today(),
                 emergency_contact_name=emergency_contact_name,
                 emergency_contact_address=emergency_contact_address
             )

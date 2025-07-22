@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
 from models import Loans, Member
 from datetime import date
-      
-def apply_loan(request, MemberID):
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def apply_loan(request):
     if request.method == 'POST':
+        user=request.user
+        member=Member.objects.get(user_id=user)
+
         loan_type = request.POST.get('loanType')
         loan_amount = request.POST.get('loanAmount')
         interest_rate = request.POST.get('interestRate')
@@ -13,21 +18,18 @@ def apply_loan(request, MemberID):
         monthly_amortization = request.POST.get('loanType')
         penalty_rate = request.POST.get('loanType')
         service_charge = request.POST.get('loanType')
-        net_proceeds = request.POST.get('loanType')
-        application_date = date.today()
-        member=Member.objects.get(id=MemberID)
+        net_proceeds = request.POST.get('loanType') 
 
         Loans.objects.create(
             member=member,
-            LoanType=loan_type,
-            LoanAmount=loan_amount,
-            InterestRate=interest_rate,
-            LoanTerm=loan_term,
-            RepaymentFrequency=repayment_frequency,
-            TotalPayable=total_payable,
-            MonthlyAmortization=monthly_amortization,
-            PenaltyRate=penalty_rate,
-            ServiceCharge=service_charge,
-            NetProceeds=net_proceeds,
-            ApplicationDate=application_date
+            loan_type=loan_type,
+            loan_amount=loan_amount,
+            interest_rate=interest_rate,
+            loan_term=loan_term,
+            repayment_frequency=repayment_frequency,
+            total_payable=total_payable,
+            monthly_amortization=monthly_amortization,
+            penalty_rate=penalty_rate,
+            service_charge=service_charge,
+            net_proceeds=net_proceeds
         )
