@@ -60,9 +60,6 @@ NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 # Tailwind config
 TAILWIND_APP_NAME = 'theme'
 #INTERNAL_IPS = ['127.0.0.1']
-
-# Static settings
-#STATIC_URL = '/static/'
 #STATICFILES_DIRS = [ BASE_DIR / "theme" / "static" ]
 
 MIDDLEWARE = [
@@ -159,11 +156,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'auth.User'
+#AUTH_USER_MODEL = 'auth.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'noreply.ewabb@gmail.com'
-EMAIL_HOST_PASSWORD = 'veodilifdponjmha'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
