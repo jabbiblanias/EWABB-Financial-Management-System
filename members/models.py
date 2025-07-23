@@ -7,7 +7,7 @@ class Member(models.Model):
     user_id = models.ForeignKey(User, models.DO_NOTHING, db_column='userid')
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
     account_number = models.CharField(max_length=50,db_column='accountnumber')
-    membership_date = models.DateField(db_column='membershipdate')
+    membership_date = models.DateField(auto_now_add=True, db_column='membershipdate')
 
     class Meta:
         managed = False
