@@ -58,20 +58,3 @@ def approving_loan(request):
                 loan_application.save()
         except LoanApplication.DoesNotExist:
             print("Loan application record not found.")
-        
-def loan_release(request):
-    if request.method == 'POST':
-        user = request.user
-        loan_application_id = request.POST.get('applicationid')
-
-        try:
-            loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
-
-            if user.groups.filter('Cashier').exists():
-                loan_application.released_by_id = user
-                loan_application.released_date = date.today()
-                loan_application.save()
-        except LoanApplication.DoesNotExist:
-            print("Loan application record not found.")
-        
-        
