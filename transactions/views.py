@@ -21,9 +21,9 @@ def loan_release(request):
         create_loan_repayment_schedule(loan_application, loan)
         
 def create_loan_repayment_schedule(loan_application, loan):
-    years = loan_application.loan_term_years
-    months = loan_application.loan_term_months
-    days = loan_application.loan_term_days
+    years = loan_application.loan_term_years or 0
+    months = loan_application.loan_term_months or 0
+    days = loan_application.loan_term_days or 0
     amount_due = loan_application.monthly_amortization
     released_date = loan.released_date
     
