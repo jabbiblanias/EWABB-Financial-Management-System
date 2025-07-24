@@ -48,7 +48,7 @@ class Loan(models.Model):
     outstanding_balance = models.DecimalField(max_digits=12, decimal_places=2, db_column='outstandingbalance')
     loan_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active', db_column='loanstatus')
     released_by_id = models.ForeignKey(User, models.DO_NOTHING, db_column='releasedbyid')
-    released_date = models.DateField(db_column='releaseddate')
+    released_date = models.DateField(auto_now_add=True, db_column='releaseddate')
 
     def __str__(self):
         return f"Loan #{self.id} - {self.member}"

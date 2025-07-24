@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import LoanApplication, Member
 from django.contrib.auth.decorators import login_required
 from datetime import date
-
+from .utils import parse_duration
 @login_required
 def apply_loan(request):
     if request.method == 'POST':
@@ -19,6 +19,7 @@ def apply_loan(request):
         service_charge = request.POST.get('serviceCharge')
         net_proceeds = request.POST.get('netProceeds') 
 
+        years, months, days = parse_duration(loan_term)
         if user.groups.filter(name='Bookkeeper').exists():
             account_number=request.POST.get('accountNumber')
             member=Member.objects.get(account_number=account_number)
@@ -30,9 +31,9 @@ def apply_loan(request):
             loan_type=loan_type,
             loan_amount=loan_amount,
             interest_rate=interest_rate,
-            loan_term_years=loan_term,
-            loan_term_months=loan_term,
-            loan_term_days=loan_term,
+            loan_term_years=years,
+            loan_term_months=months,
+            loan_term_days=days,
             total_payable=total_payable,
             monthly_amortization=monthly_amortization,
             cbu=cbu,
