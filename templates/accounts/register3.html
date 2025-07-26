@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload ID for Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white font-sans">
+    <!-- Navbar -->
+    <nav class="bg-[#003366] px-6 py-4 flex justify-between items-center">
+      <h1 class="text-white font-bold text-xl">EWABB</h1>
+      <div class="space-x-4">
+        <button class="bg-[#4da3ff] hover:bg-[#378bdb] text-white px-4 py-2 rounded">Register now</button>
+        <button class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded">Login</button>
+      </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-100 py-4">
+      <div class="flex justify-center space-x-10">
+        <div class="flex items-center space-x-2 text-black">
+          <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">1</div>
+          <span class="font-medium">Member Personal Information</span>
+        </div>
+        <div class="flex items-center space-x-2 text-black">
+          <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">2</div>
+          <span class="font-medium">Spouse and Family Information</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">3</div>
+          <span class="font-medium">Upload ID for Verification</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="max-w-4xl mx-auto p-6">
+      <h2 class="text-xl font-semibold mb-4">• Upload your ID picture and provide additional information:</h2>
+
+      <form class="space-y-6">
+        <!-- ID Type -->
+        <div>
+          <label class="block font-medium mb-2">ID Type</label>
+          <div class="flex space-x-4">
+            <button type="button" class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200">Government ID</button>
+            <button type="button" class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200">Barangay ID</button>
+            <button type="button" class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200">School ID</button>
+          </div>
+        </div>
+
+        <!-- Upload Sections -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block font-medium mb-1">Valid ID Picture<br />Front</label>
+            <div class="w-full border rounded h-28 flex items-center justify-center text-gray-500">Upload Valid ID here</div>
+            <p class="text-xs mt-1 text-gray-500">JPG/PNG format, clear and recent</p>
+          </div>
+
+          <div>
+            <label class="block font-medium mb-1">Back</label>
+            <div class="w-full border rounded h-28 flex items-center justify-center text-gray-500">Upload Valid ID here</div>
+          </div>
+
+          <div>
+            <label class="block font-medium mb-1">Optional: Selfie with ID for verification</label>
+            <div class="w-full border rounded h-28 flex items-center justify-center text-gray-500">Upload Selfie</div>
+            <p class="text-xs mt-1 text-gray-500">Recommended for verification purposes</p>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-center gap-4 pt-6">
+          <button type="button" class="px-8 py-2 border border-black rounded hover:bg-gray-100">Back</button>
+          <button type="submit" class="px-8 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">Submit</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
