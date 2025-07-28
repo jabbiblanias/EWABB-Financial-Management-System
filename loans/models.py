@@ -60,6 +60,7 @@ class LoanRepaymentSchedule(models.Model):
         ('Due', 'Due'),
         ('Overdue', 'Overdue'),
         ('Paid', 'Paid'),
+        ('Partially Paid', 'Partially Paid'),
     ]
 
     schedule_id = models.AutoField(primary_key=True, db_column='scheduleid')

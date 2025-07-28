@@ -99,7 +99,7 @@ def register_step1(request):
         }
         return redirect('register_step2')
 
-    return render(request, 'accounts/register_step1.html')
+    return render(request, 'accounts/register1.html')
 
 def register_step2(request):
     if request.method == 'POST':
@@ -133,7 +133,7 @@ def register_step2(request):
         })
         return redirect('register_step3')
 
-    return render(request, 'accounts/register_step2.html')
+    return render(request, 'accounts/register2.html')
 
 def register_step3(request):
     error = None
@@ -260,4 +260,4 @@ def register_step3(request):
             messages.success(request, "Account successfully created.")
             return redirect('login')
 
-    return render(request, 'accounts/register_step3.html', {'error': error})
+    return render(request, 'accounts/register3.html', {'error': error})

@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.db import connection, transaction
-from loans.models import LoanApplication, Loan, LoanRepaymentSchedule
+from loans.models import LoanApplication, Loan, LoanRepaymentSchedule, LoanPenalty
 from dateutil.relativedelta import relativedelta
 from loans.utils import convert_date
-from .models import Savings, Transactions
+from .models import Savings, Transactions, Member
+from datetime import date
+from django.db.models import Sum
 
 
 def loan_release(request):
@@ -51,9 +53,45 @@ def create_loan_repayment_schedule(loan_application, loan):
             )
             loan_term_to_days -= 30
 
+            
+@transaction.atomic
 def transactions(request):
     if request.method == 'POST':
         cashier_id = request.user
         account_number = request.POST.get('accountNumber')
         amount = request.POST.get('amount')
         transaction_type = request.POST.get('transactionType')
+
+        members = Member.objects.get(account_number=account_number)
+
+        Transactions.objects.create(
+            member_id=members,
+            cashier_id=cashier_id,
+            amount=amount,
+            transaction_type=transaction_type
+        )
+
+        if transaction_type == 'Savings Deposit':
+            savings = Savings.objects.get(member_id=members)
+            savings += amount
+            savings.save()
+        elif transaction_type == 'Loan Payment':
+            loan = Loan.objects.get(member_id=members)
+            loan_repayment_schedule = LoanRepaymentSchedule.objects.get(loan_id=loan)
+            if loan_repayment_schedule.status == 'Overdue':
+                loan_repayment_schedules = LoanRepaymentSchedule.objects.filter(loan_id=loan).order_by('duedate')
+                loan_penalty = LoanPenalty.objects.values('scheduleid').annotate(totalPenalty=Sum('penaltyamount'))
+                total_loan_amount = loan_penalty
+
+            loan_repayment_schedule.paid_date = date.today()
+            if loan_repayment_schedule.amount_due == amount:
+                loan_repayment_schedule.status = 'Paid'
+            else:
+                loan_repayment_schedule.status = 'Paid Partially'
+        elif transaction_type == 'Withdrawal':
+            savings = Savings.objects.get(member_id=members)
+            if savings.amount >= amount:
+                savings -= amount
+                savings.save()
+
+            

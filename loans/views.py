@@ -3,6 +3,27 @@ from .models import LoanApplication, Member
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from .utils import parse_duration
+
+@login_required
+def loan_application_view(request):
+    if request.method =='POST':
+        user = request.user
+        if user.groups.filter(name='Bookkeeper').exists():
+            loan_application_id = request.POST.get('loanid')
+            loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
+            loan_application.verifier_id = user
+            loan_application.verified_date = date.today()
+            loan_application.status = 'Verified'
+        elif user.groups.filter(name='Admin').exists():
+            loan_application_id = request.POST.get('loanid')
+            loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
+            loan_application.approver_id = user
+            loan_application.approved_date = date.today()
+            loan_application.status = 'Approved'
+    loan_applications = LoanApplication.objects.select_related('member').all()
+    return render(request, 'loan_applications.html', {'loan_applications': loan_applications})
+
+
 @login_required
 def apply_loan(request):
     if request.method == 'POST':
@@ -41,6 +62,9 @@ def apply_loan(request):
             service_charge=service_charge,
             net_proceeds=net_proceeds
         )
+
+
+@login_required
 def approving_loan(request):
     if request.method == 'POST':
         user = request.user

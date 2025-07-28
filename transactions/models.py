@@ -15,7 +15,6 @@ class Transactions(models.Model):
         ('Loan Payment', 'Loan Payment'),
         ('Savings Deposit', 'Savings Deposit'),
         ('Withdrawal', 'Withdrawal'),
-        ('Loan Release ', 'Loan Release'),
     ]
 
     transaction_id = models.AutoField(primary_key=True, db_column='transactionid')
