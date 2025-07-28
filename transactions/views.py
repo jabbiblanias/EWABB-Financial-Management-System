@@ -3,6 +3,7 @@ from django.db import connection, transaction
 from loans.models import LoanApplication, Loan, LoanRepaymentSchedule
 from dateutil.relativedelta import relativedelta
 from loans.utils import convert_date
+from .models import Savings, Transactions
 
 
 def loan_release(request):
@@ -49,3 +50,10 @@ def create_loan_repayment_schedule(loan_application, loan):
                 amount_due=amount_due
             )
             loan_term_to_days -= 30
+
+def transactions(request):
+    if request.method == 'POST':
+        cashier_id = request.user
+        account_number = request.POST.get('accountNumber')
+        amount = request.POST.get('amount')
+        transaction_type = request.POST.get('transactionType')
