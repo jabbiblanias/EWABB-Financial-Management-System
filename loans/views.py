@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import date
 from .utils import parse_duration
 
+
 @login_required
 def loan_application_view(request):
     if request.method =='POST':
@@ -20,8 +21,15 @@ def loan_application_view(request):
             loan_application.approver_id = user
             loan_application.approved_date = date.today()
             loan_application.status = 'Approved'
-    loan_applications = LoanApplication.objects.select_related('member').all()
-    return render(request, 'loan_applications.html', {'loan_applications': loan_applications})
+    loan_applications = LoanApplication.objects.select_related('member').all().values()
+    context = {'loan_applications': loan_applications}
+    return render(request, 'loan_applications.html', context)
+
+
+def loan_application_details(request, loan_application_id):
+    loan_application_details = LoanApplication.objects.get(loan_application_id=loan_application_id)
+    context = {'loanApplicationDetails' : loan_application_details}
+    return render(request, 'loan_application_details.html', context)
 
 
 @login_required
