@@ -7,21 +7,7 @@ from .utils import parse_duration
 
 @login_required
 def loan_application_view(request):
-    if request.method =='POST':
-        user = request.user
-        if user.groups.filter(name='Bookkeeper').exists():
-            loan_application_id = request.POST.get('loanid')
-            loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
-            loan_application.verifier_id = user
-            loan_application.verified_date = date.today()
-            loan_application.status = 'Verified'
-        elif user.groups.filter(name='Admin').exists():
-            loan_application_id = request.POST.get('loanid')
-            loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
-            loan_application.approver_id = user
-            loan_application.approved_date = date.today()
-            loan_application.status = 'Approved'
-    loan_applications = LoanApplication.objects.select_related('member').all().values()
+    loan_applications = LoanApplication.objects.select_related('member').filter(status='Pending').values('loanapplicationid')
     context = {'loan_applications': loan_applications}
     return render(request, 'loan_applications.html', context)
 
@@ -73,21 +59,25 @@ def apply_loan(request):
 
 
 @login_required
-def approving_loan(request):
+def approving_loan(request, loan_application_id, action):
     if request.method == 'POST':
         user = request.user
         loan_application_id = request.POST.get('applicationid')
 
         try:
             loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
-
-            if user.groups.filter('Bookkeeper').exists():
-                loan_application.verifier_id = user
-                loan_application.verified_date = date.today()
-                loan_application.save()
-            elif user.groups.filter('Admin').exists():
-                loan_application.approver_id = user
-                loan_application.approved_date = date.today()
-                loan_application.save()
+            if action == 'approve':
+                if user.groups.filter('Bookkeeper').exists():
+                    loan_application.status = 'Verified'
+                    loan_application.verifier_id = user
+                    loan_application.verified_date = date.today()
+                elif user.groups.filter('Admin').exists():
+                    loan_application.status = 'Approved'
+                    loan_application.approver_id = user
+                    loan_application.approved_date = date.today()
+            elif action == 'reject':
+                loan_application.status = 'Rejected'
+            loan_application.save()
+            
         except LoanApplication.DoesNotExist:
             print("Loan application record not found.")
