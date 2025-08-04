@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from accounts.models import Personalinfo
 
+
 class Member(models.Model):
     member_id = models.AutoField(primary_key=True,db_column='memberid')
     user_id = models.ForeignKey(User, models.DO_NOTHING, db_column='userid')

@@ -1,25 +1,15 @@
 from django.shortcuts import render, redirect
-from .models import LoanApplication, Member
+from .models import LoanApplication, Member, Loan, LoanRepaymentSchedule
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from .utils import parse_duration
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+import json
 
 
 @login_required
 def loan_application_view(request):
-    loan_applications = LoanApplication.objects.select_related('member').filter(status='Pending').values('loanapplicationid')
-    context = {'loan_applications': loan_applications}
-    return render(request, 'loan_applications.html', context)
-
-
-def loan_application_details(request, loan_application_id):
-    loan_application_details = LoanApplication.objects.get(loan_application_id=loan_application_id)
-    context = {'loanApplicationDetails' : loan_application_details}
-    return render(request, 'loan_application_details.html', context)
-
-
-@login_required
-def apply_loan(request):
     if request.method == 'POST':
         user=request.user
 
@@ -38,7 +28,7 @@ def apply_loan(request):
         if user.groups.filter(name='Bookkeeper').exists():
             account_number=request.POST.get('accountNumber')
             member=Member.objects.get(account_number=account_number)
-        else:
+        elif user.groups.filter(name='Member').exists():
             member=Member.objects.get(user_id=user)
 
         LoanApplication.objects.create(
@@ -56,11 +46,46 @@ def apply_loan(request):
             service_charge=service_charge,
             net_proceeds=net_proceeds
         )
+        context = loan_applications_data()
+        return render(request, 'loan_applications_table.html', context)
+    return render(request, 'loan_applications.html', context)
+
+def loan_applications_data():
+    loan_applications = (
+        LoanApplication.objects
+        .select_related('member')
+        .filter(status='Pending')
+        .values(
+            'loanapplicationid',
+            'accountnumber',
+            'loantermyears',
+            'loantermmonths',
+            'loantermdays',
+            'loanamount',
+            'amortization'
+        )
+    )
+    context = {'loan_applications': loan_applications}
+    return context
+
+
+def loan_application_details_view(request, loan_application_id):
+    loan_application_details = LoanApplication.objects.select_related('member').get(loan_application_id=loan_application_id)
+    context = {'loanApplicationDetails' : loan_application_details}
+    return render(request, 'loan_application_details.html', context)
+
+
+def update_loan_application_table(request):
+    context = loan_applications_data()
+    return render(request, 'loan_applications_table.html', context)
 
 
 @login_required
 def approving_loan(request, loan_application_id, action):
     if request.method == 'POST':
+        data = json.loads(request.body)
+        loan_application_id = data.get('loan_application_id')
+        action = data.get('action')
         user = request.user
         loan_application_id = request.POST.get('applicationid')
 
@@ -79,5 +104,26 @@ def approving_loan(request, loan_application_id, action):
                 loan_application.status = 'Rejected'
             loan_application.save()
             
+            context = loan_applications_data()
+            html = render_to_string('loan_applications_table.html', context)
+            return JsonResponse({'success': True, 'html': html})
         except LoanApplication.DoesNotExist:
-            print("Loan application record not found.")
+            return JsonResponse({'success': False})
+
+
+def loans(request):
+    loans = (
+        Loan.objects
+        .select_related('member')
+        .order_by('-released_date')
+        .values(
+            'loanid',
+            'accountnumber',
+            'loanamount',
+            'totalpayable',
+            'netproceeds',
+            'loanstatus'
+        )
+    )
+    context = {'loans' : loans}
+    return render(request, 'loan_application_details.html', context)
