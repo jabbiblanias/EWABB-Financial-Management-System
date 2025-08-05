@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spouse and Family Information</title>
+    <title>EWABB Registration</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
   </head>
   <body class="bg-white font-sans">
     <!-- Navbar -->
@@ -16,90 +17,105 @@
       </div>
     </nav>
 
-    <!-- Progress Bar -->
+    <!-- Progress Indicator -->
     <div class="w-full bg-gray-100 py-4">
       <div class="flex justify-center space-x-10">
-        <div class="flex items-center space-x-2 text-black">
+        <div class="flex items-center space-x-2">
           <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">1</div>
           <span class="font-medium">Member Personal Information</span>
         </div>
         <div class="flex items-center space-x-2">
           <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">2</div>
-          <span class="font-medium">Spouse and Family Information</span>
+          <span class="font-medium">Family Background</span>
         </div>
-        <div class="flex items-center space-x-2 text-black">
+        <div class="flex items-center space-x-2">
           <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">3</div>
-          <span class="font-medium">Upload ID for Verification</span>
+          <span class="font-medium">Create an Account</span>
         </div>
       </div>
     </div>
 
-    <!-- Form Section -->
-    <div class="max-w-7xl mx-auto p-6">
-      <h2 class="text-3xl font-bold mb-6">Spouse and Family Information</h2>
-      <form class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Spouse Info -->
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
-            <input type="text" placeholder="Enter your Surname" class="w-full border px-4 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">First Name</label>
-            <input type="text" placeholder="Enter your First name" class="w-full border px-4 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Middle Name</label>
-            <input type="text" placeholder="Enter your Middle name" class="w-full border px-4 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Occupation</label>
-            <input type="text" placeholder="Enter occupation" class="w-full border px-4 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
-            <input type="text" placeholder="Enter your business name" class="w-full border px-4 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Business Address</label>
-            <input type="text" placeholder="Enter your business address" class="w-full border px-4 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Telephone No.</label>
-            <input type="text" placeholder="Enter your Telephone Number" class="w-full border px-4 py-2 rounded" />
-          </div>
-        </div>
+    <!-- Main Container -->
+    <div class="max-w-6xl mx-auto px-6 py-10">
+      <h2 class="text-3xl font-bold text-center mb-2">Family Background</h2>
+      <p class="text-center text-sm mb-10">• Please leave it blank if you do not have spouse and children</p>
 
-        <!-- Children Names -->
-        <div class="space-y-4">
-          <label class="block text-sm font-medium">Name of Children (Write in full name and list all)</label>
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+      <!-- SPOUSE Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div>
+          <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
         </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
+        </div>
+        <div></div>
+        <div>
+          <label class="block text-sm font-medium mb-1">First Name</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Business Address</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
+        </div>
+        <div></div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Middle Name</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Telephone No.</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
+        </div>
+        <div></div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Occupation</label>
+          <input type="text" class="w-full border px-4 py-2 rounded" />
+        </div>
+      </div>
 
-        <!-- Children Birthdates -->
-        <div class="space-y-4">
-          <label class="block text-sm font-medium">Date of Birth (mm/dd/yy)</label>
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
-          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+      <!-- CHILDREN Section -->
+      <div class="mb-12">
+        <h3 class="font-semibold text-lg mb-4">Children</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
+            <input type="text" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Date of Birth</label>
+            <div class="flex items-center gap-2">
+              <div class="relative w-full">
+                <input type="text" placeholder="DD/MM/YYYY" class="w-full border px-4 py-2 pl-10 rounded" />
+                <i class="fa-regular fa-calendar-days absolute left-3 top-3 text-gray-500"></i>
+              </div>
+              <button type="button" class="bg-gray-200 px-4 py-2 rounded text-lg font-semibold">+</button>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Buttons -->
-        <div class="col-span-1 md:col-span-3 flex justify-center gap-4 pt-6">
-          <button type="button" class="px-8 py-2 border border-black rounded hover:bg-gray-100">Back</button>
-          <button type="submit" class="px-8 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">Next</button>
+      <!-- EMERGENCY CONTACT Section -->
+      <div class="mb-12">
+        <h3 class="font-semibold text-lg mb-4">Emergency Person to Contact</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Name (Full Name)</label>
+            <input type="text" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Address</label>
+            <input type="text" placeholder="Enter the address" class="w-full border px-4 py-2 rounded" />
+          </div>
         </div>
-      </form>
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="flex justify-center gap-4">
+        <button type="button" class="px-10 py-2 border border-black rounded hover:bg-gray-100">Back</button>
+        <button type="submit" class="px-10 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">Next</button>
+      </div>
     </div>
   </body>
 </html>
