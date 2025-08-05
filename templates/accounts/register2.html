@@ -1,157 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Empowering Women</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body class="font-sans text-gray-700">
-
-  <!-- Header -->
-  <header class="bg-blue-900 text-white my-0 mx-0 px-6 py-8">
-    <nav class="bg-blue-900 text-white">
-      <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
-        <!-- Left Logo -->
-        <div class="text-2xl font-bold">EWABB</div>
-        <!-- Navigation Links -->
-        <div class="flex items-center gap-6">
-          <a href="#" class="flex items-center gap-1 hover:text-blue-300">
-            About
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M5.25 7.5l4.75 4.75 4.75-4.75H5.25z" />
-            </svg>
-          </a>
-          <a href="#" class="flex items-center gap-1 hover:text-blue-300">
-            Services
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M5.25 7.5l4.75 4.75 4.75-4.75H5.25z" />
-            </svg>
-          </a>
-          <a href="#" class="hover:text-blue-300">Pricing</a>
-          <a href="#" class="flex items-center gap-1 hover:text-blue-300">
-            Person
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M5.25 7.5l4.75 4.75 4.75-4.75H5.25z" />
-            </svg>
-          </a>
-        </div>
-        <!-- Divider and Buttons -->
-        <div class="flex items-center gap-4">
-          <div class="h-6 border-r border-dotted border-blue-300"></div>
-          <button class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded">
-            Login
-          </button>
-          <button class="bg-blue-400 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded flex items-center gap-1">
-            Register now
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M7 5l5 5-5 5V5z" />
-            </svg>
-          </button>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spouse and Family Information</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white font-sans">
+    <!-- Navbar -->
+    <nav class="bg-[#003366] px-6 py-4 flex justify-between items-center">
+      <h1 class="text-white font-bold text-xl">EWABB</h1>
+      <div class="space-x-4">
+        <button class="bg-[#4da3ff] hover:bg-[#378bdb] text-white px-4 py-2 rounded">Register now</button>
+        <button class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded">Login</button>
       </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-      <h1 class="text-3xl font-bold mb-4 md:mb-0">
-        Empowering women,<br> forging brighter futures together.
-      </h1>
-      <div class="w-48 h-48 bg-blue-200 rounded"></div>
-    </div>
-  </header>
-
-  <!-- About -->
-  <section class="py-12 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-      <div>
-        <h2 class="text-xl font-semibold mb-4">About</h2>
-        <p class="mb-4">
-          The Empowered Women Association of Barangay Bañadero (EWABB) is dedicated to providing financial support and opportunities to the women of Barangay Bañadero. Through loans, savings programs, and business initiatives, EWABB aims to empower women economically and socially within the community.
-        </p>
-      </div>
-      <div class="w-full h-48 bg-blue-200 rounded"></div>
-    </div>
-    <div class="mt-12 flex flex-col md:flex-row items-center justify-center gap-8">
-      <div class="w-64 h-64 bg-blue-100 rounded-full flex items-center justify-center">
-        <!-- Circular diagram placeholder -->
-        <div class="w-48 h-48 bg-blue-200 rounded-full"></div>
-      </div>
-      <p class="max-w-md text-center md:text-left">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat corporis laudantium sed magni.
-      </p>
-    </div>
-  </section>
-
-  <!-- Services -->
-  <section class="bg-blue-900 text-white py-12 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-      <div>
-        <h2 class="text-xl font-semibold mb-4 border-b-2 border-dotted border-white inline-block">Services</h2>
-      </div>
-      <div class="w-full h-48 bg-blue-200 border-2 border-dashed border-blue-300 rounded"></div>
-    </div>
-  </section>
-
-  <!-- Pricing -->
-  <section class="py-12 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-      <div class="w-full h-48 bg-blue-200 rounded"></div>
-      <div>
-        <h2 class="text-xl font-semibold mb-4">Pricing</h2>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat corporis laudantium sed magni.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Work everywhere -->
-  <section class="bg-blue-900 text-white py-12 px-6 text-center">
-    <h2 class="text-2xl font-semibold mb-4">Your work, everywhere <u>you are</u>.</h2>
-  </section>
-
-  <!-- Person in Charge -->
-  <section class="py-12 px-6">
-    <div class="max-w-6xl mx-auto text-center mb-8">
-      <h2 class="text-xl font-semibold">Person in Charge</h2>
-    </div>
-    <div class="flex flex-col md:flex-row gap-8 justify-center">
-      <!-- Card 1 -->
-      <div class="bg-white border rounded shadow p-6 flex-1">
-       
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-200 rounded-full"></div>
-          <div>
-            <p class="font-semibold">Arthur Marco</p>
-            <p class="text-sm text-gray-500">Founder/CEO</p>
-          </div>
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-100 py-4">
+      <div class="flex justify-center space-x-10">
+        <div class="flex items-center space-x-2 text-black">
+          <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">1</div>
+          <span class="font-medium">Member Personal Information</span>
         </div>
-      </div>
-      <!-- Card 2 -->
-      <div class="bg-white border rounded shadow p-6 flex-1">
-  
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-200 rounded-full"></div>
-          <div>
-            <p class="font-semibold">Nancy Levantino</p>
-            <p class="text-sm text-gray-500">BookKeeper</p>
-          </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">2</div>
+          <span class="font-medium">Spouse and Family Information</span>
         </div>
-      </div>
-      <!-- Card 3 -->
-      <div class="bg-white border rounded shadow p-6 flex-1">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-200 rounded-full"></div>
-          <div>
-            <p class="font-semibold">Arthur Marco</p>
-            <p class="text-sm text-gray-500">Cashier</p>
-          </div>
+        <div class="flex items-center space-x-2 text-black">
+          <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">3</div>
+          <span class="font-medium">Upload ID for Verification</span>
         </div>
       </div>
     </div>
-  </section>
 
-</body>
+    <!-- Form Section -->
+    <div class="max-w-7xl mx-auto p-6">
+      <h2 class="text-3xl font-bold mb-6">Spouse and Family Information</h2>
+      <form class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Spouse Info -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
+            <input type="text" placeholder="Enter your Surname" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">First Name</label>
+            <input type="text" placeholder="Enter your First name" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Middle Name</label>
+            <input type="text" placeholder="Enter your Middle name" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Occupation</label>
+            <input type="text" placeholder="Enter occupation" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
+            <input type="text" placeholder="Enter your business name" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Business Address</label>
+            <input type="text" placeholder="Enter your business address" class="w-full border px-4 py-2 rounded" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Telephone No.</label>
+            <input type="text" placeholder="Enter your Telephone Number" class="w-full border px-4 py-2 rounded" />
+          </div>
+        </div>
+
+        <!-- Children Names -->
+        <div class="space-y-4">
+          <label class="block text-sm font-medium">Name of Children (Write in full name and list all)</label>
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Enter the full name" class="w-full border px-4 py-2 rounded" />
+        </div>
+
+        <!-- Children Birthdates -->
+        <div class="space-y-4">
+          <label class="block text-sm font-medium">Date of Birth (mm/dd/yy)</label>
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+          <input type="text" placeholder="Date of birth" class="w-full border px-4 py-2 rounded" />
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-span-1 md:col-span-3 flex justify-center gap-4 pt-6">
+          <button type="button" class="px-8 py-2 border border-black rounded hover:bg-gray-100">Back</button>
+          <button type="submit" class="px-8 py-2 bg-blue-700 text-white rounded hover:bg-blue-800">Next</button>
+        </div>
+      </form>
+    </div>
+  </body>
 </html>
