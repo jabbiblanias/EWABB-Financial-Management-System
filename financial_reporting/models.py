@@ -12,7 +12,7 @@ class Financialreports(models.Model):
 
 class Memberfinancialdata(models.Model):
     member_financial_id = models.AutoField(primary_key=True, db_column='memberfinancialid')
-    report_id = models.ForeignKey(Financialreports, db_column='reportid')
+    report_id = models.ForeignKey(Financialreports, models.DO_NOTHING, db_column='reportid')
     account_number = models.CharField(max_length=50, db_column='accountnumber')
     name = models.CharField(max_length=150, db_column='name')
     outstanding_balance = models.DecimalField(max_digits=12, decimal_places=2, db_column='outstandingbalance')

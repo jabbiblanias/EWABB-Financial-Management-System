@@ -1,45 +1,47 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EWABB Registration</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    {% tailwind_css %}
   </head>
-  <body class="bg-white font-sans">
+  <body class="font-sans">
     <!-- Navbar -->
     <nav class="bg-[#003366] px-6 py-4 flex justify-between items-center">
       <h1 class="text-white font-bold text-xl">EWABB</h1>
       <div class="space-x-4">
-        <!-- <button class="bg-[#4da3ff] hover:bg-[#378bdb] text-white px-4 py-2 rounded">Register now</button> -->
         <button class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded">Login</button>
       </div>
     </nav>
 
     <!-- Progress Bar -->
-    <div class="w-full bg-gray-100 py-4">
+    <div class="w-full py-4">
       <div class="flex justify-center space-x-10">
         <div class="flex items-center space-x-2">
           <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">1</div>
-          <span class="font-medium">Member Personal Information</span>
+          <span class="font-medium text-yellow-400">Member Personal Information</span>
         </div>
         <div class="flex items-center space-x-2 text-gray-400">
-          <div class="w-8 h-8 rounded-full border border-gray-400 text-gray-400 flex items-center justify-center font-bold">2</div>
+          <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">2</div>
           <span class="font-medium">Family Background</span>
         </div>
         <div class="flex items-center space-x-2 text-gray-400">
-          <div class="w-8 h-8 rounded-full border border-gray-400 text-gray-400 flex items-center justify-center font-bold">3</div>
+          <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">3</div>
           <span class="font-medium">Create Account</span>
         </div>
       </div>
     </div>
 
     <!-- Form Section -->
-    <div class="max-w-7xl mx-auto p-6">
-      <h2 class="text-3xl font-bold mb-2">Personal Information</h2>
+    <form class="max-w-3xl mx-auto px-10 py-10">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold mb-2">Personal Information</h2>
       <p class="mb-6">• Please fill out the form with accurate information</p>
+      </div>
 
-      <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <!-- Left Column -->
         <div class="space-y-4">
           <div>
@@ -156,12 +158,11 @@
             <input type="text" class="w-full border px-4 py-2 rounded" />
           </div>
         </div>
-
-        <!-- Full Width Button -->
-        <div class="col-span-1 md:col-span-2">
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded">Next</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <!-- BUTTONS -->
+      <div class="flex justify-center gap-4">
+        <a href="{% url 'register2' %}" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</a>
+      </div>
+    </form>
   </body>
 </html>
