@@ -10,29 +10,29 @@ import json
 def membership_application_view(request):
     membership_applications = (
         Membershipapplication.objects
-        .select_related('personalinfo')
+        .select_related('person_id')
         .filter(status='Pending')
         .values(
-            'applicationid', 
-            'personalinfo__surname', 
-            'personalinfo__firstname', 
-            'personalinfo__nameextension', 
-            'personalinfo__middlename', 
-            'personalinfo__dateofbirth', 
-            'personalinfo__gender', 
-            'personalinfo__civilstatus'
+            'application_id', 
+            'person_id__surname', 
+            'person_id__first_name', 
+            'person_id__name_extension', 
+            'person_id__middle_name', 
+            'person_id__date_of_birth', 
+            'person_id__gender', 
+            'person_id__civil_status'
         )
     )
-    book_paginator = Paginator(membership_applications, 10)
+    '''book_paginator = Paginator(membership_applications, 10)
 
     page_num = request.GET.get('page')
 
-    page = book_paginator.get_page(page_num)
+    page = book_paginator.get_page(page_num)'''
     context = {
-        'membershipApplications': membership_applications,
-        'page': page
+        'membershipApplications': membership_applications
+        #'page': page
     }
-    return render(request, 'membership_applications.html', context)
+    return render(request, 'members/membership_applications.html', context)
 
 
 def approval(request):

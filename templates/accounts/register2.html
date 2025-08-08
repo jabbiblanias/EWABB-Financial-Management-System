@@ -35,7 +35,8 @@
     </div>
 
     <!-- Main Container -->
-    <form class="max-w-3xl mx-auto px-10 py-10">
+    <form class="max-w-3xl mx-auto px-10 py-10" method="POST" action="{% url 'register2' %}">
+      {% csrf_token %}
       <h2 class="text-3xl font-bold text-center mb-2">Family Background</h2>
       <p class="text-center text-sm mb-10">• Please leave it blank if you do not have spouse and children</p>
 
@@ -43,26 +44,26 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseSurname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">First Name</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseFirstName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Middle Name</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Occupation</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="occupation" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
         </div>
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="employerBusinessName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Business Address</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="businessAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Telephone No.</label>
-          <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
         </div>
       </div>
 
@@ -74,13 +75,13 @@
         </div>
         <div class="child-entry">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div name="name" class="md:col-span-2">
+            <div class="md:col-span-2">
               <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-              <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
             </div>
-            <div name="date" class="md:col-span-1">
+            <div class="md:col-span-1">
               <label class="block text-sm font-medium mb-1">Date of Birth</label>
-              <input type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <input name="childDateOfBirth" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
             </div>
           </div>
         </div>
@@ -94,11 +95,11 @@
           <div class="col-span-2">
             <div class="mb-4">
               <label class="block text-sm font-medium mb-1">Name (Full Name)</label>
-              <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <input name="emergencyContactName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Address</label>
-              <input type="text" placeholder="Enter the address" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <input name="emergencyContactAddress" type="text" placeholder="Enter the address" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
             </div>
           </div>
         </div>
@@ -107,7 +108,7 @@
       <!-- BUTTONS -->
       <div class="flex justify-center gap-4">
         <a class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium">Back</a>
-        <a href="{% url 'register3' %}" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</a>
+        <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</button>
       </div>
     </form>
       <script>
@@ -117,13 +118,13 @@
           newChild.classList.add('child-entry');
           newChild.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div name="name" class="md:col-span-2">
+              <div class="md:col-span-2">
                 <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-                <input type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
               </div>
-              <div name="date" class="md:col-span-1">
+              <div class="md:col-span-1">
                 <label class="block text-sm font-medium mb-1">Date of Birth</label>
-                <input type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                <input name="date" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
               </div>
               <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium mb-4">
                 Remove

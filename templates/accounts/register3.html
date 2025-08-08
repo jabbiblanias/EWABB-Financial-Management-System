@@ -40,29 +40,30 @@
       <div class="w-full max-w-md mt-10">
         <h2 class="text-center text-3xl font-bold mb-8">Create an Account</h2>
 
-        <form class="space-y-4">
+        <form class="space-y-4" method="POST" action="{% url 'register3' %}">
+          {% csrf_token %}
           <!-- Username -->
           <div>
             <label class="text-sm font-medium">Username</label>
-            <input type="text" placeholder="Enter your username" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <input name="username" type="text" placeholder="Enter your username" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
 
           <!-- Email -->
           <div>
             <label class="text-sm font-medium">Email Address</label>
-            <input type="email" placeholder="Enter your email address" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <input name="email" type="email" placeholder="Enter your email address" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
 
           <!-- Password -->
           <div>
             <label class="text-sm font-medium">Password</label>
-            <input type="password" placeholder="Enter your password" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <input name="password" type="password" placeholder="Enter your password" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
 
           <!-- Confirm Password -->
           <div>
             <label class="text-sm font-medium">Confirm Password</label>
-            <input type="password" placeholder="Enter your password again" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <input name="confirm_password" type="password" placeholder="Enter your password again" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
 
           <!-- Buttons -->

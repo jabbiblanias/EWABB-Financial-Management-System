@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Member List</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      attachActionListeners();
+
+      function attachActionListeners() {
+        document.querySelectorAll('.action-btn').forEach(button => {
+          button.addEventListener('click', function () {
+            const memberId = this.dataset.id;
+            const action = this.dataset.action;
+
+            fetch("{% url 'membershipApplication' %}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: JSON.stringify({ applicationid: application_id, action: action })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                document.getElementById('membership-table-body').innerHTML = data.html;
+                attachActionListeners();  // rebind new buttons
+              }
+            });
+          });
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Member Applications</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Application ID</th>
+        <th>Name</th>
+        <th>Date of Birth</th>
+        <th>Gender</th>
+        <th>Civil Status</th>
+      </tr>
+    </thead>
+    <tbody id="membership-table-body">
+      {% include 'members/membership_table_body.html' %}
+    </tbody>
+  </table>
+</body>
+</html>

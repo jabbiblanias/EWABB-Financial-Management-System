@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('loan/', include('loans.urls')),
+    path('members/', include('members.urls')),
 ]
 
 if settings.DEBUG:

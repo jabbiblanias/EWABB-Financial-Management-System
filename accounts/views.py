@@ -97,7 +97,7 @@ def register_step1(request):
             'agencyEmployeeNo': agency_employee_no,
             'tinNo': tin_no
         }
-        return redirect('register_step2')
+        return redirect('register2')
 
     return render(request, 'accounts/register1.html')
 
@@ -131,7 +131,7 @@ def register_step2(request):
             'emergencyContactName': emergency_contact_name,
             'emergencyContactAddress': emergency_contact_address
         })
-        return redirect('register_step3')
+        return redirect('register3')
 
     return render(request, 'accounts/register2.html')
 
@@ -161,9 +161,9 @@ def register_step3(request):
         gsis_id_no = data.get('gsisIdNo')
         pagibig_id_no = data.get('pagibigIdNo')
         philhealth_id_no = data.get('philhealthIdNo')
-        sss_id_no = request.POST.get('sssNo')
+        sss_id_no = data.get('sssNo')
         residential_address = data.get('residentialAddress')
-        residential_zip_code = data.get('residentialAddressZipCode')
+        residential_address_zip_code = data.get('residentialAddressZipCode')
         residential_telephone_no = data.get('residentialAddressTelephoneNo')
         permanent_address = data.get('permanentAddress')
         permanent_address_zip_code = data.get('permanentAddressZipCode')
@@ -218,8 +218,8 @@ def register_step3(request):
                 philhealth_id_no=philhealth_id_no,
                 sss_id_no=sss_id_no,
                 residential_address=residential_address,
-                residential_zip_code=residential_zip_code,
-                residential_telephone_no=residential_telephone_no,
+                residential_address_zip_code=residential_address_zip_code,
+                residential_address_telephone_no=residential_telephone_no,
                 permanent_address=permanent_address,
                 permanent_address_zip_code=permanent_address_zip_code,
                 permanent_address_telephone_no=permanent_address_telephone_no,
@@ -248,7 +248,7 @@ def register_step3(request):
                 )
 
             Membershipapplication.objects.create(
-                user=user,
+                user_id=user,
                 person_id=personid,
                 emergency_contact_name=emergency_contact_name,
                 emergency_contact_address=emergency_contact_address

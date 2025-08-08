@@ -1,0 +1,13 @@
+{% for member in membershipApplications %}
+<tr id="row-{{ member.id }}">
+    <td>{{member.application_id}}</td>
+  <td>{{ member.person_id__surname }}, {{member.person_id__first_name}} {{member.person_id__name_extension}} {{member.person_id__middle_name}}</td>
+  <td>{{ member.person_id__date_of_birth }}</td>
+  <td>{{ member.person_id__person_id__gender }}</td>
+  <td>{{ member.person_id__civil_status }}</td>
+  <td>
+      <button class="action-btn" data-id="{{ member.id }}" data-action="approve">Approve</button>
+      <button class="action-btn" data-id="{{ member.id }}" data-action="reject">Reject</button>
+  </td>
+</tr>
+{% endfor %}
