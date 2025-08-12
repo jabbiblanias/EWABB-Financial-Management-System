@@ -48,7 +48,15 @@ def loan_application_view(request):
         )
         context = loan_applications_data()
         return render(request, 'loan_applications_table.html', context)
-    return render(request, 'loan_applications.html', context)
+    user = request.user
+    if user.groups.filter(name='Admin').exists():
+        return render(request, 'loans/admin_loan.html')
+    elif user.groups.filter(name='Member').exists():
+        return render(request, 'loans/member_loan.html')
+    elif user.groups.filter(name='Bookkeeper').exists():
+        return render(request, 'loans/bookkeeper_loan.html')
+    elif user.groups.filter(name='Cashier').exists():
+        return render(request, 'loans/cashier_loan.html')
 
 def loan_applications_data():
     loan_applications = (

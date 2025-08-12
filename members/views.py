@@ -37,6 +37,7 @@ def membership_application_view(request):
 
 def approval(request):
     if request.method == 'POST':
+        user = request.user
         data = json.loads(request.body)
         application_id = data.get('applicationid')
         action = data.get('action')
@@ -44,33 +45,34 @@ def approval(request):
         try:
             membership_application = Membershipapplication.objects.get(application_id=application_id)
             membership_application.status = 'Approved' if action == 'approve' else 'Rejected'
+            membership_application.verifier_id = user
             membership_application.save()
 
             # Re-fetch and re-render the table body
             membership_applications = (
                 Membershipapplication.objects
-                .select_related('personalinfo')
+                .select_related('person_id')
                 .filter(status='Pending')
                 .values(
-                    'applicationid', 
-                    'personalinfo__surname', 
-                    'personalinfo__firstname', 
-                    'personalinfo__nameextension', 
-                    'personalinfo__middlename', 
-                    'personalinfo__dateofbirth', 
-                    'personalinfo__gender', 
-                    'personalinfo__civilstatus'
+                    'application_id', 
+                    'person_id__surname', 
+                    'person_id__first_name', 
+                    'person_id__name_extension', 
+                    'person_id__middle_name', 
+                    'person_id__date_of_birth', 
+                    'person_id__gender', 
+                    'person_id__civil_status'
                 )
             )
-            html = render_to_string('members/partials/member_table_body.html', {'membership_applications': membership_applications})
+            html = render_to_string('members/member_table_body.html', {'membership_applications': membership_applications})
             return JsonResponse({'success': True, 'html': html})
         except Membershipapplication.DoesNotExist:
             return JsonResponse({'success': False})
         
 
 def membership_application_details(request, application_id):
-    membersship_application = Membershipapplication.objects.select_related('personalinfo').get(application_id=application_id)
-    context = {'membershipApplication': membersship_application}
+    membership_application = Membershipapplication.objects.select_related('personalinfo').get(application_id=application_id)
+    context = {'membershipApplication': membership_application}
     return render(request, 'membership_application_details.html', context)
     
 

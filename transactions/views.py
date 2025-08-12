@@ -94,4 +94,14 @@ def transactions(request):
                 savings -= amount
                 savings.save()
 
-            
+
+def transaction_view(request):
+    user = request.user
+    if user.groups.filter(name='Admin').exists():
+        return render(request, 'transactions/admin_transaction.html')
+    elif user.groups.filter(name='Member').exists():
+        return render(request, 'transactions/member_transaction.html')
+    elif user.groups.filter(name='Bookkeeper').exists():
+        return render(request, 'transactions/bookkeeper_transaction.html')
+    elif user.groups.filter(name='Cashier').exists():
+        return render(request, 'transactions/cashier_transaction.html')

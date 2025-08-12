@@ -10,10 +10,10 @@
       function attachActionListeners() {
         document.querySelectorAll('.action-btn').forEach(button => {
           button.addEventListener('click', function () {
-            const memberId = this.dataset.id;
+            const application_id = this.dataset.id;
             const action = this.dataset.action;
 
-            fetch("{% url 'membershipApplication' %}", {
+            fetch("{% url 'approval' %}", {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -26,8 +26,10 @@
               if (data.success) {
                 document.getElementById('membership-table-body').innerHTML = data.html;
                 attachActionListeners();  // rebind new buttons
+                alert("Application: " + application_id + " has been approved.")
               }
-            });
+            })
+            .catch(error => console.error('Fetch error:', error));
           });
         });
       }
