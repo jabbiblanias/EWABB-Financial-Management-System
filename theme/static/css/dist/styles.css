@@ -13,6 +13,9 @@
     --color-amber-800: oklch(47.3% 0.137 46.201);
     --color-yellow-300: oklch(90.5% 0.182 98.111);
     --color-yellow-400: oklch(85.2% 0.199 91.936);
+    --color-sky-400: oklch(74.6% 0.16 232.661);
+    --color-sky-500: oklch(68.5% 0.169 237.323);
+    --color-sky-600: oklch(58.8% 0.158 241.966);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
     --color-blue-300: oklch(80.9% 0.105 251.813);
@@ -1794,6 +1797,9 @@
   .border-white {
     border-color: var(--color-white);
   }
+  .bg-\[\#01A2F9\] {
+    background-color: #01A2F9;
+  }
   .bg-\[\#2F49D1\] {
     background-color: #2F49D1;
   }
@@ -1814,6 +1820,9 @@
   }
   .bg-\[\#ffd369\] {
     background-color: #ffd369;
+  }
+  .bg-\[indigo-400\] {
+    background-color: indigo-400;
   }
   .bg-amber-800 {
     background-color: var(--color-amber-800);
@@ -1847,6 +1856,15 @@
   }
   .bg-gray-200 {
     background-color: var(--color-gray-200);
+  }
+  .bg-indigo-400 {
+    background-color: var(--color-indigo-400);
+  }
+  .bg-sky-500 {
+    background-color: var(--color-sky-500);
+  }
+  .bg-sky-600 {
+    background-color: var(--color-sky-600);
   }
   .bg-white {
     background-color: var(--color-white);
@@ -2040,6 +2058,9 @@
   .text-yellow-400 {
     color: var(--color-yellow-400);
   }
+  .opacity-30 {
+    opacity: 30%;
+  }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -2058,6 +2079,9 @@
   }
   .ring-indigo-400 {
     --tw-ring-color: var(--color-indigo-400);
+  }
+  .ring-sky-500 {
+    --tw-ring-color: var(--color-sky-500);
   }
   .blur {
     --tw-blur: blur(8px);
@@ -2143,6 +2167,12 @@
   }
   .focus\:ring-indigo-300:focus {
     --tw-ring-color: var(--color-indigo-300);
+  }
+  .focus\:ring-sky-400:focus {
+    --tw-ring-color: var(--color-sky-400);
+  }
+  .focus\:ring-sky-500:focus {
+    --tw-ring-color: var(--color-sky-500);
   }
   .focus\:outline-none:focus {
     --tw-outline-style: none;

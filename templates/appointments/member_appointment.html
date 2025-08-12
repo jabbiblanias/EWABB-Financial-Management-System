@@ -150,16 +150,16 @@
     const cell = document.createElement('button');
     cell.type = 'button';
     cell.className =
-      `${cellHeight} ${cellWidth} flex items-center justify-center rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white`;
+      `${cellHeight} ${cellWidth} flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400`;
     cell.textContent = d;
 
     if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
-      cell.classList.add('bg-blue-500', 'text-blue-500');
+      cell.classList.add('bg-sky-500', 'text-white');
     }
 
     cell.addEventListener('click', () => {
-      document.querySelectorAll('#dates button').forEach(b => b.classList.remove('ring-2', 'ring-indigo-400'));
-      cell.classList.add('ring-2', 'ring-indigo-400');
+      document.querySelectorAll('#dates button').forEach(b => b.classList.remove('ring-2', 'ring-sky-500'));
+      cell.classList.add('ring-2', 'ring-sky-500');
       console.log('Selected date:', `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
     });
 
