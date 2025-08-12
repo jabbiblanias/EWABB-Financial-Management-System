@@ -7,11 +7,11 @@
     <title>EWABB Loans</title>
     {% tailwind_css %}
   </head>
-   <body class="bg-gray-50 font-sans">
+   <body class="bg-gray-100 font-sans">
     <div class="flex h-screen">
       
       <!-- Sidebar -->
-      <aside class="w-64 bg-white shadow">
+      <aside class="w-64 bg-white shadow fixed top-0 left-0 h-screen">
         <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
         <nav class="mt-6">
           <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
@@ -30,9 +30,9 @@
       </aside>
 
      <!-- Main Content -->
-      <main class="flex-1 p-6">
+      <main class="ml-64 mt-[72px] flex-1">
         <!-- Top Bar -->
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center p-6 shadow fixed top-0 left-64 right-0">
           <h1 class="text-xl font-semibold text-[#1f2b6c]">Loans</h1>
           <div class="flex items-center space-x-4">
             <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
@@ -49,25 +49,24 @@
         </div>
 
         <!-- Content -->
-        <div class="p-6">
-          <div class="bg-white p-4 rounded-t-md">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-[#1c1c1c] font-semibold">All Loans</h2>
+        <div class="p-6 mt-5">
+          <div class="bg-white rounded-xl shadow overflow-hidden">
+            <div class="flex justify-between items-center mb-4 mt-4 p-2">
+              <h2 class="px-6 py-4 text-lg font-semibold text-gray-700">All Loans</h2>
               <div class="flex items-center space-x-2">
                 <button class="border border-[#3d5af1] text-[#3d5af1] px-4 py-1 rounded-full hover:bg-[#f1f5ff] text-sm">New Loan</button>
                 <button class="w-6 h-6 bg-[url('/icons/filter.svg')] bg-contain"></button>
               </div>
             </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full text-left text-[#1c1c1c]">
+            <table class="min-w-full text-left">
                 <thead>
-                  <tr class="text-xs text-[#3d5af1]">
-                    <th class="py-2 px-4">Amount Loan</th>
-                    <th class="py-2 px-4">Term</th>
-                    <th class="py-2 px-4">Loan Type</th>
-                    <th class="py-2 px-4">Release Amount</th>
-                    <th class="py-2 px-4">Installment</th>
-                    <th class="py-2 px-4">Status</th>
+                  <tr class="text-sm text-[#3d5af1]">
+                    <th class="px-6 py-4">Amount Loan</th>
+                    <th class="px-6 py-4">Term</th>
+                    <th class="px-6 py-4">Loan Type</th>
+                    <th class="px-6 py-4">Release Amount</th>
+                    <th class="px-6 py-4">Installment</th>
+                    <th class="px-6 py-4">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -78,20 +77,17 @@
                   <tr class="border-t border-gray-200 h-10"></tr>
                 </tbody>
               </table>
-            </div>
           </div>
 
           <!-- Pagination -->
-          <div class="bg-white p-4 rounded-b-md flex justify-end">
-            <nav class="flex space-x-2 text-xs text-[#3d5af1]">
-              <button class="hover:underline">&lt; Previous</button>
-              <button class="w-5 h-5 bg-[#3d5af1] text-white rounded-full">1</button>
-              <button class="hover:underline">2</button>
-              <button class="hover:underline">3</button>
-              <button class="hover:underline">4</button>
-              <button class="hover:underline">Next &gt;</button>
-            </nav>
-          </div>
+          <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+              <button class="text-blue-500">&lt; Previous</button>
+              <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+              <button class="text-blue-500">2</button>
+              <button class="text-blue-500">3</button>
+              <button class="text-blue-500">4</button>
+              <button class="text-blue-500">Next &gt;</button>
+            </div>
         </div>
       </main>
     </div>

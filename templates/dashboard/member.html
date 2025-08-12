@@ -12,7 +12,7 @@
   <body class="bg-gray-100 font-sans">
     <div class="flex min-h-screen">
       <!-- Sidebar -->
-      <aside class="w-64 bg-white shadow">
+      <aside class="w-64 bg-white shadow fixed top-0 left-0 h-screen">
         <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
         <nav class="mt-6">
           <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]">
@@ -32,9 +32,9 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1">
+      <main class="ml-64 mr-4 mt-[72px] flex-1">
         <!-- Top Bar -->
-        <div class="flex justify-between items-center p-6 bg-white shadow">
+        <div class=" flex justify-between items-center p-6 bg-white shadow fixed top-0 left-64 right-0">
           <h1 class="text-xl font-semibold text-[#1f2b6c]">Dashboard</h1>
           <div class="flex items-center space-x-4">
             <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
