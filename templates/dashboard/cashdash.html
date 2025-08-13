@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Sidebar -->
+  <div class="flex">
+    <div class="w-64 bg-white h-screen shadow-md">
+      <div class="p-6 text-2xl font-bold">EWABB</div>
+      <nav class="mt-6">
+        <a href="#" class="flex items-center px-6 py-3 text-blue-500 bg-blue-50 rounded-l-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 fill-current" viewBox="0 0 20 20"><path d="M10 2L2 8h2v8h4v-5h4v5h4V8h2L10 2z" /></svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 fill-current" viewBox="0 0 20 20"><path d="M4 4h12v2H4V4zm0 4h12v2H4V8zm0 4h12v2H4v-2z" /></svg>
+          Transactions
+        </a>
+        <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 fill-current" viewBox="0 0 20 20"><path d="M10 18l-6-6h4V2h4v10h4l-6 6z" /></svg>
+          Loans
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1">
+      <!-- Header -->
+      <div class="flex justify-between items-center bg-white px-6 py-4 shadow">
+        <h1 class="text-xl font-bold">Dashboard</h1>
+        <div class="flex items-center space-x-4">
+          <button class="relative">
+            <span class="absolute right-0 top-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405C18.57 14.57 18 13.3 18 12V8a6 6 0 10-12 0v4c0 1.3-.57 2.57-1.595 3.595L3 17h5m7 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          </button>
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">C</div>
+            <span>Cashier</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="p-6 grid grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
+          <div class="bg-yellow-100 p-3 rounded-full">
+            💰
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">My Balance</p>
+            <p class="text-2xl font-bold">₱84,589</p>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4 border-2 border-blue-400">
+          <div class="bg-orange-100 p-3 rounded-full">
+            🏦
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Daily Total Withdrawal</p>
+            <p class="text-2xl font-bold">₱5,600</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="px-6">
+        <h2 class="font-bold mb-4">Recent Transaction</h2>
+        <div class="bg-white rounded-lg shadow p-6 space-y-4">
+          <div class="flex justify-between text-sm border-b pb-2">
+            <div>Jemi Wilson</div>
+            <div class="text-gray-500">28 January 2021</div>
+            <div>Withdrawal</div>
+            <div class="text-red-500">-₱850</div>
+          </div>
+          <div class="flex justify-between text-sm border-b pb-2">
+            <div>Jemi Wilson</div>
+            <div class="text-gray-500">25 January 2021</div>
+            <div>Savings</div>
+            <div class="text-green-500">+₱2,500</div>
+          </div>
+          <div class="flex justify-between text-sm border-b pb-2">
+            <div>Jemi Wilson</div>
+            <div class="text-gray-500">21 January 2021</div>
+            <div>Repayment</div>
+            <div class="text-green-500">+₱5,400</div>
+          </div>
+          <div class="flex justify-between text-sm">
+            <div>Jemi Wilson</div>
+            <div class="text-gray-500">21 January 2021</div>
+            <div>Savings</div>
+            <div class="text-green-500">+₱5,400</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Transactions -->
+      <div class="px-6 mt-6">
+        <h2 class="font-bold mb-4">Monthly Transactions</h2>
+        <div class="bg-white rounded-lg shadow p-6">
+          <canvas id="monthlyChart" class="w-full h-64"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        datasets: [
+          {
+            label: 'Savings',
+            data: [480, 230, 340, 320, 250, 500, 350, 150, 240, 400, 230, 390],
+            backgroundColor: '#0000FF'
+          },
+          {
+            label: 'Withdrawals',
+            data: [0, 220, 0, 300, 0, 470, 0, 0, 0, 380, 0, 390],
+            backgroundColor: '#00CED1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
