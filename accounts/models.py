@@ -48,7 +48,7 @@ class Membershipapplication(models.Model):
     user_id = models.ForeignKey(User, models.DO_NOTHING, db_column='userid')
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
     date_accomplished = models.DateField(auto_now_add=True, db_column='dateaccomplished')
-    emergency_contact_name = models.CharField(max_length=100,db_column='emergencycontactname')
+    emergency_contact_name = models.CharField(max_length=100, db_column='emergencycontactname')
     emergency_contact_address = models.TextField(db_column='emergencycontactaddress')
     status = models.CharField(max_length=10, default='Pending')
     verifier_id = models.ForeignKey(User, models.DO_NOTHING, db_column='verifierid', related_name='membershipapplication_verifierid_set', blank=True, null=True)

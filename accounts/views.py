@@ -117,9 +117,10 @@ def register_step2(request):
 
         emergency_contact_name = request.POST.get('emergencyContactName')
         emergency_contact_address = request.POST.get('emergencyContactAddress')
+        
+        data = request.session.get('register_data', {})
 
-        # Update session data
-        request.session['register_data'].update({
+        data.update({
             'spouseSurname': spouse_surname,
             'spouseFirstName': spouse_first_name,
             'spouseMiddleName': spouse_middle_name,
@@ -131,12 +132,16 @@ def register_step2(request):
             'emergencyContactName': emergency_contact_name,
             'emergencyContactAddress': emergency_contact_address
         })
+
+        request.session['register_data'] = data
+        request.session.modified = True  # ensures Django writes the session
         return redirect('register3')
 
     return render(request, 'accounts/register2.html')
 
 def register_step3(request):
     error = None
+    print("In register3:", request.session.get('register_data'))
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -145,6 +150,8 @@ def register_step3(request):
 
         # Retrieve all session data
         data = request.session.get('register_data', {})
+
+        print("In register3:", request.session.get('register_data'))
 
         surname = data.get('surname')
         first_name = data.get('firstName')
@@ -229,23 +236,25 @@ def register_step3(request):
                 tin_no=tin_no
             )
             
-            Spouse.objects.create(
-                person_id=personid,
-                spouse_surname=spouse_surname,
-                spouse_first_name=spouse_first_name,
-                spouse_middle_name=spouse_middle_name,
-                occupation=occupation,
-                employer_business_name=employer_bus_name,
-                business_address=business_address,
-                telephone_no=telephone_no
-            )
+            if spouse_surname and spouse_first_name:
+                Spouse.objects.create(
+                    person_id=personid,
+                    spouse_surname=spouse_surname,
+                    spouse_first_name=spouse_first_name,
+                    spouse_middle_name=spouse_middle_name,
+                    occupation=occupation,
+                    employer_business_name=employer_bus_name,
+                    business_address=business_address,
+                    telephone_no=telephone_no
+                )
 
             for name, bday in children:
-                Children.objects.create(
-                    person_id=personid, 
-                    child_full_name=name, 
-                    child_date_of_birth=bday
-                )
+                if name and bday:
+                    Children.objects.create(
+                        person_id=personid, 
+                        child_full_name=name, 
+                        child_date_of_birth=bday
+                    )
 
             Membershipapplication.objects.create(
                 user_id=user,
