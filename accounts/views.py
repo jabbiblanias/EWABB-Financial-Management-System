@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
@@ -8,9 +7,7 @@ from django.template import Context
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
 from .models import Personalinfo, Spouse, Membershipapplication, Children
-from datetime import date
 
 def login_view(request):
     error = None
@@ -23,14 +20,20 @@ def login_view(request):
 
         if user_obj:
             user = authenticate(request, username=user_obj.username, password=password)
-            
+
             if user:
+                if not user.groups.exists() == "Cashier" or "Admin" or "Bookkeeper":
+                    application = Membershipapplication.objects.select_related('user_id').get(user_id=user)
+                    status = application.status
+                    if status == "Pending":
+                        error = "Application is pending"
+                        return render(request, 'accounts/login.html', {'pending_message': error})
                 login(request, user)
                 return redirect('dashboard')
 
         error = "Invalid username/email or password"
 
-    return render(request, 'accounts/login.html', {'error': error})
+    return render(request, 'accounts/login.html', {'error_message': error})
 
 def home_page(request):
     return render(request, 'accounts/index.html')
@@ -202,10 +205,6 @@ def register_step3(request):
             error = "Email already registered."
         else:
             user = User.objects.create_user(username=username, email=email, password=password)
-
-            # Automatically assign user to 'Member' group
-            member_group = Group.objects.get(name='Member')
-            user.groups.add(member_group)
 
             personid = Personalinfo.objects.create(
                 surname=surname,
