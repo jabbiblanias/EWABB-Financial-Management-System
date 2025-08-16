@@ -1,56 +1,164 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Member List</title>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      attachActionListeners();
-
-      function attachActionListeners() {
-        document.querySelectorAll('.action-btn').forEach(button => {
-          button.addEventListener('click', function () {
-            const application_id = this.dataset.id;
-            const action = this.dataset.action;
-
-            fetch("{% url 'approval' %}", {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-              },
-              body: JSON.stringify({ applicationid: application_id, action: action })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                document.getElementById('membership-table-body').innerHTML = data.html;
-                attachActionListeners();  // rebind new buttons
-                alert("Application: " + application_id + " has been approved.")
-              }
-            })
-            .catch(error => console.error('Fetch error:', error));
-          });
-        });
-      }
-    });
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Dashboard</title>
+  {% tailwind_css %}
 </head>
-<body>
-  <h1>Member Applications</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Application ID</th>
-        <th>Name</th>
-        <th>Date of Birth</th>
-        <th>Gender</th>
-        <th>Civil Status</th>
-      </tr>
-    </thead>
-    <tbody id="membership-table-body">
-      {% include 'members/membership_table_body.html' %}
-    </tbody>
-  </table>
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 max-h-screen bg-white shadow">
+      <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
+      <nav class="mt-6">
+        <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Dashboard </a>
+        <a href="{% url 'membershipApplication' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Transactions</a>
+        <a href="#" class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]">  <span class="w-5 mr-3 inline-block"></span> Members</a>
+        <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span class="w-5 mr-3 inline-block"></span>Financial Reports </a>
+        <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span> Loans</a>
+        <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span class="w-5 mr-3 inline-block"></span>Appointments</a>
+        <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Programs</a>
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top bar -->
+      <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
+        <h2 class="text-lg font-semibold">Members</h2>
+        <div class="flex items-center space-x-4">
+          <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-64" />
+          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+          <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK</div>
+            <span class="text-sm">Bookkeeper</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="px-6 pt-4">
+        <div class="flex border-b border-gray-200">
+          <button class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Member Applications</button>
+          <button class="px-4 py-2 text-gray-500 hover:text-blue-600">Approved Members</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="px-6 py-4">
+        <div class="border border-gray-200 rounded-md overflow-hidden">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Application ID</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Name</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Date of Birth</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Gender</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Civil Status</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Approval</th>
+              </tr>
+            </thead>
+            <tbody id="membership-table-body" class="bg-white">
+              {% include 'members/membership_table_body.html' %}
+            </tbody>
+          </table>
+        </div>
+
+       <!-- Pagination -->
+    <div class="flex justify-end items-center space-x-2 mt-4">
+      <button class="text-blue-600 hover:underline">Previous</button>
+      <button class="px-3 py-1 rounded-full bg-blue-600 text-white">1</button>
+      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">2</button>
+      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">3</button>
+      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">4</button>
+      <button class="text-blue-600 hover:underline">Next</button>
+    </div>
+
+
+      </div>
+    </div>
+  </div>
+<!-- Popup -->
+<div id="popup" class="hidden fixed inset-0 flex items-center justify-center bg-black/10 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+    <h2 class="text-lg font-semibold mb-4">Create Account Number</h2>
+    <input id="account_number" name="accountNumber" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+    <div class="flex justify-end gap-2">
+      <button onclick="closePopup()" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">
+        Cancel
+      </button>
+      <button id="confirm" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  let appplication_id = null;
+  let action = null;
+    attachActionListeners();
+
+    function attachActionListeners() {
+      document.querySelectorAll('.action-btn').forEach(button => {
+        button.addEventListener('click', function () {
+          const application_id = this.dataset.id;
+          const action = this.dataset.action;
+          let account_number = null;
+
+          if (action == "approve"){
+            document.getElementById('popup').classList.remove('hidden');
+            const button = document.getElementById("confirm");
+            account_number = document.getElementById("account_number").value;
+            button.addEventListener("click", () => handleConfirmClick(application_id, action, account_number));
+          }else{ 
+            fetchAPI(application_id, action, account_number);
+          }
+        });
+      });
+    }
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+          document.getElementById('popup').classList.add('hidden');
+      }
+    }
+    function fetchAPI(application_id, action, account_number){
+      fetch("{% url 'approval' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ applicationid: application_id, action: action , account_number: account_number})
+      })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+        res.json()
+      })
+      .then(data => {
+        if (data.success) {
+          document.getElementById('membership-table-body').innerHTML = data.html;
+          attachActionListeners();  // rebind new buttons
+          alert("Application: " + application_id + " has been approved.")
+        }
+      })
+      .catch(error => console.error('Fetch error:', error));
+    }
+    function openPopup() {
+      document.getElementById('popup').classList.remove('hidden');
+    }
+    function closePopup() {
+      document.getElementById('popup').classList.add('hidden');
+    }
+    // Get the modal
+    var modal = document.getElementById('popup');
+
+    function handleConfirmClick(application_id, action){
+      fetchAPI(application_id, action);
+    }
+  </script>
 </body>
 </html>

@@ -1,2 +1,107 @@
-<h2>Welcome, Bookkeeper {{ request.user.username }}</h2>
-<a href="{% url 'logout' %}">Logout</a>
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Dashboard</title>
+  {% tailwind_css %}
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen">
+<!-- Sidebar -->
+      <aside class="w-64 bg-white shadow">
+        <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
+        <nav class="mt-6">
+          <a href="#" class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]">
+             <span class="w-5 mr-3 inline-block"></span> 
+             Dashboard</a>
+             <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+              <span class="w-5 mr-3 inline-block"></span>
+              Transactions </a>
+              <a href="{% url 'membershipApplication' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+                <span class="w-5 mr-3 inline-block"></span>
+                Members</a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+                  <span class="w-5 mr-3 inline-block"></span>
+                  Financial Reports </a>
+                  <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+                  <span class="w-5 mr-3 inline-block"></span>
+                  Loans</a>
+                  <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+                  <span class="w-5 mr-3 inline-block"></span>
+                  Appointments</a>
+                  <a href="#" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+                  <span class="w-5 mr-3 inline-block"></span>Programs</a>
+                  
+
+                </nav>
+      </aside>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top bar -->
+      <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
+        <h2 class="text-lg font-semibold">Dashboard</h2>
+        <div class="flex items-center space-x-4">
+          <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-64" />
+          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+          <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK</div>
+            <span class="text-sm">Bookkeeper</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard content -->
+      <main class="p-6 space-y-6">
+        <!-- Top Cards -->
+        <div class="grid grid-cols-3 gap-6">
+          <!-- Total Member -->
+          <div class="bg-white p-4 rounded-xl flex items-center shadow">
+            <div class="w-12 h-12 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mr-4">👤</div>
+            <div>
+              <p class="text-gray-500 text-sm">Total Member</p>
+              <p class="text-xl font-semibold">249</p>
+            </div>
+          </div>
+
+          <!-- Upcoming Appointments -->
+          <div class="bg-white p-4 rounded-xl">
+            <h3 class="font-medium mb-2">Upcoming Appointments</h3>
+            <div class="flex justify-between text-sm border-b border-gray-200 py-1">
+              <span>Cashier</span><span class="text-blue-500">May 3, 2025 12:30 AM</span>
+            </div>
+            <div class="flex justify-between text-sm border-b py-1">
+              <span>Cashier</span><span class="text-blue-500">May 3, 2025 12:30 AM</span>
+            </div>
+            <div class="flex justify-between text-sm py-1">
+              <span>Cashier</span><span class="text-blue-500">May 3, 2025 12:30 AM</span>
+            </div>
+          </div>
+
+          <!-- Active Loans -->
+          <div class="bg-white p-4 rounded-xl">
+            <h3 class="font-medium mb-2">Active Loans</h3>
+            <div class="flex justify-between text-sm border-b py-1">
+              <span>Educational</span><span class="text-blue-500">May 3, 2025</span><span>300</span>
+            </div>
+            <div class="flex justify-between text-sm border-b py-1">
+              <span>Personal Loan</span><span class="text-blue-500">May 9, 2025</span><span>330</span>
+            </div>
+            <div class="flex justify-between text-sm py-1">
+              <span>Business Loan</span><span class="text-blue-500">May 10, 2025</span><span>450</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Members Growth -->
+        <div class="bg-white p-4 rounded-xl">
+          <h3 class="font-medium mb-4">Members Growth</h3>
+          <div class="h-64 flex items-end space-x-6">  
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

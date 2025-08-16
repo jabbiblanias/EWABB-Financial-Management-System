@@ -4,9 +4,11 @@ from .models import Member
 from django.core.paginator import Paginator 
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.contrib.auth.decorators import login_required
 import json
+from django.contrib.auth.models import Group
 
-
+@login_required
 def membership_application_view(request):
     membership_applications = (
         Membershipapplication.objects
@@ -41,12 +43,29 @@ def approval(request):
         data = json.loads(request.body)
         application_id = data.get('applicationid')
         action = data.get('action')
+        account_number = data.get('account_number')
+
 
         try:
-            membership_application = Membershipapplication.objects.get(application_id=application_id)
-            membership_application.status = 'Approved' if action == 'approve' else 'Rejected'
-            membership_application.verifier_id = user
-            membership_application.save()
+            membership_application = Membershipapplication.objects.get(application_id=application_id) 
+            if action == 'approve':
+                membership_application.status = 'Approved'
+                membership_application.verifier_id = user
+                membership_application.save()
+
+                '''Member.objects.create(
+                    user_id=membership_application.user_id,
+                    person_id=membership_application.person_id,
+                    account_number=account_number
+                )
+
+                # Automatically assign user to 'Member' group
+                member_group = Group.objects.get(name='Member')
+                user.groups.add(member_group)'''
+            else:
+                membership_application.status = 'Rejected'
+                membership_application.verifier_id = user
+                membership_application.save()
 
             # Re-fetch and re-render the table body
             membership_applications = (
@@ -71,9 +90,9 @@ def approval(request):
         
 
 def membership_application_details(request, application_id):
-    membership_application = Membershipapplication.objects.select_related('personalinfo').get(application_id=application_id)
-    context = {'membershipApplication': membership_application}
-    return render(request, 'membership_application_details.html', context)
+    membership_application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
+    context = {'membership_application': membership_application}
+    return render(request, 'members/membership_application_details.html', context)
     
 
 def members_view(request):

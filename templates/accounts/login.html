@@ -11,6 +11,30 @@
   <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
     <h2 class="text-2xl font-bold text-center mb-6">Login to your account</h2>
 
+    <!-- Error Message -->
+    {% if error_message %}
+    <div id="error_message" class="mb-4 p-3 text-sm bg-red-100 border border-red-400 rounded-lg text-error-content flex justify-between">
+      {{ error_message }} 
+      <button onclick="closeError()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Pending Message -->
+    {% endif %}
+    {% if pending_message %}
+    <div id="error_message" class="mb-4 p-3 text-sm border-yellow-700 rounded-lg bg-yellow-100 text-warning-content flex justify-between">
+      {{ pending_message }} 
+      <button onclick="closeError()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    {% endif %}
+
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
       <!-- Email/Username -->
@@ -24,8 +48,19 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
         <div class="relative">
           <input id="password" name="password" type="password" placeholder="Enter your password" class="w-full px-4 py-2 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
-          
-          <button type="button" id="toggle" class="absolute right-2 top-3 text-xs">Show</button>
+              <!-- Toggle eye icon -->
+          <div onclick="togglePassword()" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+            <!-- Eye (visible) -->
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+
+            <!-- Eye off (hidden) -->
+            <svg id="eyeOffIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+          </div>
         </div>
         <div class="flex justify-end items-center">
           <a href="#" class="text-sm text-blue-500 hover:underline">Forgot password?</a>
@@ -40,18 +75,26 @@
       <!-- Register link -->
       <p class="text-center text-sm text-gray-500 mt-4">
         Don't Have An Account?
-        <a href="#" class="text-blue-600 font-medium hover:underline">Register</a>
+        <a href="{% url 'register1' %}" class="text-blue-600 font-medium hover:underline">Register</a>
       </p>
     </form>
   </div>
 
   <script>
-    document.getElementById('toggle').addEventListener('click', function () {
-        const passwordField = document.getElementById('password');
-        const type = passwordField.type === 'password' ? 'text' : 'password';
-        passwordField.type = type;
-        this.textContent = type === 'password' ? 'Show' : 'Hide';
-    });
+    function togglePassword() {
+      const passwordInput = document.getElementById("password");
+      const eyeIcon = document.getElementById("eyeIcon");
+      const eyeOffIcon = document.getElementById("eyeOffIcon");
+
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+      eyeIcon.classList.toggle("hidden", !isPassword);
+      eyeOffIcon.classList.toggle("hidden", isPassword);
+    }
+
+    function closeError(){
+      document.getElementById("error_message").classList.add("hidden");
+    }
   </script>
 </body>
 </html>
