@@ -53,7 +53,7 @@ def approval(request):
                 membership_application.verifier_id = user
                 membership_application.save()
 
-                '''Member.objects.create(
+                Member.objects.create(
                     user_id=membership_application.user_id,
                     person_id=membership_application.person_id,
                     account_number=account_number
@@ -61,7 +61,7 @@ def approval(request):
 
                 # Automatically assign user to 'Member' group
                 member_group = Group.objects.get(name='Member')
-                user.groups.add(member_group)'''
+                user.groups.add(member_group)
             else:
                 membership_application.status = 'Rejected'
                 membership_application.verifier_id = user
@@ -83,7 +83,7 @@ def approval(request):
                     'person_id__civil_status'
                 )
             )
-            html = render_to_string('members/member_table_body.html', {'membership_applications': membership_applications})
+            html = render_to_string('members/membership_table_body.html', {'membershipApplications': membership_applications})
             return JsonResponse({'success': True, 'html': html})
         except Membershipapplication.DoesNotExist:
             return JsonResponse({'success': False})
@@ -98,21 +98,21 @@ def membership_application_details(request, application_id):
 def members_view(request):
     members = (
             Member.objects
-            .select_related('personalinfo')
+            .select_related('person_id')
             .values(
-                'memberid', 
-                'accountnumber'
-                'personalinfo__surname', 
-                'personalinfo__firstname', 
-                'personalinfo__nameextension', 
-                'personalinfo__middlename', 
-                'personalinfo__dateofbirth', 
-                'personalinfo__gender', 
-                'personalinfo__civilstatus',
+                'member_id', 
+                'account_number',
+                'person_id__surname', 
+                'person_id__first_name', 
+                'person_id__name_extension', 
+                'person_id__middle_name', 
+                'person_id__date_of_birth', 
+                'person_id__gender', 
+                'person_id__civil_status',
             )
         )
     context = {'members': members}
-    return render(request, 'approved_members.html', context)
+    return render(request, 'members/approved_members.html', context)
 
 
 def member_details_view(request, member_id):
