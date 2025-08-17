@@ -60,7 +60,7 @@ NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 # Tailwind config
 TAILWIND_APP_NAME = 'theme'
 #INTERNAL_IPS = ['127.0.0.1']
-STATICFILES_DIRS = [ BASE_DIR / "theme" / "static" ]
+STATICFILES_DIRS = [ BASE_DIR / "static" ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
+from .models import EmailOTP
+import random
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
@@ -8,6 +10,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Personalinfo, Spouse, Membershipapplication, Children
+from django.template.loader import render_to_string
 
 def login_view(request):
     error = None
@@ -22,12 +25,12 @@ def login_view(request):
             user = authenticate(request, username=user_obj.username, password=password)
 
             if user:
-                if not user.groups.exists() == "Cashier" or "Admin" or "Bookkeeper":
-                    application = Membershipapplication.objects.select_related('user_id').get(user_id=user)
-                    status = application.status
-                    if status == "Pending":
-                        error = "Application is pending"
-                        return render(request, 'accounts/login.html', {'pending_message': error})
+                if Membershipapplication.objects.filter(user_id=user, status="Pending").exists():
+                    error = "Application is still pending"
+                    return render(request, "accounts/login.html", {
+                        "pending_message": error,
+                        "emailUsername": identifier
+                    })
                 login(request, user)
                 return redirect('dashboard')
 
@@ -104,6 +107,7 @@ def register_step1(request):
 
     return render(request, 'accounts/register1.html')
 
+
 def register_step2(request):
     if request.method == 'POST':
         spouse_surname = request.POST.get('spouseSurname')
@@ -142,6 +146,7 @@ def register_step2(request):
 
     return render(request, 'accounts/register2.html')
 
+
 def register_step3(request):
     error = None
     print("In register3:", request.session.get('register_data'))
@@ -151,51 +156,6 @@ def register_step3(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        # Retrieve all session data
-        data = request.session.get('register_data', {})
-
-        print("In register3:", request.session.get('register_data'))
-
-        surname = data.get('surname')
-        first_name = data.get('firstName')
-        name_extension = data.get('nameExtension')
-        middle_name = data.get('middleName')
-        date_of_birth = data.get('dateOfBirth')
-        place_of_birth = data.get('placeOfBirth')
-        gender = data.get('gender')
-        civil_status = data.get('civilStatus')
-        citizenship = data.get('citizenship')
-        height = data.get('height')
-        weight = data.get('weight')
-        blood_type = data.get('bloodType')
-        gsis_id_no = data.get('gsisIdNo')
-        pagibig_id_no = data.get('pagibigIdNo')
-        philhealth_id_no = data.get('philhealthIdNo')
-        sss_id_no = data.get('sssNo')
-        residential_address = data.get('residentialAddress')
-        residential_address_zip_code = data.get('residentialAddressZipCode')
-        residential_telephone_no = data.get('residentialAddressTelephoneNo')
-        permanent_address = data.get('permanentAddress')
-        permanent_address_zip_code = data.get('permanentAddressZipCode')
-        permanent_address_telephone_no = data.get('permanentAddressTelephoneNo')
-        contact_email_address = data.get('contactEmailAddress')
-        cellphone_no = data.get('cellphoneNo')
-        agency_employee_no = data.get('agencyEmployeeNo')
-        tin_no = data.get('tinNo')
-
-        spouse_surname = data.get('spouseSurname')
-        spouse_first_name = data.get('spouseFirstName')
-        spouse_middle_name = data.get('spouseMiddleName')
-        occupation = data.get('occupation')
-        employer_bus_name = data.get('employerBusinessName')
-        business_address = data.get('businessAddress')
-        telephone_no = data.get('businessTelephoneNo')
-
-        children = data.get('children', [])
-
-        emergency_contact_name = data.get('emergencyContactName')
-        emergency_contact_address = data.get('emergencyContactAddress')
-
         # Validate
         if password != confirm_password:
             error = "Passwords do not match."
@@ -204,68 +164,143 @@ def register_step3(request):
         elif User.objects.filter(email=email).exists():
             error = "Email already registered."
         else:
-            user = User.objects.create_user(username=username, email=email, password=password)
+            # Retrieve all session data
+            data = request.session.get('register_data', {})
 
-            personid = Personalinfo.objects.create(
-                surname=surname,
-                first_name=first_name,
-                name_extension=name_extension,
-                middle_name=middle_name,
-                date_of_birth=date_of_birth,
-                place_of_birth=place_of_birth,
-                gender=gender,
-                civil_status=civil_status,
-                citizenship=citizenship,
-                height=height,
-                weight=weight,
-                blood_type=blood_type,
-                gsis_id_no=gsis_id_no,
-                pagibig_id_no=pagibig_id_no,
-                philhealth_id_no=philhealth_id_no,
-                sss_id_no=sss_id_no,
-                residential_address=residential_address,
-                residential_address_zip_code=residential_address_zip_code,
-                residential_address_telephone_no=residential_telephone_no,
-                permanent_address=permanent_address,
-                permanent_address_zip_code=permanent_address_zip_code,
-                permanent_address_telephone_no=permanent_address_telephone_no,
-                contact_email_address=contact_email_address,
-                cellphone_no=cellphone_no,
-                agency_employee_no=agency_employee_no,
-                tin_no=tin_no
-            )
+            first_name = data.get('firstName')
+
+            generate_and_send_otp(first_name, email)
+
+            data.update({
+                'username': username,
+                'email': email,
+                'password': password,
+            })
+            request.session['register_data'] = data
+            request.session.modified = True  # ensures Django writes the session
+
             
-            if spouse_surname and spouse_first_name:
-                Spouse.objects.create(
-                    person_id=personid,
-                    spouse_surname=spouse_surname,
-                    spouse_first_name=spouse_first_name,
-                    spouse_middle_name=spouse_middle_name,
-                    occupation=occupation,
-                    employer_business_name=employer_bus_name,
-                    business_address=business_address,
-                    telephone_no=telephone_no
-                )
 
-            for name, bday in children:
-                if name and bday:
-                    Children.objects.create(
-                        person_id=personid, 
-                        child_full_name=name, 
-                        child_date_of_birth=bday
-                    )
-
-            Membershipapplication.objects.create(
-                user_id=user,
-                person_id=personid,
-                emergency_contact_name=emergency_contact_name,
-                emergency_contact_address=emergency_contact_address
-            )
-
-            # Clear session data
-            request.session.pop('register_data', None)
-
-            messages.success(request, "Account successfully created.")
-            return redirect('login')
+            return redirect('register_verify')
 
     return render(request, 'accounts/register3.html', {'error': error})
+
+def generate_and_send_otp(first_name, email):
+    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    otp_code = EmailOTP.objects.create(email=email, otp_code=code)
+
+    subject = "Your OTP for Account Verification"
+    from_email = "noreply.ewabb@gmail.com"
+    to_email = [email]
+
+    context = {
+        "first_name": first_name,
+        "otp": code,
+        "site_name": "EWABB"
+    }
+
+    # Render plain text + HTML versions
+    text_content = render_to_string("accounts/otp_email.txt", context)
+    html_content = render_to_string("accounts/otp_email.html", context)
+
+    # Create email with both versions
+    mail = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+    mail.attach_alternative(html_content, "text/html")  # attach HTML version
+    mail.send()
+
+
+def registration_otp_verification_view(request):
+    error = None
+    print("In verification:", request.session.get('register_data'))
+
+    if request.method == "POST":
+        data = request.session.get('register_data', {})
+        input_code = request.POST.get('code')
+
+        email = data.get('email')
+        username = data.get('username')
+        password = data.get('password')
+
+        try:
+            otp = EmailOTP.objects.filter(email=email).latest('created_at')
+
+            if not otp.is_valid():
+                error = "OTP expired"
+            elif otp.otp_code != input_code:
+                error = "Invalid OTP"
+            else:
+                # Create User
+                user = User.objects.create_user(username=username, email=email, password=password)
+
+                # Save personal info
+                personid = Personalinfo.objects.create(
+                    surname=data.get('surname'),
+                    first_name=data.get('firstName'),
+                    name_extension=data.get('nameExtension'),
+                    middle_name=data.get('middleName'),
+                    date_of_birth=data.get('dateOfBirth'),
+                    place_of_birth=data.get('placeOfBirth'),
+                    gender=data.get('gender'),
+                    civil_status=data.get('civilStatus'),
+                    citizenship=data.get('citizenship'),
+                    height=data.get('height'),
+                    weight=data.get('weight'),
+                    blood_type=data.get('bloodType'),
+                    gsis_id_no=data.get('gsisIdNo'),
+                    pagibig_id_no=data.get('pagibigIdNo'),
+                    philhealth_id_no=data.get('philhealthIdNo'),
+                    sss_id_no=data.get('sssNo'),
+                    residential_address=data.get('residentialAddress'),
+                    residential_address_zip_code=data.get('residentialAddressZipCode'),
+                    residential_address_telephone_no=data.get('residentialAddressTelephoneNo'),
+                    permanent_address=data.get('permanentAddress'),
+                    permanent_address_zip_code=data.get('permanentAddressZipCode'),
+                    permanent_address_telephone_no=data.get('permanentAddressTelephoneNo'),
+                    contact_email_address=data.get('contactEmailAddress'),
+                    cellphone_no=data.get('cellphoneNo'),
+                    agency_employee_no=data.get('agencyEmployeeNo'),
+                    tin_no=data.get('tinNo')
+                )
+
+                # Save spouse
+                if data.get('spouseSurname') and data.get('spouseFirstName'):
+                    Spouse.objects.create(
+                        person_id=personid,
+                        spouse_surname=data.get('spouseSurname'),
+                        spouse_first_name=data.get('spouseFirstName'),
+                        spouse_middle_name=data.get('spouseMiddleName'),
+                        occupation=data.get('occupation'),
+                        employer_business_name=data.get('employerBusinessName'),
+                        business_address=data.get('businessAddress'),
+                        telephone_no=data.get('businessTelephoneNo')
+                    )
+
+                # Save children
+                for name, bday in data.get('children', []):
+                    if name and bday:
+                        Children.objects.create(
+                            person_id=personid, 
+                            child_full_name=name, 
+                            child_date_of_birth=bday
+                        )
+
+                # Save membership application
+                Membershipapplication.objects.create(
+                    user_id=user,
+                    person_id=personid,
+                    emergency_contact_name=data.get('emergencyContactName'),
+                    emergency_contact_address=data.get('emergencyContactAddress')
+                )
+
+                # Clear session
+                request.session.pop('register_data', None)
+                return redirect('complete_registration')
+
+        except EmailOTP.DoesNotExist:
+            error = "OTP not found"
+
+    return render(request, 'accounts/verification.html', {'error': error})
+
+
+def success_view(request):
+    return render(request, 'accounts/success.html')
