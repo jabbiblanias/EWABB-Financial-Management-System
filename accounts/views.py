@@ -1,16 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.core.mail import send_mail
-from .models import EmailOTP
-import random
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
-from django.template import Context
-from django.contrib import messages
+from mailing.models import EmailOTP
+from mailing.utils import registration_otp
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Personalinfo, Spouse, Membershipapplication, Children
-from django.template.loader import render_to_string
+
 
 def login_view(request):
     error = None
@@ -169,8 +164,6 @@ def register_step3(request):
 
             first_name = data.get('firstName')
 
-            generate_and_send_otp(first_name, email)
-
             data.update({
                 'username': username,
                 'email': email,
@@ -179,34 +172,11 @@ def register_step3(request):
             request.session['register_data'] = data
             request.session.modified = True  # ensures Django writes the session
 
-            
+            registration_otp(first_name, email)
 
             return redirect('register_verify')
 
     return render(request, 'accounts/register3.html', {'error': error})
-
-def generate_and_send_otp(first_name, email):
-    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-    otp_code = EmailOTP.objects.create(email=email, otp_code=code)
-
-    subject = "Your OTP for Account Verification"
-    from_email = "noreply.ewabb@gmail.com"
-    to_email = [email]
-
-    context = {
-        "first_name": first_name,
-        "otp": code,
-        "site_name": "EWABB"
-    }
-
-    # Render plain text + HTML versions
-    text_content = render_to_string("accounts/otp_email.txt", context)
-    html_content = render_to_string("accounts/otp_email.html", context)
-
-    # Create email with both versions
-    mail = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-    mail.attach_alternative(html_content, "text/html")  # attach HTML version
-    mail.send()
 
 
 def registration_otp_verification_view(request):
