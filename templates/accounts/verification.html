@@ -1,0 +1,45 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Modal</title>
+  {% tailwind_css %}
+  {% load static %}
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <form method="POST" action="{% url 'register_verify' %}" class="bg-white rounded-md shadow w-[360px] p-6">
+    {% csrf_token %}
+    <!-- Illustration -->
+    <div class="flex justify-center mb-4">
+      <img src="{% static 'accounts/images/veri.jpg' %}" alt="OTP Illustration" class="w-28 h-28">
+    </div>
+    
+    <!-- OTP Verification Label -->
+    <h2 class="font-bold text-gray-800 mb-2">OTP Verification</h2>
+    
+    <!-- Error message -->
+      {% if error %}
+        <div class="bg-red-100 text-red-700 text-sm p-2 rounded mb-3">
+          {{ error }}
+        </div>
+      {% endif %}
+
+    <!-- OTP Input -->
+    <input name="code"
+      type="text" 
+      placeholder="Enter your OTP code" 
+      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+    >
+    
+    <!-- Helper text -->
+    <p class="text-sm text-gray-500 mb-4">Check your email for the OTP</p>
+    
+    <!-- Verify Button -->
+    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700">
+      Verify
+    </button>
+  </form>
+</body>
+</html>
