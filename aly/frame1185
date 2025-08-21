@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full font-sans">
+        <div class="space-y-6">
+            <div class="flex justify-between items-center text-gray-700">
+                <span class="font-medium">Loan Type</span>
+                <span class="font-semibold text-right">Educational</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-700">
+                <span class="font-medium">Loan Amount</span>
+                <span class="font-semibold text-right">12345678910</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-700">
+                <span class="font-medium">Term</span>
+                <span class="font-semibold text-right">10 Months</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-700">
+                <span class="font-medium">Release Amount</span>
+                <span class="font-semibold text-right">12,000</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-700">
+                <span class="font-medium">Installment</span>
+                <span class="font-semibold text-right">800 / Monthly</span>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-between space-x-4">
+            <button class="flex-1 py-3 px-6 rounded-xl text-gray-600 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400">
+                Cancel
+            </button>
+            <button class="flex-1 py-3 px-6 rounded-xl bg-blue-600 text-white font-semibold shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Confirm
+            </button>
+        </div>
+    </div>
+</body>
+</html>
