@@ -10,25 +10,21 @@
 </head>
 
 <body class="bg-gray-100 font-sans">
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow">
+  <div class="flex h-full">
+    <!-- Sidebar (desktop) -->
+    <aside class="hidden md:block w-64 bg-white shadow">
       <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
       <nav class="mt-6">
         <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
-          <span class="w-5 mr-3 inline-block"></span>
           Dashboard
         </a>
         <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
-          <span class="w-5 mr-3 inline-block"></span>
           Transactions
         </a>
         <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
-          <span class="w-5 mr-3 inline-block"></span>
           Loans
         </a>
         <a href="{% url 'appointments' %}" class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]">
-          <span class="w-5 mr-3 inline-block"></span>
           Appointments
         </a>
       </nav>
@@ -37,71 +33,270 @@
     <!-- Main Content -->
     <main class="flex-1">
       <!-- Top Bar -->
-        <div class="bg-white flex justify-between items-center p-6 shadow">
+      <div class="bg-white flex justify-between items-center p-6 shadow">
+        <div class="flex items-center space-x-3">
+          <!-- Burger button (mobile) -->
+          <button id="burger" class="md:hidden p-2 rounded hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
           <h1 class="text-xl font-semibold text-[#1f2b6c]">Appointments</h1>
-          <div class="flex items-center space-x-4">
-            <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
-            <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
-            <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
-            <div class="flex items-center space-x-2">
-              <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">M</div>
-              <span class="text-sm font-medium">Maribel Yan</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
+          <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
+          <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">M</div>
+            <span class="text-sm font-medium">Maribel Yan</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 9l-7 7-7-7"/>
+            </svg>
           </div>
         </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-7 mt-10 p-6">
-        <div class="w-full col-span-2">
-          <div class="bg-white rounded-2xl shadow p-12">
-            <div class="flex items-center justify-between mb-4">
-              <button id="prev" class="p-2 rounded-lg hover:bg-gray-100" aria-label="Previous month">
-                ‹
-              </button>
+      </div>
 
+      <!-- Content -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-7 mt-10 p-6">
+        <!-- Calendar -->
+        <div class="w-full col-span-2">
+          <div class="bg-white rounded-2xl shadow px-12 py-6">
+            <div class="flex items-center justify-between mb-4">
+              <button id="prev" class="p-2 rounded-lg hover:bg-gray-100">‹</button>
               <div class="text-center">
                 <div id="monthYear" class="text-lg font-semibold"></div>
                 <div class="text-xs text-gray-500">Click a date to select</div>
               </div>
-
-              <button id="next" class="p-2 rounded-lg hover:bg-gray-100" aria-label="Next month">
-                ›
-              </button>
+              <button id="next" class="p-2 rounded-lg hover:bg-gray-100">›</button>
             </div>
 
             <div class="grid grid-cols-7 gap-2 text-center text-sm text-gray-600 mb-2">
-              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              <div>Sun</div><div>Mon</div><div>Tue</div>
+              <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
-
             <div id="dates" class="grid grid-cols-7 gap-1"></div>
           </div>
         </div>
-        <!-- Appointment Card (Form Only) -->
+
+        <!-- Appointment Form -->
         <div class="bg-white rounded-xl shadow p-8 col-span-1">
           <div class="grid grid-cols-1 gap-8">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-              <input type="date" class="w-full text-center bg-gray-100 text-gray-700 px-4 py-2 rounded-md" disabled>
+              <input id="date" name="date" type="date" class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md border border-gray-300" disabled required>
+              <p id="dateMessage" class="hidden"></p>
             </div>
             <div>
               <label class="text-sm font-medium text-gray-700">Time</label>
-              <input type="time" class="w-full text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none">
+              <input id="time" onfocusout="timeMessage()" type="time" name="time" class="w-full text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
+              <p id="timeMessage" class="hidden"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
-              <select class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                <option>Choose Appointment Type</option>
+              <select id="appointmentType" onfocusout="appointmentTypeMessage()" name="appointmentType" class="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
+                <option value="" selected hidden>-- Choose Appointment Type --</option>
+                <option>Consultation</option>
+                <option>Follow-up</option>
+                <option>Cashier Transaction</option>
               </select>
+              <p id="typeMessage" class="hidden"></p>
             </div>
-            <button class="w-full bg-[#2F49D1] text-white py-2 rounded-md font-medium">Save</button>
+            <div class="grid grid-cols-2 gap-5">
+              <button id="go-back" class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium text-center">Cancel</button>
+              <button id="submit" onclick="saveAppointment()" type="submit" class="w-full bg-[#2F49D1] text-white py-2 rounded-md font-medium">Save</button>
+            </div>
           </div>
+        </div>
+
+        <!-- Appointment Table -->
+        <div class="bg-white rounded-xl shadow overflow-hidden col-span-3">
+          <table class="min-w-full text-left">
+            <thead>
+              <tr class="text-sm text-blue-500">
+                <th class="px-6 py-4">Date</th>
+                <th class="px-6 py-4">Time</th>
+                <th class="px-6 py-4">Appointment Type</th>
+                <th class="px-6 py-4">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-gray-200 h-10"></tr>
+              <tr class="border-t border-gray-200 h-10"></tr>
+              <tr class="border-t border-gray-200 h-10"></tr>
+              <tr class="border-t border-gray-200 h-10"></tr>
+              <tr class="border-t border-gray-200 h-10"></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4 col-span-3">
+          <button class="text-blue-500">&lt; Previous</button>
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+          <button class="text-blue-500">2</button>
+          <button class="text-blue-500">3</button>
+          <button class="text-blue-500">4</button>
+          <button class="text-blue-500">Next &gt;</button>
         </div>
       </div>
     </main>
   </div>
+
+  <!-- Mobile Sidebar -->
+  <div id="mobileSidebar" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden">
+    <div class="absolute left-0 top-0 w-64 bg-white h-full p-6 shadow-lg">
+      <div class="flex justify-between items-center mb-6">
+        <div class="text-2xl font-bold text-[#1f2b6c]">EWABB</div>
+        <button id="closeSidebar" class="p-2 rounded hover:bg-gray-100">✕</button>
+      </div>
+      <nav>
+        <a href="{% url 'dashboard' %}" class="block py-2 text-gray-600 hover:text-[#3d5af1]">Dashboard</a>
+        <a href="{% url 'transactions' %}" class="block py-2 text-gray-600 hover:text-[#3d5af1]">Transactions</a>
+        <a href="{% url 'loans' %}" class="block py-2 text-gray-600 hover:text-[#3d5af1]">Loans</a>
+        <a href="{% url 'appointments' %}" class="block py-2 text-[#3d5af1] font-semibold bg-[#f1f5ff]">Appointments</a>
+      </nav>
+    </div>
+  </div>
+  <!-- Toast container (bottom-right) -->
+  <div id="toast-container" class="toast toast-end"></div>
+
+  <!-- Scripts -->
   <script>
-    // Minimal calendar renderer
+    function dateMessage() {
+      const date = document.getElementById('date').value;
+      const message = document.getElementById('dateMessage');
+
+      if (date === "") {
+        message.textContent = "Pick a date";
+        message.classList.remove("hidden");
+        message.classList.add("text-red-500", "text-xs", "mt-1");
+        return false;
+      } else {
+        message.classList.add("hidden");
+        return true;
+      }
+    }
+
+    function timeMessage() {
+      const time = document.getElementById('time').value;
+      const timeMsg = document.getElementById('timeMessage');
+
+      if (time === "") {
+        timeMsg.textContent = "Pick a time";
+        timeMsg.classList.remove("hidden");
+        timeMsg.classList.add("text-red-500", "text-xs", "mt-1");
+        return false;
+      } else {
+        timeMsg.classList.add("hidden");
+        return true;
+      }
+    }
+
+    function appointmentTypeMessage() {
+      const appointment_type = document.getElementById('appointmentType').value;
+      const typeMsg = document.getElementById('typeMessage');
+
+      if (appointment_type === "") {
+        typeMsg.textContent = "Pick an appointment type.";
+        typeMsg.classList.remove("hidden");
+        typeMsg.classList.add("text-red-500", "text-xs", "mt-1");
+        return false;
+      } else {
+        typeMsg.classList.add("hidden");
+        return true;
+      }
+    }
+
+    function saveAppointment(){
+      const dateVal = document.getElementById('date').value;
+      const timeVal = document.getElementById('time').value;
+      const appointmentTypeVal = document.getElementById('appointmentType').value;
+
+      // Convert input date to a Date object
+      const inputDate = new Date(dateVal);   // "2025-08-20" -> Wed Aug 20 2025 ...
+      const today = new Date();
+
+      // Clear time part of today (so only the date is compared)
+      today.setHours(0, 0, 0, 0);
+      
+      const isDateValid = dateMessage();
+      const isTimeValid = timeMessage();
+      const isTypeValid = appointmentTypeMessage();
+
+      if (isDateValid && isTimeValid && isTypeValid && inputDate > today) {
+        fetch("{% url 'save_appointment' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ date: dateVal, time: timeVal , appointmentType: appointmentTypeVal})
+      })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          showAlert(data.message, "success");
+        } else {
+          showAlert(data.message, "warning");
+        }
+      })
+      .catch(error => console.error('Fetch error:', error));
+      }
+    }
+    // Toast notification function
+  function showAlert(message, type) {
+    const container = document.getElementById("toast-container");
+
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert shadow-lg transition-opacity duration-500";
+
+    // Style by type
+    if (type === "success") {
+      alertDiv.classList.add("alert-success"); // green
+    } else {
+      alertDiv.classList.add("alert-warning"); // yellow default
+    }
+
+    // Message content
+    alertDiv.innerHTML = `<span>${message}</span>`;
+
+    container.appendChild(alertDiv);
+
+    // Auto-remove after 4s
+    setTimeout(() => {
+      alertDiv.style.opacity = "0";
+      setTimeout(() => alertDiv.remove(), 500);
+    }, 4000);
+  }
+    // Sidebar toggle
+    const burger = document.getElementById('burger');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
+
+    burger.addEventListener('click', () => {
+      mobileSidebar.classList.remove('hidden');
+    });
+    closeSidebar.addEventListener('click', () => {
+      mobileSidebar.classList.add('hidden');
+    });
+    mobileSidebar.addEventListener('click', (e) => {
+      if (e.target === mobileSidebar) {
+        mobileSidebar.classList.add('hidden');
+      }
+    });
+
+    // Calendar
     const datesEl = document.getElementById('dates');
     const monthYearEl = document.getElementById('monthYear');
     const prevBtn = document.getElementById('prev');
@@ -109,55 +304,60 @@
 
     let today = new Date();
     let viewYear = today.getFullYear();
-    let viewMonth = today.getMonth(); // 0-indexed
+    let viewMonth = today.getMonth();
 
     function renderCalendar(year, month) {
-  datesEl.innerHTML = '';
+      datesEl.innerHTML = '';
+      const cellHeight = 'h-14';
+      const cellWidth = 'w-24';
 
-  // 🔹 Adjustable date size here
-  const cellHeight = 'h-14';
-  const cellWidth = 'w-24';
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const startDay = first.getDay();
+      const daysInMonth = last.getDate();
 
-  const first = new Date(year, month, 1);
-  const last = new Date(year, month + 1, 0);
-  const startDay = first.getDay();
-  const daysInMonth = last.getDate();
+      const monthNames = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December'
+      ];
+      monthYearEl.textContent = `${monthNames[month]} ${year}`;
 
-  const monthNames = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December'
-  ];
-  monthYearEl.textContent = `${monthNames[month]} ${year}`;
+      for (let i = 0; i < startDay; i++) {
+        const cell = document.createElement('div');
+        cell.className = `${cellHeight} ${cellWidth}`;
+        datesEl.appendChild(cell);
+      }
 
-  // Blank cells before 1st
-  for (let i = 0; i < startDay; i++) {
-    const cell = document.createElement('div');
-    cell.className = `${cellHeight} ${cellWidth}`;
-    datesEl.appendChild(cell);
-  }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className =
+          `${cellHeight} ${cellWidth} flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400`;
+        cell.textContent = d;
 
-  // Day cells
-  for (let d = 1; d <= daysInMonth; d++) {
-    const cell = document.createElement('button');
-    cell.type = 'button';
-    cell.className =
-      `${cellHeight} ${cellWidth} flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400`;
-    cell.textContent = d;
+        if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
+          cell.classList.add('bg-sky-500', 'text-white');
+        }
 
-    if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
-      cell.classList.add('bg-sky-500', 'text-white');
+        cell.addEventListener('click', () => {
+          document.querySelectorAll('#dates button').forEach(b => b.classList.remove('ring-2', 'ring-sky-500'));
+          cell.classList.add('ring-2', 'ring-sky-500');
+          const pickDate = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          document.getElementById('date').value = pickDate;
+          const message = document.getElementById('dateMessage');
+            if (new Date(pickDate) <= today) {
+              message.textContent = 'Date cannot be in the past or today';
+              message.className = 'text-error text-xs mt-1';
+              document.getElementById('date').value = "";
+            }
+            else {
+              message.className = 'hidden';
+            }
+        });
+
+        datesEl.appendChild(cell);
+      }
     }
-
-    cell.addEventListener('click', () => {
-      document.querySelectorAll('#dates button').forEach(b => b.classList.remove('ring-2', 'ring-sky-500'));
-      cell.classList.add('ring-2', 'ring-sky-500');
-      console.log('Selected date:', `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-    });
-
-    datesEl.appendChild(cell);
-  }
-}
-
 
     prevBtn.addEventListener('click', () => {
       viewMonth--;
@@ -171,9 +371,7 @@
       renderCalendar(viewYear, viewMonth);
     });
 
-    // initial render
     renderCalendar(viewYear, viewMonth);
   </script>
 </body>
-
 </html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transactions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+  <body class="bg-gray-100 font-sans">
+
+  <div class="flex h-screen">
+
+    <!-- Sidebar -->
+    <div class="w-60 bg-white shadow-md border-r">
+      <div class="px-6 py-4 font-bold text-xl">EWABB</div>
+      <nav class="mt-6">
+        <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-400 hover:text-blue-600">
+          <i class="mr-3">🏠</i> Dashboard
+        </a>
+        <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-blue-600 font-medium border-r-4 border-blue-600 bg-blue-50">
+          <i class="mr-3">💳</i> Transactions
+        </a>
+        <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-400 hover:text-blue-600">
+          <i class="mr-3">📑</i> Loans
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col">
+
+      <!-- Top bar -->
+      <header class="flex justify-between items-center px-6 py-4 border-b bg-white">
+        <h1 class="text-lg font-semibold">Transactions</h1>
+        <div class="flex items-center space-x-4">
+          <button class="relative">
+            <span class="material-icons text-gray-500">🔔</span>
+            <span class="absolute top-0 right-0 h-2 w-2 bg-blue-500 rounded-full"></span>
+          </button>
+          <div class="flex items-center bg-blue-600 text-white rounded-full w-8 h-8 justify-center">
+            C
+          </div>
+          <span class="text-gray-700">Cashier</span>
+        </div>
+      </header>
+
+      <!-- Form section -->
+      <div class="p-6">
+        <div class="bg-white border rounded-lg p-6 flex justify-between">
+          <!-- Left form -->
+          <div class="space-y-4 w-1/2">
+            <div>
+              <label class="block text-sm text-gray-600">Transaction Type</label>
+              <select class="w-full border rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>Choose Transaction Type</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600">Account Number</label>
+              <input type="text" class="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600">Amount</label>
+              <input type="text" class="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="flex space-x-4">
+              <button class="px-4 py-2 rounded-lg border text-gray-600">Cancel</button>
+              <button class="px-6 py-2 rounded-lg bg-blue-600 text-white">Submit</button>
+            </div>
+          </div>
+
+          <!-- Right Info -->
+          <div class="space-y-3 text-sm">
+            <p><span class="font-medium">Member Name</span> <span class="ml-6">Mark Anthony Dela Cruz</span></p>
+            <p><span class="font-medium">Current Loan Balance</span> <span class="ml-6">2,500</span></p>
+            <p><span class="font-medium">New Loan Balance</span> <span class="ml-10">2,500</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="px-6 pb-6">
+        <div class="bg-white border rounded-lg p-4">
+          <h2 class="text-sm font-semibold text-gray-700 mb-3">All Transactions</h2>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-gray-500 text-left border-b">
+                <th class="py-2">Transaction ID</th>
+                <th>Type</th>
+                <th>Account No</th>
+                <th>Date</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b">
+                <td class="py-2">#12548796</td>
+                <td>Withdrawal</td>
+                <td>1234 ****</td>
+                <td>28 Jan, 12.30 AM</td>
+                <td class="text-red-500">- $2,500</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2">#12548796</td>
+                <td>Savings</td>
+                <td>1234 ****</td>
+                <td>25 Jan, 10.40 PM</td>
+                <td class="text-green-500">+ $750</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2">#12548796</td>
+                <td>Withdrawal</td>
+                <td>1234 ****</td>
+                <td>20 Jan, 10.40 PM</td>
+                <td class="text-red-500">- $150</td>
+              </tr>
+              <tr class="border-b">
+                <td class="py-2">#12548796</td>
+                <td>Withdrawal</td>
+                <td>1234 ****</td>
+                <td>15 Jan, 03.29 PM</td>
+                <td class="text-red-500">- $1050</td>
+              </tr>
+              <tr>
+                <td class="py-2">#12548796</td>
+                <td>Repayment</td>
+                <td>1234 ****</td>
+                <td>14 Jan, 10.40 PM</td>
+                <td class="text-green-500">+ $840</td>
+              </tr>
+            </tbody>
+          </table>
+
+        
+        </div>
+         <!-- Pagination -->
+          <div class="flex justify-end items-center space-x-2 mt-4 text-sm text-gray-600">
+            <a href="#" class="hover:text-blue-600">&lt; Previous</a>
+            <a href="#" class="px-3 py-1 rounded-full bg-blue-600 text-white">1</a>
+            <a href="#" class="hover:text-blue-600">2</a>
+            <a href="#" class="hover:text-blue-600">3</a>
+            <a href="#" class="hover:text-blue-600">4</a>
+            <a href="#" class="hover:text-blue-600">Next &gt;</a>
+          </div>
+      </div>
+       
+
+    </div>
+  </div>
+
+</body>
+</html>

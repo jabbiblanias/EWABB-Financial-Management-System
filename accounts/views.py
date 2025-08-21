@@ -5,6 +5,9 @@ from mailing.utils import registration_otp
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Personalinfo, Spouse, Membershipapplication, Children
+from django.db import transaction, IntegrityError
+from django.contrib import messages
+from django.http import JsonResponse
 
 
 def login_view(request):
@@ -199,77 +202,90 @@ def registration_otp_verification_view(request):
             elif otp.otp_code != input_code:
                 error = "Invalid OTP"
             else:
-                # Create User
-                user = User.objects.create_user(username=username, email=email, password=password)
+                try:
+                    with transaction.atomic():
 
-                # Save personal info
-                personid = Personalinfo.objects.create(
-                    surname=data.get('surname'),
-                    first_name=data.get('firstName'),
-                    name_extension=data.get('nameExtension'),
-                    middle_name=data.get('middleName'),
-                    date_of_birth=data.get('dateOfBirth'),
-                    place_of_birth=data.get('placeOfBirth'),
-                    gender=data.get('gender'),
-                    civil_status=data.get('civilStatus'),
-                    citizenship=data.get('citizenship'),
-                    height=data.get('height'),
-                    weight=data.get('weight'),
-                    blood_type=data.get('bloodType'),
-                    gsis_id_no=data.get('gsisIdNo'),
-                    pagibig_id_no=data.get('pagibigIdNo'),
-                    philhealth_id_no=data.get('philhealthIdNo'),
-                    sss_id_no=data.get('sssNo'),
-                    residential_address=data.get('residentialAddress'),
-                    residential_address_zip_code=data.get('residentialAddressZipCode'),
-                    residential_address_telephone_no=data.get('residentialAddressTelephoneNo'),
-                    permanent_address=data.get('permanentAddress'),
-                    permanent_address_zip_code=data.get('permanentAddressZipCode'),
-                    permanent_address_telephone_no=data.get('permanentAddressTelephoneNo'),
-                    contact_email_address=data.get('contactEmailAddress'),
-                    cellphone_no=data.get('cellphoneNo'),
-                    agency_employee_no=data.get('agencyEmployeeNo'),
-                    tin_no=data.get('tinNo')
-                )
-
-                # Save spouse
-                if data.get('spouseSurname') and data.get('spouseFirstName'):
-                    Spouse.objects.create(
-                        person_id=personid,
-                        spouse_surname=data.get('spouseSurname'),
-                        spouse_first_name=data.get('spouseFirstName'),
-                        spouse_middle_name=data.get('spouseMiddleName'),
-                        occupation=data.get('occupation'),
-                        employer_business_name=data.get('employerBusinessName'),
-                        business_address=data.get('businessAddress'),
-                        telephone_no=data.get('businessTelephoneNo')
-                    )
-
-                # Save children
-                for name, bday in data.get('children', []):
-                    if name and bday:
-                        Children.objects.create(
-                            person_id=personid, 
-                            child_full_name=name, 
-                            child_date_of_birth=bday
+                        user = User.objects.create_user(
+                            username=username,
+                            email=email,
+                            password=password
                         )
 
-                # Save membership application
-                Membershipapplication.objects.create(
-                    user_id=user,
-                    person_id=personid,
-                    emergency_contact_name=data.get('emergencyContactName'),
-                    emergency_contact_address=data.get('emergencyContactAddress')
-                )
+                        personid = Personalinfo.objects.create(
+                            surname=data.get('surname'),
+                            first_name=data.get('firstName'),
+                            name_extension=data.get('nameExtension'),
+                            middle_name=data.get('middleName'),
+                            date_of_birth=data.get('dateOfBirth'),
+                            place_of_birth=data.get('placeOfBirth'),
+                            gender=data.get('gender'),
+                            civil_status=data.get('civilStatus'),
+                            citizenship=data.get('citizenship'),
+                            height=data.get('height'),
+                            weight=data.get('weight'),
+                            blood_type=data.get('bloodType'),
+                            gsis_id_no=data.get('gsisIdNo'),
+                            pagibig_id_no=data.get('pagibigIdNo'),
+                            philhealth_id_no=data.get('philhealthIdNo'),
+                            sss_id_no=data.get('sssNo'),
+                            residential_address=data.get('residentialAddress'),
+                            residential_address_zip_code=data.get('residentialAddressZipCode'),
+                            residential_address_telephone_no=data.get('residentialAddressTelephoneNo'),
+                            permanent_address=data.get('permanentAddress'),
+                            permanent_address_zip_code=data.get('permanentAddressZipCode'),
+                            permanent_address_telephone_no=data.get('permanentAddressTelephoneNo'),
+                            contact_email_address=data.get('contactEmailAddress'),
+                            cellphone_no=data.get('cellphoneNo'),
+                            agency_employee_no=data.get('agencyEmployeeNo'),
+                            tin_no=data.get('tinNo')
+                        )
 
-                # Clear session
-                request.session.pop('register_data', None)
-                return redirect('complete_registration')
+                        if data.get('spouseSurname') and data.get('spouseFirstName'):
+                            Spouse.objects.create(
+                                person_id=personid,
+                                spouse_surname=data.get('spouseSurname'),
+                                spouse_first_name=data.get('spouseFirstName'),
+                                spouse_middle_name=data.get('spouseMiddleName'),
+                                occupation=data.get('occupation'),
+                                employer_business_name=data.get('employerBusinessName'),
+                                business_address=data.get('businessAddress'),
+                                telephone_no=data.get('businessTelephoneNo')
+                            )
+
+                        for name, bday in data.get('children', []):
+                            if name and bday:
+                                Children.objects.create(
+                                    person_id=personid,
+                                    full_name=name,
+                                    date_of_birth=bday
+                                )
+
+                        Membershipapplication.objects.create(
+                            user_id=user,
+                            person_id=personid,
+                            emergency_contact_name=data.get('emergencyContactName'),
+                            emergency_contact_address=data.get('emergencyContactAddress')
+                        )
+
+                        # All succeeded, clear session
+                        request.session.pop('register_data', None)
+                        return redirect('complete_registration')
+
+                except IntegrityError as e:
+                    # Everything rolled back, but we know where it failed
+                    messages.error(request, "Registration failed. Please try again.")
+                    return redirect('register')
 
         except EmailOTP.DoesNotExist:
             error = "OTP not found"
 
     return render(request, 'accounts/verification.html', {'error': error})
+
+
+def check_email(request):
+    email = request.GET.get("email")
+    exists = User.objects.filter(email=email).exists()
+    return JsonResponse({"exists": exists})
 
 
 def success_view(request):

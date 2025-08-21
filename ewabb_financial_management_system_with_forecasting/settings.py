@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'transactions',
     'financial_reporting',
     'appointments',
+    'programs',
+    'mailing',
 ]
 
 if DEBUG:

@@ -107,33 +107,36 @@
 
       <!-- BUTTONS -->
       <div class="flex justify-center gap-4">
-        <a class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium">Back</a>
+        <a id="go-back" class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium">Back</a>
         <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</button>
       </div>
     </form>
-      <script>
-        function addChild() {
-          const container = document.getElementById('children-container');
-          const newChild = document.createElement('div');
-          newChild.classList.add('child-entry');
-          newChild.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="md:col-span-2">
-                <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-                <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-              </div>
-              <div class="md:col-span-1">
-                <label class="block text-sm font-medium mb-1">Date of Birth</label>
-                <input name="date" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-              </div>
-              <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium mb-4">
-                Remove
-              </button>
-            </div>
+<script>
+  function addChild() {
+    const container = document.getElementById('children-container');
+    const newChild = document.createElement('div');
+    newChild.classList.add('child-entry');
+    newChild.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
+          <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+        </div>
+        <div class="md:col-span-1">
+          <label class="block text-sm font-medium mb-1">Date of Birth</label>
+          <input name="date" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium mb-4">
+          Remove
+        </button>
+      </div>
 
-          `;
-          container.appendChild(newChild);
-        }
-      </script>
-  </body>
+    `;
+    container.appendChild(newChild);
+  }
+  document.getElementById("go-back").addEventListener("click", () => {
+    history.back();
+  });
+</script>
+</body>
 </html>

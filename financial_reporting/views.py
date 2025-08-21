@@ -8,7 +8,7 @@ import json
 from django.http import JsonResponse
 
 def financial_report_view(request):
-    financial_report = (
+    '''financial_report = (
         Member.objects.select_related('personalinfo', 'loan', 'savings', 'loanpenalty')
         .values(
             'accountnumber',
@@ -21,8 +21,8 @@ def financial_report_view(request):
             'savings__amount'
         )
     )
-    context = {'financial_report': financial_report}
-    return render(request, 'financial_report.html', context)
+    context = {'financial_report': financial_report}'''
+    return render(request, 'financial_reporting/bookkeeper_report.html')
 
 
 def submit_financial_report(request):
