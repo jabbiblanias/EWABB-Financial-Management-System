@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Transactions</title>
+    <title>Financial Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-100 font-sans">
@@ -15,10 +15,10 @@
           <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
             Dashboard
           </a>
-          <a href="#" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-l-4 border-blue-600 font-medium">
+          <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
             Transactions
           </a>
-          <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+          <a href="#" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-l-4 border-blue-600 font-medium">
             Financial Report
           </a>
           <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
@@ -34,7 +34,7 @@
       <div class="flex-1 flex flex-col">
         <!-- Top Bar -->
         <header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
-          <h1 class="text-xl font-semibold">Transactions</h1>
+          <h1 class="text-xl font-semibold">Financial Report</h1>
           <div class="flex items-center space-x-4">
             <div class="relative">
               <input
@@ -52,71 +52,62 @@
           </div>
         </header>
 
-        <div class="px-6 pt-4">
-        <div class="flex border-b border-gray-200">
-          <button class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Member Transactions</button>
-          <button class="px-4 py-2 text-gray-500 hover:text-blue-600">Banking Transactions</button>
-        </div>
-      </div>
-
-
-        <!-- Transactions Section -->
+        <!-- Financial Report Section -->
         <section class="p-6">
           <div class="bg-white rounded-xl shadow-sm">
-           
             <!-- Table -->
             <div class="overflow-x-auto">
               <table class="w-full text-sm text-left text-gray-600">
                 <thead class="text-gray-500">
                   <tr>
-                    <th class="px-6 py-3">Transaction ID</th>
-                    <th class="px-6 py-3">Type</th>
-                    <th class="px-6 py-3">Account No</th>
-                    <th class="px-6 py-3">Date</th>
-                    <th class="px-6 py-3 text-right">Amount</th>
+                    <th class="px-6 py-3">Account No.</th>
+                    <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Amount of loan Balance</th>
+                    <th class="px-6 py-3">Date loaned</th>
+                    <th class="px-6 py-3">Savings</th>
+                    <th class="px-6 py-3">2% Penalty charge</th>
+                    <th class="px-6 py-3">Savings After Deduction</th>
+                    <th class="px-6 py-3">Remarks</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr class="border-t">
                     <td class="px-6 py-3">#12548796</td>
-                    <td class="px-6 py-3">Withdrawal</td>
-                    <td class="px-6 py-3">1234 ****</td>
-                    <td class="px-6 py-3">28 Jan, 12.30 AM</td>
-                    <td class="px-6 py-3 text-right text-red-500">-$2,500</td>
+                    <td class="px-6 py-3">Maribel Yan</td>
+                    <td class="px-6 py-3">4,000.00</td>
+                    <td class="px-6 py-3">Oct. 20, 2021</td>
+                    <td class="px-6 py-3">418.00</td>
+                    <td class="px-6 py-3 text-red-500">80.00</td>
+                    <td class="px-6 py-3">338.50</td>
+                    <td class="px-6 py-3"></td>
                   </tr>
                   <tr class="border-t">
                     <td class="px-6 py-3">#12548796</td>
-                    <td class="px-6 py-3">Savings</td>
-                    <td class="px-6 py-3">1234 ****</td>
-                    <td class="px-6 py-3">25 Jan, 10.40 PM</td>
-                    <td class="px-6 py-3 text-right text-green-500">+$750</td>
+                    <td class="px-6 py-3">Ling Ching</td>
+                    <td class="px-6 py-3">200.00</td>
+                    <td class="px-6 py-3">July 15, 2021</td>
+                    <td class="px-6 py-3">4,069.22</td>
+                    <td class="px-6 py-3 text-red-500">4.00</td>
+                    <td class="px-6 py-3">4065.22</td>
+                    <td class="px-6 py-3"></td>
                   </tr>
                   <tr class="border-t">
                     <td class="px-6 py-3">#12548796</td>
-                    <td class="px-6 py-3">Withdrawal</td>
-                    <td class="px-6 py-3">1234 ****</td>
-                    <td class="px-6 py-3">20 Jan, 10.40 PM</td>
-                    <td class="px-6 py-3 text-right text-red-500">-$150</td>
-                  </tr>
-                  <tr class="border-t">
-                    <td class="px-6 py-3">#12548796</td>
-                    <td class="px-6 py-3">Withdrawal</td>
-                    <td class="px-6 py-3">1234 ****</td>
-                    <td class="px-6 py-3">15 Jan, 03.29 PM</td>
-                    <td class="px-6 py-3 text-right text-red-500">-$1050</td>
-                  </tr>
-                  <tr class="border-t">
-                    <td class="px-6 py-3">#12548796</td>
-                    <td class="px-6 py-3">Repayment</td>
-                    <td class="px-6 py-3">1234 ****</td>
-                    <td class="px-6 py-3">14 Jan, 10.40 PM</td>
-                    <td class="px-6 py-3 text-right text-green-500">+$840</td>
+                    <td class="px-6 py-3">Harry Potter</td>
+                    <td class="px-6 py-3">0.00</td>
+                    <td class="px-6 py-3">Jan 14, 2022</td>
+                    <td class="px-6 py-3">3,500.00</td>
+                    <td class="px-6 py-3">0.00</td>
+                    <td class="px-6 py-3">3,500.00</td>
+                    <td class="px-6 py-3"></td>
                   </tr>
                 </tbody>
               </table>
-            </div> 
+            </div>
+          </div>
         </section>
-            <!-- Pagination -->
+        
+       <!-- Pagination -->
     <div class="flex justify-end items-center space-x-2 mt-4">
       <button class="text-blue-600 hover:underline">Previous</button>
       <button class="px-3 py-1 rounded-full bg-blue-600 text-white">1</button>
@@ -125,7 +116,7 @@
       <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">4</button>
       <button class="text-blue-600 hover:underline">Next</button>
     </div>
-          </div>
+
       </div>
     </div>
   </body>
