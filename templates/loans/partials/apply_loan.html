@@ -1,0 +1,98 @@
+<div id="popupApplication" class="hidden fixed inset-0 flex items-center justify-center bg-black/10 z-50">
+      <form method="POST" action="{% url 'loan_applications' %}" class="bg-white rounded-xl shadow-md p-8 w-96">
+        {% csrf_token %}
+        <!-- Amount -->
+      <div class="mb-4">
+        <label class="block text-gray-700 mb-1">Amount</label>
+        <input
+          name="accountNumber"
+          id="accountNumber"
+          type="text"
+          required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <!-- Loan Type -->
+      <div class="mb-4">
+        <label class="block text-gray-700 mb-1">Loan Type</label>
+        <select required 
+        id="loanType"
+        name="loanType"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
+          <option value="" selected hidden>-- Choose Loan Type --</option>
+          <option>Personal Loan</option>
+          <option>Business Loan</option>
+          <option>Emergency Loan</option>
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div class="mb-4">
+        <label class="block text-gray-700 mb-1">Amount</label>
+        <input
+          name="loanAmount"
+          id="amount"
+          type="text"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          onkeyup="updateLoanDetails()"
+          required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Term -->
+      <div class="mb-6">
+        <div class="slider-container">
+          <label class="block text-gray-700 mb-1">Term</label>
+          <input type="range" class="w-full accent-blue-600" 
+          id="loan-term"
+          class="slider"
+          min="0"
+          max="21"
+          step="1"
+          value="0"
+          oninput="updateValue(this.value)"
+          required/>
+          <div class="flex justify-center">
+            <input type="text" id="term-value" name="loanTerm" class="text-black mt-1 outline-none text-center" readonly/>
+          </div>
+        </div>
+      </div>
+
+        <!-- Details -->
+        <div class="space-y-2 mb-6">
+          <div class="flex justify-between text-gray-700">
+            <span>Total Payable</span>
+            <input type="text" name="totalPayable" id="totalPayable" class="text-black font-medium text-end outline-none" value="0" readonly/>
+          </div>
+          <div class="flex justify-between text-gray-700">
+            <span>Amortization</span>
+            <input type="text" name="amortization" id="amortization" class="text-black font-medium text-end outline-none" value="0 / Daily" readonly/>
+          </div>
+          <div class="flex justify-between text-gray-700">
+            <span>Service Charge</span>
+            <input type="text" name="serviceCharge" id="serviceCharge" class="text-black font-medium text-end outline-none" value="0" readonly/>
+          </div>
+          <div class="flex justify-between text-gray-700">
+            <span>CBU</span>
+            <input type="text" name="cbu" id="cbu" class="text-black font-medium text-end outline-none" value="0" readonly/>
+          </div>
+          <div class="flex justify-between text-gray-700">
+            <span>Insurance</span>
+            <input type="text" name="insurance" id="insurance" class="text-black font-medium text-end outline-none" value="0" readonly/>
+          </div>
+          <div class="flex justify-between text-gray-700">
+            <span>Release Amount</span>
+            <input type="text" name="releaseAmount" id="releaseAmount" class="text-black font-medium text-end outline-none" value="0" readonly/>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-between items-center">
+          <button id="cancel" onclick="closePopUp()" class="text-black font-medium border px-10 py-2 rounded-lg">Cancel</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-10 py-2 rounded-lg">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>

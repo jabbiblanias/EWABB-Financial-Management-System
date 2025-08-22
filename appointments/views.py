@@ -12,7 +12,6 @@ from django.utils.dateformat import DateFormat
 @login_required
 def appointments_view(request):
     user = request.user
-
     if user.groups.filter(name='Admin').exists():
         return render(request, 'appointments/admin_appointment.html')
     elif user.groups.filter(name='Member').exists():

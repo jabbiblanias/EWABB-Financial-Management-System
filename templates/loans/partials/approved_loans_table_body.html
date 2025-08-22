@@ -1,0 +1,10 @@
+{% for loan in loans %}
+<tr id="row-{{ loan.loan_id }}" ondblclick="window.location.href='details/{{loan.loan_id}}/';" class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+  <td class="px-6 py-3">{{ loan.loan_application_id}}</td>
+  <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
+  <td class="px-6 py-3">{{ loan.outstanding_balance }}</td>
+  <td class="px-6 py-3">{{ loan.total_payable }}</td>
+  <td class="px-6 py-3">{{ loan.net_proceeds }}</td>
+  <td class="px-6 py-3">{{ loan.loan_status }}</td>
+</tr>
+{% endfor %}

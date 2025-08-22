@@ -15,17 +15,16 @@ class LoanApplication(models.Model):
     member_id = models.ForeignKey(Member, models.DO_NOTHING, db_column='memberid')
     loan_type = models.CharField(max_length=50, db_column='loantype')
     loan_amount = models.DecimalField(max_digits=12, decimal_places=2, db_column='loanamount')
-    interest_rate = models.DecimalField(max_digits=5, decimal_places=2, db_column='interestrate')
     loan_term_years = models.PositiveIntegerField(db_column='loantermyears')
     loan_term_months = models.PositiveIntegerField(db_column='loantermmonths')
     loan_term_days = models.PositiveIntegerField(db_column='loantermdays')
     total_payable = models.DecimalField(max_digits=12, decimal_places=2, db_column='totalpayable')
-    monthly_amortization = models.DecimalField(max_digits=12, decimal_places=2, db_column='monthlyamortization')
+    amortization = models.TextField(db_column='amortization')
     cbu = models.DecimalField(max_digits=12, decimal_places=2, db_column='cbu')
     insurance = models.DecimalField(max_digits=12, decimal_places=2, db_column='insurance')
     service_charge = models.DecimalField(max_digits=12, decimal_places=2, db_column='servicecharge')
     net_proceeds = models.DecimalField(max_digits=12, decimal_places=2, db_column='netproceeds')
-    application_date = models.DateField(auto_now_add=True)
+    application_date = models.DateField(auto_now_add=True, db_column='applicationdate')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     verifier_id = models.ForeignKey(User, related_name='verified_loans', on_delete=models.SET_NULL, null=True, blank=True, db_column='verifierid')
     verified_date = models.DateField(null=True, blank=True, db_column='verifieddate')
@@ -34,6 +33,10 @@ class LoanApplication(models.Model):
 
     def __str__(self):
         return f"Loan Application #{self.id} - {self.member}"
+    
+    class Meta:
+        managed = False
+        db_table = 'loanapplication'
 
 
 class Loan(models.Model):
@@ -52,7 +55,10 @@ class Loan(models.Model):
 
     def __str__(self):
         return f"Loan #{self.id} - {self.member}"
-
+    
+    class Meta:
+        managed = False
+        db_table = 'loan'
 
 class LoanRepaymentSchedule(models.Model):
     STATUS_CHOICES = [
@@ -73,6 +79,10 @@ class LoanRepaymentSchedule(models.Model):
 
     def __str__(self):
         return f"Schedule #{self.id} for Loan #{self.loan.id}"
+    
+    class Meta:
+        managed = False
+        db_table = 'loanrepaymentschedule'
 
 
 class LoanPenalty(models.Model):
@@ -84,3 +94,7 @@ class LoanPenalty(models.Model):
 
     def __str__(self):
         return f"Penalty #{self.id} for Schedule #{self.schedule.id}"
+    
+    class Meta:
+        managed = False
+        db_table = 'loanpenalty'

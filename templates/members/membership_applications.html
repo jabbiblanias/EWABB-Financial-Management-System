@@ -133,7 +133,6 @@
         let account_number = null;
 
         if (action == "approve"){
-          document.getElementById('popup').classList.remove('hidden');
           const button = document.getElementById("confirm");
           button.onclick = () => handleConfirmClick(application_id, action);
         } else { 
@@ -141,13 +140,6 @@
         }
       });
     });
-  }
-
-  // When the user clicks anywhere outside of the modal, close it
-  window.onclick = function(event) {
-    if (event.target == modal) {
-        document.getElementById('popup').classList.add('hidden');
-    }
   }
 
   function fetchAPI(application_id, action, account_number){
@@ -189,6 +181,13 @@
     document.getElementById('popup').classList.add('hidden');
   }
   var modal = document.getElementById('popup');
+
+    // When the user clicks anywhere outside of the modal, close it
+  document.getElementById('popup').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closePopUp();
+    }
+  });
 
   function handleConfirmClick(application_id, action){
     account_number = document.getElementById("account_number").value;

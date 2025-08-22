@@ -39,32 +39,30 @@ def membership_application_view(request):
 
 def approval(request):
     if request.method == 'POST':
-        user = request.user
+        approver = request.user
         data = json.loads(request.body)
         application_id = data.get('applicationid')
         action = data.get('action')
         account_number = data.get('account_number')
 
-
         try:
             membership_application = Membershipapplication.objects.get(application_id=application_id) 
             if action == 'approve':
-                membership_application.status = 'Approved'
-                membership_application.verifier_id = user
-                membership_application.save()
-
                 Member.objects.create(
                     user_id=membership_application.user_id,
                     person_id=membership_application.person_id,
                     account_number=account_number
                 )
+                membership_application.status = 'Approved'
+                membership_application.verifier_id = approver
+                membership_application.save()
 
                 # Automatically assign user to 'Member' group
                 member_group = Group.objects.get(name='Member')
-                user.groups.add(member_group)
+                membership_application.user_id.groups.add(member_group)
             else:
                 membership_application.status = 'Rejected'
-                membership_application.verifier_id = user
+                membership_application.verifier_id = approver
                 membership_application.save()
 
             # Re-fetch and re-render the table body
