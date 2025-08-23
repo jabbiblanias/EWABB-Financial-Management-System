@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white border-r shadow-sm">
+        <div class="px-6 py-4 text-2xl font-bold text-blue-700">EWABB</div>
+        <nav class="mt-6">
+          <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Dashboard
+          </a>
+          <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Transactions
+          </a>
+          <a href="#" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-l-4 border-blue-600 font-medium">
+            Financial Report
+          </a>
+          <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Loans
+          </a>
+          <a href="#" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Backup & Restore
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col">
+        <!-- Top Bar -->
+        <header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
+          <h1 class="text-xl font-semibold">Financial Report</h1>
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="Search for member"
+                class="px-4 py-2 border rounded-full text-sm focus:outline-none"
+              />
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                A
+              </div>
+              <span class="text-sm font-medium">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Financial Report Section -->
+        <section class="p-6">
+          <div class="bg-white rounded-xl shadow-sm">
+            <!-- Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-600">
+                <thead class="text-gray-500">
+                  <tr>
+                    <th class="px-6 py-3">Account No.</th>
+                    <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Amount of loan Balance</th>
+                    <th class="px-6 py-3">Date loaned</th>
+                    <th class="px-6 py-3">Savings</th>
+                    <th class="px-6 py-3">2% Penalty charge</th>
+                    <th class="px-6 py-3">Savings After Deduction</th>
+                    <th class="px-6 py-3">Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t">
+                    <td class="px-6 py-3">#12548796</td>
+                    <td class="px-6 py-3">Maribel Yan</td>
+                    <td class="px-6 py-3">4,000.00</td>
+                    <td class="px-6 py-3">Oct. 20, 2021</td>
+                    <td class="px-6 py-3">418.00</td>
+                    <td class="px-6 py-3 text-red-500">80.00</td>
+                    <td class="px-6 py-3">338.50</td>
+                    <td class="px-6 py-3"></td>
+                  </tr>
+                  <tr class="border-t">
+                    <td class="px-6 py-3">#12548796</td>
+                    <td class="px-6 py-3">Ling Ching</td>
+                    <td class="px-6 py-3">200.00</td>
+                    <td class="px-6 py-3">July 15, 2021</td>
+                    <td class="px-6 py-3">4,069.22</td>
+                    <td class="px-6 py-3 text-red-500">4.00</td>
+                    <td class="px-6 py-3">4065.22</td>
+                    <td class="px-6 py-3"></td>
+                  </tr>
+                  <tr class="border-t">
+                    <td class="px-6 py-3">#12548796</td>
+                    <td class="px-6 py-3">Harry Potter</td>
+                    <td class="px-6 py-3">0.00</td>
+                    <td class="px-6 py-3">Jan 14, 2022</td>
+                    <td class="px-6 py-3">3,500.00</td>
+                    <td class="px-6 py-3">0.00</td>
+                    <td class="px-6 py-3">3,500.00</td>
+                    <td class="px-6 py-3"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+        
+       <!-- Pagination -->
+    <div class="flex justify-end items-center space-x-2 mt-4">
+      <button class="text-blue-600 hover:underline">Previous</button>
+      <button class="px-3 py-1 rounded-full bg-blue-600 text-white">1</button>
+      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">2</button>
+      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">3</button>
+      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">4</button>
+      <button class="text-blue-600 hover:underline">Next</button>
+    </div>
+
+      </div>
+    </div>
+  </body>
+</html>
