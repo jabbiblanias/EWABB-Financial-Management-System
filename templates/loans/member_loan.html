@@ -79,20 +79,16 @@
             <table class="min-w-full text-left">
                 <thead>
                   <tr class="text-sm text-blue-500">
-                    <th class="px-6 py-4">Amount Loan</th>
-                    <th class="px-6 py-4">Term</th>
-                    <th class="px-6 py-4">Loan Type</th>
-                    <th class="px-6 py-4">Release Amount</th>
-                    <th class="px-6 py-4">Installment</th>
-                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-3 text-left font-medium">Amount Loan</th>
+                    <th class="px-6 py-3 text-left font-medium">Term</th>
+                    <th class="px-6 py-3 text-left font-medium">Loan Type</th>
+                    <th class="px-6 py-3 text-left font-medium">Release Amount</th>
+                    <th class="px-6 py-3 text-left font-medium">Installment</th>
+                    <th class="px-10 py-3 text-left font-medium">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr class="border-t border-gray-200 h-10"></tr>
-                  <tr class="border-t border-gray-200 h-10"></tr>
-                  <tr class="border-t border-gray-200 h-10"></tr>
-                  <tr class="border-t border-gray-200 h-10"></tr>
-                  <tr class="border-t border-gray-200 h-10"></tr>
+                <tbody id="loans-table-body" class="bg-white">
+                  {% include 'loans/partials/member_loan_table_body.html' %}
                 </tbody>
               </table>
           </div>

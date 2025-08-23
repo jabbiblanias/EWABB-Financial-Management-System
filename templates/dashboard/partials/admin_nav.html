@@ -1,0 +1,21 @@
+<!-- Sidebar -->
+      <aside class="w-64 bg-white border-r shadow-sm">
+        <div class="px-6 py-4 text-2xl font-bold text-blue-700">EWABB</div>
+        <nav class="mt-6">
+          <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-l-4 border-blue-600">
+            Dashboard
+          </a>
+          <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Transactions
+          </a>
+          <a href="{% url 'financial_report' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Financial Report
+          </a>
+          <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Loans
+          </a>
+          <a href="{% url 'backup_and_restore' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+            Backup & Restore
+          </a>
+        </nav>
+      </aside>

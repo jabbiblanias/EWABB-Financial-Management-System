@@ -1,13 +1,11 @@
 <!-- Approve Modal -->
 <div
   id="confirmModal"
-  class="fixed inset-0 z-50 hidden"
+  class="fixed inset-0 z-50 hidden bg-black/10"
   aria-labelledby="confirm-title"
   role="dialog"
   aria-modal="true"
 >
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/10"></div>
 
   <!-- Panel -->
   <div
@@ -74,13 +72,11 @@
 <!-- Reject Modal -->
 <div
   id="rejectModal"
-  class="fixed inset-0 z-50 hidden"
+  class="fixed inset-0 z-50 hidden bg-black/10"
   aria-labelledby="reject-title"
   role="dialog"
   aria-modal="true"
 >
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/10"></div>
 
   <!-- Panel -->
   <div
@@ -148,3 +144,110 @@
   id="toast"
   class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
   role="status"></div>
+
+<script>
+  function openConfirmModal(btn) {
+    document.getElementById(btn).classList.remove('hidden');
+  }
+
+  function closeConfirmModal(btn) {
+    document.getElementById(btn).classList.add('hidden');
+  }
+  var confirmModal = document.getElementById('confirmModal');
+  var rejectModal = document.getElementById('rejectModal');
+
+  window.onclick = function(event) {
+    if (event.target === confirmModal) {
+      closeConfirmModal('confirmModal');
+    } else if (event.target === rejectModal) {
+      closeConfirmModal('rejectModal');
+    }
+  }
+
+  attachActionListeners();
+
+  function attachActionListeners() {
+    document.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const loan_application_id = this.dataset.id;
+        const action = this.dataset.action;
+
+        if (action == "approve"){
+          const button = document.getElementById("confirm");
+          button.onclick = () => handleConfirmClick(loan_application_id, action);
+        } else { 
+          const button = document.getElementById("reject");
+          button.onclick = () => handleConfirmClick(loan_application_id, action);
+        }
+      });
+    });
+  }
+
+  function fetchAPI(loan_application_id, action){
+    fetch("{% url 'loan_approval' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ loan_application_id: loan_application_id, action: action})
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (data.success) {
+        document.getElementById('loan_applications-table-body').innerHTML = data.html;
+        fillTableRows('myTable', 10);
+        attachActionListeners();  // rebind new buttons
+        if (action === "approve"){
+          showAlert(`"Loan Application ${loan_application_id}" has been approved.`, "approve");
+        }else if(action === "reject"){
+          showAlert(`"Loan Application ${loan_application_id}" has been rejected.`, "reject");
+        }
+      } else {
+        showAlert("Something went wrong.", "warning");
+      }
+    })
+    .catch(error => console.error('Fetch error:', error));
+  }
+
+  function handleConfirmClick(loan_application_id, action){
+    fetchAPI(loan_application_id, action);
+    if (action === "approve"){
+      closeConfirmModal('confirmModal');
+    } else if (action === "reject"){
+      closeConfirmModal('rejectModal');
+    }
+  }
+
+
+  // Toast notification function
+  function showAlert(message, type) {
+    const toast = document.getElementById("toast");
+
+    // Remove old color classes before adding new one
+    toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+    // Style by type
+    if (type === "approve") {
+      toast.classList.add("bg-emerald-600"); // green
+    } else if (type === "reject") {
+      toast.classList.add("bg-red-600"); // red
+    } else {
+      toast.classList.add("bg-yellow-600"); // yellow default
+    }
+
+    // Set message
+    toast.textContent = message;
+
+    // Show toast
+    toast.classList.remove("hidden");
+
+    // Hide after 4s
+    setTimeout(() => toast.classList.add("hidden"), 4000);
+}
+</script>

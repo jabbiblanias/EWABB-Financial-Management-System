@@ -52,11 +52,13 @@
         <div class="join">
           <div>
             <div>
-              <input class="input join-item" placeholder="Search" />
+              <input class="input join-item border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="Search" />
             </div>
           </div>
-          <select class="select join-item focus:ring-blue-400">
-            <option disabled selected>Filter</option>
+          <select class="select join-item border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+            <!--<option disabled selected>Filter</option>-->
+            <option>Account Number</option>
+            <option>Name</option>
             <option>Term</option>
             <option>Loan Type</option>
             <option>Status</option>
@@ -106,21 +108,6 @@
    {% include 'loans/partials/apply_loan.html' %}
   <!-- Confirmation Modal -->
     {% include 'loans/partials/confirmation.html' %}
-<script>
-  function openConfirmModal(btn) {
-    document.getElementById(btn).classList.remove('hidden');
-  }
-
-  function closeConfirmModal(btn) {
-    document.getElementById(btn).classList.add('hidden');
-  }
-
-  function confirmLoan() {
-    // TODO: Add your loan confirmation logic here (AJAX or form submit)
-    alert("Loan has been confirmed ✅");
-    closeModal();
-  }
-</script>
 <script>
   function openPopUp() {
     document.getElementById('popupApplication').classList.remove('hidden');
@@ -256,107 +243,6 @@
 
     // Fill table to have exactly 10 rows
     fillTableRows('myTable', 10);
-
-    attachActionListeners();
-
-  function attachActionListeners() {
-    document.querySelectorAll('.action-btn').forEach(button => {
-      button.addEventListener('click', function () {
-        const loan_application_id = this.dataset.id;
-        const action = this.dataset.action;
-
-        if (action == "approve"){
-          const button = document.getElementById("confirm");
-          button.onclick = () => handleConfirmClick(loan_application_id, action);
-        } else { 
-          const button = document.getElementById("reject");
-          button.onclick = () => handleConfirmClick(loan_application_id, action);
-        }
-      });
-    });
-  }
-
-  function fetchAPI(loan_application_id, action){
-    fetch("{% url 'loan_approval' %}", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({ loan_application_id: loan_application_id, action: action})
-    })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`HTTP error: ${res.status}`);
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (data.success) {
-        document.getElementById('loan_applications-table-body').innerHTML = data.html;
-        attachActionListeners();  // rebind new buttons
-        if (action === "approve"){
-          showAlert(`"Loan Application ${loan_application_id}" has been approved.`, "approve");
-        }else if(action === "reject"){
-          showAlert(`"Loan Application ${loan_application_id}" has been rejected.`, "reject");
-        }
-      } else {
-        showAlert("Something went wrong.", "warning");
-      }
-    })
-    .catch(error => console.error('Fetch error:', error));
-  }
-
-  function openPopup() {
-    document.getElementById('popup').classList.remove('hidden');
-  }
-  function closePopup() {
-    document.getElementById('popup').classList.add('hidden');
-  }
-  var modal = document.getElementById('popup');
-
-    // When the user clicks anywhere outside of the modal, close it
-  document.getElementById('popup').addEventListener('click', function(event) {
-    if (event.target === this) {
-      closePopUp();
-    }
-  });
-
-  function handleConfirmClick(loan_application_id, action){
-    fetchAPI(loan_application_id, action);
-    if (action === "approve"){
-      closeConfirmModal('confirmModal');
-    } else if (action === "reject"){
-      closeConfirmModal('rejectModal');
-    }
-  }
-
-
-  // Toast notification function
-  function showAlert(message, type) {
-    const toast = document.getElementById("toast");
-
-    // Remove old color classes before adding new one
-    toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
-
-    // Style by type
-    if (type === "approve") {
-      toast.classList.add("bg-emerald-600"); // green
-    } else if (type === "reject") {
-      toast.classList.add("bg-red-600"); // red
-    } else {
-      toast.classList.add("bg-yellow-600"); // yellow default
-    }
-
-    // Set message
-    toast.textContent = message;
-
-    // Show toast
-    toast.classList.remove("hidden");
-
-    // Hide after 4s
-    setTimeout(() => toast.classList.add("hidden"), 4000);
-}
 </script>
 </body>
 </html>

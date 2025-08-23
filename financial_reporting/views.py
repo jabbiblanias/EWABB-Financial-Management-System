@@ -22,7 +22,11 @@ def financial_report_view(request):
         )
     )
     context = {'financial_report': financial_report}'''
-    return render(request, 'financial_reporting/bookkeeper_report.html')
+    if request.user.groups.filter(name='Bookkeeper').exists():
+        return render(request, 'financial_reporting/bookkeeper_report.html')
+    elif request.user.groups.filter(name='Admin').exists():
+        return render(request, 'financial_reporting/admin_report.html')
+    
 
 
 def submit_financial_report(request):
