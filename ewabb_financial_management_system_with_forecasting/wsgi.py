@@ -11,7 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ewabb_financial_management_system_with_forecasting.settings')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vercel_app.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ewabb_financial_management_system_with_forecasting.settings')
 
 application = get_wsgi_application()
