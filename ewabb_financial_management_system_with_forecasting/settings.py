@@ -99,8 +99,7 @@ TEMPLATES = [
     },
 ]
 
-#WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.application'
-WSGI_APPLICATION = 'api.wsgi.app'
+WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.application'
 
 
 # Database
