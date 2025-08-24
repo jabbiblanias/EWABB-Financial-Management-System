@@ -11,20 +11,7 @@
   <div class="flex h-screen">
 
     <!-- Sidebar -->
-    <div class="w-60 bg-white shadow-md border-r">
-      <div class="px-6 py-4 font-bold text-xl">EWABB</div>
-      <nav class="mt-6">
-        <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-400 hover:text-blue-600">
-          <i class="mr-3">🏠</i> Dashboard
-        </a>
-        <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-blue-600 font-medium border-r-4 border-blue-600 bg-blue-50">
-          <i class="mr-3">💳</i> Transactions
-        </a>
-        <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-400 hover:text-blue-600">
-          <i class="mr-3">📑</i> Loans
-        </a>
-      </nav>
-    </div>
+     {% include 'dashboard/partials/cashier_nav.html' %}
 
     <!-- Main content -->
     <div class="flex-1 flex flex-col">

@@ -9,35 +9,6 @@ import json
 from django.contrib import messages
 
 
-def member_loan_home(request):
-    user = request.user
-    if request.user.groups.filter(name='Member').exists():
-        context = member_loan_data(user)
-        return render(request, 'loans/member_loan.html', context)
-    else:
-        return redirect('loan_applications')
-    
-
-def member_loan_data(user):
-    member = Member.objects.get(user_id=user)
-    loans = (
-        LoanApplication.objects
-        .filter(member_id=member)
-        .values(
-            'loan_type',
-            'loan_amount',
-            'loan_term_years',
-            'loan_term_months',
-            'loan_term_days',
-            'net_proceeds',
-            'amortization',
-            'status'
-        )
-    )
-    context = {'loans': loans}
-    return context
-
-
 @login_required
 def loan_application_view(request):
     user = request.user
@@ -86,8 +57,59 @@ def loan_application_view(request):
             return render(request, 'loans/bookkeeper_loan.html', context)
         elif user.groups.filter(name='Cashier').exists():
             return render(request, 'loans/cashier_loan.html')
+        
+
+def member_loan_home(request):
+    user = request.user
+    if request.user.groups.filter(name='Member').exists():
+        context = member_loan_data(user)
+        return render(request, 'loans/member_loan.html', context)
+    else:
+        return redirect('loan_applications')
+    
+
+def member_loan_data(user):
+    member = Member.objects.get(user_id=user)
+    loans = (
+        LoanApplication.objects
+        .filter(member_id=member)
+        .values(
+            'loan_type',
+            'loan_amount',
+            'loan_term_years',
+            'loan_term_months',
+            'loan_term_days',
+            'net_proceeds',
+            'amortization',
+            'status'
+        )
+    )
+    context = {'loans': loans}
+    return context
 
 
+def bookkeeper_approved_loans(request):
+    loans = (
+        Loan.objects
+        .select_related('member_id', 'loan_application_id')
+        .order_by('-released_date')
+        .values(
+            'loan_id',
+            'member_id__account_number',
+            'loan_application_id__total_payable',
+            'loan_application_id__net_proceeds',
+            'outstanding_balance',
+            'loan_status'
+        )
+    )
+    context = {'loans' : loans}
+    return render(request, 'loans/approved_loans.html', context)
+
+
+def cashier_approved_loans(request):
+    LoanApplication.objects.filter(status='Approved')
+    
+    
 def loan_applications_data(status):
     loan_applications = (
         LoanApplication.objects
@@ -126,25 +148,6 @@ def approving_loan(request):
 
         try:
             loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
-            '''if action == 'approve':
-                if bookkeeper:
-                    loan_application.status = 'Verified'
-                    loan_application.verifier_id = user
-                    loan_application.verified_date = date.today()
-                elif admin:
-                    loan_application.status = 'Approved'
-                    loan_application.approver_id = user
-                    loan_application.approved_date = date.today()
-            elif action == 'reject':
-                if bookkeeper:
-                    loan_application.verifier_id = user
-                    loan_application.verified_date = date.today()
-                elif admin:
-                    loan_application.approver_id = user
-                    loan_application.approved_date = date.today()
-                loan_application.status = 'Rejected'
-                '''
-
             if bookkeeper:
                 if action == 'approve':
                     loan_application.status = 'Verified'
@@ -162,28 +165,8 @@ def approving_loan(request):
                 loan_application.approved_date = date.today()
                 status = "Verified"
             loan_application.save()
-                
-            
             context = loan_applications_data(status)
             html = render_to_string('loans/partials/loan_applications_table_body.html', context)
             return JsonResponse({'success': True, 'html': html})
         except LoanApplication.DoesNotExist:
             return JsonResponse({'success': False})
-
-
-def bookkeeper_approved_loans(request):
-    loans = (
-        Loan.objects
-        .select_related('member_id', 'loan_application_id')
-        .order_by('-released_date')
-        .values(
-            'loan_id',
-            'member_id__account_number',
-            'loan_application_id__total_payable',
-            'loan_application_id__net_proceeds',
-            'outstanding_balance',
-            'loan_status'
-        )
-    )
-    context = {'loans' : loans}
-    return render(request, 'loans/approved_loans.html', context)

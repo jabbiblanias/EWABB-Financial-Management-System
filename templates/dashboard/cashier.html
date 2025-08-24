@@ -10,23 +10,8 @@
 
   <!-- Sidebar -->
   <div class="flex">
-    <div class="w-64 bg-white h-screen shadow-md">
-      <div class="p-6 text-2xl font-bold">EWABB</div>
-      <nav class="mt-6">
-        <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-blue-500 bg-blue-50 rounded-l-full">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 fill-current" viewBox="0 0 20 20"><path d="M10 2L2 8h2v8h4v-5h4v5h4V8h2L10 2z" /></svg>
-          Dashboard
-        </a>
-        <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-500 hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 fill-current" viewBox="0 0 20 20"><path d="M4 4h12v2H4V4zm0 4h12v2H4V8zm0 4h12v2H4v-2z" /></svg>
-          Transactions
-        </a>
-        <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-500 hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 fill-current" viewBox="0 0 20 20"><path d="M10 18l-6-6h4V2h4v10h4l-6 6z" /></svg>
-          Loans
-        </a>
-      </nav>
-    </div>
+    <!-- Sidebar -->
+     {% include 'dashboard/partials/cashier_nav.html' %}
 
     <!-- Main Content -->
     <div class="flex-1">
