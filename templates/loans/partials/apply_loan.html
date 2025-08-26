@@ -69,6 +69,16 @@
             <span>Amortization</span>
             <input type="text" name="amortization" id="amortization" class="text-black font-medium text-end outline-none" value="0 / Daily" readonly/>
           </div>
+          <div class="flex justify-between items-center text-gray-700">
+            <span>Amortization</span>
+            <div class="relative">
+              <input type="text" name="amortization" id="amortization"
+                    class="text-black font-medium text-end outline-none w-40"
+                    value="0" readonly />
+              <span id="displayValue" class=" text-black font-medium">
+                    / Daily</span>
+            </div>
+          </div>
           <div class="flex justify-between text-gray-700">
             <span>Service Charge</span>
             <input type="text" name="serviceCharge" id="serviceCharge" class="text-black font-medium text-end outline-none" value="0" readonly/>

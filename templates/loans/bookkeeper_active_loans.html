@@ -47,7 +47,7 @@
       <div class="px-6 pt-4 flex justify-between items-center">
         <div class="flex border-b border-gray-200">
           <a href="{% url 'loan_applications' %}" class="px-4 py-2 text-gray-500 hover:text-blue-600">Loan Applications</a>
-          <a href="{url 'approved_loans' %}" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Approved loans</a>
+          <a href="{% url 'active_loans' %}" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Active loans</a>
         </div>
         <div class="join">
           <div>
@@ -73,16 +73,17 @@
           <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">ID</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Loan ID</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Account Number</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Total Payable</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Release Amount</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Oustanding Balance</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Remaining Balance</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Amount Due</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Due Date</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody id="approved-loans-table-body" class="bg-white">
-              {% include 'loans/partials/approved_loans_table_body.html' %}
+              {% include 'loans/partials/active_loans_table_body.html' %}
             </tbody>
           </table>
         </div>
@@ -225,7 +226,7 @@
         // Add empty rows if needed
         for (let i = currentRows; i < requiredRows; i++) {
             const row = document.createElement('tr');
-            row.className = "border-b border-gray-200 hover:bg-sky-100"
+            row.className = "border-b border-gray-200"
             
             for (let j = 0; j < columnsCount; j++) {
             const cell = document.createElement('td');

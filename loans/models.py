@@ -63,10 +63,11 @@ class Loan(models.Model):
 class LoanRepaymentSchedule(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
-        ('Due', 'Due'),
-        ('Overdue', 'Overdue'),
+        ('Upcoming', 'Upcoming'),
         ('Paid', 'Paid'),
         ('Partially Paid', 'Partially Paid'),
+        ('Due', 'Due'),
+        ('Overdue', 'Overdue'),
     ]
 
     schedule_id = models.AutoField(primary_key=True, db_column='scheduleid')
@@ -75,7 +76,7 @@ class LoanRepaymentSchedule(models.Model):
     amount_due = models.DecimalField(max_digits=12, decimal_places=2, db_column='amountdue')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending', db_column='status')
     paid_date = models.DateField(null=True, blank=True, db_column='paiddate')
-    created_at = models.DateTimeField(auto_now_add=True, db_column='createdate')
+    created_at = models.DateTimeField(auto_now_add=True, db_column='createdat')
 
     def __str__(self):
         return f"Schedule #{self.id} for Loan #{self.loan.id}"

@@ -1,0 +1,41 @@
+{% for loan in loans %}
+<tr id="row-{{ loan.loan_id }}" 
+ondblclick="window.location.href='details/{{loan.loan_id}}/';" 
+class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+    <td class="px-6 py-3">{{ loan.loan_id }}</td>
+    <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
+    <td class="px-6 py-3">{{ loan.loan_application_id__loan_amount }}</td>
+    <td class="px-6 py-3">
+        {% if loan.loan_application_id__loan_term_years %} 
+            {{ loan.loan_application_id__loan_term_years }}
+            {% if loan.loan_application_id__loan_term_years > 1 %}
+                years
+            {% else %}
+                year
+            {% endif %}
+        {% endif %}
+        {% if loan.loan_application_id__loan_term_years and loan.loan_application_id__loan_term_months %} 
+            and 
+        {% endif %}
+        {% if loan.loan_application_id__loan_term_months %} 
+        {{ loan.loan_application_id__loan_term_months }}
+        {% if loan.loan_application_id__loan_term_months > 1 %}
+            months
+        {% else %}
+            month
+        {% endif %}
+        {% endif %}
+        {% if loan.loan_application_id__loan_term_days %} {{ loan.loan_application_id__loan_term_days }} days{% endif %}
+    </td>
+    <td class="px-6 py-3">
+        {{ loan.loan_application_id__net_proceeds }}
+    </td>
+    <td class="px-6 py-3">
+        {{ loan.released_by_id__first_name }} {{ loan.released_by_id__last_name }}
+    </td>
+    <td class="px-6 py-3">
+        {{ loan.released_date }}
+    </td>
+</tr>
+{% endfor %}
+

@@ -47,7 +47,7 @@
       <div class="px-6 pt-4 flex justify-between items-center">
         <div class="flex border-b border-gray-200">
           <a href="{% url 'loan_applications' %}" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Loan Applications</a>
-          <a href="{% url 'approved_loans' %}" class="px-4 py-2 text-gray-500 hover:text-blue-600">Approved loans</a>
+          <a href="{% url 'active_loans' %}" class="px-4 py-2 text-gray-500 hover:text-blue-600">Active loans</a>
         </div>
         <div class="join">
           <div>
@@ -80,7 +80,8 @@
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Loan Term</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Loan Amount</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Installment</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Approval</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody id="loan_applications-table-body" class="bg-white">
@@ -118,7 +119,7 @@
     document.getElementById('totalPayable').textContent = '0';
     document.getElementById('amount').value = '';
     document.getElementById('serviceCharge').textContent = '0';
-    document.getElementById('amortization').textContent = '0 / Daily';
+    document.getElementById('amortization').textContent = '0';
     document.getElementById('cbu').textContent = '0';
     document.getElementById('insurance').textContent = '0';
     document.getElementById('releaseAmount').textContent = '0';
@@ -167,6 +168,7 @@
     const cbu = document.getElementById('cbu');
     const insurance = document.getElementById('insurance');
     const term = document.getElementById('term-value').value;
+    const amortizationDisplay = document.getElementById('displayValue');
 
     let computed_service_charge, computed_cbu, computed_insurance, totalAmount, months, totalLoan;
 
@@ -181,7 +183,8 @@
       serviceCharge.value =  computed_service_charge;
       cbu.value = computed_cbu;
       insurance.value = computed_insurance;
-      amortization.value = `₱ ${value * 0.01} / Daily`;
+      amortization.value = value * 0.01;
+      amortizationDisplay.textContent = " / Daily";
       releasedAmount.value = totalAmount.toFixed(2);
     } else {
       months = termConvertion(term);
@@ -196,7 +199,8 @@
       serviceCharge.value =  computed_service_charge; // Assuming 2% service charge
       cbu.value = computed_cbu; // Replace with actual CBU value logic
       insurance.value = computed_insurance; // Assuming 0.5% insurance
-      amortization.value = `₱ ${computed_amortization} / Monthly`; // Assuming 10 months for simplicity
+      amortization.value = computed_amortization; // Assuming 10 months for simplicity
+      amortizationDisplay.textContent = " / Monthly";
       releasedAmount.value = totalAmount.toFixed(2);
     }
   }
@@ -228,7 +232,7 @@
         // Add empty rows if needed
         for (let i = currentRows; i < requiredRows; i++) {
             const row = document.createElement('tr');
-            row.className = "border-b border-gray-200 hover:bg-sky-100"
+            row.className = "border-b border-gray-200"
             
             for (let j = 0; j < columnsCount; j++) {
             const cell = document.createElement('td');

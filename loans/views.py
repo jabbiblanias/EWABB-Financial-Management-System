@@ -7,6 +7,8 @@ from django.template.loader import render_to_string
 from django.http import JsonResponse
 import json
 from django.contrib import messages
+from dateutil.relativedelta import relativedelta
+from django.db import transaction
 
 
 @login_required
@@ -50,15 +52,17 @@ def loan_application_view(request):
             return redirect('loans')
     else:
         if user.groups.filter(name='Admin').exists():
-            context = loan_applications_data("Verified")
+            context = loan_applications_data()
             return render(request, 'loans/admin_loan.html', context)
         elif user.groups.filter(name='Bookkeeper').exists():
-            context = loan_applications_data("Pending")
+            context = loan_applications_data()
             return render(request, 'loans/bookkeeper_loan.html', context)
         elif user.groups.filter(name='Cashier').exists():
-            return render(request, 'loans/cashier_loan.html')
+            context = cashier_approved_loans()
+            return render(request, 'loans/cashier_loan.html', context)
         
 
+@login_required
 def member_loan_home(request):
     user = request.user
     if request.user.groups.filter(name='Member').exists():
@@ -88,33 +92,68 @@ def member_loan_data(user):
     return context
 
 
-def bookkeeper_approved_loans(request):
+@login_required
+def active_loans(request):
+    user = request.user
+    status_filter = ''
+    if user.groups.filter(name='Bookkeeper').exists():
+        status_filter = 'Verified' or 'Approved'
+        context = active_loans_data()
+        return render(request, 'loans/bookkeeper_active_loans.html', context)
+    elif user.groups.filter(name='Admin').exists():
+        status_filter = 'Approved' 
+        context = active_loans_data()  
+        return render(request, 'loans/admin_active_loans.html', context)
+    elif user.groups.filter(name='Cashier').exists():
+        status_filter = 'Approved' 
+        context = active_loans_data()  
+        return render(request, 'loans/cashier_active_loans.html', context)
+
+
+def active_loans_data():
     loans = (
         Loan.objects
+        .prefetch_related('loanrepaymentschedule')
         .select_related('member_id', 'loan_application_id')
-        .order_by('-released_date')
+        .filter(loan_status='Active')
         .values(
             'loan_id',
             'member_id__account_number',
-            'loan_application_id__total_payable',
-            'loan_application_id__net_proceeds',
+            'loan_application_id__loan_amount',
             'outstanding_balance',
-            'loan_status'
+            'loanrepaymentschedule__amount_due',
+            'loanrepaymentschedule__due_date',
+            'loanrepaymentschedule__status'
         )
     )
     context = {'loans' : loans}
-    return render(request, 'loans/approved_loans.html', context)
+    return context
 
 
-def cashier_approved_loans(request):
-    LoanApplication.objects.filter(status='Approved')
-    
-    
-def loan_applications_data(status):
+def cashier_approved_loans():
+    loans = (
+        LoanApplication.objects.filter(status='Approved')
+        .select_related('member_id')
+        .exclude(loan__isnull=False)
+        .values(
+            'loan_application_id',
+            'member_id__account_number',
+            'loan_amount',
+            'loan_term_years',
+            'loan_term_months',
+            'loan_term_days',
+            'amortization',
+            'status'
+        )
+    )
+    context = {'loans' : loans}
+    return context
+
+ 
+def loan_applications_data():
     loan_applications = (
         LoanApplication.objects
         .select_related('member_id')
-        .filter(status=status)
         .values(
             'loan_application_id',
             'member_id__account_number',
@@ -122,13 +161,14 @@ def loan_applications_data(status):
             'loan_term_months',
             'loan_term_days',
             'loan_amount',
-            'amortization'
+            'amortization',
+            'status'
         )
     )
     context = {'loanApplications': loan_applications}
     return context
 
-
+@login_required
 def loan_application_details_view(request, loan_application_id):
     loan_application_details = LoanApplication.objects.select_related('member').get(loan_application_id=loan_application_id)
     context = {'loanApplicationDetails' : loan_application_details}
@@ -170,3 +210,52 @@ def approving_loan(request):
             return JsonResponse({'success': True, 'html': html})
         except LoanApplication.DoesNotExist:
             return JsonResponse({'success': False})
+        
+
+@transaction.atomic
+@login_required
+def releasing(request):
+    data = json.loads(request.body)
+    loan_application_id = data.get('loan_application_id')
+    account_number = data.get('account_number')
+    print(loan_application_id)
+    print(account_number)
+    try:
+        loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id, status='Approved')
+        member = Member.objects.get(account_number=account_number)
+        loan = Loan.objects.create(
+            member_id=member,
+            loan_application_id=loan_application,
+            outstanding_balance=loan_application.total_payable,
+            released_by_id=request.user
+        )
+
+        loan_days = loan_application.loan_term_days
+        loan_years = loan_application.loan_term_years
+        loan_months = loan_application.loan_term_months
+        amortization = float(loan_application.amortization)
+        released_date = date.today()
+
+        if loan_days == 100 and loan_months == 0 and loan_years == 0:
+            LoanRepaymentSchedule.objects.create(
+                loan_id=loan,
+                due_date=released_date + relativedelta(days=loan_days),
+                amount_due=amortization,
+            )
+        else:
+            total_months = loan_years * 12 + loan_months
+            total_days = total_months * 30 + loan_days
+            remaining_days = total_days
+            while remaining_days > 0:
+                payment_date = released_date + relativedelta(days=30)
+                LoanRepaymentSchedule.objects.create(
+                    loan_id=loan,
+                    due_date=payment_date,
+                    amount_due=amortization,
+                )
+                remaining_days -= 30
+        context = cashier_approved_loans()
+        html = render_to_string('loans/partials/cashier_loan_table_body.html', context)
+        return JsonResponse({'success': True, 'html': html})
+    except (LoanApplication.DoesNotExist, Member.DoesNotExist):
+        return JsonResponse({'success': False})

@@ -30,7 +30,7 @@ class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
     <td class="px-6 py-3">{{ loan.amortization }}</td>
     <td class="px-6 py-3">
         {% if loan.status == 'Approved' %}
-            <span class="text-sm font-medium rounded-full bg-green-100 text-green-700">
+            <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
                 {{ loan.status }}
             </span>
         {% elif loan.status == 'Pending' %}
