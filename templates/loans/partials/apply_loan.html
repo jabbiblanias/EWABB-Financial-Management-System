@@ -1,106 +1,220 @@
 <div id="popupApplication" class="hidden fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-      <form method="POST" action="{% url 'loan_applications' %}" class="bg-white rounded-xl shadow-md p-8 w-96">
-        {% csrf_token %}
-        <!-- Account Number -->
-      {% if request.user.group ==  "Bookkeeper" %}
-      <div class="mb-4">
-        <label class="block text-gray-700 mb-1">Account</label>
-        <input
-          name="accountNumber"
-          id="accountNumber"
-          type="text"
-          required
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      {% endif %}
-      <!-- Loan Type -->
-      <div class="mb-4">
-        <label class="block text-gray-700 mb-1">Loan Type</label>
-        <select required 
-        id="loanType"
-        name="loanType"
-        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
-          <option value="" selected hidden>-- Choose Loan Type --</option>
-          <option>Personal Loan</option>
-          <option>Business Loan</option>
-          <option>Emergency Loan</option>
-        </select>
-      </div>
+  <form method="POST" action="{% url 'loan_applications' %}" class="bg-white rounded-xl shadow-md p-8 w-96">
+    {% csrf_token %}
+    <!-- Account Number -->
+  {% if request.user.groups.all.0.name ==  "Bookkeeper" %}
+  <div class="mb-4">
+    <label class="block text-gray-700 mb-1">Account</label>
+    <input
+      name="accountNumber"
+      id="accountNumber"
+      type="text"
+      required
+      class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+  {% endif %}
+  <!-- Loan Type -->
+  <div class="mb-4">
+    <label class="block text-gray-700 mb-1">Loan Type</label>
+    <select required 
+    id="loanType"
+    name="loanType"
+    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500">
+      <option value="" selected hidden>-- Choose Loan Type --</option>
+      <option>Personal Loan</option>
+      <option>Business Loan</option>
+      <option>Emergency Loan</option>
+    </select>
+  </div>
 
-      <!-- Amount -->
-      <div class="mb-4">
-        <label class="block text-gray-700 mb-1">Amount</label>
-        <input
-          name="loanAmount"
-          id="amount"
-          type="text"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-          onkeyup="updateLoanDetails()"
-          required
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+  <!-- Amount -->
+  <div class="mb-4">
+    <label class="block text-gray-700 mb-1">Amount</label>
+    <input
+      name="loanAmount"
+      id="amount"
+      type="text"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+      onkeyup="updateLoanDetails()"
+      required
+      class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+
+  <!-- Term -->
+  <div class="mb-6">
+    <div class="slider-container">
+      <label class="block text-gray-700 mb-1">Term</label>
+      <input type="range" class="w-full accent-blue-600" 
+      id="loan-term"
+      class="slider"
+      min="0"
+      max="21"
+      step="1"
+      value="0"
+      oninput="updateValue(this.value)"
+      required/>
+      <div class="flex justify-center">
+        <input type="text" id="term-value" name="loanTerm" class="text-black mt-1 outline-none text-center" readonly/>
       </div>
-
-      <!-- Term -->
-      <div class="mb-6">
-        <div class="slider-container">
-          <label class="block text-gray-700 mb-1">Term</label>
-          <input type="range" class="w-full accent-blue-600" 
-          id="loan-term"
-          class="slider"
-          min="0"
-          max="21"
-          step="1"
-          value="0"
-          oninput="updateValue(this.value)"
-          required/>
-          <div class="flex justify-center">
-            <input type="text" id="term-value" name="loanTerm" class="text-black mt-1 outline-none text-center" readonly/>
-          </div>
-        </div>
-      </div>
-
-        <!-- Details -->
-        <div class="space-y-2 mb-6">
-          <div class="flex justify-between text-gray-700">
-            <span>Total Payable</span>
-            <input type="text" name="totalPayable" id="totalPayable" class="text-black font-medium text-end outline-none" value="0" readonly/>
-          </div>
-          <div class="flex justify-between text-gray-700">
-            <span>Amortization</span>
-            <div class="flex justify-between">
-              <input type="text" name="amortization" id="amortization"
-                    class="text-black font-medium text-end outline-none w-39 pr-1"
-                    value="0" readonly />
-              <div id="displayValue" class=" text-black font-medium w-auto text-end">
-                    / Daily</div>
-            </div>
-          </div>
-          <div class="flex justify-between text-gray-700">
-            <span>Service Charge</span>
-            <input type="text" name="serviceCharge" id="serviceCharge" class="text-black font-medium text-end outline-none" value="0" readonly/>
-          </div>
-          <div class="flex justify-between text-gray-700">
-            <span>CBU</span>
-            <input type="text" name="cbu" id="cbu" class="text-black font-medium text-end outline-none" value="0" readonly/>
-          </div>
-          <div class="flex justify-between text-gray-700">
-            <span>Insurance</span>
-            <input type="text" name="insurance" id="insurance" class="text-black font-medium text-end outline-none" value="0" readonly/>
-          </div>
-          <div class="flex justify-between text-gray-700">
-            <span>Release Amount</span>
-            <input type="text" name="releaseAmount" id="releaseAmount" class="text-black font-medium text-end outline-none" value="0" readonly/>
-          </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex justify-between items-center">
-          <button id="cancel" onclick="closePopUp()" class="text-black font-medium border px-10 py-2 rounded-lg">Cancel</button>
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-10 py-2 rounded-lg">
-            Submit
-          </button>
-        </div>
-      </form>
     </div>
+  </div>
+
+    <!-- Details -->
+    <div class="space-y-2 mb-6">
+      <div class="flex justify-between text-gray-700">
+        <span>Total Payable</span>
+        <input type="text" name="totalPayable" id="totalPayable" class="text-black font-medium text-end outline-none" value="0" readonly/>
+      </div>
+      <div class="flex justify-between text-gray-700">
+        <span>Amortization</span>
+        <div class="flex justify-between">
+          <input type="text" name="amortization" id="amortization"
+                class="text-black font-medium text-end outline-none w-39 pr-1"
+                value="0" readonly />
+          <div id="displayValue" class=" text-black font-medium w-auto text-end">
+                / Daily</div>
+        </div>
+      </div>
+      <div class="flex justify-between text-gray-700">
+        <span>Service Charge</span>
+        <input type="text" name="serviceCharge" id="serviceCharge" class="text-black font-medium text-end outline-none" value="0" readonly/>
+      </div>
+      <div class="flex justify-between text-gray-700">
+        <span>CBU</span>
+        <input type="text" name="cbu" id="cbu" class="text-black font-medium text-end outline-none" value="0" readonly/>
+      </div>
+      <div class="flex justify-between text-gray-700">
+        <span>Insurance</span>
+        <input type="text" name="insurance" id="insurance" class="text-black font-medium text-end outline-none" value="0" readonly/>
+      </div>
+      <div class="flex justify-between text-gray-700">
+        <span>Release Amount</span>
+        <input type="text" name="releaseAmount" id="releaseAmount" class="text-black font-medium text-end outline-none" value="0" readonly/>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex justify-between items-center">
+      <button id="cancel" onclick="closePopUp()" class="text-black font-medium border px-10 py-2 rounded-lg">Cancel</button>
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-10 py-2 rounded-lg">
+        Submit
+      </button>
+    </div>
+  </form>
+</div>
+<script>
+  function openPopUp() {
+    document.getElementById('popupApplication').classList.remove('hidden');
+  }
+  function closePopUp() {
+    document.getElementById('popupApplication').classList.add('hidden');
+    document.getElementById('loanType').value = '';
+    document.getElementById('totalPayable').textContent = '0';
+    document.getElementById('amount').value = '';
+    document.getElementById('serviceCharge').textContent = '0';
+    document.getElementById('amortization').textContent = '0';
+    document.getElementById('cbu').textContent = '0';
+    document.getElementById('insurance').textContent = '0';
+    document.getElementById('releaseAmount').textContent = '0';
+    document.getElementById('loan-term').value = 0;
+    updateValue(0);
+  }
+  document.getElementById('popupApplication').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closePopUp();
+    }
+  });
+  // 1. Define the custom loan terms in an array.
+  const loanTerms = [
+    '100 days',
+    '4 months', '5 months',
+    '6 months', '7 months', '8 months', '9 months', '10 months', '11 months',
+    '1 year',
+    '1 year and 1 month', '1 year and 2 months', '1 year and 3 months',
+    '1 year and 4 months', '1 year and 5 months', '1 year and 6 months',
+    '1 year and 7 months', '1 year and 8 months', '1 year and 9 months',
+    '1 year and 10 months', '1 year and 11 months',
+    '2 years'
+  ];
+
+  const termSlider = document.getElementById('loan-term');
+  const termValueDisplay = document.getElementById('term-value');
+
+  // 2. The function now uses the slider's value as an index for the array.
+  function updateValue(index) {
+    termValueDisplay.value = loanTerms[index];
+    updateLoanDetails();
+  }
+
+  // 3. Call the function on page load to set the initial value.
+  window.onload = function() {
+    updateValue(termSlider.value);
+  };
+
+  function updateLoanDetails() {
+    const value = parseFloat(document.getElementById('amount').value) || 0;
+
+    const totalPayable = document.getElementById('totalPayable');
+    const serviceCharge = document.getElementById('serviceCharge');
+    const releasedAmount = document.getElementById('releaseAmount');
+    const amortization = document.getElementById('amortization');
+    const cbu = document.getElementById('cbu');
+    const insurance = document.getElementById('insurance');
+    const term = document.getElementById('term-value').value;
+    const amortizationDisplay = document.getElementById('displayValue');
+
+    let computed_service_charge, computed_cbu, computed_insurance, totalAmount, months, totalLoan;
+
+    if (term == "100 days") {
+      totalLoan  = value;
+      computed_service_charge = (totalLoan * 0.07).toFixed(2);
+      computed_cbu = (totalLoan * 0.1).toFixed(2);
+      computed_insurance = (totalLoan * 0.01).toFixed(2);
+      totalAmount = totalLoan - computed_service_charge - computed_cbu - computed_insurance;
+
+      totalPayable.value = totalLoan.toFixed(2);
+      serviceCharge.value =  computed_service_charge;
+      cbu.value = computed_cbu;
+      insurance.value = computed_insurance;
+      amortization.value = value * 0.01;
+      amortizationDisplay.textContent = " / Daily";
+      releasedAmount.value = totalAmount.toFixed(2);
+    } else {
+      months = termConvertion(term);
+      totalLoan = value * ((0.02 * months) + 1);
+      computed_amortization = parseInt(totalLoan / months);
+      computed_service_charge = ((totalLoan - value) / 2).toFixed(2);
+      computed_cbu = ((totalLoan - value) / 2).toFixed(2);
+      computed_insurance = (totalLoan * 0.01).toFixed(2);
+      totalAmount = totalLoan - computed_service_charge - computed_cbu - computed_insurance;
+
+      totalPayable.value = totalLoan.toFixed(2);
+      serviceCharge.value =  computed_service_charge; // Assuming 2% service charge
+      cbu.value = computed_cbu; // Replace with actual CBU value logic
+      insurance.value = computed_insurance; // Assuming 0.5% insurance
+      amortization.value = computed_amortization; // Assuming 10 months for simplicity
+      amortizationDisplay.textContent = " / Monthly";
+      releasedAmount.value = totalAmount.toFixed(2);
+    }
+  }
+
+  function termConvertion(term) {
+    let months = 0;
+
+    // Extract years
+    const yearMatch = term.match(/(\d+)\s*year/);
+    if (yearMatch) {
+      months += parseInt(yearMatch[1], 10) * 12;
+    }
+
+    // Extract months
+    const monthMatch = term.match(/(\d+)\s*month/);
+    if (monthMatch) {
+      months += parseInt(monthMatch[1], 10);
+    }
+
+    return months;
+  }
+</script>

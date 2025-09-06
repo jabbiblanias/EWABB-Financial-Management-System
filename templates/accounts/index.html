@@ -9,149 +9,166 @@
   {% tailwind_css %}
 </head>
 <body class="font-sans text-gray-700">
-  <!-- Header -->
-  <header class="bg-blue-900 text-white my-0 mx-0 px-6 py-8">
-    <nav class="bg-blue-900 text-white">
-      <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
-        <!-- Left Logo -->
-        <div class="text-2xl font-bold">EWABB</div>
-        <!-- Navigation Links -->
-        <div class="flex items-center gap-6">
-          <a href="#" class="flex items-center gap-1 hover:text-blue-300">
-            About
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M5.25 7.5l4.75 4.75 4.75-4.75H5.25z" />
-            </svg>
-          </a>
-          <a href="#" class="flex items-center gap-1 hover:text-blue-300">
-            Services
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M5.25 7.5l4.75 4.75 4.75-4.75H5.25z" />
-            </svg>
-          </a>
-          <a href="#" class="hover:text-blue-300">Pricing</a>
-          <a href="#" class="flex items-center gap-1 hover:text-blue-300">
-            Person
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M5.25 7.5l4.75 4.75 4.75-4.75H5.25z" />
-            </svg>
-          </a>
-        </div>
-        <!-- Divider and Buttons -->
-        <div class="flex items-center gap-4">
-          <div class="h-6 border-r border-dotted border-blue-300"></div>
-          <a id="login" href="{% url 'login' %}" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded">
-          Login
-          </a>
+  <!-- Header with Wave Background -->
+  <header class="relative bg-blue-900 text-white overflow-hidden">
+    <!-- Wave Texture -->
+    <div class="absolute inset-0">
+      <svg class="w-full h-full text-blue-800 opacity-20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <pattern id="wave" x="0" y="0" width="100" height="40" patternUnits="userSpaceOnUse">
+          <path d="M0 20 Q 25 0 50 20 T 100 20 V40 H0 Z" fill="currentColor" />
+        </pattern>
+        <rect width="100%" height="100%" fill="url(#wave)" />
+      </svg>
+    </div>
 
-          <a href="{% url 'register1' %}" class="bg-blue-400 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded flex items-center gap-1">
-            Register now
-            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-              <path d="M7 5l5 5-5 5V5z" />
-            </svg>
-          </a>
-        </div>
+    <!-- Nav -->
+    <nav class="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-6">
+      <div class="text-2xl font-bold">EWABB</div>
+      <div class="flex items-center gap-6">
+        <a href="#" class="hover:text-blue-300 transition">About</a>
+        <a href="#" class="hover:text-blue-300 transition">Services</a>
+        <a href="#" class="hover:text-blue-300 transition">Program</a>
+        <a href="#" class="hover:text-blue-300 transition">Team</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded-lg transition">Login</a>
+        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition">Register</a>
       </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-      <h1 class="text-3xl font-bold mb-4 md:mb-0">
-        Empowering women,<br> forging brighter futures together.
-      </h1>
-      <div class="w-48 h-48 bg-blue-200 rounded"></div>
+    <!-- Hero -->
+    <div class="relative max-w-7xl mx-auto flex flex-col md:flex-row items-center px-6 py-16">
+      <div class="flex-1 text-center md:text-left">
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+          Empowering Women, <br /> Forging Brighter Futures.
+        </h1>
+        <p class="mt-4 text-blue-200 text-lg">
+          A professional digital banking platform dedicated to financial empowerment.
+        </p>
+        <div class="mt-6 flex gap-4 justify-center md:justify-start">
+          <a href="#" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-lg shadow transition">Get Started</a>
+          <a href="#" class="bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition">Learn More</a>
+        </div>
+      </div>
+      <div class="flex-1 mt-10 md:mt-0">
+        <img src="{% static 'accounts/images/management.png' %}" alt="Banking Illustration" class="w-full" />
+      </div>
     </div>
   </header>
 
   <!-- About -->
-  <section class="py-12 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+  <section class="py-16 px-6">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
       <div>
-        <h2 class="text-xl font-semibold mb-4">About</h2>
-        <p class="mb-4">
-          The Empowered Women Association of Barangay Bañadero (EWABB) is dedicated to providing financial support and opportunities to the women of Barangay Bañadero. Through loans, savings programs, and business initiatives, EWABB aims to empower women economically and socially within the community.
+        <h2 class="text-3xl font-bold mb-4">About EWABB</h2>
+        <p class="text-lg text-gray-600 mb-4">
+          The Empowered Women Association of Barangay Bañadero (EWABB) is dedicated to providing financial support and opportunities to women. Through innovative banking services, EWABB fosters savings, loans, and investments for stronger communities.
         </p>
+        <a href="#" class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition">Read More</a>
       </div>
-      <div class="w-full h-48 bg-blue-200 rounded"></div>
+      <img src="https://img.freepik.com/free-vector/team-leader-concept-illustration_114360-1007.jpg" alt="About Image" class="w-full rounded-lg shadow-md" />
     </div>
-    <div class="mt-12 flex flex-col md:flex-row items-center justify-center gap-8">
-      <div class="w-64 h-64 bg-blue-100 rounded-full flex items-center justify-center">
-        <!-- Circular diagram placeholder -->
-        <div class="w-48 h-48 bg-blue-200 rounded-full"></div>
+  </section>
+
+  <!-- Services with Wave Background -->
+  <section class="relative bg-blue-900 text-white py-16 overflow-hidden">
+    <!-- Wave Background -->
+    <div class="absolute inset-0">
+      <svg class="w-full h-full text-blue-800 opacity-20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <use href="#wave" />
+      </svg>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-12">Our Services</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white/10 p-6 rounded-lg shadow hover:scale-105 transition">
+          <h3 class="text-xl font-semibold mb-2">Savings</h3>
+          <p class="text-blue-200">Secure and grow your money with easy savings plans.</p>
+        </div>
+        <div class="bg-white/10 p-6 rounded-lg shadow hover:scale-105 transition">
+          <h3 class="text-xl font-semibold mb-2">Loans</h3>
+          <p class="text-blue-200">Flexible and accessible loans tailored to your needs.</p>
+        </div>
+        <div class="bg-white/10 p-6 rounded-lg shadow hover:scale-105 transition">
+          <h3 class="text-xl font-semibold mb-2">Investments</h3>
+          <p class="text-blue-200">Smart investment options to secure your future.</p>
+        </div>
       </div>
-      <p class="max-w-md text-center md:text-left">
-       
+    </div>
+  </section>
+
+  <!--Program-->
+<section class="py-16 px-6 bg-gray-50">
+  <div class="max-w-7xl mx-auto text-center">
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Our Programs</h2>
+    <p class="max-w-2xl mx-auto text-gray-600 mb-12">
+      EWABB supports women through dedicated initiatives that strengthen financial independence and community growth.
+    </p>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold mb-2 text-gray-800">Microfinance</h3>
+        <p class="text-gray-600">Accessible loans that give women the power to start and sustain small businesses.</p>
+      </div>
+      <div class="bg-blue-600 text-white p-8 rounded-lg shadow-lg hover:scale-105 transition">
+        <h3 class="text-xl font-semibold mb-2">Skills Training</h3>
+        <p>Workshops and mentorship to help women gain knowledge, confidence, and opportunities.</p>
+      </div>
+      <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Projects</h3>
+        <p class="text-gray-600">Collective efforts that invest in the barangay’s growth and empower future generations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+  <!-- Work Everywhere with Wave -->
+  <section class="relative bg-blue-900 text-white py-16 text-center overflow-hidden">
+    <div class="relative max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold mb-4">Your Work, Everywhere You Are</h2>
+      <p class="text-blue-200">
+        Access your financial tools on any device, anytime, anywhere.
       </p>
     </div>
   </section>
 
-  <!-- Services -->
-  <section class="bg-blue-900 text-white py-12 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-      <div>
-        <h2 class="text-xl font-semibold mb-4 border-b-2 border-dotted border-white inline-block">Services</h2>
+  <!-- Team -->
+  <section class="py-16 px-6">
+    <div class="max-w-7xl mx-auto text-center mb-12">
+      <h2 class="text-3xl font-bold">Meet Our Team</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div class="bg-white rounded-lg shadow p-6">
+        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" class="w-24 h-24 mx-auto rounded-full mb-4" alt="CEO">
+        <h3 class="font-semibold">Arthur Marco</h3>
+        <p class="text-gray-500 text-sm">Founder & CEO</p>
       </div>
-      <div class="w-full h-48 bg-blue-200 border-2 border-dashed border-blue-300 rounded"></div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <img src="{% static 'accounts/images/nancy.jpg' %}" class="w-24 h-24 mx-auto rounded-full mb-4" alt="Bookkeeper">
+        <h3 class="font-semibold">Nancy Levantino</h3>
+        <p class="text-gray-500 text-sm">Bookkeeper</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" class="w-24 h-24 mx-auto rounded-full mb-4" alt="Cashier">
+        <h3 class="font-semibold">Arthur Marco</h3>
+        <p class="text-gray-500 text-sm">Cashier</p>
+      </div>
     </div>
   </section>
 
-  <!-- Pricing -->
-  <section class="py-12 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-      <div class="w-full h-48 bg-blue-200 rounded"></div>
-      <div>
-        <h2 class="text-xl font-semibold mb-4">Pricing</h2>
-        <p>
-         
-        </p>
-      </div>
-    </div>
-  </section>
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-8 text-center">
+    <p>© 2025 EWABB Banking. All Rights Reserved.</p>
+  </footer>
 
-  <!-- Work everywhere -->
-  <section class="bg-blue-900 text-white py-12 px-6 text-center">
-    <h2 class="text-2xl font-semibold mb-4">Your work, everywhere <u>you are</u>.</h2>
-  </section>
-
-  <!-- Person in Charge -->
-  <section class="py-12 px-6">
-    <div class="max-w-6xl mx-auto text-center mb-8">
-      <h2 class="text-xl font-semibold">Person in Charge</h2>
-    </div>
-    <div class="flex flex-col md:flex-row gap-8 justify-center">
-      <!-- Card 1 -->
-      <div class="bg-white border rounded shadow p-6 flex-1">
-       
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-200 rounded-full"></div>
-          <div>
-            <p class="font-semibold">Arthur Marco</p>
-            <p class="text-sm text-gray-500">Founder/CEO</p>
-          </div>
-        </div>
-      </div>
-      <!-- Card 2 -->
-      <div class="bg-white border rounded shadow p-6 flex-1">
-  
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-200 rounded-full"></div>
-          <div>
-            <p class="font-semibold">Nancy Levantino</p>
-            <p class="text-sm text-gray-500">BookKeeper</p>
-          </div>
-        </div>
-      </div>
-      <!-- Card 3 -->
-      <div class="bg-white border rounded shadow p-6 flex-1">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-200 rounded-full"></div>
-          <div>
-            <p class="font-semibold">Arthur Marco</p>
-            <p class="text-sm text-gray-500">Cashier</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Define Wave Pattern Once -->
+  <svg class="hidden">
+    <pattern id="wave" x="0" y="0" width="100" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0 20 Q 25 0 50 20 T 100 20 V40 H0 Z" fill="currentColor" />
+    </pattern>
+  </svg>
 
 </body>
 <!--Start of Tawk.to Script-->

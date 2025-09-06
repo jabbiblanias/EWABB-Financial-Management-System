@@ -59,7 +59,20 @@
   </div>
 </div>
 <script>
+  // Listen for Enter key while modal is open
+  document.addEventListener("keydown", function(e) {
+    const modal = document.getElementById("transactionModal");
+
+    // Only trigger if modal is visible
+    if (!modal.classList.contains("hidden") && e.key === "Enter") {
+      e.preventDefault(); // prevent accidental form submit
+      document.getElementById("confirmTransaction").click();
+    }
+  });
   function closeTransactionModal() {
-  transactionModal.classList.add("hidden");
-}
+    transactionModal.classList.add("hidden");
+  }
+  function openTransactionModal() {
+    transactionModal.classList.remove("hidden");
+  }
 </script>
