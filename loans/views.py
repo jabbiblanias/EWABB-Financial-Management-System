@@ -183,13 +183,14 @@ def loan_applications_data():
 @login_required
 def loan_application_details_view(request, loan_application_id):
     loan_application_details = LoanApplication.objects.select_related('member_id').get(loan_application_id=loan_application_id)
-    context = {'loanApplicationDetails' : loan_application_details}
+    context = {'loan_application_details' : loan_application_details}
     return render(request, 'loans/loan_application_details.html', context)
 
 @login_required
 def loan_details_view(request, loan_id):
     loan_details = Loan.objects.select_related('member_id').get(loan_id=loan_id)
-    context = {'loanApplicationDetails' : loan_details}
+    schedule = LoanRepaymentSchedule.objects.get(loan_id=loan_details)
+    context = {'loan_details' : loan_details, "schedule": schedule}
     return render(request, 'loans/loan_details.html', context)
 
 
