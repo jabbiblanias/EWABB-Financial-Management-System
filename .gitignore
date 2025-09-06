@@ -4,5 +4,7 @@ env/
 
 # Ignore environment files
 .env
+.venv
+.venv-1
 *.pyc
 __pycache__/
