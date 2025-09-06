@@ -8,6 +8,7 @@ from .models import Personalinfo, Spouse, Membershipapplication, Children
 from django.db import transaction, IntegrityError
 from django.contrib import messages
 from django.http import JsonResponse
+from django.contrib.auth.hashers import make_password, check_password
 
 
 def login_view(request):
@@ -108,6 +109,7 @@ def register_step1(request):
 
 def register_step2(request):
     if request.method == 'POST':
+        print("In register2:", request.session.get('register_data'))
         spouse_surname = request.POST.get('spouseSurname')
         spouse_first_name = request.POST.get('spouseFirstName')
         spouse_middle_name = request.POST.get('spouseMiddleName')
@@ -170,7 +172,7 @@ def register_step3(request):
             data.update({
                 'username': username,
                 'email': email,
-                'password': password,
+                'password': make_password(password),
             })
             request.session['register_data'] = data
             request.session.modified = True  # ensures Django writes the session
@@ -208,8 +210,9 @@ def registration_otp_verification_view(request):
                         user = User.objects.create_user(
                             username=username,
                             email=email,
-                            password=password
                         )
+                        user.password = password  # assign directly, already hashed
+                        user.save()
 
                         personid = Personalinfo.objects.create(
                             surname=data.get('surname'),
@@ -274,7 +277,7 @@ def registration_otp_verification_view(request):
                 except IntegrityError as e:
                     # Everything rolled back, but we know where it failed
                     messages.error(request, "Registration failed. Please try again.")
-                    return redirect('register')
+                    return redirect('register3')
 
         except EmailOTP.DoesNotExist:
             error = "OTP not found"

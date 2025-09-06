@@ -1,21 +1,40 @@
 <!-- Sidebar -->
-      <aside class="w-64 bg-white border-r shadow-sm">
-        <div class="px-6 py-4 text-2xl font-bold text-blue-700">EWABB</div>
-        <nav class="mt-6">
-          <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-l-4 border-blue-600">
-            Dashboard
-          </a>
-          <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
-            Transactions
-          </a>
-          <a href="{% url 'financial_report' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
-            Financial Report
-          </a>
-          <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
-            Loans
-          </a>
-          <a href="{% url 'backup_and_restore' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
-            Backup & Restore
-          </a>
-        </nav>
-      </aside>
+<aside class="w-64 bg-white shadow-sm fixed top-0 left-0 h-screen">
+  <div class="px-6 py-4 text-2xl font-bold text-blue-700">EWABB</div>
+  <nav class="mt-6">
+    <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-l-4 border-blue-600">
+      Dashboard
+    </a>
+    <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+      Transactions
+    </a>
+    <a href="{% url 'financial_report' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+      Financial Report
+    </a>
+    <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+      Loans
+    </a>
+    <a href="{% url 'backup_and_restore' %}" class="flex items-center px-6 py-3 text-gray-500 hover:text-blue-600">
+      Backup & Restore
+    </a>
+  </nav>
+</aside>
+<!-- Top Bar -->
+<header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm fixed top-0 left-64 right-0">
+  <h1 class="text-xl font-semibold">Loans</h1>
+  <div class="flex items-center space-x-4">
+    <div class="relative">
+      <input
+        type="text"
+        placeholder="Search for member"
+        class="px-4 py-2 border rounded-full text-sm focus:outline-none"
+      />
+    </div>
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+        A
+      </div>
+      <span class="text-sm font-medium">Admin</span>
+    </div>
+  </div>
+</header>

@@ -63,6 +63,8 @@
     <button onclick="openConfirmModal('confirmModal')" 
             class="action-btn w-12 h-6 flex items-center justify-center rounded-full border border-green-500 text-green-500 hover:bg-green-100" 
             data-id="{{ loanApplication.loan_application_id }}" 
+            data-account="{{ loanApplication.member_id__account_number }}"
+            data-amount="{{ loanApplication.loan_amount }}"
             data-action="approve">
       ✓
     </button>
@@ -71,6 +73,8 @@
     <button onclick="openConfirmModal('rejectModal')" 
             class="action-btn w-12 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100" 
             data-id="{{ loanApplication.loan_application_id }}" 
+            data-account="{{ loanApplication.member_id__account_number }}"
+            data-amount="{{ loanApplication.loan_amount }}"
             data-action="reject">
       ✗
     </button>

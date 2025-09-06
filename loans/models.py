@@ -9,6 +9,7 @@ class LoanApplication(models.Model):
         ('Verified', 'Verified'),
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
+        ('Released', 'Released'),
     ]
 
     loan_application_id = models.AutoField(primary_key=True, db_column='loanapplicationid')

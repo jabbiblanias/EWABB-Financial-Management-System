@@ -10,7 +10,7 @@
 <body class="font-sans">
 
   <!-- Navbar -->
-  <nav class="bg-[#003366] px-6 py-4 flex justify-between items-center">
+  <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
     <h1 class="text-white font-bold text-xl">EWABB</h1>
     <div class="space-x-4">
       <button class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded">Login</button>
@@ -62,13 +62,6 @@
           </div>
           <p id="emailMessage" class="text-sm mt-1"></p>
           
-
-          <!-- Verify Email -->
-          <div class="relative hidden">
-            <label class="text-sm font-medium">Verify OTP</label>
-            <input name="code" type="text" placeholder="Enter your verification code" class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" required/>
-            <button type="button" id="toggle" class="absolute right-3 top-10 text-xs text-blue-600 font-semibold">Verify</button>
-          </div>
 
           <!-- Password -->
           <div class="relative">
@@ -184,7 +177,7 @@ document.getElementById('email').addEventListener("keyup", function () {
   const emailMessage = document.getElementById("emailMessage");
 
   // AJAX to check email uniqueness
-  fetch(`/check-email/?email=${encodeURIComponent(email)}`)
+  fetch(`{% url 'check_email' %}?email=${email}`)
     .then(res => res.json())
     .then(data => {
       if (data.exists) {

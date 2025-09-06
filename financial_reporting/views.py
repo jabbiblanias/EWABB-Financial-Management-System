@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect
 from accounts.models import Personalinfo
-from members.models import Member
+from members.models import Member,Savings
 from loans.models import Loan, LoanPenalty
 from .models import Financialreports, Memberfinancialdata
-from transactions.models import Savings
 import json
 from django.http import JsonResponse
 

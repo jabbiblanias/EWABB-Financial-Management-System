@@ -1,10 +1,11 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Transactions</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  {% tailwind_css %}
 </head>
   <body class="bg-gray-100 font-sans">
 
@@ -40,7 +41,7 @@
       <!-- Loan Table -->
       <div class="px-6 py-4 flex-1">
         <div class="bg-white shadow rounded-xl overflow-hidden">
-          <table id="myTable" class="min-w-full text-sm">
+          <table id="myTable" class="min-w-full text-sm text-black">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">ID</th>
@@ -88,21 +89,21 @@
         class="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
       >
         <!-- check icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5 13l4 4L19 7" />
+        <svg xmlns="http://www.w3.org/2000/svg" 
+            class="h-6 w-6 text-blue-600" 
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-5h-8m0 0l2-2m-2 2l2 2" />
         </svg>
       </div>
       <div class="flex-1">
         <h3 id="confirm-title" class="text-lg font-semibold text-gray-900">
-          Approve Loan Application?
+          Release Loan?
         </h3>
         <p id="confirm-desc" class="mt-1 text-sm text-gray-600">
-          You’re about to approve <span class="font-medium" id="memberName">Juan
-          Dela Cruz</span>’s loan request for
-          <span class="font-medium" id="loanAmount">₱50,000</span>.
-          This action will be recorded with your account and timestamp.
+          You’re about to release <span class="font-medium" id="accountNumber"></span>’s loan for
+          <span class="font-medium" id="loanAmount"></span>.
+          This action will mark the loan as <span class="font-medium">Active</span> and generate a repayment schedule.
         </p>
       </div>
       <button
@@ -175,6 +176,10 @@
 
       const account_number = btn.dataset.account_number;
       const loan_application_id = btn.dataset.loan_id;
+      const loanAmount = btn.dataset.amount;
+
+      document.getElementById("accountNumber").textContent = account_number;
+      document.getElementById("loanAmount").textContent = `₱${loanAmount}`;
       document.getElementById('confirm').addEventListener('click', function() {
         fetch("{% url 'loan_release' %}", {
           method: "POST",
@@ -211,8 +216,6 @@
       closePopUp();
     }
   });
-
-
 
   // Toast notification function
   function showAlert(message, type) {

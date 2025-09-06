@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from accounts.models import Personalinfo, Membershipapplication, Spouse, Children
+from members.models import Savings
 from .models import Member
 from django.core.paginator import Paginator 
 from django.http import JsonResponse
@@ -7,6 +8,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import json
 from django.contrib.auth.models import Group
+from django.db import transaction
 
 @login_required
 def membership_application_view(request):
@@ -37,6 +39,7 @@ def membership_application_view(request):
     return render(request, 'members/membership_applications.html', context)
 
 
+@transaction.atomic
 def approval(request):
     if request.method == 'POST':
         approver = request.user
@@ -48,7 +51,7 @@ def approval(request):
         try:
             membership_application = Membershipapplication.objects.get(application_id=application_id) 
             if action == 'approve':
-                Member.objects.create(
+                member = Member.objects.create(
                     user_id=membership_application.user_id,
                     person_id=membership_application.person_id,
                     account_number=account_number
@@ -60,6 +63,8 @@ def approval(request):
                 # Automatically assign user to 'Member' group
                 member_group = Group.objects.get(name='Member')
                 membership_application.user_id.groups.add(member_group)
+
+                Savings.objects.create(member_id=member)
             else:
                 membership_application.status = 'Rejected'
                 membership_application.verifier_id = approver

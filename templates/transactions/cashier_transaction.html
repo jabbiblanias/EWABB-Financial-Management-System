@@ -1,139 +1,272 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transactions</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transactions</title>
+    {% tailwind_css %}
+  </head>
+
   <body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      {% include 'dashboard/partials/cashier_nav.html' %}
 
-  <div class="flex h-screen">
-
-    <!-- Sidebar -->
-     {% include 'dashboard/partials/cashier_nav.html' %}
-
-    <!-- Main content -->
-    <div class="flex-1 flex flex-col">
-
-      <!-- Top bar -->
-      <header class="flex justify-between items-center px-6 py-4 border-b bg-white">
-        <h1 class="text-lg font-semibold">Transactions</h1>
-        <div class="flex items-center space-x-4">
-          <button class="relative">
-            <span class="material-icons text-gray-500">🔔</span>
-            <span class="absolute top-0 right-0 h-2 w-2 bg-blue-500 rounded-full"></span>
-          </button>
-          <div class="flex items-center bg-blue-600 text-white rounded-full w-8 h-8 justify-center">
-            C
+      <!-- Main content -->
+      <div class="flex-1 flex flex-col">
+        <!-- Top bar -->
+        <header
+          class="flex justify-between items-center px-6 py-4 shadow bg-white"
+        >
+          <h1 class="text-lg font-semibold">Transactions</h1>
+          <div class="flex items-center space-x-4">
+            <button class="relative">
+              <span class="material-icons text-gray-500">🔔</span>
+              <span
+                class="absolute top-0 right-0 h-2 w-2 bg-blue-500 rounded-full"
+              ></span>
+            </button>
+            <div
+              class="flex items-center bg-blue-600 text-white rounded-full w-8 h-8 justify-center"
+            >
+              C
+            </div>
+            <span class="text-gray-700">Cashier</span>
           </div>
-          <span class="text-gray-700">Cashier</span>
-        </div>
-      </header>
+        </header>
 
-      <!-- Form section -->
-      <div class="p-6">
-        <div class="bg-white border rounded-lg p-6 flex justify-between">
-          <!-- Left form -->
-          <div class="space-y-4 w-1/2">
-            <div>
-              <label class="block text-sm text-gray-600">Transaction Type</label>
-              <select class="w-full border rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Choose Transaction Type</option>
-              </select>
+        <!-- Form section -->
+        <form id="transactionForm" class="p-10 grid grid-cols-2 gap-7 bg-white shadow rounded-lg m-6 pl-12 pr-20">
+            <!-- Left form -->
+            <div class="space-y-5 md:col-span-1">
+              <div>
+                <label class="block text-sm text-gray-600"
+                  >Transaction Type</label
+                >
+                <select
+                  id="transactionType"
+                  name="transactionType"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="" disabled selected hidden>
+                    -- Choose Transaction Type --
+                  </option>
+                  <option>Savings Deposit</option>
+                  <option>Withdrawal</option>
+                  <option>Loan Payment</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600"
+                  >Account Number</label
+                >
+                <input
+                  id="accountNumber"
+                  name="accountNumber"
+                  type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600">Amount</label>
+                <input
+                  id="amount"
+                  name="amount"
+                  type="text"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 text-black"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label class="block text-sm text-gray-600">Account Number</label>
-              <input type="text" class="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500" />
+
+            <!-- Right Info -->
+            <div class="space-y-5 text-sm col-span-1 ml-6">
+              <p class="flex justify-between">
+                <span>Member Name</span>
+                <span class="ml-6 font-medium text-end">Mark Anthony Dela Cruz</span>
+              </p>
+              <p class="flex justify-between">
+                <span >Current Loan Balance</span>
+                <span class="text-end ml-6 font-medium">2,500</span>
+              </p>
+              <p class="flex justify-between">
+                <span class="font-medium">New Loan Balance</span>
+                <span class="ml-10">2,500</span>
+              </p>
             </div>
-            <div>
-              <label class="block text-sm text-gray-600">Amount</label>
-              <input type="text" class="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div class="flex space-x-4">
-              <button class="px-4 py-2 rounded-lg border text-gray-600">Cancel</button>
-              <button class="px-6 py-2 rounded-lg bg-blue-600 text-white">Submit</button>
-            </div>
+            <div class="space-x-4 col-span-2 flex justify-end">
+                <button 
+                type="reset"
+                class="px-6 py-2 rounded-lg border text-gray-600">
+                  Clear
+                </button>
+                <button class="px-6 py-2 rounded-lg bg-blue-600 text-white">
+                  Submit
+                </button>
+              </div>
+          </form>
+
+        <!-- Transactions Table -->
+        <div class="px-6 py-4">
+          <div class="flex justify-between items-center px-6 py-4">
+            <h1 class="font-semibold text-gray-700">All Transactions</h1>
+          </div>
+          <div class="bg-white rounded-xl shadow overflow-hidden">
+            <table id="myTable" class="min-w-full text-left text-sm text-black">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th class="px-6 py-3 text-left font-medium">Transaction ID</th>
+                    <th class="px-6 py-3 text-left font-medium">Type</th>
+                    <th class="px-6 py-3 text-left font-medium">Account No</th>
+                    <th class="px-6 py-3 text-left font-medium">Date</th>
+                    <th class="px-6 py-3 text-left font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="transaction-table-body" class="bg-white">
+                  {% include 'transactions/partials/cashier_transaction_table_body.html' %}
+                </tbody>
+              </table>
           </div>
 
-          <!-- Right Info -->
-          <div class="space-y-3 text-sm">
-            <p><span class="font-medium">Member Name</span> <span class="ml-6">Mark Anthony Dela Cruz</span></p>
-            <p><span class="font-medium">Current Loan Balance</span> <span class="ml-6">2,500</span></p>
-            <p><span class="font-medium">New Loan Balance</span> <span class="ml-10">2,500</span></p>
-          </div>
+          <!-- Pagination -->
+          <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+              <button class="text-blue-500">&lt; Previous</button>
+              <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+              <button class="text-blue-500">2</button>
+              <button class="text-blue-500">3</button>
+              <button class="text-blue-500">4</button>
+              <button class="text-blue-500">Next &gt;</button>
+            </div>
         </div>
       </div>
-
-      <!-- Transactions Table -->
-      <div class="px-6 pb-6">
-        <div class="bg-white border rounded-lg p-4">
-          <h2 class="text-sm font-semibold text-gray-700 mb-3">All Transactions</h2>
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-gray-500 text-left border-b">
-                <th class="py-2">Transaction ID</th>
-                <th>Type</th>
-                <th>Account No</th>
-                <th>Date</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b">
-                <td class="py-2">#12548796</td>
-                <td>Withdrawal</td>
-                <td>1234 ****</td>
-                <td>28 Jan, 12.30 AM</td>
-                <td class="text-red-500">- $2,500</td>
-              </tr>
-              <tr class="border-b">
-                <td class="py-2">#12548796</td>
-                <td>Savings</td>
-                <td>1234 ****</td>
-                <td>25 Jan, 10.40 PM</td>
-                <td class="text-green-500">+ $750</td>
-              </tr>
-              <tr class="border-b">
-                <td class="py-2">#12548796</td>
-                <td>Withdrawal</td>
-                <td>1234 ****</td>
-                <td>20 Jan, 10.40 PM</td>
-                <td class="text-red-500">- $150</td>
-              </tr>
-              <tr class="border-b">
-                <td class="py-2">#12548796</td>
-                <td>Withdrawal</td>
-                <td>1234 ****</td>
-                <td>15 Jan, 03.29 PM</td>
-                <td class="text-red-500">- $1050</td>
-              </tr>
-              <tr>
-                <td class="py-2">#12548796</td>
-                <td>Repayment</td>
-                <td>1234 ****</td>
-                <td>14 Jan, 10.40 PM</td>
-                <td class="text-green-500">+ $840</td>
-              </tr>
-            </tbody>
-          </table>
-
-        
-        </div>
-         <!-- Pagination -->
-          <div class="flex justify-end items-center space-x-2 mt-4 text-sm text-gray-600">
-            <a href="#" class="hover:text-blue-600">&lt; Previous</a>
-            <a href="#" class="px-3 py-1 rounded-full bg-blue-600 text-white">1</a>
-            <a href="#" class="hover:text-blue-600">2</a>
-            <a href="#" class="hover:text-blue-600">3</a>
-            <a href="#" class="hover:text-blue-600">4</a>
-            <a href="#" class="hover:text-blue-600">Next &gt;</a>
-          </div>
-      </div>
-       
-
     </div>
-  </div>
 
-</body>
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+      role="status"></div>
+    
+    {% include 'transactions/partials/transaction_confirmation.html' %}
+    <script>
+      async function getAccountNumbers() {
+        try {
+          const response = await fetch("% url 'account_numbers' %", {
+            method: "GET",
+            header: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+          });
+          
+        } catch (Error) {
+          console.error("Fetch error:", error)
+        }
+      }
+      let pendingFormData = null; // store form data globally
+
+// When form is submitted → prevent send, just save the data
+document.getElementById("transactionForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    pendingFormData = new FormData(form);
+
+    // Open confirmation modal here if needed
+    document.getElementById("transactionModal").classList.remove("hidden");
+});
+
+// Confirm button → send data
+document.getElementById("confirmTransaction").addEventListener("click", async function() {
+    if (!pendingFormData) return; // nothing to send
+
+    try {
+        const response = await fetch("{% url 'save_transaction' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: pendingFormData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("transaction-table-body").innerHTML = data.html;
+            showAlert(data.message, "success");
+            document.getElementById("transactionForm").reset();
+            fillTableRows("myTable", 10);
+        } else {
+            showAlert(data.message, "failed");
+        }
+
+        // clear saved data
+        pendingFormData = null;
+
+        // close modal
+        document.getElementById("confirmModal").classList.add("hidden");
+
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+});
+
+      // Toast notification function
+    function showAlert(message, type) {
+      const toast = document.getElementById("toast");
+
+      // Remove old color classes before adding new one
+      toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+      // Style by type
+      if (type === "success") {
+        toast.classList.add("bg-emerald-600"); // green
+      } else {
+        toast.classList.add("bg-yellow-600"); // yellow default
+      }
+
+      // Set message
+      toast.textContent = message;
+
+      // Show toast
+      toast.classList.remove("hidden");
+
+      // Hide after 4s
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
+
+    function fillTableRows(tableId, requiredRows) {
+        const table = document.getElementById(tableId);
+        const tbody = table.querySelector('tbody');
+        const currentRows = tbody.querySelectorAll('tr').length;
+        const columnsCount = table.querySelectorAll('th').length;
+        
+        // Add empty rows if needed
+        for (let i = currentRows; i < requiredRows; i++) {
+            const row = document.createElement('tr');
+            row.className = "border-b border-gray-200 hover:bg-sky-100"
+            
+            for (let j = 0; j < columnsCount; j++) {
+            const cell = document.createElement('td');
+            cell.className = "px-6 py-3"
+            cell.innerHTML = '&nbsp;'; // or leave empty: cell.textContent = '';
+            row.appendChild(cell);
+            }
+            
+            tbody.appendChild(row);
+        }
+    }
+
+    // Fill table to have exactly 10 rows
+    fillTableRows('myTable', 10);
+    </script>
+  </body>
 </html>
