@@ -13,3 +13,16 @@ class Member(models.Model):
     class Meta:
         managed = False
         db_table = 'member'
+
+
+class Savings(models.Model):
+    savings_id = models.AutoField(primary_key=True, db_column='savingid')
+    member_id = models.ForeignKey(Member, models.DO_NOTHING, db_column='memberid')
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0, db_column='balance')
+
+    def __str__(self):
+        return f"Savings #{self.id} - Member: {self.member}"
+    
+    class Meta:
+        managed = False
+        db_table = 'savings'

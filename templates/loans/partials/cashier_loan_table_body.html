@@ -1,0 +1,50 @@
+{% for loan in loans %}
+<tr id="row-{{ loan.loan_application_id }}" 
+ondblclick="window.location.href='details/{{loan.loan_application_id}}/';" 
+class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+    <td class="px-6 py-3">{{ loan.loan_application_id }}</td>
+    <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
+    <td class="px-6 py-3">{{ loan.loan_amount }}</td>
+    <td class="px-6 py-3">
+        {% if loan.loan_term_years %} 
+        {{ loan.loan_term_years }}
+        {% if loan.loan_term_years > 1 %}
+            years
+        {% else %}
+            year
+        {% endif %}
+        {% endif %}
+        {% if loan.loan_term_years and loan.loan_term_months %} 
+        and 
+        {% endif %}
+        {% if loan.loan_term_months %} 
+        {{ loan.loan_term_months }}
+        {% if loan.loan_term_months > 1 %}
+            months
+        {% else %}
+            month
+        {% endif %}
+        {% endif %}
+        {% if loan.loan_term_days %} {{ loan.loan_term_days }} days{% endif %}
+    </td>
+    <td class="px-6 py-3">
+        {{ loan.amortization|floatformat:0 }}
+        {% if loan.loan_term_days %}
+        / Daily
+        {% else %}
+        / Monthly
+        {% endif %}
+    </td>
+    <td class="px-6 py-3">
+        <button id="release-{{ loan.loan_application_id }}" 
+        onclick="openPopUp(this)" 
+        class="px-4 py-1 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50" 
+        data-loan_id="{{ loan.loan_application_id }}" 
+        data-account_number="{{ loan.member_id__account_number }}"
+        data-amount="{{ loan.loan_amount }}">
+        Release
+        </button>
+    </td>
+</tr>
+{% endfor %}
+

@@ -22,10 +22,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
-    path('loan/', include('loans.urls')),
+    path('loans/', include('loans.urls')),
     path('members/', include('members.urls')),
     path('transactions/', include('transactions.urls')),
     path('appointments/', include('appointments.urls')),
+    path('financial-report/', include('financial_reporting.urls')),
+    path('programs/', include('programs.urls')),
+    path('backup_and_restore/', include('backup_and_restore.urls')),
 ]
 
 if settings.DEBUG:

@@ -2,7 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.loan_application_view, name='loans'),
-    path('apply/', views.loan_application_view, name='applyLoan'),
-    path('<int:loan_application_id>/details/', views.loan_application_details_view, name='loanApplicationDetails'),
+    path('', views.member_loan_home, name='loans'),
+    path('loan-applications/', views.loan_application_view, name='loan_applications'),
+    path('loan-applications/approval/', views.approving_loan, name='loan_approval'),
+    path('loan-applications/release/', views.releasing, name='loan_release'),
+    path('active-loans/', views.active_loans, name='active_loans'),
+    path('loan-applications/details/<int:loan_application_id>/', views.loan_application_details_view, name='loanApplicationDetails'),
+    path('active-loans/details/<int:loan_id>/', views.loan_details_view, name='loanDetails'),
 ]

@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect
 from accounts.models import Personalinfo
-from members.models import Member
+from members.models import Member,Savings
 from loans.models import Loan, LoanPenalty
 from .models import Financialreports, Memberfinancialdata
-from transactions.models import Savings
 import json
 from django.http import JsonResponse
 
 def financial_report_view(request):
-    financial_report = (
+    '''financial_report = (
         Member.objects.select_related('personalinfo', 'loan', 'savings', 'loanpenalty')
         .values(
             'accountnumber',
@@ -21,8 +20,12 @@ def financial_report_view(request):
             'savings__amount'
         )
     )
-    context = {'financial_report': financial_report}
-    return render(request, 'financial_report.html', context)
+    context = {'financial_report': financial_report}'''
+    if request.user.groups.filter(name='Bookkeeper').exists():
+        return render(request, 'financial_reporting/bookkeeper_report.html')
+    elif request.user.groups.filter(name='Admin').exists():
+        return render(request, 'financial_reporting/admin_report.html')
+    
 
 
 def submit_financial_report(request):

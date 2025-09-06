@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EWABB Login Notification</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color:#f6f9fc; margin:0; padding:0;">
+  <div style="max-width:600px; margin:30px auto; background:#ffffff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+
+    <!-- Header -->
+    <div style="background:#003366; color:#ffffff; padding:15px; text-align:center; border-radius:12px 12px 0 0;">
+      <h1 style="margin:0; font-size:22px;">EWABB Login Alert</h1>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:20px; color:#333333; font-size:15px; line-height:1.6;">
+      <p>Dear <strong>{{ user_name }}</strong>,</p>
+      <p>Your <strong>EWABB Financial Management System</strong> account was just accessed.</p>
+
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:14px;">
+        <tr>
+          <td style="padding:8px; border:1px solid #ddd;"><strong>Login Time</strong></td>
+          <td style="padding:8px; border:1px solid #ddd;">{{ login_time }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #ddd;"><strong>Device</strong></td>
+          <td style="padding:8px; border:1px solid #ddd;">{{ device_info }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #ddd;"><strong>Location</strong></td>
+          <td style="padding:8px; border:1px solid #ddd;">{{ location }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border:1px solid #ddd;"><strong>IP Address</strong></td>
+          <td style="padding:8px; border:1px solid #ddd;">{{ ip_address }}</td>
+        </tr>
+      </table>
+
+      <p>If this was you, no further action is required.</p>
+      <p>If this wasn’t you, please <a href="{{ reset_link }}" style="color:#01A2F9; font-weight:bold; text-decoration:none;">reset your password immediately</a> and secure your account.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; font-size:12px; color:#777777; margin-top:30px;">
+      <p>&copy; {{ current_year }} EWABB Financial Management System. All rights reserved.</p>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transactions</title>
+  {% tailwind_css %}
+</head>
+  <body class="bg-gray-100 font-sans">
+
+  <div class="flex h-screen">
+
+    <!-- Sidebar -->
+     {% include 'dashboard/partials/cashier_nav.html' %}
+
+    <!-- Main content -->
+   <div class="flex-1 flex flex-col">
+      
+      <!-- Header -->
+        <header class="flex justify-between items-center px-6 py-4 border-b bg-white">
+        <h1 class="text-lg font-semibold">Loans</h1>
+        <div class="flex items-center space-x-4">
+          <button class="relative">
+            <span class="material-icons text-gray-500">🔔</span>
+            <span class="absolute top-0 right-0 h-2 w-2 bg-blue-500 rounded-full"></span>
+          </button>
+          <div class="flex items-center bg-blue-600 text-white rounded-full w-8 h-8 justify-center">C</div>
+          <span class="text-gray-700">Cashier</span>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="px-6 pt-6">
+        <div class="flex space-x-8 border-b border-gray-200">
+          <a href="{% url 'loan_applications' %}" class="px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium">Approved Loans</a>
+          <a href="{% url 'active_loans' %}" class="px-4 py-2 text-gray-500 hover:text-gray-700">Active Loans</a>
+        </div>
+      </div>
+
+      <!-- Loan Table -->
+      <div class="px-6 py-4 flex-1">
+        <div class="bg-white shadow rounded-xl overflow-hidden">
+          <table id="myTable" class="min-w-full text-sm text-black">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">ID</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Account No</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Loan Amount</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Term</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Installment</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600"></th>
+              </tr>
+            </thead>
+            <tbody id="cashier-table-body" class="bg-white">
+              {% include 'loans/partials/cashier_loan_table_body.html' %}
+            </tbody>
+          </table>
+        </div>
+        </div>
+         <!-- Pagination -->
+        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+          <button class="text-blue-500">&lt; Previous</button>
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+          <button class="text-blue-500">2</button>
+          <button class="text-blue-500">3</button>
+          <button class="text-blue-500">4</button>
+          <button class="text-blue-500">Next &gt;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Release Modal -->
+<div
+  id="releaseModal"
+  class="fixed inset-0 z-50 hidden bg-black/10"
+  aria-labelledby="confirm-title"
+  role="dialog"
+  aria-modal="true"
+>
+
+  <!-- Panel -->
+  <div
+    class="relative mx-auto mt-28 w-[92%] max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-black/5"
+  >
+    <!-- Header -->
+    <div class="flex items-start gap-3 p-5">
+      <div
+        class="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+      >
+        <!-- check icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" 
+            class="h-6 w-6 text-blue-600" 
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-5h-8m0 0l2-2m-2 2l2 2" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 id="confirm-title" class="text-lg font-semibold text-gray-900">
+          Release Loan?
+        </h3>
+        <p id="confirm-desc" class="mt-1 text-sm text-gray-600">
+          You’re about to release <span class="font-medium" id="accountNumber"></span>’s loan for
+          <span class="font-medium" id="loanAmount"></span>.
+          This action will mark the loan as <span class="font-medium">Active</span> and generate a repayment schedule.
+        </p>
+      </div>
+      <button
+        id="closeX"
+        onclick="closePopUp()"
+        class="ml-2 rounded-lg p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-label="Close"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+          viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M10 8.586l4.95-4.95 1.414 1.414L11.414 10l4.95 4.95-1.414 1.414L10 11.414l-4.95 4.95-1.414-1.414L8.586 10l-4.95-4.95L5.05 3.636 10 8.586z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="flex justify-end gap-3 border-t border-gray-100 p-5">
+      <button
+        onclick="closePopUp()"
+        id="cancelBtn"
+        type="button"
+        class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="confirm"
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Toast -->
+<div
+  id="toast"
+  class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+  role="status"></div>
+<script>
+  function fillTableRows(tableId, requiredRows) {
+        const table = document.getElementById(tableId);
+        const tbody = table.querySelector('tbody');
+        const currentRows = tbody.querySelectorAll('tr').length;
+        const columnsCount = table.querySelectorAll('th').length;
+        
+        // Add empty rows if needed
+        for (let i = currentRows; i < requiredRows; i++) {
+            const row = document.createElement('tr');
+            row.className = "border-b border-gray-200 hover:bg-sky-100"
+            
+            for (let j = 0; j < columnsCount; j++) {
+            const cell = document.createElement('td');
+            cell.className = "px-6 py-3"
+            cell.innerHTML = '&nbsp;'; // or leave empty: cell.textContent = '';
+            row.appendChild(cell);
+            }
+            
+            tbody.appendChild(row);
+        }
+    }
+
+    // Fill table to have exactly 10 rows
+    fillTableRows('myTable', 10);
+
+    function openPopUp(btn) {
+      document.getElementById('releaseModal').classList.remove('hidden');
+
+      const account_number = btn.dataset.account_number;
+      const loan_application_id = btn.dataset.loan_id;
+      const loanAmount = btn.dataset.amount;
+
+      document.getElementById("accountNumber").textContent = account_number;
+      document.getElementById("loanAmount").textContent = `₱${loanAmount}`;
+      document.getElementById('confirm').addEventListener('click', function() {
+        fetch("{% url 'loan_release' %}", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({account_number: account_number, loan_application_id: loan_application_id})
+        })
+        .then(res => {
+          if (!res.ok){
+            throw new Error(`HTTP Error ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          if(data.success) {
+            document.getElementById('cashier_loan-table-body').innerHTML = data.html;
+            fillTableRows('myTable', 10);
+            showAlert(`"Loan Application ${loan_application_id}" has been released.`, "release");
+            closePopUp();
+          }
+        })
+        .catch(error => console.error("Fetch Error: ", error))
+      });
+  }
+
+  function closePopUp() {
+    document.getElementById('releaseModal').classList.add('hidden');
+  }
+
+  document.getElementById('releaseModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closePopUp();
+    }
+  });
+
+  // Toast notification function
+  function showAlert(message, type) {
+    const toast = document.getElementById("toast");
+
+    // Remove old color classes before adding new one
+    toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+    // Style by type
+    if (type === "approve") {
+      toast.classList.add("bg-emerald-600"); // green
+    } else if (type === "reject") {
+      toast.classList.add("bg-red-600"); // red
+    } else {
+      toast.classList.add("bg-yellow-600"); // yellow default
+    }
+
+    // Set message
+    toast.textContent = message;
+
+    // Show toast
+    toast.classList.remove("hidden");
+
+    // Hide after 4s
+    setTimeout(() => toast.classList.add("hidden"), 4000);
+}
+</script>
+</body>
+</html>

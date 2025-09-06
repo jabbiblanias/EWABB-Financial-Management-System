@@ -78,7 +78,7 @@ class Children(models.Model):
     child_id = models.AutoField(primary_key=True, db_column='childid')
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid', blank=True, null=True)
     full_name = models.CharField(max_length=100, blank=True, null=True,db_column='fullname')
-    date_of_birth = models.DateField(blank=True, null=True,db_column='dateofbirth')
+    date_of_birth = models.DateField(blank=True, null=True, db_column='dateofbirth')
 
     class Meta:
         managed = False

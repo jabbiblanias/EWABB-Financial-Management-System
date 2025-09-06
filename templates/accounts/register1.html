@@ -9,10 +9,14 @@
   </head>
   <body class="font-sans">
     <!-- Navbar -->
-    <nav class="bg-[#003366] px-6 py-4 flex justify-between items-center">
+    <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
       <h1 class="text-white font-bold text-xl">EWABB</h1>
       <div class="space-x-4">
-        <button class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded">Login</button>
+        <button
+          class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded"
+        >
+          Login
+        </button>
       </div>
     </nav>
 
@@ -20,124 +24,661 @@
     <div class="w-full py-4">
       <div class="flex justify-center space-x-10">
         <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">1</div>
-          <span class="font-medium text-yellow-400">Member Personal Information</span>
+          <div
+            class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold"
+          >
+            1
+          </div>
+          <span class="font-medium text-yellow-400"
+            >Member Personal Information</span
+          >
         </div>
         <div class="flex items-center space-x-2 text-gray-400">
-          <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">2</div>
+          <div
+            class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold"
+          >
+            2
+          </div>
           <span class="font-medium">Family Background</span>
         </div>
         <div class="flex items-center space-x-2 text-gray-400">
-          <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">3</div>
+          <div
+            class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold"
+          >
+            3
+          </div>
           <span class="font-medium">Create Account</span>
         </div>
       </div>
     </div>
 
     <!-- Form Section -->
-    <form class="max-w-3xl mx-auto px-10 py-10" method="POST" action="{% url 'register1' %}">
+    <form
+      class="max-w-3xl mx-auto px-10 py-10"
+      method="POST"
+      action="{% url 'register1' %}"
+    >
       {% csrf_token %}
       <div class="text-center">
         <h2 class="text-3xl font-bold mb-2">Personal Information</h2>
         <p class="mb-6">• Please fill out the form with accurate information</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <!-- Left Column -->
+      <!--<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <div class="space-y-4">
           <label class="block text-sm font-medium mb-1">Last Name</label>
-          <input name="surname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="surname"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">First Name</label>
-          <input name="firstName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="firstName"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">Middle Name</label>
-          <input name="middleName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <input
+            name="middleName"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">Date of Birth</label>
-          <input name="dateOfBirth" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="dateOfBirth"
+            type="date"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">Place of Birth</label>
-          <input name="placeOfBirth" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="placeOfBirth"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">Gender</label>
-            <select name="gender" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
-              <option disabled selected>Select</option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
-          
+          <select
+            name="gender"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          >
+            <option disabled selected>Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+
           <label class="block text-sm font-medium mb-1">Civil Status</label>
-          <select name="civilStatus" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
+          <select
+            name="civilStatus"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          >
             <option disabled selected>Select</option>
             <option>Single</option>
             <option>Married</option>
             <option>Widowed</option>
             <option>Separated</option>
           </select>
-          
+
           <label class="block text-sm font-medium mb-1">Citizenship</label>
-          <input name="citizenship" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="citizenship"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">Blood Type</label>
-          <input name="bloodType" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <input
+            name="bloodType"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">Height</label>
-          <input name="height" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="height"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">Weight</label>
-          <input name="weight" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="weight"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">GSIS ID NO.</label>
-          <input name="gsisIdNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <input
+            name="gsisIdNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">PAG-IBIG NO.</label>
-          <input name="pagibigIdNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input
+            name="pagibigIdNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
         </div>
 
-        <!-- Right Column -->
         <div class="space-y-4">
-          <label class="block text-sm font-medium mb-1">Residential Address</label>
-          <input name="residentialAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
-          <label class="block text-sm font-medium mb-1">Zip Code</label>
-          <input name="residentialAddressZipCode" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
-          <label class="block text-sm font-medium mb-1">Telephone No.</label>
-          <input name="residentialAddressTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <label class="block text-sm font-medium mb-1"
+            >Residential Address</label
+          >
+          <input
+            name="residentialAddress"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
 
-          <label class="block text-sm font-medium mb-1">Permanent Address</label>
-          <input name="permanentAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
-          <label class="block text-sm font-medium mb-1">Zip Code</label>
-          <input name="permanentAddressZipCode" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
-          <label class="block text-sm font-medium mb-1">Telephone No.</label>
-          <input name="permanentAddressTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <label class="block text-sm font-medium mb-1"
+            >Residential Zip Code</label
+          >
+          <input
+            name="residentialAddressZipCode"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
+          <label class="block text-sm font-medium mb-1"
+            >Residential Telephone No.</label
+          >
+          <input
+            name="residentialAddressTelephoneNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
+          <label class="block text-sm font-medium mb-1"
+            >Permanent Address</label
+          >
+          <input
+            name="permanentAddress"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
+          <label class="block text-sm font-medium mb-1"
+            >Permanent Zip Code</label
+          >
+          <input
+            name="permanentAddressZipCode"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
+          <label class="block text-sm font-medium mb-1"
+            >Permanent Telephone No.</label
+          >
+          <input
+            name="permanentAddressTelephoneNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">Cellphone No.</label>
-          <input name="cellphoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
+          <input
+            name="cellphoneNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required
+          />
+
           <label class="block text-sm font-medium mb-1">Email Address</label>
-          <input type="email" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-          
-          <label class="block text-sm font-medium mb-1">Agency Employee No.</label>
-          <input name="agencyEmployeeNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <input
+            type="email"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
+          <label class="block text-sm font-medium mb-1"
+            >Agency Employee No.</label
+          >
+          <input
+            name="agencyEmployeeNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">TIN NUMBER</label>
-          <input name="tinNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <input
+            name="tinNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">PHILHEALTH NO.</label>
-          <input name="philhealthIdNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          
+          <input
+            name="philhealthIdNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+
           <label class="block text-sm font-medium mb-1">SSS NO.</label>
-          <input name="sssNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input
+            name="sssNo"
+            type="text"
+            class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+        </div>
+      </div>-->
+
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] ml-3 md:col-span-2">
+          Personal Details
+        </h3>
+          <div class="space-y-4 ml-3">
+            <div>
+              <label
+                for="surname"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Last Name</label
+              >
+              <input
+                id="surname"
+                name="surname"
+                type="text"
+                placeholder="e.g., Dela Cruz"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="firstName"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >First Name</label
+              >
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                placeholder="e.g., Juan"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="middleName"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Middle Name (Optional)</label
+              >
+              <input
+                id="middleName"
+                name="middleName"
+                type="text"
+                placeholder="e.g., Magsaysay"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="dateOfBirth"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Date of Birth</label
+              >
+              <input
+                id="dateOfBirth"
+                name="dateOfBirth"
+                type="date"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="placeOfBirth"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Place of Birth</label
+              >
+              <input
+                id="placeOfBirth"
+                name="placeOfBirth"
+                type="text"
+                placeholder="e.g., Manila, Philippines"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="gender"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Gender</label
+              >
+              <select
+                id="gender"
+                name="gender"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              >
+                <option value="" disabled selected>Select...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="space-y-4 ml-3">
+            <div>
+              <label
+                for="civilStatus"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Civil Status</label
+              >
+              <select
+                id="civilStatus"
+                name="civilStatus"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              >
+                <option value="" disabled selected>Select...</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Separated">Separated</option>
+              </select>
+            </div>
+            <div>
+              <label
+                for="citizenship"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Citizenship</label
+              >
+              <input
+                id="citizenship"
+                name="citizenship"
+                type="text"
+                placeholder="e.g., Filipino"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="bloodType"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Blood Type (Optional)</label
+              >
+              <input
+                id="bloodType"
+                name="bloodType"
+                type="text"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="height"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Height (cm)</label
+              >
+              <input
+                id="height"
+                name="height"
+                type="text"
+                placeholder="e.g., 170 cm"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="weight"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Weight (kg)</label
+              >
+              <input
+                id="weight"
+                name="weight"
+                type="text"
+                placeholder="e.g., 65 kg"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5 ml-3">
+          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] md:col-span-2">
+          Contact Information
+        </h3>
+          <div>
+            <label
+              for="cellphoneNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Cellphone No.</label
+            >
+            <input
+              id="cellphoneNo"
+              name="cellphoneNo"
+              type="tel"
+              placeholder="e.g., +639171234567"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Email Address</label
+            >
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="e.g., juan.delacruz@email.com"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="residentialAddress"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Residential Address</label
+            >
+            <input
+              id="residentialAddress"
+              name="residentialAddress"
+              type="text"
+              placeholder="House No., Street, Brgy., City"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="residentialAddressZipCode"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Residential Zip Code</label
+            >
+            <input
+              id="residentialAddressZipCode"
+              name="residentialAddressZipCode"
+              type="text"
+              placeholder="e.g., 1234"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="permanentAddress"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Permanent Address</label
+            >
+            <input
+              id="permanentAddress"
+              name="permanentAddress"
+              type="text"
+              placeholder="House No., Street, Brgy., City"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="permanentAddressZipCode"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Permanent Zip Code</label
+            >
+            <input
+              id="permanentAddressZipCode"
+              name="permanentAddressZipCode"
+              type="text"
+              placeholder="e.g., 1234"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="residentialAddressTelephoneNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Residential Telephone No. (Optional)</label
+            >
+            <input
+              id="residentialAddressTelephoneNo"
+              name="residentialAddressTelephoneNo"
+              type="tel"
+              placeholder="e.g., (02) 8123-4567"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="permanentAddressTelephoneNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Permanent Telephone No. (Optional)</label
+            >
+            <input
+              id="permanentAddressTelephoneNo"
+              name="permanentAddressTelephoneNo"
+              type="tel"
+              placeholder="e.g., (02) 8123-4567"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+      <div class="">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 ml-3">
+          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mt-5 md:col-span-2">
+          Government IDs
+        </h3>
+          <div class="space-y-4">
+            <label
+              for="agencyEmployeeNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Agency Employee No. (Optional)</label
+            >
+            <input
+              id="agencyEmployeeNo"
+              name="agencyEmployeeNo"
+              type="text"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="tinNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >TIN Number (Optional)</label
+            >
+            <input
+              id="tinNo"
+              name="tinNo"
+              type="text"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="gsisIdNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >GSIS ID NO. (Optional)</label
+            >
+            <input
+              id="gsisIdNo"
+              name="gsisIdNo"
+              type="text"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="pagibigIdNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >PAG-IBIG NO. (Optional)</label
+            >
+            <input
+              id="pagibigIdNo"
+              name="pagibigIdNo"
+              type="text"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="philhealthIdNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >PHILHEALTH NO. (Optional)</label
+            >
+            <input
+              id="philhealthIdNo"
+              name="philhealthIdNo"
+              type="text"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="sssNo"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >SSS NO. (Optional)</label
+            >
+            <input
+              id="sssNo"
+              name="sssNo"
+              type="text"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
         </div>
       </div>
+
       <!-- BUTTONS -->
-      <div class="flex justify-center gap-4">
-        <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</button>
+      <div class="flex justify-center mt-10">
+        <button
+          type="submit"
+          class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white"
+        >
+          Next
+        </button>
       </div>
     </form>
   </body>

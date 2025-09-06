@@ -1,0 +1,15 @@
+<!-- Sidebar -->
+<aside class="w-64 max-h-screen bg-white shadow">
+  <div class="px-6 py-4 text-2xl font-bold text-blue-700">EWABB</div>
+  <nav class="mt-6">
+    <a href="{% url 'dashboard' %}" 
+    class="{% if request.resolver_match.url_name == 'dashboard' %}text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %} flex items-center px-6 py-3">
+    <span class="w-5 mr-3 inline-block"></span>Dashboard</a>
+    <a href="{% url 'transactions' %}" 
+    class="{% if request.resolver_match.url_name == 'transactions' %}text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %} flex items-center px-6 py-3">
+    <span class="w-5 mr-3 inline-block"></span>Transactions</a>
+    <a href="{% url 'loans' %}" 
+    class="{% if request.resolver_match.url_name == 'loans' %}text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %} flex items-center px-6 py-3">
+    <span class="w-5 mr-3 inline-block"></span>Loans</a>
+  </nav> 
+</aside>

@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'transactions',
     'financial_reporting',
     'appointments',
+    'programs',
+    'mailing',
 ]
 
 if DEBUG:
@@ -60,7 +62,7 @@ NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 # Tailwind config
 TAILWIND_APP_NAME = 'theme'
 #INTERNAL_IPS = ['127.0.0.1']
-STATICFILES_DIRS = [ BASE_DIR / "theme" / "static" ]
+STATICFILES_DIRS = [ BASE_DIR / "static" ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

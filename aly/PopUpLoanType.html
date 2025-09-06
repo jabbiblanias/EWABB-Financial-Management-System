@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-xl shadow-md p-8 w-96">
+      <!-- Loan Type -->
+      <div class="mb-4">
+        <label class="block text-gray-700 mb-1">Loan Type</label>
+        <select
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
+        >
+          <option selected disabled>Choose Loan Type</option>
+          <option>Personal Loan</option>
+          <option>Business Loan</option>
+          <option>Emergency Loan</option>
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div class="mb-4">
+        <label class="block text-gray-700 mb-1">Amount</label>
+        <input
+          type="text"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Term -->
+      <div class="mb-6">
+        <div class="slider-container">
+        <label class="block text-gray-700 mb-1">Term</label>
+        <input type="range" class="w-full accent-blue-600" 
+        id="loan-term"
+        class="slider"
+        min="0"
+        max="21"
+        step="1"
+        value="0"
+        oninput="updateValue(this.value)"/>
+        <p id="term-value" class="text-center text-black mt-1"></p>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="space-y-2 mb-6">
+        <div class="flex justify-between text-gray-700">
+          <span>Service Charge</span>
+          <span class="text-black font-medium">2%</span>
+        </div>
+        <div class="flex justify-between text-gray-700">
+          <span>Release Amount</span>
+          <span class="text-black font-medium">12,000</span>
+        </div>
+        <div class="flex justify-between text-gray-700">
+          <span>Installment</span>
+          <span class="text-black font-medium">800 / Monthly</span>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between items-center">
+        <button class="text-black font-medium">Clear</button>
+        <button
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+    <script>
+    // 1. Define the custom loan terms in an array.
+    const loanTerms = [
+      '100 days',
+      '4 months', '5 months',
+      '6 months', '7 months', '8 months', '9 months', '10 months', '11 months',
+      '1 year',
+      '1 year and 1 month', '1 year and 2 months', '1 year and 3 months',
+      '1 year and 4 months', '1 year and 5 months', '1 year and 6 months',
+      '1 year and 7 months', '1 year and 8 months', '1 year and 9 months',
+      '1 year and 10 months', '1 year and 11 months',
+      '2 years'
+    ];
+
+    const termSlider = document.getElementById('loan-term');
+    const termValueDisplay = document.getElementById('term-value');
+
+    // 2. The function now uses the slider's value as an index for the array.
+    function updateValue(index) {
+      termValueDisplay.textContent = loanTerms[index];
+    }
+
+    // 3. Call the function on page load to set the initial value.
+    window.onload = function() {
+      updateValue(termSlider.value);
+    };
+  </script>
+  </body>
+</html>

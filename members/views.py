@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from accounts.models import Personalinfo, Membershipapplication, Spouse, Children
+from members.models import Savings
 from .models import Member
 from django.core.paginator import Paginator 
 from django.http import JsonResponse
@@ -7,6 +8,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 import json
 from django.contrib.auth.models import Group
+from django.db import transaction
 
 @login_required
 def membership_application_view(request):
@@ -37,34 +39,35 @@ def membership_application_view(request):
     return render(request, 'members/membership_applications.html', context)
 
 
+@transaction.atomic
 def approval(request):
     if request.method == 'POST':
-        user = request.user
+        approver = request.user
         data = json.loads(request.body)
         application_id = data.get('applicationid')
         action = data.get('action')
         account_number = data.get('account_number')
 
-
         try:
             membership_application = Membershipapplication.objects.get(application_id=application_id) 
             if action == 'approve':
-                membership_application.status = 'Approved'
-                membership_application.verifier_id = user
-                membership_application.save()
-
-                '''Member.objects.create(
+                member = Member.objects.create(
                     user_id=membership_application.user_id,
                     person_id=membership_application.person_id,
                     account_number=account_number
                 )
+                membership_application.status = 'Approved'
+                membership_application.verifier_id = approver
+                membership_application.save()
 
                 # Automatically assign user to 'Member' group
                 member_group = Group.objects.get(name='Member')
-                user.groups.add(member_group)'''
+                membership_application.user_id.groups.add(member_group)
+
+                Savings.objects.create(member_id=member)
             else:
                 membership_application.status = 'Rejected'
-                membership_application.verifier_id = user
+                membership_application.verifier_id = approver
                 membership_application.save()
 
             # Re-fetch and re-render the table body
@@ -83,7 +86,7 @@ def approval(request):
                     'person_id__civil_status'
                 )
             )
-            html = render_to_string('members/member_table_body.html', {'membership_applications': membership_applications})
+            html = render_to_string('members/membership_table_body.html', {'membershipApplications': membership_applications})
             return JsonResponse({'success': True, 'html': html})
         except Membershipapplication.DoesNotExist:
             return JsonResponse({'success': False})
@@ -98,21 +101,21 @@ def membership_application_details(request, application_id):
 def members_view(request):
     members = (
             Member.objects
-            .select_related('personalinfo')
+            .select_related('person_id')
             .values(
-                'memberid', 
-                'accountnumber'
-                'personalinfo__surname', 
-                'personalinfo__firstname', 
-                'personalinfo__nameextension', 
-                'personalinfo__middlename', 
-                'personalinfo__dateofbirth', 
-                'personalinfo__gender', 
-                'personalinfo__civilstatus',
+                'member_id', 
+                'account_number',
+                'person_id__surname', 
+                'person_id__first_name', 
+                'person_id__name_extension', 
+                'person_id__middle_name', 
+                'person_id__date_of_birth', 
+                'person_id__gender', 
+                'person_id__civil_status',
             )
         )
     context = {'members': members}
-    return render(request, 'approved_members.html', context)
+    return render(request, 'members/approved_members.html', context)
 
 
 def member_details_view(request, member_id):

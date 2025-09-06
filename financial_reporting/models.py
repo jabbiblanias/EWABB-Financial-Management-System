@@ -9,6 +9,10 @@ class Financialreports(models.Model):
     def __str__(self):
         return f"{self.name} ({self.account_number})"
     
+    class Meta:
+        managed = False
+        db_table = 'financialreports'
+    
 
 class Memberfinancialdata(models.Model):
     member_financial_id = models.AutoField(primary_key=True, db_column='memberfinancialid')
@@ -22,3 +26,7 @@ class Memberfinancialdata(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.account_number})"
+    
+    class Meta:
+        managed = False
+        db_table = 'memberfinancialdata'

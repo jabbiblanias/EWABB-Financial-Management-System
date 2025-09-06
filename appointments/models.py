@@ -7,7 +7,7 @@ class Appointments(models.Model):
     APPOINTMENT_TYPES = [
         ('Consultation', 'Consultation'),
         ('Follow-up', 'Follow-up'),
-        ('Inquiry', 'Inquiry'),
+        ('Transaction', 'Transaction'),
     ]
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -19,9 +19,13 @@ class Appointments(models.Model):
     member_id = models.ForeignKey(Member, models.DO_NOTHING, db_column='memberid')
     appointment_date = models.DateField(db_column='date')
     appointment_time = models.TimeField(db_column='time')
-    appointment_type = models.CharField(max_length=15, choices=APPOINTMENT_TYPES, db_column='appointmenttype')
+    appointment_type = models.CharField(max_length=30, choices=APPOINTMENT_TYPES, db_column='appointmenttype')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending', db_column='status')
-    bookkeeper_id = models.ForeignKey(User, models.DO_NOTHING, related_name='bookkeeper_appointments', db_column='id')
+    bookkeeper_id = models.ForeignKey(User, models.DO_NOTHING, blank=True, null=True, related_name='bookkeeper_appointments', db_column='bookkeeperid')
 
     def __str__(self):
         return f"{self.appointment_type} with {self.member} on {self.date}"
+    
+    class Meta:
+        managed = False
+        db_table = 'appointments'

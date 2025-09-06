@@ -1,0 +1,12 @@
+Dear {{ first_name|default:"User" }},
+
+Thank you for registering with {{ site_name }}.
+
+Your OTP is: {{ otp }}
+
+⚠️ This OTP will expire in 5 minutes.
+
+If you did not attempt to register, please ignore this email.
+
+Best regards,
+The {{ site_name }} Team
