@@ -7,7 +7,7 @@
     <title>EWABB Registration</title>
     {% tailwind_css %}
   </head>
-  <body class="font-sans leading-normal">
+  <body class="bg-gray-100 leading-normal">
     <!-- Navbar -->
     <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
       <h1 class="text-white font-bold text-xl">EWABB</h1>
@@ -35,7 +35,8 @@
     </div>
 
     <!-- Main Container -->
-    <form class="max-w-3xl mx-auto px-10 py-10" method="POST" action="{% url 'register2' %}">
+    <form class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" 
+          method="POST" action="{% url 'register1' %}">
       {% csrf_token %}
       <h2 class="text-3xl font-bold text-center mb-2">Family Background</h2>
       <p class="text-center text-sm mb-10">• Please leave it blank if you do not have spouse and children</p>
@@ -43,13 +44,13 @@
       <!-- SPOUSE Section -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <div class="ml-3">
-          <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
+          <label class="block text-sm font-medium mb-1">Spouse's Surname </label>
           <input name="spouseSurname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
-          <label class="block text-sm font-medium mb-1">First Name</label>
+          <label class="block text-sm font-medium mb-1">First Name </label>
           <input name="spouseFirstName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
-          <label class="block text-sm font-medium mb-1">Middle Name</label>
+          <label class="block text-sm font-medium mb-1">Middle Name </label>
           <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Occupation</label>
@@ -94,11 +95,11 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="col-span-2">
             <div class="mb-4">
-              <label class="block text-sm font-medium mb-1">Name (Full Name)</label>
+              <label class="block text-sm font-medium mb-1">Name (Full Name) *</label>
               <input name="emergencyContactName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Address</label>
+              <label class="block text-sm font-medium mb-1">Address *</label>
               <input name="emergencyContactAddress" type="text" placeholder="Enter the address" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
             </div>
           </div>
