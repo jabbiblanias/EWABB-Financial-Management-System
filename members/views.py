@@ -119,7 +119,7 @@ def members_view(request):
 
 
 def member_details_view(request, member_id):
-    member = Member.objects.select_related('personalinfo', 'membershipapplication').get(member_id=member_id)
+    member = Member.objects.select_related('person_id').get(member_id=member_id)
     spouse = Spouse.objects.get(person_id=member.person_id)
     children = Children.objects.filter(person_id=member.person_id).values()
     context = {
@@ -127,4 +127,4 @@ def member_details_view(request, member_id):
         'spouse': spouse,
         'children': children
     }
-    return render(request, 'member_details.html', context)
+    return render(request, 'members/member_details.html', context)
