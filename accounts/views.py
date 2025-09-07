@@ -291,5 +291,11 @@ def check_email(request):
     return JsonResponse({"exists": exists})
 
 
+def check_username(request):
+    username = request.GET.get("username")
+    exists = User.objects.filter(username=username).exists()
+    return JsonResponse({"exists": exists})
+
+
 def success_view(request):
     return render(request, 'accounts/success.html')

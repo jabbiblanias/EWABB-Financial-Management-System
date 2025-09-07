@@ -7,7 +7,7 @@
     <title>Loan Info</title>
     {% tailwind_css %}
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="font-sans">
     <!-- Sidebar -->
       {% include 'dashboard/partials/admin_nav.html' %}
     <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
@@ -18,14 +18,14 @@
            <h2 class="text-2xl font-semibold text-blue-600 mb-4">Loan Information</h2> 
            <div class="grid grid-cols-2 gap-x-8 gap-y-4">
             <div>
-                <p><strong class="font-medium">Loan Application ID</strong></p> <p>12345</p> <br>
-                <p><strong class="font-medium">Member ID</strong></p> <p>98765</p> <br>
-                <p><strong class="font-medium">Outstanding Balance</strong></p> <p>5000.00</p> <br>
+                <p><strong class="font-medium">Loan Application ID</strong></p> <p>{{ loan.loan_id }}</p> <br>
+                <p><strong class="font-medium">Account Number</strong></p> <p>{{ account_number }}</p> <br>
+                <p><strong class="font-medium">Remaining Balance</strong></p> <p>{{ loan.remaining_balance }}</p> <br>
                 </div>
                 <div>
-                <p><strong class="font-medium">Loan Status</strong></p> <p>Ongoing</p> <br>
-                <p><strong class="font-medium">Released By ID</strong></p> <p>1001</p> <br>
-                <p><strong class="font-medium">Released Date</strong></p> <p>09-01-2025</p> <br>
+                <p><strong class="font-medium">Loan Status</strong></p> <p>{{ loan.loan_status }}</p> <br>
+                <p><strong class="font-medium">Released By</strong></p> <p>{{ user_name }}</p> <br>
+                <p><strong class="font-medium">Released Date</strong></p> <p>{{ loan.released_date|date:"Y-m-d" }}</p> <br>
             </div>
            </div>
         </section>
@@ -33,20 +33,68 @@
         <!-- Loan Repayment Schedule Section -->
         <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
             <h2 class="text-2xl font-semibold text-blue-600 mb-4">Loan Repayment Schedule</h2>
-            <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-                <div>
-                <p><strong class="font-medium">Schedule ID</strong></p> <p>45678</p> <br>
-                <p><strong class="font-medium">Due Date</strong></p> <p>09-01-2026</p> <br>
-                <p><strong class="font-medium">Installment</strong></p> <p>500.00</p> <br>
-                <p><strong class="font-medium">emaining Balance with Penalty</strong></p> <p>Ongoing</p> <br>
+            <!-- Table -->
+            <div class="">
+                <div class="border border-gray-200 rounded-md overflow-hidden">
+                <table id="myTable" class="min-w-full text-sm">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Schedule ID</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Due Date</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Amount Due</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Installment</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Paid Date</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Last Updated</th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="loan_applications-table-body" class="bg-white">
+                        {% for schedule in schedules %}
+                        <tr id="row-{{ loanApplication.loan_application_id }}" class="border-b border-gray-200">
+                            <td class="px-6 py-3">{{ schedule.schedule_id }}</td>
+                            <td class="px-6 py-3">{{ schedule.due_date|date:"Y-m-d" }}</td>
+                            <td class="px-6 py-3">{{ schedule.amount_due }}</td>
+                            <td class="px-6 py-3">{{ schedule.loan_id__loan_application_id__amortization }}</td>
+                            <td class="px-6 py-3">
+                                {% if schedule.status == "Pending" %}
+                                    <span class="px-3 py-1 text-sm font-medium text-yellow-700 bg-yellow-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% elif schedule.status == "Upcoming" %}
+                                    <span class="px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% elif schedule.status == "Paid" %}
+                                    <span class="px-3 py-1 text-sm font-medium text-green-700 bg-green-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% elif schedule.status == "Partially Paid" %}
+                                    <span class="px-3 py-1 text-sm font-medium text-purple-700 bg-purple-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% elif schedule.status == "Due" %}
+                                    <span class="px-3 py-1 text-sm font-medium text-orange-700 bg-orange-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% elif schedule.status == "Overdue" %}
+                                    <span class="px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% else %}
+                                    <span class="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full">
+                                        {{ schedule.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-3">{{ schedule.paid_date|default:"N/A" }}</td>
+                            <td class="px-6 py-3">{{ schedule.last_updated|default:"N/A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
                 </div>
-                <div>
-                <p><strong class="font-medium">Status</strong></p> <p>Pending</p> <br>
-                <p><strong class="font-medium">Paid Date</strong></p> <p>N/A</p> <br>
-                <p><strong class="font-medium">Last Updated</strong></p> <p>09-01-2025</p> <br>
-                <p><strong class="font-medium">Created At</strong></p> <p>09-01-2025 12:00:00</p> <br>
             </div>
-           </div>
         </section>
     </main>
 </body>
