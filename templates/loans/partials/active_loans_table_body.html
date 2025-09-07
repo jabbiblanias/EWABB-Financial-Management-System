@@ -2,7 +2,7 @@
 <tr id="row-{{ loan.loan_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ loan.loan_id}}</td>
   <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
-  <td class="px-6 py-3">{{ loan.outstanding_balance }}</td>
+  <td class="px-6 py-3">{{ loan.remaining_balance }}</td>
   <td class="px-6 py-3">{{ loan.amount_due }}</td>
   <td class="px-6 py-3">{{ loan.due_date|date:"Y-m-d" }}</td>
   <td class="px-6 py-3">

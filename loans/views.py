@@ -132,7 +132,7 @@ def active_loans_data():
             'loan_id',
             'member_id__account_number',
             'loan_application_id__loan_amount',
-            'outstanding_balance',
+            'remaining_balance',
             'amount_due',
             'due_date',
             'status',
@@ -188,9 +188,31 @@ def loan_application_details_view(request, loan_application_id):
 
 @login_required
 def loan_details_view(request, loan_id):
-    loan_details = Loan.objects.select_related('member_id').get(loan_id=loan_id)
-    schedule = LoanRepaymentSchedule.objects.get(loan_id=loan_details)
-    context = {'loan_details' : loan_details, "schedule": schedule}
+    loan = Loan.objects.select_related('member_id', 'released_by_id').get(loan_id=loan_id)
+
+    user_name = loan.released_by_id.get_full_name()
+    account_number = loan.member_id.account_number
+    schedules = (
+        LoanRepaymentSchedule.objects
+        .select_related('loan_id__loan_application_id')
+        .filter(loan_id=loan)
+        .values(
+            "schedule_id",
+            "due_date",
+            "loan_id__loan_application_id__amortization",
+            "amount_due",
+            "status",
+            "paid_date",
+            "last_updated"
+        )
+        .order_by("due_date")
+    )
+    context = {
+        'loan' : loan, 
+        'user_name': user_name,
+        'account_number': account_number,
+        'schedules': schedules
+    }
     return render(request, 'loans/loan_details.html', context)
 
 
@@ -243,7 +265,7 @@ def releasing(request):
         loan = Loan.objects.create(
             member_id=member,
             loan_application_id=loan_application,
-            outstanding_balance=loan_application.total_payable,
+            remaining_balance=loan_application.total_payable,
             released_by_id=request.user
         )
 

@@ -10,6 +10,8 @@ import json
 from django.contrib.auth.models import Group
 from django.db import transaction
 
+
+
 @login_required
 def membership_application_view(request):
     membership_applications = (
@@ -120,8 +122,14 @@ def members_view(request):
 
 def member_details_view(request, member_id):
     member = Member.objects.select_related('person_id').get(member_id=member_id)
-    spouse = Spouse.objects.get(person_id=member.person_id)
-    children = Children.objects.filter(person_id=member.person_id).values()
+    # Handle spouse safely
+    try:
+        spouse = Spouse.objects.get(person_id=member.person_id)
+    except Spouse.DoesNotExist:
+        spouse = None
+
+    # Handle children safely
+    children = Children.objects.filter(person_id=member.person_id)  # returns queryset (empty if none)
     context = {
         'member': member,
         'spouse': spouse,
