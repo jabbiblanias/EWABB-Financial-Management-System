@@ -121,11 +121,7 @@
     document.getElementById('loan-term').value = 0;
     updateValue(0);
   }
-  document.getElementById('popupApplication').addEventListener('click', function(event) {
-    if (event.target === this) {
-      closePopUp();
-    }
-  });
+  
   // 1. Define the custom loan terms in an array.
   const loanTerms = [
     '100 days',

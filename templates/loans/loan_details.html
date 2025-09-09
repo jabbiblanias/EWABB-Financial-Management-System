@@ -34,7 +34,7 @@
         <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
             <h2 class="text-2xl font-semibold text-blue-600 mb-4">Loan Repayment Schedule</h2>
             <!-- Table -->
-            <div class="">
+            <div>
                 <div class="border border-gray-200 rounded-md overflow-hidden">
                 <table id="myTable" class="min-w-full text-sm">
                     <thead class="bg-gray-50 border-b border-gray-200">
@@ -43,19 +43,22 @@
                         <th class="px-6 py-3 text-left font-medium text-gray-600">Due Date</th>
                         <th class="px-6 py-3 text-left font-medium text-gray-600">Amount Due</th>
                         <th class="px-6 py-3 text-left font-medium text-gray-600">Installment</th>
-                        <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Paid Amount</th>
                         <th class="px-6 py-3 text-left font-medium text-gray-600">Paid Date</th>
                         <th class="px-6 py-3 text-left font-medium text-gray-600">Last Updated</th>
-
+                        <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
                     </tr>
                     </thead>
                     <tbody id="loan_applications-table-body" class="bg-white">
                         {% for schedule in schedules %}
                         <tr id="row-{{ loanApplication.loan_application_id }}" class="border-b border-gray-200">
                             <td class="px-6 py-3">{{ schedule.schedule_id }}</td>
+                            <td class="px-6 py-3">{{ schedule.loan_id__loan_application_id__amortization }}</td>
                             <td class="px-6 py-3">{{ schedule.due_date|date:"Y-m-d" }}</td>
                             <td class="px-6 py-3">{{ schedule.amount_due }}</td>
-                            <td class="px-6 py-3">{{ schedule.loan_id__loan_application_id__amortization }}</td>
+                            <td class="px-6 py-3">{{ schedule.paid_amount }}</td>
+                            <td class="px-6 py-3">{{ schedule.paid_date|date:"Y-m-d h:i A"|default:"N/A" }}</td>
+                            <td class="px-6 py-3">{{ schedule.last_updated|date:"Y-m-d h:i A"|default:"N/A" }}</td>
                             <td class="px-6 py-3">
                                 {% if schedule.status == "Pending" %}
                                     <span class="px-3 py-1 text-sm font-medium text-yellow-700 bg-yellow-100 rounded-full">
@@ -87,8 +90,6 @@
                                     </span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-3">{{ schedule.paid_date|default:"N/A" }}</td>
-                            <td class="px-6 py-3">{{ schedule.last_updated|default:"N/A" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

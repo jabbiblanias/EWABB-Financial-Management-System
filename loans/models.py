@@ -50,12 +50,13 @@ class Loan(models.Model):
     loan_application_id = models.ForeignKey(LoanApplication, models.DO_NOTHING, db_column='loanapplicationid')
     member_id = models.ForeignKey(Member, models.DO_NOTHING, db_column='memberid')
     remaining_balance = models.DecimalField(max_digits=12, decimal_places=2, db_column='remainingbalance')
+    total_paid = models.DecimalField(max_digits=12, decimal_places=2, db_column='totalpaid')
     loan_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active', db_column='loanstatus')
     released_by_id = models.ForeignKey(User, models.DO_NOTHING, db_column='releasedbyid')
     released_date = models.DateTimeField(auto_now_add=True, db_column='releaseddate')
 
     def __str__(self):
-        return f"Loan #{self.id} - {self.member}"
+        return f"Loan #{self.loan_id} - {self.member_id}"
     
     class Meta:
         managed = False
@@ -76,8 +77,9 @@ class LoanRepaymentSchedule(models.Model):
     due_date = models.DateField(db_column='duedate')
     amount_due = models.DecimalField(max_digits=12, decimal_places=2, db_column='amountdue')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending', db_column='status')
-    paid_date = models.DateField(null=True, blank=True, db_column='paiddate')
-    last_updated = models.DateField(null=True, blank=True, db_column='lastupdated')
+    paid_date = models.DateTimeField(null=True, blank=True, db_column='paiddate')
+    last_updated = models.DateTimeField(null=True, blank=True, db_column='lastupdated')
+    paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, db_column='paidamount')
 
     def __str__(self):
         return f"Schedule #{self.id} for Loan #{self.loan.id}"
