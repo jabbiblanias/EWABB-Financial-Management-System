@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWABB Dashboard</title>
-  {% tailwind_css %} {% load static %}
+  {% tailwind_css %} 
   <script src="{% static 'dashboard/js/chart.umd.min.js' %}"></script>
 </head>
 
@@ -17,9 +17,11 @@
     <main class="ml-64 mr-4 mt-[72px] flex-1">
       <!-- Info Boxes -->
       <div class="mt-6 grid grid-cols-3 gap-4 p-6">
-        <div class="bg-white p-6 rounded-xl shadow-sm">
-          <div class="text-sm text-[#3d5af1] font-medium">Total savings</div>
-          <div class="text-2xl font-semibold mt-2">P{{ balance }}</div>
+        <div class="stat p-6 rounded-xl shadow-sm">
+          <div class="stat-title font-semibold">Account balance</div>
+          <div class="stat-value">P{{ balance }}</div>
+          <div class="stat-actions">
+          </div>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-sm">
@@ -85,21 +87,21 @@
       </div>
     </main>
   </div>
-  <script>
+<script>
     // Load datasets from Django context
     const datasets = {
-      daily: {
-        labels: JSON.parse("{{ daily_labels|safe }}"),
-        data: JSON.parse("{{ daily_data|safe }}"),
-      },
-      weekly: {
-        labels: JSON.parse("{{ weekly_labels|safe }}"),
-        data: JSON.parse("{{ weekly_data|safe }}"),
-      },
-      yearly: {
-        labels: JSON.parse("{{ yearly_labels|safe }}"),
-        data: JSON.parse("{{ yearly_data|safe }}"),
-      },
+        daily: {
+            labels: JSON.parse('{{ daily_labels|safe }}'),
+            data: JSON.parse('{{ daily_data|safe }}')
+        },
+        weekly: {
+            labels: JSON.parse('{{ weekly_labels|safe }}'),
+            data: JSON.parse('{{ weekly_data|safe }}')
+        },
+        yearly: {
+            labels: JSON.parse('{{ yearly_labels|safe }}'),
+            data: JSON.parse('{{ yearly_data|safe }}')
+        }
     };
 
     // Initial chart

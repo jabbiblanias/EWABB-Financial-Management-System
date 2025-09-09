@@ -130,6 +130,7 @@ def active_loans_data():
         )
         .values(
             'loan_id',
+            'loan_status',
             'member_id__account_number',
             'loan_application_id__loan_amount',
             'remaining_balance',
@@ -202,6 +203,7 @@ def loan_details_view(request, loan_id):
             "loan_id__loan_application_id__amortization",
             "amount_due",
             "status",
+            "paid_amount",
             "paid_date",
             "last_updated"
         )

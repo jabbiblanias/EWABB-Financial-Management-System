@@ -1,24 +1,24 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transactions</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    {% tailwind_css %}
   </head>
   <body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-      <!-- Sidebar -->
+    <!-- Sidebar -->
       {% include 'dashboard/partials/admin_nav.html' %}
-
+    <div class="flex h-screen">
       <!-- Main Content -->
       <div class="ml-64 mr-4 mt-[72px] flex-1">
         <div class="px-6 pt-4">
-        <div class="flex border-b border-gray-200">
-          <button class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Member Transactions</button>
-          <button class="px-4 py-2 text-gray-500 hover:text-blue-600">Banking Transactions</button>
+          <div class="flex border-b border-gray-200">
+            <button class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Member Transactions</button>
+            <button class="px-4 py-2 text-gray-500 hover:text-blue-600">Banking Transactions</button>
+          </div>
         </div>
-      </div>
 
 
         <!-- Transactions Section -->

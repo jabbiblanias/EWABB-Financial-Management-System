@@ -3,8 +3,8 @@
   <td class="px-6 py-3">{{ loan.loan_id}}</td>
   <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
   <td class="px-6 py-3">{{ loan.remaining_balance }}</td>
-  <td class="px-6 py-3">{{ loan.amount_due }}</td>
-  <td class="px-6 py-3">{{ loan.due_date|date:"Y-m-d" }}</td>
+  <td class="px-6 py-3">{{ loan.amount_due|default:"0.00" }}</td>
+  <td class="px-6 py-3">{{ loan.due_date|date:"Y-m-d"|default:"N/A" }}</td>
   <td class="px-6 py-3">
     {% if loan.status == 'Pending' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
@@ -30,9 +30,9 @@
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
             {{ loan.status }}
         </span>
-    {% else %}
+    {% elif loan.loan_status == "Completed" %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-700">
-            {{ loan.status }}
+            {{ loan.loan_status }}
         </span>
     {% endif %}
   <td class="px-6 py-3">

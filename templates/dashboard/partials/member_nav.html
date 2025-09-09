@@ -45,56 +45,60 @@
 </aside>
 
 <!-- Top Bar -->
-        <div class="bg-white flex justify-between items-center p-6 shadow fixed top-0 md:left-64 right-0">
-          <div class="flex items-center space-x-3">
-            <!-- Burger button (mobile) -->
-            <button id="burger" class="md:hidden p-2 rounded hover:bg-gray-100">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-            <h1 class="text-xl font-semibold text-[#1f2b6c]">Appointments</h1>
-          </div>
+<header class="bg-white flex justify-between items-center p-6 shadow fixed top-0 md:left-64 right-0">
+  <div class="flex items-center space-x-3">
+    <!-- Burger button (mobile) -->
+    <button id="burger" class="md:hidden p-2 rounded hover:bg-gray-100">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
+    <h1 class="text-xl font-semibold text-[#1f2b6c]">Appointments</h1>
+  </div>
 
-          <div class="flex items-center space-x-4">
-            <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
-            <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
-            <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
-            <div class="flex items-center space-x-2">
-              <div
-                class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold"
-              >
-                M
-              </div>
-              <span class="text-sm font-medium">Maribel Yan</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
+  <div class="flex items-center space-x-4">
+    <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
+    <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
+    <button class="w-8 h-8 bg-[#e0e7ff] rounded-full"></button>
+    <div class="flex items-center space-x-2 ">
+      <div
+        class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold"
+      >
+        M
+      </div>
+      <span class="text-sm font-medium">Maribel Yan</span>
+      <div class="dropdown dropdown-end">
+        <svg tabindex="0" role="button"
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"
+        />
+        </svg>
+        <!-- Dropdown Menu -->
+        {% include "partials/profile_menu.html" %}
+      </div>
+    </div>
+  </div>
+</header>
 
 <!-- Mobile Sidebar -->
 <div

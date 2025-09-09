@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from loans.utils import convert_date
 from .models import Transactions, Member
 from members.models import Savings
-from datetime import date
+from datetime import datetime
 from django.db.models import Sum
 from django.http import JsonResponse
 from decimal import Decimal
@@ -37,18 +37,8 @@ def transactions(request):
                 savings.save()
                 message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
             elif transaction_type == 'Loan Payment':
-                loan = Loan.objects.get(member_id=member)
-                loan_repayment_schedule = LoanRepaymentSchedule.objects.get(loan_id=loan)
-                if loan_repayment_schedule.status == 'Overdue':
-                    loan_repayment_schedules = LoanRepaymentSchedule.objects.filter(loan_id=loan).order_by('duedate')
-                    loan_penalty = LoanPenalty.objects.values('scheduleid').annotate(totalPenalty=Sum('penaltyamount'))
-                    total_loan_amount = loan_penalty
-                if loan_repayment_schedule.amount_due == amount:
-                    loan_repayment_schedule.status = 'Paid'
-                else:
-                    loan_repayment_schedule.status = 'Paid Partially'
-                loan_repayment_schedule.paid_date = date.today()
-                message = f"Payment of ₱{amount} from Account #{member.account_number} recorded successfully."
+                record_payment(member, amount)
+                message = None
             elif transaction_type == 'Withdrawal':
                 savings = Savings.objects.get(member_id=member)
                 if savings.balance >= amount:
@@ -62,30 +52,59 @@ def transactions(request):
         return JsonResponse({"success": False, "message": "Transaction failed. Please try again."})
 
 
-def record_payment(loan_id, payment_amount):
-    # get the earliest unpaid repayment for this loan
+def record_payment(member_id, payment_amount):
+    loan = Loan.objects.filter(member_id=member_id, loan_status="Active").first()
+
+    if not loan:
+        return JsonResponse({"message": "This account number doesn't have active loan."})
+
     repayment = LoanRepaymentSchedule.objects.filter(
-        loan_id=loan_id
+        loan_id=loan
     ).exclude(status='Paid').order_by('due_date').first()
-
+    
+    # Case: loan is already fully paid
     if not repayment:
-        return "Loan already fully paid"
+        return JsonResponse({"message": f"Loan {loan.loan_id} is already fully paid. Excess: {payment_amount}" if payment_amount > 0 else "Loan already fully paid"})
 
-    # Case 1: full payment
+    # Case 1: full or over payment
     if payment_amount >= repayment.amount_due:
+        remaining = payment_amount - repayment.amount_due
+
+        # update repayment
+        repayment.paid_amount = repayment.paid_amount + repayment.amount_due if repayment.paid_amount else repayment.amount_due
+        repayment.amount_due = 0
+        repayment.paid_date = datetime.today()
+        repayment.last_updated = datetime.today()
         repayment.status = 'Paid'
         repayment.save()
-        remaining = payment_amount - repayment.amount_due
+
+        # update loan totals
+        loan.total_paid = loan.total_paid + repayment.paid_amount if loan.total_paid else repayment.paid_amount
+        loan.remaining_balance = max(0, loan.remaining_balance - repayment.paid_amount)
+        loan.save()
 
         # If there’s excess, apply it to the next repayment
         if remaining > 0:
-            record_payment(loan_id, remaining)
+            return record_payment(member_id, remaining)
+        else:
+            return JsonResponse({"message": f"Payment recorded. due date {repayment.due_date} has been fully paid."})
 
     # Case 2: partial payment
     else:
+        if repayment.status != "Overdue":
+            repayment.status = 'Partially Paid'
         repayment.amount_due -= payment_amount
-        repayment.status = 'Partially Paid'
+        repayment.paid_amount = repayment.paid_amount + payment_amount if repayment.paid_amount else payment_amount
+        repayment.paid_date = datetime.today()
+        repayment.last_updated = datetime.today()
         repayment.save()
+
+        # update loan totals
+        loan.total_paid = loan.total_paid + payment_amount if loan.total_paid else payment_amount
+        loan.remaining_balance = max(0, loan.remaining_balance - payment_amount)
+        loan.save()
+
+    return JsonResponse({"message": f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully."})
 
 
 def transaction_view(request):

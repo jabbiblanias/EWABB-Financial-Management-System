@@ -1,13 +1,8 @@
-<div id="profileMenu" class="hidden absolute right-1 mt-2 bg-white rounded-lg shadow-md w-37 p-2 z-50">
+
+<ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow border border-gray-300">
     <!-- Profile -->
-    <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-md cursor-pointer">
-    <i data-lucide="user" class="w-5 h-5 text-gray-700"></i>
-    <span class="text-gray-800">Profile</span>
-    </a>
+    <li><a href="#" class="gap-3 px-4 py-3 text-gray-700">Profile</a></li>
     <hr class="my-1 border-gray-200" />
     <!-- Log out -->
-    <a href="{% url 'logout' %}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-md cursor-pointer">
-    <i data-lucide="log-out" class="w-5 h-5 text-gray-700"></i>
-    <span class="text-gray-800">Log out</span>
-    </a>
-</div>
+     <li><a href="{% url 'logout' %}" class="gap-3 px-4 py-3 text-gray-700">Log out</a></li>
+</ul>

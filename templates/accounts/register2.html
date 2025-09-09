@@ -42,7 +42,7 @@
       <p class="text-center text-sm mb-10">• Please leave it blank if you do not have spouse and children</p>
 
       <!-- SPOUSE Section -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 md:gap-8 mb-12">
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Spouse's Surname </label>
           <input name="spouseSurname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
@@ -118,16 +118,18 @@
     const newChild = document.createElement('div');
     newChild.classList.add('child-entry');
     newChild.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-          <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+      <div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
+            <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          </div>
+          <div class="md:col-span-1">
+            <label class="block text-sm font-medium mb-1">Date of Birth</label>
+            <input name="date" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          </div>
         </div>
-        <div class="md:col-span-1">
-          <label class="block text-sm font-medium mb-1">Date of Birth</label>
-          <input name="date" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium mb-4">
+        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium m-1 flex justify-self-end-safe ">
           Remove
         </button>
       </div>

@@ -6,13 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWABB Dashboard</title>
   {% tailwind_css %}
-  <script>
-    // Simple toggle function for profile menu
-    function toggleMenu() {
-      const menu = document.getElementById("profileMenu");
-      menu.classList.toggle("hidden");
-    }
-  </script>
 </head>
 <body class="bg-gray-100 font-sans">
   <div class="flex h-screen">
@@ -40,8 +33,8 @@
           <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-64" />
 
           <!-- Avatar with dropdown -->
-          <div>
-            <div onclick="toggleMenu()" class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold cursor-pointer">
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold cursor-pointer">
               BK
             </div>
             <!-- Dropdown Menu -->
