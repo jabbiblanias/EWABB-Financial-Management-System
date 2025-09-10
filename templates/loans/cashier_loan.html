@@ -52,7 +52,7 @@
                 <th class="px-6 py-3 text-left font-medium text-gray-600"></th>
               </tr>
             </thead>
-            <tbody id="cashier-table-body" class="bg-white">
+            <tbody id="cashier-loan-table-body" class="bg-white">
               {% include 'loans/partials/cashier_loan_table_body.html' %}
             </tbody>
           </table>
@@ -197,9 +197,9 @@
         })
         .then(data => {
           if(data.success) {
-            document.getElementById('cashier_loan-table-body').innerHTML = data.html;
+            document.getElementById('cashier-loan-table-body').innerHTML = data.html;
             fillTableRows('myTable', 10);
-            showAlert(`"Loan Application ${loan_application_id}" has been released.`, "release");
+            showAlert(`"Loan Application ${loan_application_id}" has been released.`, "released");
             closePopUp();
           }
         })
@@ -225,11 +225,9 @@
     toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
 
     // Style by type
-    if (type === "approve") {
+    if (type === "released") {
       toast.classList.add("bg-emerald-600"); // green
-    } else if (type === "reject") {
-      toast.classList.add("bg-red-600"); // red
-    } else {
+    }  else {
       toast.classList.add("bg-yellow-600"); // yellow default
     }
 

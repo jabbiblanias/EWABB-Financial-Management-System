@@ -4,4 +4,5 @@ from . import views
 urlpatterns = [
     path('', views.transaction_view, name="transactions"),
     path('save_transaction/', views.transactions, name="save_transaction"),
+    path('loan_balance/', views.loan_balance, name="loan_balance"),
 ]

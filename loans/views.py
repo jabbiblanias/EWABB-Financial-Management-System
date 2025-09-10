@@ -121,7 +121,7 @@ def active_loans_data():
 
     loans = (
         Loan.objects
-        .filter(loan_status='Active')
+        #.filter(loan_status='Active')
         .select_related('member_id', 'loan_application_id')
         .annotate(
             amount_due=Subquery(latest_due.values('amount_due')[:1]),
@@ -281,7 +281,7 @@ def releasing(request):
             LoanRepaymentSchedule.objects.create(
                 loan_id=loan,
                 due_date=released_date + relativedelta(days=loan_days),
-                amount_due=amortization,
+                amount_due=loan_application.total_payable,
             )
         else:
             total_months = loan_years * 12 + loan_months
@@ -303,3 +303,7 @@ def releasing(request):
         return JsonResponse({'success': True, 'html': html})
     except (LoanApplication.DoesNotExist, Member.DoesNotExist):
         return JsonResponse({'success': False})
+    
+
+def update_loan():
+    print()

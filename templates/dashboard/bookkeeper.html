@@ -1,6 +1,6 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,11 +47,10 @@
       <main class="p-6 space-y-6">
         <div class="grid grid-cols-3 gap-6">
           <!-- Total Member -->
-          <div class="bg-white p-4 rounded-xl flex items-center shadow">
-            <div class="w-12 h-12 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mr-4">👤</div>
-            <div>
-              <p class="text-gray-500 text-sm">Total Member</p>
-              <p class="text-xl font-semibold">{{ total_members }}</p>
+          <div class="stat bg-white p-6 rounded-xl shadow-sm">
+            <div class="stat-title font-semibold">Total Members</div>
+            <div class="stat-value">{{ total_members }}</div>
+            <div class="stat-actions">
             </div>
           </div>
 

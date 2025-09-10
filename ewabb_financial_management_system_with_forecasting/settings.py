@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from celery.schedules import crontab
+
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -51,6 +54,7 @@ INSTALLED_APPS = [
     'appointments',
     'programs',
     'mailing',
+    'django_crontab',
 ]
 
 if DEBUG:
@@ -145,7 +149,7 @@ TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

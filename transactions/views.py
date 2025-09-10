@@ -10,6 +10,7 @@ from django.db.models import Sum
 from django.http import JsonResponse
 from decimal import Decimal
 from django.template.loader import render_to_string
+from members.models import Member
 
 
 @transaction.atomic
@@ -19,17 +20,13 @@ def transactions(request):
             cashier_id = request.user
             account_number = request.POST.get('accountNumber')
             amount = Decimal(request.POST.get('amount'))
+            amount_received = Decimal(request.POST.get('amountReceived') or 0)
             transaction_type = request.POST.get('transactionType')
-            print(account_number)
 
             member = Member.objects.get(account_number=account_number)
 
-            Transactions.objects.create(
-                member_id=member,
-                cashier_id=cashier_id,
-                amount=amount,
-                transaction_type=transaction_type
-            )
+            #Change computation
+            change = amount_received - amount
 
             if transaction_type == 'Savings Deposit':
                 savings = Savings.objects.get(member_id=member)
@@ -37,14 +34,37 @@ def transactions(request):
                 savings.save()
                 message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
             elif transaction_type == 'Loan Payment':
-                record_payment(member, amount)
-                message = None
+                loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
+                if not loan:
+                    return JsonResponse({"success": False, "message": "This account number doesn't have active loan."})
+                
+                message, excess = record_payment(member, loan, amount)
+                if excess != 0:
+                    amount -= excess
+                change += excess
             elif transaction_type == 'Withdrawal':
+                amount_received = None
+                change = None
                 savings = Savings.objects.get(member_id=member)
                 if savings.balance >= amount:
                     savings.balance -= amount
                     savings.save()
                     message = f"Withdrawal of ₱{amount} from Account #{member.account_number} processed successfully."
+                else:
+                    # Not enough balance
+                    message = f"Account #{member.account_number} has insufficient balance!"
+
+                    return JsonResponse({"success": False, "message": message})
+                
+            
+            Transactions.objects.create(
+                member_id=member,
+                cashier_id=cashier_id,
+                amount=amount,
+                amount_received=amount_received,
+                change=change,
+                transaction_type=transaction_type
+            )
             context = transaction_data()
             html = render_to_string('transactions/partials/cashier_transaction_table_body.html', context)
             return JsonResponse({"success": True, "message": message, "html": html})
@@ -52,11 +72,7 @@ def transactions(request):
         return JsonResponse({"success": False, "message": "Transaction failed. Please try again."})
 
 
-def record_payment(member_id, payment_amount):
-    loan = Loan.objects.filter(member_id=member_id, loan_status="Active").first()
-
-    if not loan:
-        return JsonResponse({"message": "This account number doesn't have active loan."})
+def record_payment(member_id, loan, payment_amount):
 
     repayment = LoanRepaymentSchedule.objects.filter(
         loan_id=loan
@@ -64,7 +80,7 @@ def record_payment(member_id, payment_amount):
     
     # Case: loan is already fully paid
     if not repayment:
-        return JsonResponse({"message": f"Loan {loan.loan_id} is already fully paid. Excess: {payment_amount}" if payment_amount > 0 else "Loan already fully paid"})
+        return f"Loan {loan.loan_id} is already fully paid. Excess: {payment_amount}", payment_amount
 
     # Case 1: full or over payment
     if payment_amount >= repayment.amount_due:
@@ -83,11 +99,16 @@ def record_payment(member_id, payment_amount):
         loan.remaining_balance = max(0, loan.remaining_balance - repayment.paid_amount)
         loan.save()
 
+        # ✅ Mark loan as Completed if fully paid
+        if loan.remaining_balance == 0:
+            loan.loan_status = "Completed"
+            loan.save()
+
         # If there’s excess, apply it to the next repayment
         if remaining > 0:
-            return record_payment(member_id, remaining)
+            return record_payment(member_id, loan, remaining)
         else:
-            return JsonResponse({"message": f"Payment recorded. due date {repayment.due_date} has been fully paid."})
+            return f"Payment recorded. due date {repayment.due_date} has been fully paid.", 0
 
     # Case 2: partial payment
     else:
@@ -104,7 +125,7 @@ def record_payment(member_id, payment_amount):
         loan.remaining_balance = max(0, loan.remaining_balance - payment_amount)
         loan.save()
 
-    return JsonResponse({"message": f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully."})
+    return f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully.",0
 
 
 def transaction_view(request):
@@ -134,7 +155,18 @@ def transaction_data():
         )
         .order_by("-transaction_date")
     )
-    context = {"transactions": transactions}
+    members = (
+        Member.objects
+        .select_related("person_id")
+        .values(
+            "account_number",
+            "person_id__first_name",
+            "person_id__middle_name",
+            "person_id__name_extension",
+            "person_id__surname"
+        )
+    )
+    context = {"transactions": transactions, "members": members}
     return context
 
 
@@ -153,3 +185,28 @@ def member_transaction_data(user):
     )
     context = {"transactions": transactions}
     return context
+
+
+def loan_balance(request):
+    account_number = request.GET.get("accountNumber")
+
+    # Check if member exists
+    member = Member.objects.select_related("person_id").filter(account_number=account_number).first()
+    if not member:
+        return JsonResponse({"exists": False, "loan_balance": None})
+    
+    first_name = member.person_id.first_name
+    middle_name = member.person_id.middle_name
+    name_extension = member.person_id.name_extension
+    last_name = member.person_id.surname
+    member_name = ", ".join(
+        part for part in [last_name, first_name, middle_name, name_extension] if part
+    )
+
+
+    # Get loan for this member
+    loan = Loan.objects.filter(member_id=member).exclude(loan_status="Completed").first()
+    if not loan:
+        return JsonResponse({"exists": True, "member_name": member_name})
+
+    return JsonResponse({"exists": True, "member_name": member_name, "loan_balance": loan.remaining_balance})

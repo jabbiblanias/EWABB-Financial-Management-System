@@ -14,6 +14,8 @@ class Transactions(models.Model):
     member_id = models.ForeignKey(Member, models.DO_NOTHING, db_column='memberid')
     cashier_id = models.ForeignKey(User, models.DO_NOTHING, related_name='cashier_transactions', db_column='cashierid')
     amount = models.DecimalField(max_digits=12, decimal_places=2, db_column='amount')
+    amount_received = models.DecimalField(max_digits=12, decimal_places=2, db_column='amountreceived')
+    change = models.DecimalField(max_digits=12, decimal_places=2)
     transaction_type = models.CharField(max_length=30, choices=TRANSACTION_TYPES, db_column='transactiontype')
     transaction_date = models.DateTimeField(auto_now_add=True, db_column='createdAt')
 

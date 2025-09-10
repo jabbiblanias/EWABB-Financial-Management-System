@@ -1,0 +1,259 @@
+<!-- Approve Modal -->
+<div
+  id="confirmModal"
+  class="fixed inset-0 z-50 hidden bg-black/10"
+  aria-labelledby="confirm-title"
+  role="dialog"
+  aria-modal="true"
+>
+
+  <!-- Panel -->
+  <div
+    class="relative mx-auto mt-28 w-[92%] max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-black/5"
+  >
+    <!-- Header -->
+    <div class="flex items-start gap-3 p-5">
+      <div
+        class="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+      >
+        <!-- check icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 id="confirm-title" class="text-lg font-semibold text-gray-900">
+          Approve Membership Application?
+        </h3>
+        <p id="confirm-desc" class="mt-1 text-sm text-gray-600">
+          You’re about to approve <span class="font-medium" id="approveAccountNumber">
+          </span>’s loan request for
+          <span class="font-medium" id="approveLoanAmount"></span>.
+          This action will be recorded with your account and timestamp.
+        </p>
+      </div>
+      <button
+        id="closeX"
+        onclick="closeConfirmModal('confirmModal')"
+        class="ml-2 rounded-lg p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-label="Close"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+          viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M10 8.586l4.95-4.95 1.414 1.414L11.414 10l4.95 4.95-1.414 1.414L10 11.414l-4.95 4.95-1.414-1.414L8.586 10l-4.95-4.95L5.05 3.636 10 8.586z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="flex justify-end gap-3 border-t border-gray-100 p-5">
+      <button
+        onclick="closeConfirmModal('confirmModal')"
+        id="cancelBtn"
+        type="button"
+        class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="confirm"
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div
+  id="rejectModal"
+  class="fixed inset-0 z-50 hidden bg-black/10"
+  aria-labelledby="reject-title"
+  role="dialog"
+  aria-modal="true"
+>
+
+  <!-- Panel -->
+  <div
+    class="relative mx-auto mt-28 w-[92%] max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-black/5"
+  >
+    <!-- Header -->
+    <div class="flex items-start gap-3 p-5">
+      <div
+        class="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+      >
+        <!-- X icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 id="reject-title" class="text-lg font-semibold text-gray-900">
+          Reject Membership Application?
+        </h3>
+        <p id="reject-desc" class="mt-1 text-sm text-gray-600">
+          You’re about to reject <span class="font-medium" id="rejectAccountNumber">Juan Dela Cruz</span>’s loan request for
+          <span class="font-medium" id="rejectLoanAmount">₱50,000</span>.  
+        </p>
+      </div>
+      <button
+        id="closeRejectX"
+        onclick="closeConfirmModal('rejectModal')"
+        class="ml-2 rounded-lg p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+        aria-label="Close"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+          viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M10 8.586l4.95-4.95 1.414 1.414L11.414 10l4.95 4.95-1.414 1.414L10 11.414l-4.95 4.95-1.414-1.414L8.586 10l-4.95-4.95L5.05 3.636 10 8.586z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="flex justify-end gap-3 border-t border-gray-100 p-5">
+      <button
+        id="cancelRejectBtn"
+        onclick="closeConfirmModal('rejectModal')"
+        type="button"
+        class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="reject"
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-red-500"
+      >
+        Reject
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div
+  id="toast"
+  class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+  role="status"></div>
+
+<script>
+  function openConfirmModal(btn) {
+    document.getElementById(btn).classList.remove('hidden');
+  }
+
+  function closeConfirmModal(btn) {
+    document.getElementById(btn).classList.add('hidden');
+  }
+  var confirmModal = document.getElementById('confirmModal');
+  var rejectModal = document.getElementById('rejectModal');
+
+  window.onclick = function(event) {
+    if (event.target === confirmModal) {
+      closeConfirmModal('confirmModal');
+    } else if (event.target === rejectModal) {
+      closeConfirmModal('rejectModal');
+    }
+  }
+
+  attachActionListeners();
+
+  function attachActionListeners() {
+    document.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const loan_application_id = this.dataset.id;
+        const action = this.dataset.action;
+        const accountNumber = this.dataset.account;
+        const loanAmount = this.dataset.amount;
+
+        if (action == "approve"){
+          document.getElementById("approveAccountNumber").textContent = accountNumber;
+          document.getElementById("approveLoanAmount").textContent = `₱${loanAmount}`;
+
+          const button = document.getElementById("confirm");
+          button.onclick = () => handleConfirmClick(loan_application_id, action);
+        } else { 
+          document.getElementById("rejectAccountNumber").textContent = accountNumber;
+          document.getElementById("rejectLoanAmount").textContent = `₱${loanAmount}`;
+          const button = document.getElementById("reject");
+          button.onclick = () => handleConfirmClick(loan_application_id, action);
+        }
+      });
+    });
+  }
+
+  function fetchAPI(loan_application_id, action){
+    fetch("{% url 'loan_approval' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ loan_application_id: loan_application_id, action: action})
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (data.success) {
+        document.getElementById('loan_applications-table-body').innerHTML = data.html;
+        fillTableRows('myTable', 10);
+        attachActionListeners();  // rebind new buttons
+        if (action === "approve"){
+          showAlert(`"Loan Application ID ${loan_application_id}" has been approved.`, "approve");
+        }else if(action === "reject"){
+          showAlert(`"Loan Application ID ${loan_application_id}" has been rejected.`, "reject");
+        }
+      } else {
+        showAlert("Something went wrong.", "warning");
+      }
+    })
+    .catch(error => console.error('Fetch error:', error));
+  }
+
+  function handleConfirmClick(loan_application_id, action){
+    fetchAPI(loan_application_id, action);
+    if (action === "approve"){
+      closeConfirmModal('confirmModal');
+    } else if (action === "reject"){
+      closeConfirmModal('rejectModal');
+    }
+  }
+
+
+  // Toast notification function
+  function showAlert(message, type) {
+    const toast = document.getElementById("toast");
+
+    // Remove old color classes before adding new one
+    toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+    // Style by type
+    if (type === "approve") {
+      toast.classList.add("bg-emerald-600"); // green
+    } else if (type === "reject") {
+      toast.classList.add("bg-red-600"); // red
+    } else {
+      toast.classList.add("bg-yellow-600"); // yellow default
+    }
+
+    // Set message
+    toast.textContent = message;
+
+    // Show toast
+    toast.classList.remove("hidden");
+
+    // Hide after 4s
+    setTimeout(() => toast.classList.add("hidden"), 4000);
+  }
+</script>
