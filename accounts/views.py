@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from mailing.models import EmailOTP
-from mailing.utils import registration_otp
+from notifications.models import EmailOTP
+from notifications.utils import registration_otp
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Personalinfo, Spouse, Membershipapplication, Children

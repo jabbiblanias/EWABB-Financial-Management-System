@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'financial_reporting',
     'appointments',
     'programs',
-    'mailing',
+    'notifications',
     'django_crontab',
 ]
 

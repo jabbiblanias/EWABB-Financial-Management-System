@@ -155,15 +155,17 @@ function checkPasswordMatch() {
 
   if (confirm === "") {
     message.textContent = "";
-    return;
+    return false;
   }
 
   if (password === confirm) {
     message.textContent = "✓ Passwords match";
     message.className = "text-success text-xs mt-2";
+    return true;
   } else {
     message.textContent = "✗ Passwords do not match";
     message.className = "text-error text-xs mt-2";
+    return false;
   }
 }
 
@@ -178,7 +180,7 @@ async function checkMail() {
 
   if (!email) {
     emailMessage.textContent = "";
-    return;
+    return false;
  }
 
   try {
@@ -189,11 +191,14 @@ async function checkMail() {
   if (data.exists) {
     emailMessage.classList.remove("hidden")
     emailMessage.textContent = "Email is already registered";
+    return false
   } else {
     emailMessage.classList.add("hidden")
+    return true;
   }
   }catch {
       emailMessage.textContent = "Error checking email";
+      return false;
     };
 }
 
@@ -208,7 +213,7 @@ async function checkUsername() {
 
   if (!username) {
     usernameMessage.textContent = "";
-    return;
+    return false;
  }
 
   try {
@@ -219,18 +224,21 @@ async function checkUsername() {
   if (data.exists) {
     usernameMessage.classList.remove("hidden")
     usernameMessage.textContent = "Username already exist";
+    return false;
   } else {
     usernameMessage.classList.add("hidden")
+    return true;
   }
   }catch {
       usernameMessage.textContent = "Error checking username";
+      return false;
     };
 }
 
 document.getElementById('registerForm').addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const valid = await checkMail();
+  const valid = await checkMail() && await checkUsername() && checkPasswordMatch()
   if (!valid) {
     console.log("Form not submitted — email already exists.");
     return; // stop submit
