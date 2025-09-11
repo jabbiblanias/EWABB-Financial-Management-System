@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'appointments',
     'programs',
     'notifications',
-    'django_crontab',
 ]
 
 if DEBUG:
@@ -112,11 +111,11 @@ WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.appl
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # or sqlite3
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
     }
 }
 
@@ -170,3 +169,26 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+
+CELERY_TIMEZONE = 'Asia/Manila'   # match your Django TIME_ZONE
+CELERY_ENABLE_UTC = True         # store times in UTC internally
+
+# Redis as broker
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    'update-due-loann-repayment-daily': {
+        'task': 'loans.tasks.update_due_repayments',
+        'schedule': crontab(minute=48, hour=21),  # run every midnight
+    },
+    'update-overdue-loans-repayment-daily': {
+        'task': 'loans.tasks.update_overdue_repayments',
+        'schedule': crontab(minute=48, hour=21),  # run every midnight
+    },
+    'update-appointment-daily': {
+        'task': 'appointments.tasks.update_ended_appointments',
+        'schedule': crontab(minute='*'),  # run every midnight
+    },
+}

@@ -20,3 +20,25 @@ class EmailOTP(models.Model):
             created = timezone.make_aware(created, timezone.get_current_timezone())
         return (timezone.now() - created).total_seconds() < self.expires_in
 
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('info', 'Info'),
+        ('warning', 'Warning'),
+        ('success', 'Success'),
+        ('error', 'Error'),
+    ]
+
+    notification_id = models.AutoField(primary_key=True, db_column='notification_id')
+    user = models.ForeignKey(User, models.DO_NOTHING, db_column='user_id')
+    title = models.CharField(max_length=255, db_column='title')
+    message = models.TextField(db_column='message')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, db_column='notification_type')
+    is_read = models.BooleanField(default=False, db_column='is_read')
+    created_at = models.DateTimeField(auto_now_add=True, db_column='created_at')
+
+    class Meta:
+        db_table = 'notifications'
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"

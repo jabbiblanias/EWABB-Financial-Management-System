@@ -11,7 +11,8 @@ from django.http import JsonResponse
 from decimal import Decimal
 from django.template.loader import render_to_string
 from members.models import Member
-
+from django.utils import timezone
+from notifications.models import Notification
 
 @transaction.atomic
 def transactions(request):
@@ -85,12 +86,11 @@ def record_payment(member_id, loan, payment_amount):
     # Case 1: full or over payment
     if payment_amount >= repayment.amount_due:
         remaining = payment_amount - repayment.amount_due
-
         # update repayment
         repayment.paid_amount = repayment.paid_amount + repayment.amount_due if repayment.paid_amount else repayment.amount_due
         repayment.amount_due = 0
-        repayment.paid_date = datetime.today()
-        repayment.last_updated = datetime.today()
+        repayment.paid_date = timezone.now()
+        repayment.last_updated = timezone.now()
         repayment.status = 'Paid'
         repayment.save()
 
@@ -116,8 +116,8 @@ def record_payment(member_id, loan, payment_amount):
             repayment.status = 'Partially Paid'
         repayment.amount_due -= payment_amount
         repayment.paid_amount = repayment.paid_amount + payment_amount if repayment.paid_amount else payment_amount
-        repayment.paid_date = datetime.today()
-        repayment.last_updated = datetime.today()
+        repayment.paid_date = timezone.now()
+        repayment.last_updated = timezone.now()
         repayment.save()
 
         # update loan totals
