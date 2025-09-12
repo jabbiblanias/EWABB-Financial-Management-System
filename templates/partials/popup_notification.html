@@ -1,0 +1,21 @@
+<div tabindex="0" class="dropdown-content bg-base-100 rounded-box z-1 mt-3 w-auto p-2 shadow border border-gray-300">
+    <div class="p-3 font-semibold border-b border-gray-200 text-gray-800">
+      Notifications
+    </div>
+    <ul class="max-h-64 overflow-y-auto">
+      {% for notification in notifications|slice:":5" %}
+      <li class="px-4 py-3 hover:bg-gray-50 border-b border-gray-200">
+        <p class="text-sm font-medium {% if not notification.is_read %}text-blue-600{% else %}text-gray-700{% endif %}">
+          {{ notification.title }}
+        </p>
+        <p class="text-xs text-gray-500 truncate">{{ notification.message }}</p>
+        <p class="text-xs text-gray-400">{{ notification.created_at|date:"M d, Y h:i A" }}</p>
+      </li>
+      {% empty %}
+      <li class="px-4 py-3 text-gray-500 text-sm">No notifications</li>
+      {% endfor %}
+    </ul>
+    <div class="p-3 text-center">
+      <a href="{% url 'notifications' %}" class="text-blue-600 text-sm hover:underline">View all</a>
+    </div>
+</div>
