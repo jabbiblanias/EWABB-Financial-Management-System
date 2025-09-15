@@ -303,3 +303,7 @@ def releasing(request):
         return JsonResponse({'success': True, 'html': html})
     except (LoanApplication.DoesNotExist, Member.DoesNotExist):
         return JsonResponse({'success': False})
+
+
+def loan_penalty():
+    print()

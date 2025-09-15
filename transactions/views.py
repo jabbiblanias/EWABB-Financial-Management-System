@@ -170,13 +170,14 @@ def record_payment(member_id, loan, payment_amount):
             message=f"Payment of ₱{payment_amount:,} recorded for due {repayment.due_date.strftime('%b %d, %Y')}. Remaining due: ₱{repayment.amount_due:,}."
         )
 
-    return f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully.",0
+    return f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully.", 0
 
 
 def transaction_view(request):
     user = request.user
     if user.groups.filter(name='Admin').exists():
-        return render(request, 'transactions/admin_transaction.html')
+        context = transaction_data()
+        return render(request, 'transactions/admin_transaction.html', context)
     elif user.groups.filter(name='Member').exists():
         context = member_transaction_data(user)
         return render(request, 'transactions/member_transaction.html', context)

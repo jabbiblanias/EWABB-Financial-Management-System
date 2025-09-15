@@ -50,7 +50,13 @@
             <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
             <td class="px-4 py-3">{{ forloop.counter }}</td>
             <td class="px-4 py-3 max-w-sm ">
-              <div class="cursor-pointer">
+              <div onclick='openNotifPopup(
+    "{{ notification.notification_id }}",
+    "{{ notification.title|escapejs }}",
+    "{{ notification.message|escapejs }}",
+    "{{ notification.is_read }}",
+    "{{ notification.created_at }}"
+  )' class="cursor-pointer">
                 <div class="font-semibold text-gray-900 ">{{ notification.title }}</div>
                 <p class="line-clamp-1 text-gray-600 ml-4">{{ notification.message }}</p>
               </div>
@@ -65,7 +71,7 @@
           <tr id="row-{{notification.notification_id}}" class="bg-blue-50 hover:bg-blue-100 transition">
             <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
             <td class="px-4 py-3">{{ forloop.counter }}</td>
-            <td class="px-4 py-3 text-gray-700">
+            <td onclick="openNotifPopup(notification.notification_id, notification.title, notification.message, notification.is_read, notification.created_at)" class="px-4 py-3 text-gray-700">
               <div class="font-semibold text-gray-900 flex items-center gap-2">
                 {{ notification.title }}
               </div>

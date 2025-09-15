@@ -93,7 +93,7 @@ class LoanPenalty(models.Model):
     penalty_id = models.AutoField(primary_key=True, db_column='penaltyid')
     schedule_id = models.ForeignKey(LoanRepaymentSchedule, models.DO_NOTHING, db_column='scheduleid')
     penalty_amount = models.DecimalField(max_digits=12, decimal_places=2, db_column='penaltyamount')
-    days_overdue = models.IntegerField(db_column='daysoverdue')
+    penalty_type = models.CharField(max_length=20, db_column='penaltytype')
     date_evaluated = models.DateField(db_column='dateevaluated')
 
     def __str__(self):

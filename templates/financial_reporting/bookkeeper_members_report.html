@@ -1,0 +1,190 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Dashboard</title>
+  {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fillTableRows('myTable', 10);
+    });
+  </script>
+</head>
+
+<body class="font-sans">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 max-h-screen bg-white border-r">
+      <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
+      <nav class="mt-6">
+        <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
+            class="w-5 mr-3 inline-block"></span>Dashboard </a>
+        <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
+            class="w-5 mr-3 inline-block"></span>Transactions</a>
+        <a href="{% url 'membershipApplication' %}"
+          class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span
+            class="w-5 mr-3 inline-block"></span> Members</a>
+        <a href="{% url 'financial_report' %}"
+          class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]"> <span
+            class="w-5 mr-3 inline-block"></span>Financial Reports </a>
+        <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
+            class="w-5 mr-3 inline-block"></span> Loans</a>
+        <a href="{% url 'appointments' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span
+            class="w-5 mr-3 inline-block"></span>Appointments</a>
+        <a href="{% url 'programs' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
+            class="w-5 mr-3 inline-block"></span>Programs</a>
+
+
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top bar -->
+      <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
+        <h2 class="text-lg font-semibold">Financial Reports</h2>
+        <div class="flex items-center space-x-4">
+          <input type="text" placeholder="Search for member"
+            class="px-4 py-2 border border-gray-300 rounded-full w-64" />
+          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+          <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK
+            </div>
+            <span class="text-sm">Bookkeeper</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Table -->
+      <div class="px-6 py-4">
+
+        <form method="POST">
+          {% csrf_token %}
+          <!-- Action buttons -->
+          <div class="grid grid-cols-3 px-6 py-4">
+            <div class="flex justify-left">
+              <button id="go-back" type="button" class="px-6 py-2 border bg-white rounded-lg hover:bg-gray-50">Back</button>
+            </div>
+            {% if status != "Submitted" %}
+            <div class=" flex justify-center items-center col-start-2 gap-4">
+              <input id="title" type="text" class="max-w-3xs mt-1 border border-gray-300 bg-gray-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center" value="{{ title }}" disabled>
+              <button id="edit" type="button">edit</button>
+            </div>
+            <div class="flex justify-end gap-4 col-span-1 col-end-4">
+              <button data-action="save" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Save</button>
+              <button data-action="submit" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Submit</button>
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <table id="myTable" class="min-w-full text-sm">
+              <thead class="bg-white border-b border-gray-200">
+                <tr>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Account No.</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Name</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Amount of loan Balance</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Date loaned</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Savings</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Penalty charge</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Savings After Deduction</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="member-financial-report-table-body">
+                {% include 'financial_reporting/partials/member_data_table_body.html' %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+          <button class="text-blue-500">&lt; Previous</button>
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+          <button class="text-blue-500">2</button>
+          <button class="text-blue-500">3</button>
+          <button class="text-blue-500">4</button>
+          <button class="text-blue-500">Next &gt;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById("go-back").addEventListener("click", () => {
+      history.back();
+    });
+    document.getElementById("edit").addEventListener("click", function() {
+      const title = document.getElementById("title");
+
+      if (title.hasAttribute("disabled")) {
+        // Enable
+        title.removeAttribute("disabled");
+        title.classList.remove("bg-gray-200");
+        this.textContent = "Lock"; // change button label
+      } else {
+        // Disable
+        title.setAttribute("disabled", true);
+        title.classList.add("bg-gray-200");
+        this.textContent = "Edit"; // change back
+      }
+    })
+
+    document.querySelectorAll(".action-btn").forEach(btn => {
+    btn.addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        const action = e.target.dataset.action;
+        const membersData = {};
+
+        // Loop through each table row to collect data
+        document.querySelectorAll("tbody tr").forEach(row => {
+            const accountNumberCell = row.querySelector("td[data-account-number]");
+            const remarksTextarea = row.querySelector("textarea");
+
+            if (accountNumberCell && remarksTextarea) {
+                const accountNo = accountNumberCell.dataset.accountNumber;
+                
+                // Construct a new object for each member
+                const member = {
+                    name: row.querySelector("td[data-name]").dataset.name,
+                    outstanding_balance: row.querySelector("td[data-loan-balance]").dataset.loanBalance,
+                    date_loaned: row.querySelector("td[data-released-date]").dataset.releasedDate,
+                    savings: row.querySelector("td[data-savings-balance]").dataset.savingsBalance,
+                    penalty_charge: row.querySelector("td[data-penalty-amount]").dataset.penaltyAmount,
+                    savings_after_deduction: row.querySelector("td[data-savings-after-deduction]").dataset.savingsAfterDeduction,
+                    remarks: remarksTextarea.value
+                };
+                membersData[accountNo] = member;
+            }
+        });
+
+        // The rest of your fetch request remains the same
+        const response = await fetch("{% url 'submit_report' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                report_id: "{{ report_id }}",
+                title: document.getElementById("title").value,
+                action: action,
+                members: membersData
+            })
+        });
+
+        if (response.ok) {
+            alert("Reports " + action + "d successfully!");
+        } else {
+            alert("Error while saving");
+        }
+    });
+});
+  </script>
+</body>
+
+</html>
