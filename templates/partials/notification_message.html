@@ -1,0 +1,54 @@
+<!-- Notification Popup Modal -->
+<div id="notifPopup" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-lg w-96 p-6 relative">
+    <!-- Close button -->
+    <button onclick="closeNotifPopup()" 
+            class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+      ✕
+    </button>
+
+    <h2 id="notifTitle" class="text-lg font-semibold text-gray-800 mb-2"></h2>
+    <p id="notifMessage" class="text-sm text-gray-600 mb-4"></p>
+    <p id="notifDate" class="text-xs text-gray-400"></p>
+  </div>
+</div>
+<script>
+    async function openNotifPopup(notification_id, title, message, date, is_read) {
+        // Fill popup
+        document.getElementById("notifTitle").textContent = title;
+        document.getElementById("notifMessage").textContent = message;
+        document.getElementById("notifDate").textContent = date;
+
+        document.getElementById("notifPopup").classList.remove("hidden");
+        document.getElementById("content").classList.add("hidden");
+
+        // ✅ Send request to mark as read
+        if (is_read) {
+            try {
+                const res = await fetch("{% url 'mark_notification_read' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ notification_id }),
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // Update styling in dropdown list
+                    const notifItem = document.getElementById(`notif-${notification_id}`);
+                    if (notifItem) {
+                        notifItem.classList.remove("bg-blue-50", "hover:bg-blue-100");
+                        notifItem.classList.add("text-gray-700", "hover:bg-gray-50");
+                    }
+                }
+            } catch (err) {
+                console.error("Error marking notification as read:", err);
+            }
+        }
+    }
+    function closeNotifPopup() {
+  document.getElementById("notifPopup").classList.add("hidden");
+}
+</script>

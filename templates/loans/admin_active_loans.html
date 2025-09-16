@@ -1,3 +1,4 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +6,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Financial Report</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fillTableRows('myTable', 10);
+    });
+  </script>
 </head>
 
 <body class="bg-gray-100 font-sans">
@@ -61,32 +68,6 @@
 
     <!-- Confirmation Modal -->
     {% include 'loans/partials/confirmation.html' %}
-    <script>
-      function fillTableRows(tableId, requiredRows) {
-        const table = document.getElementById(tableId);
-        const tbody = table.querySelector('tbody');
-        const currentRows = tbody.querySelectorAll('tr').length;
-        const columnsCount = table.querySelectorAll('th').length;
-
-        // Add empty rows if needed
-        for (let i = currentRows; i < requiredRows; i++) {
-          const row = document.createElement('tr');
-          row.className = "border-b border-gray-200"
-
-          for (let j = 0; j < columnsCount; j++) {
-            const cell = document.createElement('td');
-            cell.className = "px-6 py-3"
-            cell.innerHTML = '&nbsp;'; // or leave empty: cell.textContent = '';
-            row.appendChild(cell);
-          }
-
-          tbody.appendChild(row);
-        }
-      }
-
-      // Fill table to have exactly 10 rows
-      fillTableRows('myTable', 10);
-    </script>
 </body>
 
 </html>

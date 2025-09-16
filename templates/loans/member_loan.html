@@ -6,12 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EWABB Loans</title>
     {% tailwind_css %}
+    <script src="{% static 'partials/table-utils.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fillTableRows('myTable', 10);
+    });
+  </script>
   </head>
    <body class="bg-gray-100 font-sans">
     <div class="flex h-screen">
       {% include 'dashboard/partials/member_nav.html' %}
      <!-- Main Content -->
-      <main class="ml-64 mt-[72px] flex-1">
+      <main class="sm:ml-64 mt-[72px] flex-1">
         <div class="p-6 mt-6">
           <div class="flex justify-end-safe px-6">
             <button onclick="openPopUp()" class="border border-[#3d5af1] text-[#3d5af1] px-4 py-1 rounded-full hover:bg-[#f1f5ff] text-sm">
@@ -23,17 +29,17 @@
             <div class="join">
               <div>
                 <div>
-                  <input class="input join-item" placeholder="Search" />
+                  <input class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Search" />
                 </div>
               </div>
-              <select class="select join-item focus:ring-blue-400">
+              <select class="join-item w-full border border-gray-300 rounded-md px-1 focus:ring-2 focus:ring-blue-400 focus:outline-none">
                 <option disabled selected>Filter</option>
                 <option>Term</option>
                 <option>Loan Type</option>
                 <option>Status</option>
               </select>
-              <div class="indicator">
-                <button class="btn join-item">Search</button>
+              <div class="w-2xs border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                <button class="join-item">Search</button>
               </div>
             </div>
           </div>

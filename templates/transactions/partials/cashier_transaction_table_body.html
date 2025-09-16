@@ -1,3 +1,4 @@
+{% load humanize %}
 {% for transaction in transactions %}
 <tr id="row-{{ transaction.transaction_id }}" class="border-b border-gray-200">
     <td class="px-6 py-3">{{ transaction.transaction_id }}</td>
@@ -7,11 +8,11 @@
     <td class="px-6 py-3">
         {% if transaction.transaction_type == "Savings Deposit" or transaction.transaction_type == "Loan Payment" %}
         <span class="text-green-700 font-semibold">
-            + ₱{{ transaction.amount }}
+            + ₱{{ transaction.amount|intcomma }}
         </span>
         {% elif transaction.transaction_type == "Withdrawal" %}
         <span class="text-red-700 font-semibold">
-            - ₱{{ transaction.amount }}
+            - ₱{{ transaction.amount|intcomma }}
         </span>
         {% endif %}
     </td>

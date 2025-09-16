@@ -1,0 +1,47 @@
+<div id="content" tabindex="0"
+    class="hidden dropdown-content bg-base-100 rounded-box mt-3 w-72 p-2 shadow border border-gray-300 z-50">
+    <div class="p-3 font-semibold border-b border-gray-200 text-gray-800">
+        Notifications
+    </div>
+    <ul id="notifList" class="max-h-64 overflow-y-auto">
+        <!-- JS will inject li here -->
+    </ul>
+    <div class="p-1 text-center">
+        <a href="{% url 'notifications' %}" class="text-blue-600 text-sm hover:underline">View all</a>
+    </div>
+</div>
+<script>
+    document.getElementById("notif").addEventListener("click", async function () {
+        const dropdownContent = document.getElementById("content")
+        const notifList = document.getElementById("notifList");
+
+        // ✅ Only fetch if dropdown is currently hidden (about to open)
+        if (dropdownContent.classList.contains("hidden")) {
+            try {
+                const res = await fetch("{% url 'fetch_notifications' %}");
+                const data = await res.json();
+
+                notifList.innerHTML = "";
+
+                if (data.notifications.length === 0) {
+                    notifList.innerHTML = `<li class="px-4 py-3 text-gray-500 text-sm">No notifications</li>`;
+                } else {
+                    data.notifications.forEach(n => {
+                        notifList.innerHTML += `
+              <li onclick="openNotifPopup(${n.notification_id}, '${n.title}', '${n.message}', '${n.created_at}', '${n.is_read}')"
+              id="notif-${n.notification_id}"
+              class="px-4 py-3 border-b border-gray-200 ${n.is_read ? "text-gray-700 hover:bg-gray-50" : "bg-blue-50 hover:bg-blue-100"}">
+                <p class="text-sm font-medium">${n.title}</p>
+                <p class="text-xs text-gray-500 truncate">${n.message}</p>
+                <p class="text-xs text-gray-400">${n.created_at}</p>
+              </li>
+            `;
+                    });
+                }
+            } catch (err) {
+                notifList.innerHTML = `<li class="px-4 py-3 text-red-500 text-sm">Error loading notifications</li>`;
+            }
+        }
+        dropdownContent.classList.remove("hidden")
+    });
+</script>

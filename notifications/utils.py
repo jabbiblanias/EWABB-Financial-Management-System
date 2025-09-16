@@ -21,8 +21,8 @@ def registration_otp(first_name, email):
     }
 
     # Render plain text + HTML versions
-    text_content = render_to_string("mailing/otp_email.txt", context)
-    html_content = render_to_string("mailing/otp_email.html", context)
+    text_content = render_to_string("notifications/otp_email.txt", context)
+    html_content = render_to_string("notifications/otp_email.html", context)
 
     # Create email with both versions
     mail = EmailMultiAlternatives(subject, text_content, from_email, to_email)
