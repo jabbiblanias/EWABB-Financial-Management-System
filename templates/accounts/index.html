@@ -7,7 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Empowering Women</title>
   {% tailwind_css %}
+  <style>
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
+
 <body class="font-sans text-gray-700">
   <!-- Header with Wave Background -->
   <header class="relative bg-blue-900 text-white overflow-hidden">
@@ -25,10 +32,10 @@
     <nav class="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-6">
       <div class="text-2xl font-bold">EWABB</div>
       <div class="flex items-center gap-6">
-        <a href="#" class="hover:text-blue-300 transition">About</a>
-        <a href="#" class="hover:text-blue-300 transition">Services</a>
-        <a href="#" class="hover:text-blue-300 transition">Program</a>
-        <a href="#" class="hover:text-blue-300 transition">Team</a>
+        <a href="#about" class="hover:text-blue-300 transition">About</a>
+        <a href="#services" class="hover:text-blue-300 transition">Services</a>
+        <a href="#program" class="hover:text-blue-300 transition">Program</a>
+        <a href="#team" class="hover:text-blue-300 transition">Team</a>
       </div>
       <div class="flex items-center gap-4">
         <a href="{% url 'login' %}" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded-lg transition">Login</a>
@@ -46,8 +53,8 @@
           A professional digital banking platform dedicated to financial empowerment.
         </p>
         <div class="mt-6 flex gap-4 justify-center md:justify-start">
-          <a href="#" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-lg shadow transition">Get Started</a>
-          <a href="#" class="bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition">Learn More</a>
+          <a href="#about" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-lg shadow transition">Get Started</a>
+          <a href="#services" class="bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition">Learn More</a>
         </div>
       </div>
       <div class="flex-1 mt-10 md:mt-0">
@@ -57,21 +64,20 @@
   </header>
 
   <!-- About -->
-  <section class="py-16 px-6">
+  <section id="about" class="py-16 px-6">
     <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
       <div>
         <h2 class="text-3xl font-bold mb-4">About EWABB</h2>
         <p class="text-lg text-gray-600 mb-4">
           The Empowered Women Association of Barangay Bañadero (EWABB) is dedicated to providing financial support and opportunities to women. Through innovative banking services, EWABB fosters savings, loans, and investments for stronger communities.
         </p>
-        <a href="#" class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition">Read More</a>
       </div>
       <img src="https://img.freepik.com/free-vector/team-leader-concept-illustration_114360-1007.jpg" alt="About Image" class="w-full rounded-lg shadow-md" />
     </div>
   </section>
 
   <!-- Services with Wave Background -->
-  <section class="relative bg-blue-900 text-white py-16 overflow-hidden">
+  <section id="services" class="relative bg-blue-900 text-white py-16 overflow-hidden">
     <!-- Wave Background -->
     <div class="absolute inset-0">
       <svg class="w-full h-full text-blue-800 opacity-20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -98,31 +104,29 @@
     </div>
   </section>
 
-  <!--Program-->
-<section class="py-16 px-6 bg-gray-50">
-  <div class="max-w-7xl mx-auto text-center">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">Our Programs</h2>
-    <p class="max-w-2xl mx-auto text-gray-600 mb-12">
-      EWABB supports women through dedicated initiatives that strengthen financial independence and community growth.
-    </p>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
-        <h3 class="text-xl font-semibold mb-2 text-gray-800">Microfinance</h3>
-        <p class="text-gray-600">Accessible loans that give women the power to start and sustain small businesses.</p>
-      </div>
-      <div class="bg-blue-600 text-white p-8 rounded-lg shadow-lg hover:scale-105 transition">
-        <h3 class="text-xl font-semibold mb-2">Skills Training</h3>
-        <p>Workshops and mentorship to help women gain knowledge, confidence, and opportunities.</p>
-      </div>
-      <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
-        <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Projects</h3>
-        <p class="text-gray-600">Collective efforts that invest in the barangay’s growth and empower future generations.</p>
+  <!-- Program -->
+  <section id="program" class="py-16 px-6 bg-gray-50">
+    <div class="max-w-7xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-6 text-gray-800">Our Programs</h2>
+      <p class="max-w-2xl mx-auto text-gray-600 mb-12">
+        EWABB supports women through dedicated initiatives that strengthen financial independence and community growth.
+      </p>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">Microfinance</h3>
+          <p class="text-gray-600">Accessible loans that give women the power to start and sustain small businesses.</p>
+        </div>
+        <div class="bg-blue-600 text-white p-8 rounded-lg shadow-lg hover:scale-105 transition">
+          <h3 class="text-xl font-semibold mb-2">Skills Training</h3>
+          <p>Workshops and mentorship to help women gain knowledge, confidence, and opportunities.</p>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Projects</h3>
+          <p class="text-gray-600">Collective efforts that invest in the barangay’s growth and empower future generations.</p>
+        </div>
       </div>
     </div>
-  </div>
-</section>
-
-
+  </section>
 
   <!-- Work Everywhere with Wave -->
   <section class="relative bg-blue-900 text-white py-16 text-center overflow-hidden">
@@ -135,7 +139,7 @@
   </section>
 
   <!-- Team -->
-  <section class="py-16 px-6">
+  <section id="team" class="py-16 px-6">
     <div class="max-w-7xl mx-auto text-center mb-12">
       <h2 class="text-3xl font-bold">Meet Our Team</h2>
     </div>
@@ -171,17 +175,19 @@
   </svg>
 
 </body>
+
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/686f9b30157752190d5f3d8c/1ivpvce6c';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
+  var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+  (function () {
+    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+    s1.async = true;
+    s1.src = 'https://embed.tawk.to/686f9b30157752190d5f3d8c/1ivpvce6c';
+    s1.charset = 'UTF-8';
+    s1.setAttribute('crossorigin', '*');
+    s0.parentNode.insertBefore(s1, s0);
+  })();
 </script>
 <!--End of Tawk.to Script-->
+
 </html>
