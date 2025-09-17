@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EWABB Transactions</title>
     {% tailwind_css %}
+    <script src="{% static 'partials/table-utils.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fillTableRows('myTable', 10);
+    });
+  </script>
   </head>
   <body class="bg-gray-100 font-sans">
     <div class="flex h-screen">
@@ -36,7 +42,7 @@
               <button class="text-blue-500">3</button>
               <button class="text-blue-500">4</button>
               <button class="text-blue-500">Next &gt;</button>
-            </div>
+          </div>
         </div>
       </main>
     </div>

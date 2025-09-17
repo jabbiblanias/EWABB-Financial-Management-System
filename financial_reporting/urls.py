@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.financial_report_view, name="financial_report"),
-    path("submit/", views.submit_financial_report, name="submit_financial_report"),
+    path("", views.member_loan_report, name="financial_report"),
+    path("details/<int:report_id>/", views.report_details, name="report_details"),
+    path("new/", views.generate_report, name="new_report"),
+    path("submit/", views.submit_financial_report, name="submit_report"),
 ]

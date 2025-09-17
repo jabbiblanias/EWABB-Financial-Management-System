@@ -1,0 +1,109 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWABB Transactions</title>
+    {% tailwind_css %}
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+      {% include 'dashboard/partials/member_nav.html' %}
+      <!-- Main Content -->
+      <main class="ml-64 mt-[72px] flex-1">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-lg p-6 max-w-6xl mx-auto mt-10">
+
+    <!-- Header + Actions -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-xl font-bold text-gray-800">System Notifications</h1>
+      <div class="flex items-center gap-3">
+        <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Mark as Read
+        </button>
+        <!--<button class="bg-gray-100 hover:bg-gray-200 text-sm font-semibold px-4 py-2 rounded-lg border border-gray-300 transition">
+          Delete Selected
+        </button>-->
+      </div>
+    </div>
+
+    <!-- Notification Table -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <table class="min-w-full table-auto">
+        <thead class="bg-gray-50 text-sm font-semibold text-gray-700 border-b border-gray-200">
+          <tr>
+            <th class="px-4 py-3 text-left w-12"><input type="checkbox" class="h-4 w-4" /></th>
+            <th class="px-4 py-3 text-left w-12">#</th>
+            <th class="px-4 py-3 text-left">Notification</th>
+            <th class="px-4 py-3 text-left">Date</th>
+            <th class="px-4 py-3 text-left">Status</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
+          {% for notification in notifications %}
+          {% if notification.is_read %}
+          <!-- Read -->
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
+            <td class="px-4 py-3">{{ forloop.counter }}</td>
+            <td class="px-4 py-3 max-w-sm ">
+              <div onclick='openNotifPopup(
+    "{{ notification.notification_id }}",
+    "{{ notification.title|escapejs }}",
+    "{{ notification.message|escapejs }}",
+    "{{ notification.is_read }}",
+    "{{ notification.created_at }}"
+  )' class="cursor-pointer">
+                <div class="font-semibold text-gray-900 ">{{ notification.title }}</div>
+                <p class="line-clamp-1 text-gray-600 ml-4">{{ notification.message }}</p>
+              </div>
+              
+            </td>
+            <td class="px-4 py-3 text-left text-gray-500">{{ notification.created_at|date:"M d, Y h:i A" }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium">Read</span>
+            </td>
+          </tr>
+          {% else %}
+          <tr id="row-{{notification.notification_id}}" class="bg-blue-50 hover:bg-blue-100 transition">
+            <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
+            <td class="px-4 py-3">{{ forloop.counter }}</td>
+            <td onclick="openNotifPopup(notification.notification_id, notification.title, notification.message, notification.is_read, notification.created_at)" class="px-4 py-3 text-gray-700">
+              <div class="font-semibold text-gray-900 flex items-center gap-2">
+                {{ notification.title }}
+              </div>
+              <p class="line-clamp-1 text-gray-600 ml-4">{{ notification.message }}</p>
+            </td>
+            
+            <td class="px-4 py-3 text-left font-semibold">{{ notification.created_at|date:"M d, Y h:i A" }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 font-medium">
+                Unread
+              </span>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+              <button class="text-blue-500">&lt; Previous</button>
+              <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+              <button class="text-blue-500">2</button>
+              <button class="text-blue-500">3</button>
+              <button class="text-blue-500">4</button>
+              <button class="text-blue-500">Next &gt;</button>
+          </div>
+  </div>
+  
+      </main>
+    </div>
+  </body>
+</html>

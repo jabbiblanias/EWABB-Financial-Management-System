@@ -1,12 +1,20 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWABB Dashboard</title>
   {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fillTableRows('myTable', 10);
+    });
+  </script>
 </head>
+
 <body class="bg-gray-100 font-sans">
   <div class="flex h-screen">
 <!-- Sidebar -->
@@ -110,91 +118,79 @@
       <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
         <h2 class="text-lg font-semibold">Financial Reports</h2>
         <div class="flex items-center space-x-4">
-          <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-60" />
+          <input type="text" placeholder="Search for member"
+            class="px-4 py-2 border border-gray-300 rounded-full w-64" />
           <div class="w-10 h-10 rounded-full bg-gray-200"></div>
           <div class="flex items-center space-x-2">
-            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK</div>
+            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK
+            </div>
             <span class="text-sm">Bookkeeper</span>
           </div>
         </div>
       </header>
 
-     <!-- Action buttons -->
-      <div class="flex justify-between items-center px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <div class="flex items-center gap-4">
-          <button class="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Save</button>
-          <button class="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Submit</button>
-        </div>
-         <button class="border border-blue-600 text-blue-500 rounded-full hover:bg-blue-50 p-2">Generate</button>
+      <!-- Action buttons -->
+      <div class="flex justify-end px-6 py-3 mt-6 mr-2">
+        <a href="{% url 'new_report' %}"
+          class="border border-blue-600 text-blue-500 rounded-full hover:bg-blue-50 p-1 text-sm">Generate</a>
       </div>
-
-      
 
       <!-- Table -->
       <div class="px-6 py-4">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <table class="min-w-full text-sm">
+          <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-white border-b border-gray-200">
               <tr>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Account No.</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Name</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Amount of loan Balance</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Date loaned</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Savings</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Penalty charge</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Savings After Deduction</th>
-                <th class="px-6 py-3 text-left font-medium text-blue-500">Remarks</th>
+                <th class="px-6 py-3 text-left font-medium text-blue-500">Report ID</th>
+                <th class="px-6 py-3 text-left font-medium text-blue-500">Title</th>
+                <th class="px-6 py-3 text-left font-medium text-blue-500">Status</th>
+                <th class="px-6 py-3 text-left font-medium text-blue-500">Date Created</th>
+                <th class="px-6 py-3 text-left font-medium text-blue-500">Last Updated</th>
+                <th class="px-6 py-3 text-left font-medium text-blue-500">Action</th>
               </tr>
             </thead>
             <tbody>
+              {% for report in reports %}
               <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">#12548796</td>
-                <td class="px-6 py-3">Maribel Yan</td>
-                <td class="px-6 py-3">4,000.00</td>
-                <td class="px-6 py-3">Oct. 20, 2021</td>
-                <td class="px-6 py-3">418.00</td>
-                <td class="px-6 py-3 text-red-500">80.00</td>
-                <td class="px-6 py-3">338.50</td>
-                <td class="px-6 py-3"></td>
+                <td class="px-6 py-3">{{ report.report_id }}</td>
+                <td class="px-6 py-3">{{ report.title }}</td>
+                <td class="px-6 py-3">{{ report.status }}</td>
+                <td class="px-6 py-3">{{ report.created_at|date:"Y-m-d H:i A" }}</td>
+                <td class="px-6 py-3">{{ report.last_updated|date:"Y-m-d H:i A" }}</td>
+                <td class="px-6 py-3">
+                  {% if report.status == "Submitted" %}
+                  <!-- View Button -->
+                  <a href="details/{{report.report_id}}/"
+                    class="w-12 h-6 flex items-center justify-center rounded-2xl border border-blue-500 text-blue-500 hover:bg-blue-100">
+                    View
+                  </a>
+                  {% else %}
+                  <!-- View Button -->
+                  <a href="details/{{report.report_id}}/"
+                    class="w-12 h-6 flex items-center justify-center rounded-2xl border border-blue-500 text-blue-500 hover:bg-blue-100">
+                    View
+                  </a>
+                  {% endif %}
+                </td>
               </tr>
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">#12548796</td>
-                <td class="px-6 py-3">Ling Ching</td>
-                <td class="px-6 py-3">200.00</td>
-                <td class="px-6 py-3">July 15, 2021</td>
-                <td class="px-6 py-3">4,069.22</td>
-                <td class="px-6 py-3 text-red-500">4.00</td>
-                <td class="px-6 py-3">4065.22</td>
-                <td class="px-6 py-3"></td>
-              </tr>
-              <tr>
-                <td class="px-6 py-3">#12548796</td>
-                <td class="px-6 py-3">Harry Potter</td>
-                <td class="px-6 py-3">0.00</td>
-                <td class="px-6 py-3">Jan 14, 2022</td>
-                <td class="px-6 py-3">3,500.00</td>
-                <td class="px-6 py-3">0.00</td>
-                <td class="px-6 py-3">3,500.00</td>
-                <td class="px-6 py-3"></td>
-              </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
 
-        
-        <!-- Pagination -->
-    <div class="flex justify-end items-center space-x-2 mt-4">
-      <button class="text-blue-600 hover:underline">Previous</button>
-      <button class="px-3 py-1 rounded-full bg-blue-600 text-white">1</button>
-      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">2</button>
-      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">3</button>
-      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">4</button>
-      <button class="text-blue-600 hover:underline">Next</button>
-    </div>
 
+        <!-- Pagination -->
+        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+          <button class="text-blue-500">&lt; Previous</button>
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+          <button class="text-blue-500">2</button>
+          <button class="text-blue-500">3</button>
+          <button class="text-blue-500">4</button>
+          <button class="text-blue-500">Next &gt;</button>
+        </div>
       </div>
     </div>
   </div>
-
 </body>
+
 </html>

@@ -29,6 +29,7 @@ urlpatterns = [
     path('financial-report/', include('financial_reporting.urls')),
     path('programs/', include('programs.urls')),
     path('backup_and_restore/', include('backup_and_restore.urls')),
+    path('notifications/', include('notifications.urls')),
 ]
 
 if settings.DEBUG:

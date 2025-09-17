@@ -33,13 +33,24 @@ def transactions(request):
                 savings = Savings.objects.get(member_id=member)
                 savings.balance += amount
                 savings.save()
-                message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
+                toast_message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
+
+                # 🔔 Member notification (different wording)
+                Notification.objects.create(
+                    user=member.user_id,
+                    title="Savings Deposit",
+                    message=(
+                        f"You deposited ₱{amount:,} into your savings account on "
+                        f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}. "
+                        f"Your new balance is ₱{savings.balance:,}."
+                    )
+                )
             elif transaction_type == 'Loan Payment':
                 loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
                 if not loan:
                     return JsonResponse({"success": False, "message": "This account number doesn't have active loan."})
                 
-                message, excess = record_payment(member, loan, amount)
+                toast_message, excess = record_payment(member, loan, amount)
                 if excess != 0:
                     amount -= excess
                 change += excess
@@ -50,12 +61,23 @@ def transactions(request):
                 if savings.balance >= amount:
                     savings.balance -= amount
                     savings.save()
-                    message = f"Withdrawal of ₱{amount} from Account #{member.account_number} processed successfully."
+                    toast_message = f"Withdrawal of ₱{amount} from Account #{member.account_number} processed successfully."
+
+                    # 🔔 Member notification (different wording)
+                    Notification.objects.create(
+                        user=member.user_id,
+                        title="Withdrawal",
+                        message=(
+                            f"You withdrew ₱{amount:,} from your savings account on "
+                            f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}. "
+                            f"Remaining balance: ₱{savings.balance:,}."
+                        )
+                    )
                 else:
                     # Not enough balance
-                    message = f"Account #{member.account_number} has insufficient balance!"
+                    toast_message = f"Account #{member.account_number} has insufficient balance!"
 
-                    return JsonResponse({"success": False, "message": message})
+                    return JsonResponse({"success": False, "message": toast_message})
                 
             
             Transactions.objects.create(
@@ -68,7 +90,7 @@ def transactions(request):
             )
             context = transaction_data()
             html = render_to_string('transactions/partials/cashier_transaction_table_body.html', context)
-            return JsonResponse({"success": True, "message": message, "html": html})
+            return JsonResponse({"success": True, "message": toast_message, "html": html})
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": "Transaction failed. Please try again."})
 
@@ -103,6 +125,22 @@ def record_payment(member_id, loan, payment_amount):
         if loan.remaining_balance == 0:
             loan.loan_status = "Completed"
             loan.save()
+            Notification.objects.create(
+                user=member_id.user_id,
+                title="Loan Fully Paid",
+                message=f"Your due on {repayment.due_date.strftime('%b %d, %Y')} has been paid. Congratulations, your loan is fully paid!"
+            )
+        else:
+            # Next due
+            next_due = LoanRepaymentSchedule.objects.filter(loan_id=loan, status__in=['Pending','Partially Paid']).order_by('due_date').first()
+            note = f"Your due on {repayment.due_date.strftime('%b %d, %Y')} has been paid."
+            if next_due:
+                note += f" Next due: {next_due.due_date.strftime('%b %d, %Y')} amount ₱{next_due.amount_due:,}."
+            Notification.objects.create(
+                user=member_id.user_id,
+                title="Loan Due Paid",
+                message=note
+            )
 
         # If there’s excess, apply it to the next repayment
         if remaining > 0:
@@ -125,13 +163,21 @@ def record_payment(member_id, loan, payment_amount):
         loan.remaining_balance = max(0, loan.remaining_balance - payment_amount)
         loan.save()
 
-    return f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully.",0
+        # 🔔 Create partial payment notification
+        Notification.objects.create(
+            user=member_id.user_id,
+            title="Partial Loan Payment",
+            message=f"Payment of ₱{payment_amount:,} recorded for due {repayment.due_date.strftime('%b %d, %Y')}. Remaining due: ₱{repayment.amount_due:,}."
+        )
+
+    return f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully.", 0
 
 
 def transaction_view(request):
     user = request.user
     if user.groups.filter(name='Admin').exists():
-        return render(request, 'transactions/admin_transaction.html')
+        context = transaction_data()
+        return render(request, 'transactions/admin_transaction.html', context)
     elif user.groups.filter(name='Member').exists():
         context = member_transaction_data(user)
         return render(request, 'transactions/member_transaction.html', context)
