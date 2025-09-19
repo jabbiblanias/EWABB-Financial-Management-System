@@ -12,7 +12,7 @@
     <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
       <h1 class="text-white font-bold text-xl">EWABB</h1>
       <div class="space-x-4">
-        <button class="bg-yellow-400 hover:bg-yellow-400 text-black px-4 py-2 rounded">Login</button>
+        <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block"> Login</a>
       </div>
     </nav>
 
@@ -44,15 +44,15 @@
       <!-- SPOUSE Section -->
       <div class="grid grid-cols-1 md:grid-cols-2 md:gap-8 mb-12">
         <div class="ml-3">
-          <label class="block text-sm font-medium mb-1">Spouse's Surname </label>
+          <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
           <input name="spouseSurname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="spouseSurnameError" class="text-red-500 text-sm hidden">Surname must not contain numbers</span>
 
-          <label class="block text-sm font-medium mb-1">First Name </label>
+          <label class="block text-sm font-medium mb-1">First Name</label>
           <input name="spouseFirstName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="spouseFirstNameError" class="text-red-500 text-sm hidden">Surname must not contain numbers</span>
 
-          <label class="block text-sm font-medium mb-1">Middle Name </label>
+          <label class="block text-sm font-medium mb-1">Middle Name</label>
           <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="spouseMiddleNameError" class="text-red-500 text-sm hidden">Middle must not contain numbers</span>
 
@@ -103,12 +103,12 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="col-span-2">
             <div class="mb-4">
-              <label class="block text-sm font-medium mb-1">Name (Full Name) *</label>
+              <label class="block text-sm font-medium mb-1">Name (Full Name) <span class="text-red-500">*</span></label>
               <input name="emergencyContactName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
               <span id="emergencyContactNameError" class="text-red-500 text-sm hidden">must not contain numbers</span>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Address *</label>
+              <label class="block text-sm font-medium mb-1">Address <span class="text-red-500">*</span></label>
               <input name="emergencyContactAddress" type="text" placeholder="Enter the address" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
             </div>
           </div>
