@@ -110,7 +110,7 @@
                 placeholder="e.g., Magsaysay"
                 class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-              <span id="middleNameError" class="text-red-500 text-sm hidden">Middle name must not contain numbers or symbol</span>
+              <span id="middleNameError" class="text-red-500 text-sm hidden">Last name must not contain numbers or symbol</span>
             </div>
             <div>
               <label
@@ -484,7 +484,7 @@
               placeholder="e.g., 123456789 or 123456789012"
               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
-            <span id="tinIdError" class="text-red-500 text-sm hidden">TIN must follow ###-###-###-##### format, numbers only</span>
+            <span id="tinIdError" class="text-red-500 text-sm hidden">TIN must follow ###-###-###-### format, numbers only</span>
           </div>
         </div>
       </div>
@@ -533,7 +533,7 @@ document.addEventListener("DOMContentLoaded", function () {
       regex: /^[A-Za-z\s]+$/, 
       errorId: "citizenshipError" 
     },
-    cellphoneNo: {
+    cellphone: {
        regex: /^\d{11,12}\d+$$/, 
        errorId: "cellphoneError" 
       },
@@ -557,22 +557,22 @@ document.addEventListener("DOMContentLoaded", function () {
        regex: /^\d{11,12}\d+$$/, 
        errorId: "permanentAddressTelephoneNoError" 
       },
-    gsisIdNo: { 
-      regex: /^\d{12}$/, 
+    gsisId: { 
+      regex: /^\d{12}\d+$$/, 
       errorId: "gsisIdError" 
     },
-    pagibigIdNo: { 
+    pagibigId: { 
       regex: /^\d{12}\d+$$/, 
       errorId: "pagibigIdError" 
     },
-    philhealthIdNo: { 
+    philhealthId: { 
       regex: /^\d{2}-\d{9}-\d{1}\d+$$/, 
       errorId: "philhealthIdError" },
-    sssNo: { 
+    sssId: { 
       regex: /^\d{2}-\d{7}-\d{1}\d+$$/, 
       errorId: "sssIdError" },
     tinNo: { 
-      regex: /^\d{3}-\d{3}-\d{3}-\d{5}\d+$$/, 
+      regex: /^\d{3}-\d{3}-\d{3}-\d{3}\d+$$/, 
       errorId: "tinIdError" 
     }
   };
