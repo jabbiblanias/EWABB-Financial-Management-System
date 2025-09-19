@@ -177,9 +177,10 @@ def register_step3(request):
             request.session['register_data'] = data
             request.session.modified = True  # ensures Django writes the session
 
-            registration_otp(first_name, email)
-
-            return redirect('register_verify')
+            if registration_otp(first_name, email):
+                return redirect('register_verify')
+            else:
+                error = "Invalid or unreachable email address. Please try again."
 
     return render(request, 'accounts/register3.html', {'error': error})
 
