@@ -193,3 +193,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*'),  # run every midnight
     },
 }
+
+GOOGLE_DRIVE_FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")  # backups folder in Google Drive
+GOOGLE_DRIVE_CREDENTIALS_FILE = os.getenv("GOOGLE_DRIVE_CREDENTIALS_FILE")    # OAuth client file from Google Cloud
+GOOGLE_DRIVE_TOKEN_FILE = os.getenv("GOOGLE_DRIVE_TOKEN_FILE")             # will be created automatically
