@@ -46,25 +46,32 @@
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
           <input name="spouseSurname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="spouseSurnameError" class="text-red-500 text-sm hidden">Surname must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">First Name</label>
           <input name="spouseFirstName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="spouseFirstNameError" class="text-red-500 text-sm hidden">Surname must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">Middle Name</label>
           <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="spouseMiddleNameError" class="text-red-500 text-sm hidden">Middle must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">Occupation</label>
           <input name="occupation" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="occupationError" class="text-red-500 text-sm hidden">Must not contain numbers or symbols</span>
         </div>
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
           <input name="employerBusinessName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="employerBusinessNameError" class="text-red-500 text-sm hidden">Must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">Business Address</label>
           <input name="businessAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="businessAddressError" class="text-red-500 text-sm hidden">Must not contain symbols</span>
 
           <label class="block text-sm font-medium mb-1">Telephone No.</label>
           <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="businessTelephoneNoError" class="text-red-500 text-sm hidden">Must be 11–12 digits, numbers only</span>
         </div>
       </div>
 
@@ -79,6 +86,7 @@
             <div class="md:col-span-2">
               <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
               <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <span id="childNameError" class="text-red-500 text-sm hidden">Must not contain numbers</span>
             </div>
             <div class="md:col-span-1">
               <label class="block text-sm font-medium mb-1">Date of Birth</label>
@@ -97,6 +105,7 @@
             <div class="mb-4">
               <label class="block text-sm font-medium mb-1">Name (Full Name) <span class="text-red-500">*</span></label>
               <input name="emergencyContactName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
+              <span id="emergencyContactNameError" class="text-red-500 text-sm hidden">must not contain numbers</span>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Address <span class="text-red-500">*</span></label>
@@ -143,3 +152,86 @@
 </script>
 </body>
 </html>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Validation rules
+  const rules = {
+    spouseSurname: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "spouseSurnameError" 
+    },
+    spouseFirstName: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "spouseFirstNameError" 
+    },
+    spouseMiddleName: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "spouseMiddleNameError" 
+    },
+    occupation: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "occupationError" 
+    },
+    employerBusinessName: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "employerBusinessNameError" 
+    },
+    businessAddress: { 
+      regex: /^[A-Za-z0-9\s,.-]+$/, 
+      errorId: "businessAddressError" 
+    },
+    businessTelephoneNo: { 
+      regex: /^\d{11,12}\d+$$/, 
+      errorId: "businessTelephoneNoError" 
+    },
+
+    // Children
+    childName: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "childNameError" 
+    },
+
+    // Emergency contact
+    emergencyContactName: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "emergencyContactNameError" 
+    },
+  };
+
+  // Attach validation
+  Object.keys(rules).forEach((field) => {
+    const inputs = document.getElementsByName(field);
+
+    inputs.forEach = Array.prototype.forEach; // Fix for NodeList
+
+    inputs.forEach((input) => {
+      // Create error span if not already in HTML
+      let error = document.getElementById(rules[field].errorId);
+      if (!error) {
+        error = document.createElement("span");
+        error.id = rules[field].errorId;
+        error.className = "text-red-500 text-sm hidden";
+        error.textContent = "Invalid input";
+        input.insertAdjacentElement("afterend", error);
+      }
+
+      // Validate while typing
+      input.addEventListener("input", function () {
+        if (input.value === "" || rules[field].regex.test(input.value)) {
+          error.classList.add("hidden");
+        } else {
+          error.classList.remove("hidden");
+        }
+      });
+
+      // Validate on blur
+      input.addEventListener("blur", function () {
+        if (input.value && !rules[field].regex.test(input.value)) {
+          error.classList.remove("hidden");
+        }
+      });
+    });
+  });
+});
+</script>
