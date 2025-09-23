@@ -3,15 +3,17 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from .models import EmailOTP
 from datetime import date
+from django.conf import settings
+
 
 def registration_otp(first_name, email):
     code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-    otp_code = EmailOTP.objects.create(email=email, otp_code=code)
+    EmailOTP.objects.create(email=email, otp_code=code)
 
     today_date = date.today()
 
     subject = "Your OTP for Account Verification"
-    from_email = "noreply.ewabb@gmail.com"
+    from_email = settings.EMAIL_HOST_USER
     to_email = [email]
 
     context = {

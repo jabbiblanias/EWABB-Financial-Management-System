@@ -30,24 +30,22 @@
           <a href="#" class="px-4 py-2 text-gray-500 hover:text-blue-600">Activity History</a>
         </div>
         <!-- Backup Options -->
-      <div class="flex space-x-4">
-        <div onclick="document.getElementById('backupModal').classList.remove('hidden')"
-          class="flex flex-col items-center bg-white border border-gray-300 rounded-lg shadow-sm p-4">
-          <div class="w-2 h-2 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 text-xl">💾
+        <div class="flex space-x-4">
+          <div onclick="document.getElementById('backupModal').classList.remove('hidden')"
+            class="flex flex-col items-center bg-white border border-gray-300 rounded-lg shadow-sm p-4">
+            <div class="w-2 h-2 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 text-xl">💾
+            </div>
           </div>
-        </div>
-        <div onclick="document.getElementById('autoBackupModal').classList.remove('hidden')"
-          class="flex flex-col items-center bg-white border border-gray-300 rounded-lg shadow-sm p-4">
-          <div class="w-2 h-2 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 text-xl">⚙️
-          </div>
-        </div>
-        <div onclick="document.getElementById('restoreModal').classList.remove('hidden')"
-          class="flex flex-col items-center bg-white border border-gray-300 rounded-lg shadow-sm p-4">
-          <div class="w-2 h-2 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 text-xl">⏪
+          <div onclick="document.getElementById('autoBackupModal').classList.remove('hidden')"
+            class="flex flex-col items-center bg-white border border-gray-300 rounded-lg shadow-sm p-4">
+            <div class="w-2 h-2 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 text-xl">⚙️
+            </div>
           </div>
         </div>
       </div>
-      </div>
+      {% if message %}
+      <h1>{{message}}</h1>
+      {% endif %}
 
       <!-- Backup Table -->
       <div class="px-6 py-4">
@@ -55,76 +53,50 @@
           <table class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Date and Time</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">File Name</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Storage Location</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Size</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Created At</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
               </tr>
             </thead>
-            <tbody class="bg-white">
+            <tbody id="backup-table-body" class="bg-white">
+              {% for backup in backups %}
               <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">April 29, 2025 9:00 pm</td>
-                <td class="px-6 py-3">Restore</td>
-                <td class="px-6 py-3">backup_2025_04_25</td>
+                <td class="px-6 py-3">{{ backup.name }}</td>
+                <td class="px-6 py-3">{{ backup.location }}</td>
+                <td class="px-6 py-3">{{ backup.size }}</td>
+                <td class="px-6 py-3">{{ backup.created_at|date:"Y-m-d h:i A" }}</td>
+                <td class="px-4 py-2">
+                  <button id="table-restore" onclick="openRestoreModal(this)"
+                    class="w-15 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100"
+                    data-name="{{ backup.name }}" data-location="{{ backup.location }}">Restore</button>
+                </td>
               </tr>
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">April 25, 2025 12:00 am</td>
-                <td class="px-6 py-3">Automatic Backup</td>
-                <td class="px-6 py-3">backup_2025_04_25</td>
-              </tr>
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">April 23, 2025 12:00 am</td>
-                <td class="px-6 py-3">Manual Backup</td>
-                <td class="px-6 py-3">backup_2025_04_23</td>
-              </tr>
-              <tr>
-                <td colspan="3" class="px-6 py-6"></td>
-              </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-end items-center space-x-2 mt-4">
-          <button class="text-blue-600 hover:underline">Previous</button>
-          <button class="px-3 py-1 rounded-full bg-blue-600 text-white">1</button>
-          <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">2</button>
-          <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">3</button>
-          <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">4</button>
-          <button class="text-blue-600 hover:underline">Next</button>
+        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+          <button class="text-blue-500">&lt; Previous</button>
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+          <button class="text-blue-500">2</button>
+          <button class="text-blue-500">3</button>
+          <button class="text-blue-500">4</button>
+          <button class="text-blue-500">Next &gt;</button>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- Restore Modal -->
-  <div id="restoreModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md relative">
-
-      <!-- Close Button -->
-      <button onclick="document.getElementById('restoreModal').classList.add('hidden')"
-        class="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold">
-        &times;
-      </button>
-
-      <!-- Modal Content -->
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Restoring from File</h2>
-
-      <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="backup_file" accept=".sql,.zip,.bak"
-          class="block w-full text-gray-700 border rounded p-2 mb-6" required>
-        <button type="submit" onclick="return confirm('This will overwrite current data. Are you sure?');"
-          class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 shadow w-full">
-          Restore Now
-        </button>
-      </form>
     </div>
   </div>
 
   <!-- Backup Modal -->
   <div id="backupModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md relative">
+    <form id="backupForm" class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md relative">
 
       <!-- Close Button -->
-      <button onclick="document.getElementById('backupModal').classList.add('hidden')"
+      <button type="button" onclick="closeManualBackupModal()"
         class="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold">
         &times;
       </button>
@@ -133,7 +105,7 @@
       <h2 class="text-lg font-semibold text-gray-800 mb-2">Create Backup</h2>
       <p class="text-sm text-gray-600 mb-4">Choose where to store the backup.</p>
 
-      <form method="POST">
+      <div>
         <div class="mb-4">
           <label class="inline-flex items-center mr-4">
             <input type="radio" name="backup_location" value="local" class="form-radio text-blue-600" checked>
@@ -144,11 +116,14 @@
             <span class="ml-2 text-gray-800">Cloud (Google Drive/S3)</span>
           </label>
         </div>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow">
+        <p id="defaultLocation" class="hidden text-xs text-gray-500">Default path is <code>C:\Backups\EWABB</code></p>
+        <button id="backup-btn" type="submit"
+          class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 shadow">
           Backup now
         </button>
-      </form>
-    </div>
+        <div id="backup-result" class="mt-2 text-sm"></div>
+      </div>
+    </form>
   </div>
   <!-- Auto Backup Modal -->
   <div id="autoBackupModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -182,6 +157,163 @@
       </form>
     </div>
   </div>
+  <!-- Restore Backup Confirmation Modal -->
+  <div id="restoreModal" class="fixed inset-0 z-50 hidden bg-black/30" aria-labelledby="restore-title" role="dialog"
+    aria-modal="true">
+    <div class="relative mx-auto mt-28 w-[92%] max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-black/5">
+
+      <!-- Header -->
+      <div class="flex items-start gap-3 p-5">
+        <div class="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 id="restore-title" class="text-lg font-semibold text-gray-900">
+            Confirm Restore?
+          </h3>
+          <p id="restore-desc" class="mt-1 text-sm text-gray-600">
+            You are about to restore the backup file
+            <span class="font-medium" id="backupName"></span>.
+            This will overwrite current data and this action <span class="font-medium text-red-600">cannot be
+              undone</span>.
+          </p>
+        </div>
+        <button onclick="closeRestoreModal()"
+          class="ml-2 rounded-lg p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+          aria-label="Close">
+          ✕
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 border-t border-gray-100 p-5">
+        <button onclick="closeRestoreModal()" type="button"
+          class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500">
+          Cancel
+        </button>
+        <button id="restore-btn" type="button"
+          class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+          Restore
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Toast -->
+  <div id="toast"
+    class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+    role="status"></div>
+  <script>
+    const radios = document.querySelectorAll('input[name="backup_location"]');
+    const defaultLocation = document.getElementById("defaultLocation");
+
+    radios.forEach(radio => {
+      radio.addEventListener("change", () => {
+        if (radio.checked && radio.value === "local") {
+          defaultLocation.classList.remove("hidden")
+        } else {
+          defaultLocation.classList.add("hidden")
+        }
+      });
+    });
+  </script>
+  <script>
+    function closeManualBackupModal() {
+      document.getElementById('backupModal').classList.add('hidden');
+    }
+    document.getElementById("table-restore").addEventListener("click", {
+
+    })
+    document.getElementById("backupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      try {
+        const form = e.target;
+        pendingFormData = new FormData(form);
+        const response = await fetch("{% url 'manual_backup' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: pendingFormData
+        })
+        data = await response.json()
+        if (data) {
+          document.getElementById("backup-result").innerText = data.message;
+          closeManualBackupModal();
+        }
+      } catch (err) {
+        document.getElementById("backup-result").innerText = "Error: " + err;
+      };
+    });
+  </script>
+  <script>
+    function closeRestoreModal() {
+      document.getElementById('restoreModal').classList.add('hidden');
+    }
+    function openRestoreModal(btn) {
+      document.getElementById('restoreModal').classList.remove('hidden');
+
+      const name = btn.dataset.name
+      const location = btn.dataset.location
+
+      document.getElementById('backupName').textContent = name
+      document.getElementById("restore-btn").addEventListener("click", async function () {
+        try {
+          // 🔒 Disable button
+          this.disabled = true;
+
+          // Show spinner + text (Tailwind spinner with SVG)
+          this.innerHTML = `
+              <span class="loading loading-spinner loading-sm"></span>
+              Restoring...
+          `;
+          const response = await fetch("{% url 'restore' %}", {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ name: name, location: location })
+          })
+          data = await response.json()
+          if (data.status === "success") {
+            showAlert(data.message, data.status)
+            window.location.reload();
+          }
+        } catch (err) {
+          console.log("Error: " + err);
+        };
+      });
+    }
+    // Toast notification function
+    function showAlert(message, type) {
+      const toast = document.getElementById("toast");
+
+      // Remove old color classes before adding new one
+      toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+      // Style by type
+      if (type === "success") {
+        toast.classList.add("bg-emerald-600"); // green
+      } else if (type === "failed") {
+        toast.classList.add("bg-red-600");
+      } else {
+        toast.classList.add("bg-yellow-600"); // yellow default
+      }
+
+      // Set message
+      toast.textContent = message;
+
+      // Show toast
+      toast.classList.remove("hidden");
+
+      // Hide after 4s
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
+  </script>
+
 </body>
 
 </html>

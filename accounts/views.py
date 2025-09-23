@@ -9,10 +9,11 @@ from django.db import transaction, IntegrityError
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password, check_password
+import json
+from django.utils import timezone
 
 
 def login_view(request):
-    error = None
     if request.method == 'POST':
         identifier = request.POST.get('emailUsername', '').strip()
         password = request.POST.get('password')
@@ -24,18 +25,22 @@ def login_view(request):
             user = authenticate(request, username=user_obj.username, password=password)
 
             if user:
-                if Membershipapplication.objects.filter(user_id=user, status="Pending").exists():
-                    error = "Application is still pending"
-                    return render(request, "accounts/login.html", {
-                        "pending_message": error,
-                        "emailUsername": identifier
-                    })
+                # Check membership status
+                if Membershipapplication.objects.filter(user_id=user, status="Pending").exists(): 
+                    request.session["identifier"] = identifier
+                    messages.warning(request, "Your application is still pending.")
+                    return redirect("login")
+
                 login(request, user)
+                messages.success(request, f"🎉 Welcome back, {user.username}!")
                 return redirect('dashboard')
 
-        error = "Invalid username/email or password"
+        # Invalid login case
+        request.session["identifier"] = identifier
+        messages.error(request, "Invalid username/email or password.")
+        return redirect("login")
 
-    return render(request, 'accounts/login.html', {'error_message': error})
+    return render(request, 'accounts/login.html')
 
 def home_page(request):
     return render(request, 'accounts/index.html')
@@ -178,16 +183,13 @@ def register_step3(request):
             request.session.modified = True  # ensures Django writes the session
 
             registration_otp(first_name, email)
-
+            
             return redirect('register_verify')
 
     return render(request, 'accounts/register3.html', {'error': error})
 
 
 def registration_otp_verification_view(request):
-    error = None
-    print("In verification:", request.session.get('register_data'))
-
     if request.method == "POST":
         data = request.session.get('register_data', {})
         input_code = request.POST.get('code')
@@ -200,9 +202,11 @@ def registration_otp_verification_view(request):
             otp = EmailOTP.objects.filter(email=email).latest('created_at')
 
             if not otp.is_valid():
-                error = "OTP expired"
+                messages.error(request, "OTP expired")
+                return redirect('register_verify')
             elif otp.otp_code != input_code:
-                error = "Invalid OTP"
+                messages.error(request, "Invalid OTP")
+                return redirect('register_verify')
             else:
                 try:
                     with transaction.atomic():
@@ -280,9 +284,10 @@ def registration_otp_verification_view(request):
                     return redirect('register3')
 
         except EmailOTP.DoesNotExist:
-            error = "OTP not found"
+            messages.error(request, "OTP not found")
+            return redirect('register_verify')
 
-    return render(request, 'accounts/verification.html', {'error': error})
+    return render(request, 'accounts/verification.html')
 
 
 def check_email(request):
@@ -296,6 +301,44 @@ def check_username(request):
     exists = User.objects.filter(username=username).exists()
     return JsonResponse({"exists": exists})
 
+
+def update_timer(request):
+    email = request.session.get("register_data", {}).get("email")
+    if not email:
+        return JsonResponse({"status": False, "message": "No email in session"})
+
+    try:
+        otp = EmailOTP.objects.filter(email=email).latest('created_at')
+    except EmailOTP.DoesNotExist:
+        return JsonResponse({"status": False, "message": "No OTP found"})
+
+    created = otp.created_at
+    if timezone.is_naive(created):
+        created = timezone.make_aware(created, timezone.get_current_timezone())
+
+    cooldown_seconds = 60
+    elapsed = (timezone.now() - created).total_seconds()
+    remaining = max(0, cooldown_seconds - elapsed)
+
+    # status True = still counting down / cannot resend yet
+    return JsonResponse({
+        "status": remaining > 0,
+        "remaining": remaining
+    })
+    
+
+def resend_otp(request):
+    session_data = request.session.get("register_data", {})
+    first_name = session_data.get("first_name")
+    email = session_data.get("email")
+
+    if not email:
+        return JsonResponse({"status": False, "message": "No email in session"})
+
+    # Call your function to generate and send OTP
+    registration_otp(first_name, email)
+
+    return JsonResponse({"status": True, "message": "OTP resent successfully"})
 
 def success_view(request):
     return render(request, 'accounts/success.html')

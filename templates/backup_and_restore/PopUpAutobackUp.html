@@ -1,13 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
- <title>Auto Backup Popup</title>
- <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Picker and File Saver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #e9ecef;
+            color: #555;
+            min-height: 50px;
+            text-align: left;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
-  
-  
+<body>
+    <div class="container">
+        <h1>Save a File to a Custom Location</h1>
+        <p>Click the button to choose a folder and save a text file there.</p>
+        <button id="select-folder-btn">Select Folder & Save File</button>
+        <div class="status" id="status-message">
+            Waiting for user selection...
+        </div>
+    </div>
+    <script>
+        // Get HTML elements
+const selectFolderBtn = document.getElementById('select-folder-btn');
+const statusMessage = document.getElementById('status-message');
 
+// Event listener for the button click
+selectFolderBtn.addEventListener('click', async () => {
+    // 1. Check for API support
+    if (!('showDirectoryPicker' in window)) {
+        statusMessage.textContent = 'Your browser does not support the File System Access API.';
+        return;
+    }
+
+    statusMessage.textContent = 'Please select a folder...';
+
+    try {
+        // 2. Open the directory picker and get a handle to the folder
+        const dirHandle = await window.showDirectoryPicker();
+
+        // 3. Define file details
+        const fileName = 'my_downloaded_file.txt';
+        const fileContent = 'This is the content of the file saved using the File System Access API. Hello, world!';
+        
+        // 4. Create and write the file
+        await saveFileToDirectory(dirHandle, fileName, fileContent);
+
+    } catch (err) {
+        // Handle user cancellation or other errors
+        if (err.name === 'AbortError') {
+            statusMessage.textContent = 'File saving cancelled by the user.';
+        } else {
+            statusMessage.textContent = `Error: ${err.message}`;
+        }
+        console.error(err);
+    }
+});
+
+// Function to save a file to the chosen directory
+async function saveFileToDirectory(dirHandle, fileName, fileData) {
+    try {
+        // Get a handle to the file within the selected directory, creating it if it doesn't exist
+        const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+        
+        // Create a writable stream to the file
+        const writableStream = await fileHandle.createWritable();
+        
+        // Write the data to the stream
+        await writableStream.write(fileData);
+        
+        // Close the stream to finalize the save
+        await writableStream.close();
+        
+        statusMessage.textContent = `✅ Successfully saved "${fileName}" to the selected folder!`;
+        console.log(`File saved successfully: ${fileName}`);
+
+    } catch (err) {
+        statusMessage.textContent = `❌ Failed to save file: ${err.message}`;
+        console.error(err);
+    }
+}
+    </script>
 </body>
 </html>

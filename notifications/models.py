@@ -16,9 +16,11 @@ class EmailOTP(models.Model):
 
     def is_valid(self):
         created = self.created_at
-        if timezone.is_naive(created):
-            created = timezone.make_aware(created, timezone.get_current_timezone())
-        return (timezone.now() - created).total_seconds() < self.expires_in
+        return timezone.now() < created + timezone.timedelta(seconds=self.expires_in)
+    
+    def can_resend(self, cooldown_seconds=60):
+        created = self.created_at
+        return (timezone.now() - created).total_seconds() >= cooldown_seconds
 
 
 class Notification(models.Model):
