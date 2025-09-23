@@ -17,14 +17,28 @@
     </div>
     
     <!-- OTP Verification Label -->
-    <h2 class="font-bold text-gray-800 mb-2">OTP Verification</h2>
+    <h2 class="font-semibold text-gray-800 mb-2 text-center">OTP Verification</h2>
+    <p class="text-xs mb-5 text-center">The verification code has been sent to your email <br> <span class="font-bold">{{ request.session.register_data.email|default:'' }}</span></p>
     
-    <!-- Error message -->
-      {% if error %}
-        <div class="bg-red-100 text-red-700 text-sm p-2 rounded mb-3">
-          {{ error }}
-        </div>
-      {% endif %}
+    <!-- Error / success messages -->
+{% if messages %}
+  <div class="space-y-2">
+    {% for message in messages %}
+      <div class="mb-4 p-3 text-sm flex justify-between rounded-lg
+                  {% if message.tags == 'error' %} bg-red-100 border border-red-400 text-red-800
+                  {% elif message.tags == 'warning' %} bg-yellow-100 border border-yellow-400 text-yellow-800
+                  {% elif message.tags == 'success' %} bg-green-100 border border-green-400 text-green-800
+                  {% else %} bg-gray-100 border border-gray-400 text-gray-800 {% endif %}">
+        {{ message }}
+        <button onclick="this.parentElement.remove()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
     <!-- OTP Input -->
     <input name="code"
@@ -34,12 +48,82 @@
     >
     
     <!-- Helper text -->
-    <p class="text-sm text-gray-500 mb-4">Check your email for the OTP</p>
+    <p class="text-xs text-gray-500 mb-4 flex justify-end">
+  <span>
+    Didn't get the code? 
+    <span id="timer" class="font-semibold text-blue-400 ml-1">01:00s</span>
+    <button id="resendBtn" type="button" class="hidden text-blue-400 hover:underline ml-1 font-semibold">Resend</button>
+  </span>
+</p>
     
     <!-- Verify Button -->
     <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700">
       Verify
     </button>
   </form>
+  <script>
+  let countdown;
+  let timeLeft = 60; // seconds
+  const timerEl = document.getElementById("timer");
+  const resendBtn = document.getElementById("resendBtn");
+  const email = "{{ request.session.register_data.email|default:'' }}"
+
+  fetch(`{% url 'update_timer' %}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.status && data.remaining > 0) {
+      let totalSeconds = Math.ceil(data.remaining); // ensure integer
+      let minutes = Math.floor(totalSeconds / 60);
+      let seconds = totalSeconds % 60;
+
+      // Format as 00:00
+      minutes = String(minutes).padStart(2, "0");
+      seconds = String(seconds).padStart(2, "0");
+
+      timerEl.textContent = `${minutes}:${seconds}`;
+      timeLeft = totalSeconds;
+      startTimer();
+      resendBtn.classList.add("hidden"); // enable resend
+      timerEl.classList.remove("hidden");
+    } else {
+      resendBtn.classList.remove("hidden"); // enable resend
+      timerEl.classList.add("hidden");
+    }
+  })
+  .catch(error => console.error("Error", error));
+  
+
+  function startTimer() {
+    clearInterval(countdown);
+    countdown = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        timerEl.textContent = "00:00s";
+        resendBtn.classList.remove("hidden"); // enable resend
+        timerEl.classList.add("hidden");
+      } else {
+        let minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+        let seconds = String(timeLeft % 60).padStart(2, "0");
+        timerEl.textContent = `${minutes}:${seconds}s`;
+        timeLeft--;
+        resendBtn.classList.add("hidden");
+        timerEl.classList.remove("hidden");
+      }
+    }, 1000);
+  }
+
+  // Resend button resets the timer
+  document.getElementById("resendBtn").addEventListener("click", async function() {
+    const response = await fetch("{% url 'resend' %}");
+    const data = await response.json();
+
+    if (data.status) {
+        timeLeft = 60; // reset timer
+        startTimer(); // this now clears previous interval
+    }
+});
+
+
+</script>
 </body>
 </html>

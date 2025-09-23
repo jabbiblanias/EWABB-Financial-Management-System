@@ -11,36 +11,31 @@
   <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
     <h2 class="text-2xl font-bold text-center mb-6">Login to your account</h2>
 
-    <!-- Error Message -->
-    {% if error_message %}
-    <div id="error_message" class="mb-4 p-3 text-sm bg-red-100 border border-red-400 rounded-lg text-error-content flex justify-between">
-      {{ error_message }} 
-      <button onclick="closeError()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Pending Message -->
-    {% endif %}
-    {% if pending_message %}
-    <div id="error_message" class="mb-4 p-3 text-sm border-yellow-700 rounded-lg bg-yellow-100 text-warning-content flex justify-between">
-      {{ pending_message }} 
-      <button onclick="closeError()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-    </div>
-    {% endif %}
+    {% if messages %}
+  <div class="space-y-2">
+    {% for message in messages %}
+      <div class="mb-4 p-3 text-sm flex justify-between rounded-lg
+                  {% if message.tags == 'error' %} bg-red-100 border border-red-400 text-red-800
+                  {% elif message.tags == 'warning' %} bg-yellow-100 border border-yellow-400 text-yellow-800
+                  {% elif message.tags == 'success' %} bg-green-100 border border-green-400 text-green-800
+                  {% else %} bg-gray-100 border border-gray-400 text-gray-800 {% endif %}">
+        {{ message }}
+        <button onclick="this.parentElement.remove()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
       <!-- Email/Username -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Email or Username</label>
-        <input id="emailUsername" name="emailUsername" type="text" placeholder="Enter your username or email" class="w-full px-4 py-2 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 file-input-error" title="Can't find account" required/>
+        <input id="emailUsername" name="emailUsername" type="text" placeholder="Enter your username or email" value="{{ request.session.identifier|default:'' }}" class="w-full px-4 py-2 border border-gray-300 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 file-input-error" title="Can't find account" required/>
       </div>
 
       <!-- Password -->
@@ -90,10 +85,6 @@
       passwordInput.type = isPassword ? "text" : "password";
       eyeIcon.classList.toggle("hidden", !isPassword);
       eyeOffIcon.classList.toggle("hidden", isPassword);
-    }
-
-    function closeError(){
-      document.getElementById("error_message").classList.add("hidden");
     }
   </script>
 </body>

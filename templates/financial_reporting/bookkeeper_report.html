@@ -155,8 +155,8 @@
                 <td class="px-6 py-3">{{ report.report_id }}</td>
                 <td class="px-6 py-3">{{ report.title }}</td>
                 <td class="px-6 py-3">{{ report.status }}</td>
-                <td class="px-6 py-3">{{ report.created_at|date:"Y-m-d H:i A" }}</td>
-                <td class="px-6 py-3">{{ report.last_updated|date:"Y-m-d H:i A" }}</td>
+                <td class="px-6 py-3">{{ report.created_at|date:"Y-m-d h:i A" }}</td>
+                <td class="px-6 py-3">{{ report.last_updated|date:"Y-m-d h:i A" }}</td>
                 <td class="px-6 py-3">
                   {% if report.status == "Submitted" %}
                   <!-- View Button -->

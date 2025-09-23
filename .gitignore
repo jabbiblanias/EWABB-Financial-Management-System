@@ -6,5 +6,7 @@ env/
 .env
 .venv
 .venv-1
+.sql
 *.pyc
 __pycache__/
+secrets/*.json
