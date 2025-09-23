@@ -10,3 +10,4 @@ env/
 *.pyc
 __pycache__/
 secrets/*.json
+token.json
