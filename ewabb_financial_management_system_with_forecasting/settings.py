@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from celery.schedules import crontab
-
+import platform
 
 load_dotenv()
 
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'appointments',
     'programs',
     'notifications',
+    'dbbackup',
 ]
 
 if DEBUG:
@@ -108,15 +109,20 @@ WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.appl
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+DB_NAME = os.getenv('POSTGRES_DB')
+DB_USER = os.getenv('POSTGRES_USER')
+DB_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+DB_HOST = os.getenv('POSTGRES_HOST')
+DB_PORT = os.getenv('POSTGRES_PORT')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # or sqlite3
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 
@@ -197,3 +203,23 @@ CELERY_BEAT_SCHEDULE = {
 GOOGLE_DRIVE_FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")  # backups folder in Google Drive
 GOOGLE_DRIVE_CREDENTIALS_FILE = os.getenv("GOOGLE_DRIVE_CREDENTIALS_FILE")    # OAuth client file from Google Cloud
 GOOGLE_DRIVE_TOKEN_FILE = os.getenv("GOOGLE_DRIVE_TOKEN_FILE")             # will be created automatically
+
+# Default backup folder
+#LOCAL_BACKUP_DIR = Path.home() / "EWABB" / "Backups"
+LOCAL_BACKUP_DIR = os.path.join(Path.home(), "EWABB", "Backups")
+
+# PostgreSQL dump executable path
+system_name = platform.system()  # 'Windows', 'Linux', 'Darwin'
+
+if system_name == "Windows":
+    PG_DUMP_PATH = r"C:\Program Files\PostgreSQL\17\bin\pg_dump.exe"
+    PSQL_PATH = r"C:\Program Files\PostgreSQL\17\bin\psql.exe"
+elif system_name == "Linux":
+    PG_DUMP_PATH = "/usr/bin/pg_dump"
+    PSQL_PATH = "/usr/bin/psql"
+elif system_name == "Darwin":
+    PG_DUMP_PATH = "/usr/local/bin/pg_dump"
+    PSQL_PATH = "/usr/local/bin/psql"
+else:
+    PG_DUMP_PATH = "pg_dump"
+    PSQL_PATH = "psql"

@@ -11,5 +11,7 @@ urlpatterns = [
     path('check_email/', views.check_email, name='check_email'),
     path('check_username/', views.check_username, name='check_username'),
     path('register/verify/', views.registration_otp_verification_view, name='register_verify'),
+    path('update-timer/', views.update_timer, name='update_timer'),
+    path('resend/', views.resend_otp, name='resend'),
     path('register/complete/', views.success_view, name='complete_registration'),
 ]

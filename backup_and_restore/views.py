@@ -1,34 +1,50 @@
 from django.shortcuts import render, redirect
-from .utils import upload_to_drive, restore_backup, list_backups
+from .utils import upload_to_drive, restore_backup, upload_to_local, get_local_backups, get_cloud_backups
 from django.contrib import messages
 import os
+from django.http import JsonResponse
+import json
 
 
 def backup_and_restore_view(request):
-    return render(request, 'backup_and_restore/backup_and_restore.html')
+    local = get_local_backups()
+    cloud = get_cloud_backups()
+    all_backups = local + cloud
+    # Optional: Sort by creation date descending
+    all_backups.sort(key=lambda x: x['created_at'], reverse=True)
+    backups = all_backups
+    return render(request, 'backup_and_restore/backup_and_restore.html', {"backups": backups})
 
 
-def backup_page(request):
-    if request.method == "POST" and "backup" in request.POST:
-        # Example: run pg_dump before uploading
-        os.system('PGPASSWORD=yourpassword pg_dump -U youruser -h localhost -p 5432 yourdb > backup.sql')
-        file_id = upload_to_drive("backup.sql", "Postgres_Backup.sql")
-        messages.success(request, f"Backup uploaded to Google Drive (ID: {file_id})")
-        return redirect("backup_page")
+def manual_backup(request):
+    try:
+        if request.method == "POST":
+            storage = request.POST.get("backup_location")
+            if storage == "cloud":
+                if upload_to_drive():
+                    return JsonResponse({"status": "success", "message": "Backup uploaded to Google Drive"})
+                else:
+                    return JsonResponse({"status": "failed", "message": "Backup to Google Drive has failed"})
+            else:
+                if upload_to_local():
+                    return JsonResponse({"status": "success", "message": "Backup uploaded to Local Drive"})
+                else:
+                    return JsonResponse({"status": "failed", "message": "Backup to Local Drive has failed"})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})
 
-    backups = list_backups()
-    return render(request, "admin/backup_page.html", {"backups": backups})
 
+def restore_from_drive(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        file_name = data.get("name")
+        location = data.get("location")
 
-def restore_from_drive(request, file_id):
-    success = restore_backup(
-        file_id,
-        db_name=os.getenv('POSTGRES_DB'),
-        db_user=os.getenv('POSTGRES_USER'),
-        db_password=os.getenv('POSTGRES_PASSWORD')
-    )
-    if success:
-        messages.success(request, "✅ Database restored successfully from Google Drive!")
-    else:
-        messages.error(request, "❌ Restore failed.")
-    return redirect("backup_page")
+        if location == "cloud":
+            success = restore_backup(source="cloud", drive_file_name=file_name)
+        else:
+            success = restore_backup(source="local", file_name=file_name)
+        if success:
+            return JsonResponse({"status": "success", "message": "Database restored successfully!"})
+        else:
+            return JsonResponse({"status": "failed", "message": "Restore failed."})
