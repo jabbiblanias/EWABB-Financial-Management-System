@@ -212,3 +212,6 @@ def pdf_report_export(request):
     if pisa_status.err:
         return HttpResponse('we had some errors <pre>' + html + '</pre>')
     return response
+
+def pdf_report(request):
+    return render(request, 'financial_reporting/pdfReport.html')
