@@ -4,13 +4,15 @@ from loans.models import Loan, LoanPenalty, LoanRepaymentSchedule
 from .models import Financialreports, Memberfinancialdata
 import json
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.db.models import F, Case, When, Value, DecimalField, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from datetime import date
 from django.utils import timezone
 from django.db import transaction
 from .utils import generate_unique_name
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 
 def member_loan_report(request):
@@ -192,3 +194,24 @@ def submit_financial_report(request):
             Memberfinancialdata.objects.bulk_update(to_update, fields_to_update)
     
     return JsonResponse({"status": "success"}, status=200)
+
+def pdf_report_export(request):
+    financial_reporting = Financialreports.objects.all()
+    template_path = 'pdf_convert/pdfReport.html'
+    context = {'financial_reporting' : Financialreports}
+
+    response = HttpResponse(content_type = 'application/pdf')
+    response ['Content-Disposition'] = 'attachment; filename = "Financial_report.pdf"'
+    
+    template = get_template(template_path)
+    html = template.render(context)
+
+    pisa_status = pisa.CreatePDF(
+        html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('we had some errors <pre>' + html + '</pre>')
+    return response
+
+def pdf_report(request):
+    return render(request, 'financial_reporting/pdfReport.html')
