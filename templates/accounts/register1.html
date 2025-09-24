@@ -69,7 +69,7 @@
               <label
                 for="surname"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Last Name *</label
+                >Last Name <span class="text-red-500">*</span> </label
               >
               <input
                 id="surname"
@@ -85,7 +85,7 @@
               <label
                 for="firstName"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >First Name *</label
+                >First Name <span class="text-red-500">*</span></label
               >
               <input
                 id="firstName"
@@ -101,7 +101,7 @@
               <label
                 for="middleName"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Middle Name *</label
+                >Middle Name <span class="text-red-500">*</span></label
               >
               <input
                 id="middleName"
@@ -116,21 +116,25 @@
               <label
                 for="dateOfBirth"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Date of Birth *</label
+                >Date of Birth <span class="text-red-500">*</span></label
               >
-              <input
+             <input
                 id="dateOfBirth"
                 name="dateOfBirth"
-                type="date"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
+               type="date"
+              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+             required
+                />
+          <script>
+            document.getElementById("dateOfBirth").max = new Date().toISOString().split("T")[0];
+            </script>
+
             </div>
             <div>
               <label
                 for="placeOfBirth"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Place of Birth *</label
+                >Place of Birth <span class="text-red-500">*</span></label
               >
               <input
                 id="placeOfBirth"
@@ -145,7 +149,7 @@
               <label
                 for="gender"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Gender *</label
+                >Gender <span class="text-red-500">*</span></label
               >
               <select
                 id="gender"
@@ -164,7 +168,7 @@
               <label
                 for="civilStatus"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Civil Status *</label
+                >Civil Status <span class="text-red-500">*</span></label
               >
               <select
                 id="civilStatus"
@@ -183,7 +187,7 @@
               <label
                 for="citizenship"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Citizenship *</label
+                >Citizenship <span class="text-red-500">*</span></label
               >
               <input
                 id="citizenship"
@@ -222,7 +226,7 @@
               <label
                 for="height"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Height * (cm)</label
+                >Height(cm)<span class="text-red-500">*</span></label
               >
               <input
                 id="height"
@@ -238,7 +242,7 @@
               <label
                 for="weight"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Weight * (kg)</label
+                >Weight(kg)<span class="text-red-500">*</span></label
               >
               <input
                 id="weight"
@@ -261,24 +265,25 @@
             <label
               for="cellphoneNo"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >Cellphone No.</label
+              >Cellphone No.<span class="text-red-500">*</span></label
             >
           
-            <input
-              id="cellphoneNo"
-              name="cellphoneNo"
-              type="tel"
-              placeholder="e.g., +639171234567"
-              pattern="^(09\d{9}|\+639\d{9})$"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
+           <input
+            id="cellphoneNo"
+            name="cellphoneNo"
+            type="tel"
+            placeholder="e.g., +639171234567 or 09171234567"
+            pattern="^(?:\+639\d{9}|09\d{9})$"
+           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+
             <span id="cellphoneError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
           </div>
           <div>
             <label
               for="email"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >Email Address</label
+              >Email Address <span class="text-red-500">*</span></label
             >
             <input
               id="email"
@@ -293,7 +298,7 @@
             <label
               for="residentialAddress"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >Residential Address *</label
+              >Residential Address <span class="text-red-500">*</span></label
             >
             <input
               id="residentialAddress"
@@ -309,7 +314,7 @@
             <label
               for="residentialAddressZipCode"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >Residential Zip Code *</label
+              >Residential Zip Code <span class="text-red-500">*</span></label
             >
             <input
               id="residentialAddressZipCode"
@@ -325,7 +330,7 @@
             <label
               for="permanentAddress"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >Permanent Address *</label
+              >Permanent Address <span class="text-red-500">*</span></label
             >
             <input
               id="permanentAddress"
@@ -340,7 +345,7 @@
             <label
               for="permanentAddressZipCode"
               class="block text-sm font-medium text-gray-700 mb-1"
-              >Permanent Zip Code *</label
+              >Permanent Zip Code <span class="text-red-500">*</span></label
             >
             <input
               id="permanentAddressZipCode"
@@ -501,6 +506,7 @@
     </form>
   </body>
 </html>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   // Validation rules
@@ -534,9 +540,10 @@ document.addEventListener("DOMContentLoaded", function () {
       errorId: "citizenshipError" 
     },
     cellphoneNo: {
-       regex: /^\d{11,12}\d+$$/, 
-       errorId: "cellphoneError" 
-      },
+       regex: /^(?:\+639\d{9}|09\d{9})$/, 
+       errorId: "cellphoneError"
+  },
+
     resAddress: { 
       regex: /^[A-Za-z0-9\s,.-]+$/, 
       errorId: "resAddressError" 
