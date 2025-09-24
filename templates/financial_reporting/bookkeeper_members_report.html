@@ -79,7 +79,7 @@
             </div>
             {% else %}
             <div class="flex justify-end gap-4 col-span-1 col-end-4">
-              <a href="{% url 'pdf_report' %}" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Export</a>
+              <a href="{% url 'create-pdf' report_id %}" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Export</a>
             </div>
             {% endif %}
           </div>

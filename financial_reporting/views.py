@@ -195,13 +195,14 @@ def submit_financial_report(request):
     
     return JsonResponse({"status": "success"}, status=200)
 
-def pdf_report_export(request):
-    financial_reporting = Financialreports.objects.all()
-    template_path = 'pdf_convert/pdfReport.html'
-    context = {'financial_reporting' : Financialreports}
+def pdf_report_export(request, report_id):
+    report = Financialreports.objects.filter(report_id=report_id).values("title", "status").first()
+    financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
+    template_path = 'financial_reporting/pdfReport.html'
+    context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_id': report_id}
 
     response = HttpResponse(content_type = 'application/pdf')
-    response ['Content-Disposition'] = 'attachment; filename = "Financial_report.pdf"'
+    response ['Content-Disposition'] = F'attachment; filename = "{report["title"]}.pdf"'
     
     template = get_template(template_path)
     html = template.render(context)

@@ -3,51 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <title>financialReportPdf</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #f8f8f8;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #000;
+    }
+    .title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .title h1 {
+      font-size: 16px;
+      text-transform: uppercase;
+      margin: 0;
+      font-weight: bold;
+    }
+    .title p {
+      font-size: 12px;
+      margin: 5px 0 0 0;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th {
+      background: #d0e4f5;
+      text-align: center;
+      padding: 5px;
+    }
+    td {
+      padding: 5px;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-6xl mx-auto bg-white p-6 shadow rounded">
-    
+<body>
+  <div class="container">
     <!-- Centered Title -->
-    <div class="text-center mb-6">
-      <h1 class="text-xl font-semibold uppercase">
-        Empowered Women's Association of Barangay Bañadero (EWABB)
-      </h1>
-      <p class="text-sm font-semibold mt-1 uppercase">
-        Updated Report as of September 13, 2024
-      </p>
+    <div class="title">
+      <h1>Empowered Women's Association of Barangay Bañadero (EWABB)</h1>
+      <p>Updated Report as of September 13, 2024</p>
     </div>
 
     <!-- Table -->
-    <div id="tableArea" class="overflow-x-auto">
-      <table class="min-w-full border border-black text-sm">
-        <thead>
-          <tr class="bg-blue-200 text-center">
-            <th class="border border-black px-2 py-1">Account No</th>
-            <th class="border border-black px-2 py-1">Name</th>
-            <th class="border border-black px-2 py-1">Amount of Loan Balance</th>
-            <th class="border border-black px-2 py-1">Date Loaned</th>
-            <th class="border border-black px-2 py-1">Savings</th>
-            <th class="border border-black px-2 py-1">2% Penalty Charges</th>
-            <th class="border border-black px-2 py-1">Savings After Deduction</th>
-            <th class="border border-black px-2 py-1">Remarks</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Example row -->
-          <tr>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-            <td class="border border-black px-4 py-3"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Account No</th>
+          <th>Name</th>
+          <th>Amount of Loan Balance</th>
+          <th>Date Loaned</th>
+          <th>Savings</th>
+          <th>2% Penalty Charges</th>
+          <th>Savings After Deduction</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in financial_report %}
+        <tr>
+          <td>{{ member.account_number }}</td>
+          <td>{{ member.name }}</td>
+          <td>{{ member.outstanding_balance|default:"0.00" }}</td>
+          <td>{{ member.date_loaned|date:"Y-m-d"|default:"" }}</td>
+          <td>{{ member.savings }}</td>
+          <td>{{ member.penalty_charge|default:"0.00" }}</td>
+          <td>{{ member.savings_after_deduction|default:"0.00" }}</td>
+          <td>{{ member.remarks|default:"--" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </body>
 </html>
