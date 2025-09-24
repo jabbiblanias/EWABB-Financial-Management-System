@@ -62,7 +62,7 @@
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Date of Birth</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Gender</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Civil Status</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Approval</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody id="membership-table-body" class="bg-white">
@@ -84,128 +84,7 @@
     </div>
   </div>
 
-<!-- Popup -->
-<div id="popup" class="hidden fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-    <h2 class="text-lg font-semibold mb-4">Create Account Number</h2>
-    <input id="account_number" name="accountNumber" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-    <div class="flex justify-end gap-2">
-      <button onclick="closePopup()" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">
-        Cancel
-      </button>
-      <button id="confirm" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-        Confirm
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast container (bottom-right) -->
-<div id="toast-container" class="toast toast-end"></div>
-
-<script>
-  attachActionListeners();
-
-  function attachActionListeners() {
-    document.querySelectorAll('.action-btn').forEach(button => {
-      button.addEventListener('click', function () {
-        const application_id = this.dataset.id;
-        const action = this.dataset.action;
-        let account_number = null;
-
-        if (action == "approve"){
-          const button = document.getElementById("confirm");
-          button.onclick = () => handleConfirmClick(application_id, action);
-        } else { 
-          fetchAPI(application_id, action, account_number);
-        }
-      });
-    });
-  }
-
-  function fetchAPI(application_id, action, account_number){
-    fetch("{% url 'approval' %}", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({ applicationid: application_id, action: action , account_number: account_number})
-    })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`HTTP error: ${res.status}`);
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (data.success) {
-        document.getElementById('membership-table-body').innerHTML = data.html;
-        fillTableRows('myTable', 10);
-        attachActionListeners();  // rebind new buttons
-        if (action === "approve"){
-          showAlert(`Application ${application_id} has been approved.`, "approve");
-          showAlert(`Account number ${account_number} has been created.`, "account_created");
-        }else if(action === "reject"){
-          showAlert(`Application ${application_id} has been rejected.`, "reject");
-        }
-      } else {
-        showAlert("Something went wrong.", "warning");
-      }
-    })
-    .catch(error => console.error('Fetch error:', error));
-  }
-
-  function openPopup() {
-    document.getElementById('popup').classList.remove('hidden');
-  }
-  function closePopup() {
-    document.getElementById('popup').classList.add('hidden');
-  }
-  var modal = document.getElementById('popup');
-
-    // When the user clicks anywhere outside of the modal, close it
-  document.getElementById('popup').addEventListener('click', function(event) {
-    if (event.target === this) {
-      closePopUp();
-    }
-  });
-
-  function handleConfirmClick(application_id, action){
-    account_number = document.getElementById("account_number").value;
-    fetchAPI(application_id, action, account_number);
-    closePopup();
-  }
-
-  // Toast notification function
-  function showAlert(message, type) {
-    const container = document.getElementById("toast-container");
-
-    const alertDiv = document.createElement("div");
-    alertDiv.className = "alert shadow-lg transition-opacity duration-500";
-
-    // Style by type
-    if (type === "approve") {
-      alertDiv.classList.add("alert-success"); // green
-    } else if (type === "reject") {
-      alertDiv.classList.add("alert-error"); // red
-    } else if (type === "account_created") {
-      alertDiv.classList.add("alert-info"); // blue info
-    } else {
-      alertDiv.classList.add("alert-warning"); // yellow default
-    }
-
-    // Message content
-    alertDiv.innerHTML = `<span>${message}</span>`;
-
-    container.appendChild(alertDiv);
-
-    // Auto-remove after 4s
-    setTimeout(() => {
-      alertDiv.style.opacity = "0";
-      setTimeout(() => alertDiv.remove(), 500);
-    }, 4000);
-  }
-</script>
+<!-- Confirmation Modal -->
+{% include 'members/partials/confirmation.html' %}
 </body>
 </html>

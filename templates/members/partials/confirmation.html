@@ -28,10 +28,8 @@
           Approve Membership Application?
         </h3>
         <p id="confirm-desc" class="mt-1 text-sm text-gray-600">
-          You’re about to approve <span class="font-medium" id="approveAccountNumber">
-          </span>’s loan request for
-          <span class="font-medium" id="approveLoanAmount"></span>.
-          This action will be recorded with your account and timestamp.
+          You’re about to approve <span class="font-medium" id="approveMembershipName">
+          </span>’s membership application.
         </p>
       </div>
       <button
@@ -99,8 +97,7 @@
           Reject Membership Application?
         </h3>
         <p id="reject-desc" class="mt-1 text-sm text-gray-600">
-          You’re about to reject <span class="font-medium" id="rejectAccountNumber">Juan Dela Cruz</span>’s loan request for
-          <span class="font-medium" id="rejectLoanAmount">₱50,000</span>.  
+          You’re about to reject <span class="font-medium" id="rejectMembershipName">Juan Dela Cruz</span>’s membership application.  
         </p>
       </div>
       <button
@@ -138,11 +135,8 @@
   </div>
 </div>
 
-<!-- Toast -->
-<div
-  id="toast"
-  class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
-  role="status"></div>
+<!-- Toast container -->
+<div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[60] space-y-2 flex flex-col items-center"></div>
 
 <script>
   function openConfirmModal(btn) {
@@ -168,35 +162,31 @@
   function attachActionListeners() {
     document.querySelectorAll('.action-btn').forEach(button => {
       button.addEventListener('click', function () {
-        const loan_application_id = this.dataset.id;
+        const application_id = this.dataset.id;
+        const name = this.dataset.name;
         const action = this.dataset.action;
-        const accountNumber = this.dataset.account;
-        const loanAmount = this.dataset.amount;
 
         if (action == "approve"){
-          document.getElementById("approveAccountNumber").textContent = accountNumber;
-          document.getElementById("approveLoanAmount").textContent = `₱${loanAmount}`;
-
+          document.getElementById("approveMembershipName").textContent = name;
           const button = document.getElementById("confirm");
-          button.onclick = () => handleConfirmClick(loan_application_id, action);
+          button.onclick = () => handleConfirmClick(application_id, action);
         } else { 
-          document.getElementById("rejectAccountNumber").textContent = accountNumber;
-          document.getElementById("rejectLoanAmount").textContent = `₱${loanAmount}`;
+          document.getElementById("rejectMembershipName").textContent = name;
           const button = document.getElementById("reject");
-          button.onclick = () => handleConfirmClick(loan_application_id, action);
+          button.onclick = () => handleConfirmClick(application_id, action);
         }
       });
     });
   }
 
-  function fetchAPI(loan_application_id, action){
-    fetch("{% url 'loan_approval' %}", {
+  function fetchAPI(application_id, action){
+    fetch("{% url 'approval' %}", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': '{{ csrf_token }}'
       },
-      body: JSON.stringify({ loan_application_id: loan_application_id, action: action})
+      body: JSON.stringify({ applicationid: application_id, action: action})
     })
     .then((res) => {
       if (!res.ok) {
@@ -206,13 +196,14 @@
     })
     .then(data => {
       if (data.success) {
-        document.getElementById('loan_applications-table-body').innerHTML = data.html;
+        document.getElementById('membership-table-body').innerHTML = data.html;
         fillTableRows('myTable', 10);
         attachActionListeners();  // rebind new buttons
         if (action === "approve"){
-          showAlert(`"Loan Application ID ${loan_application_id}" has been approved.`, "approve");
+          showAlert(`Application ${application_id} has been approved.`, "approve");
+          showAlert(`Account number ${data.account_number} has been created.`, "account_created");
         }else if(action === "reject"){
-          showAlert(`"Loan Application ID ${loan_application_id}" has been rejected.`, "reject");
+          showAlert(`Application ${application_id} has been rejected.`, "reject");
         }
       } else {
         showAlert("Something went wrong.", "warning");
@@ -221,8 +212,9 @@
     .catch(error => console.error('Fetch error:', error));
   }
 
-  function handleConfirmClick(loan_application_id, action){
-    fetchAPI(loan_application_id, action);
+
+  function handleConfirmClick(application_id, action){
+    fetchAPI(application_id, action);
     if (action === "approve"){
       closeConfirmModal('confirmModal');
     } else if (action === "reject"){
@@ -233,27 +225,34 @@
 
   // Toast notification function
   function showAlert(message, type) {
-    const toast = document.getElementById("toast");
+  const container = document.getElementById("toast-container");
 
-    // Remove old color classes before adding new one
-    toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+  // Create a new toast element
+  const toast = document.createElement("div");
+  toast.className =
+    "pointer-events-auto w-fit rounded-xl px-4 py-2 text-white shadow-lg transition-opacity duration-500";
 
-    // Style by type
-    if (type === "approve") {
-      toast.classList.add("bg-emerald-600"); // green
-    } else if (type === "reject") {
-      toast.classList.add("bg-red-600"); // red
-    } else {
-      toast.classList.add("bg-yellow-600"); // yellow default
-    }
-
-    // Set message
-    toast.textContent = message;
-
-    // Show toast
-    toast.classList.remove("hidden");
-
-    // Hide after 4s
-    setTimeout(() => toast.classList.add("hidden"), 4000);
+  // Style by type
+  if (type === "approve") {
+    toast.classList.add("bg-emerald-600"); // green
+  } else if (type === "reject") {
+    toast.classList.add("bg-red-600"); // red
+  } else if (type === "account_created") {
+    toast.classList.add("bg-blue-600"); // blue
+  } else {
+    toast.classList.add("bg-yellow-600"); // yellow default
   }
+
+  // Set message
+  toast.textContent = message;
+
+  // Append to container
+  container.appendChild(toast);
+
+  // Auto-hide after 4s
+  setTimeout(() => {
+    toast.classList.add("opacity-0"); // fade out
+    setTimeout(() => toast.remove(), 500); // remove after fade
+  }, 4000);
+}
 </script>

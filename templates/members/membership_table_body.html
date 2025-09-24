@@ -1,5 +1,5 @@
 {% for member in membershipApplications %}
-<tr id="row-{{ member.application_id }}" ondblclick="window.location.href='details/{{member.application_id}}/';" class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+<tr id="row-{{ member.application_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ member.application_id}}</td>
   <td class="px-6 py-3">
     {{ member.person_id__surname }},
@@ -11,8 +11,28 @@
   <td class="px-6 py-3">{{ member.person_id__gender }}</td>
   <td class="px-6 py-3">{{ member.person_id__civil_status }}</td>
   <td class="px-6 py-3 flex gap-2">
-    <button onclick="openPopup()" class="action-btn w-12 h-6 flex items-center justify-center rounded-full border border-green-500 text-green-500 hover:bg-green-100" data-id="{{ member.application_id }}" data-action="approve">✓</button>
-    <button class="action-btn w-12 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100" data-id="{{ member.application_id }}" data-action="reject">✗</button>
+    <!-- View Button -->
+    <a href="details/{{member.application_id}}/"
+       class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+       View
+    </a>
+    <!-- Approve -->
+    <button onclick="openConfirmModal('confirmModal')" 
+            class="action-btn w-12 h-6 flex items-center justify-center rounded-full border border-green-500 text-green-500 hover:bg-green-100" 
+            data-id="{{ member.application_id }}" 
+            data-name="{{ member.person_id__first_name }} {{ member.person_id__surname }}"
+            data-action="approve">
+      ✓
+    </button>
+
+    <!-- Reject -->
+    <button onclick="openConfirmModal('rejectModal')" 
+            class="action-btn w-12 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100" 
+            data-id="{{ member.application_id }}" 
+            data-name="{{ member.person_id__first_name }} {{ member.person_id__surname }}"
+            data-action="reject">
+      ✗
+    </button>
   </td>
 </tr>
 {% endfor %}
