@@ -34,23 +34,39 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
+      text-align: center;
     }
-    table, th, td {
+
+    /* Header with bold border */
+    thead th {
       border: 1px solid black;
+      padding: 6px;
+      font-weight: bold;
+
     }
-    th, td {
-      padding: 5px;
-      word-wrap: break-word;
+
+    /* Allow only loan balance to wrap */
+    .col-loan {
+      white-space: normal !important;
     }
+
+    /* Single border for data rows */
+    tbody td {
+      border: 1px solid black;
+      padding: 4px;
+      white-space: nowrap; /* Keep data in one line */
+    }
+
     /* Column widths */
-    .col-account { width: 60px; text-align: center;}
-    .col-name { width: 150px; text-align: center;}
-    .col-loan { width: 95px; text-align: center;}
-    .col-date { width: 70px; text-align: center;}
-    .col-savings { width: 70px; text-align: center;}
-    .col-penalty { width: 70px; text-align: center;}
-    .col-after { width: 70px; text-align: center;}
-    .col-remarks { width: 70px; text-align: center;}
+    .col-account { width: 100px; }
+    .col-name { width: 170px; }
+    .col-loan { width: 120px; }
+    .col-date { width: 120px; }
+    .col-savings { width: 90px; }
+    .col-penalty { width: 100px; }
+    .col-after { width: 120px; }
+    .col-remarks { width: 90px; }
+    .col-signature { width: 90px; }
   </style>
 </head>
 <body>
@@ -58,7 +74,7 @@
     <!-- Centered Title -->
     <div class="title">
       <h1>{{ "Empowered Women's Association of Barangay Bañadero (EWABB)"|upper }}</h1>
-<p>{{"Updated Report as of"|upper }} {{ report_date|date:"F d, Y"|upper }}</p>
+      <p>{{ "Updated Report as of"|upper }} {{ report_date|date:"F d, Y"|upper }}</p>
     </div>
 
     <!-- Table -->
@@ -67,13 +83,13 @@
         <tr>
           <th class="col-account">Account No</th>
           <th class="col-name">Name</th>
-          <th class="col-loan">Amount of Loan Balance</th>
+          <th class="col-loan">Amount of<br>Loan Balance</th>
           <th class="col-date">Date Loaned</th>
           <th class="col-savings">Savings</th>
           <th class="col-penalty">2% Penalty Charges</th>
           <th class="col-after">Savings After Deduction</th>
           <th class="col-remarks">Remarks</th>
-          <th class="col-remarks">Signature</th>
+          <th class="col-signature">Signature</th>
         </tr>
       </thead>
       <tbody>
@@ -87,6 +103,7 @@
           <td class="col-penalty">{{ member.penalty_charge|default:"0.00" }}</td>
           <td class="col-after">{{ member.savings_after_deduction|default:"0.00" }}</td>
           <td class="col-remarks">{{ member.remarks|default:"" }}</td>
+          <td class="col-signature"></td>
         </tr>
         {% endfor %}
       </tbody>
