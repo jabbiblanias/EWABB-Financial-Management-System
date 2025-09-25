@@ -37,7 +37,7 @@ def report_details(request, report_id):
 def generate_report(request):
     # Subquery: latest loan release date per member
     latest_loan_date = Loan.objects.filter(
-        member_id=OuterRef('pk')
+        member_id=OuterRef('pk'), loan_status="Active"
     ).order_by('-released_date').values('released_date')[:1]
 
     # Subquery: latest overdue schedule id per member's active loan
@@ -52,9 +52,9 @@ def generate_report(request):
     ).order_by('-date_evaluated').values('penalty_amount')[:1]
 
     # Subquery: latest penalty date per schedule
-    latest_penalty_date = LoanPenalty.objects.filter(
+    '''latest_penalty_date = LoanPenalty.objects.filter(
         schedule_id__loan_id__member_id=OuterRef('pk')
-    ).order_by('-date_evaluated').values('date_evaluated')[:1]
+    ).order_by('-date_evaluated').values('date_evaluated')[:1]'''
 
     # Subquery: active loan balance
     active_loan_balance = Loan.objects.filter(
@@ -79,7 +79,7 @@ def generate_report(request):
         ),
         schedule_id=Subquery(latest_overdue_schedule),
         penalty_amount=Subquery(latest_penalty_amount),
-        penalty_date=Subquery(latest_penalty_date),
+        #penalty_date=Subquery(latest_penalty_date),
     ).annotate(
         # Adjusted savings balance (savings + penalty if exists)
         savings_balance_with_penalty=Case(
@@ -176,7 +176,7 @@ def submit_financial_report(request):
                         account_number=account_no,
                         name=values.get("name", ""),
                         outstanding_balance=values.get("outstanding_balance", 0),
-                        date_loaned=values.get("date_loaned"),
+                        date_loaned=values.get("date_loaned") or None,
                         savings=values.get("savings", 0),
                         penalty_charge=values.get("penalty_charge", 0),
                         savings_after_deduction=values.get("savings_after_deduction", 0),
@@ -196,10 +196,10 @@ def submit_financial_report(request):
     return JsonResponse({"status": "success"}, status=200)
 
 def pdf_report_export(request, report_id):
-    report = Financialreports.objects.filter(report_id=report_id).values("title", "status").first()
+    report = Financialreports.objects.filter(report_id=report_id).values("title", "status", "created_at").first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
     template_path = 'financial_reporting/pdfReport.html'
-    context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_id': report_id}
+    context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_date': report["created_at"]}
 
     response = HttpResponse(content_type = 'application/pdf')
     response ['Content-Disposition'] = F'attachment; filename = "{report["title"]}.pdf"'
