@@ -22,7 +22,7 @@ class Memberfinancialdata(models.Model):
     account_number = models.CharField(max_length=50, db_column='accountnumber')
     name = models.CharField(max_length=150, db_column='name')
     outstanding_balance = models.DecimalField(max_digits=12, decimal_places=2, db_column='outstandingbalance')
-    date_loaned = models.DateTimeField(db_column='lastdateloaned')
+    date_loaned = models.DateField(db_column='lastdateloaned', blank=True, null=True)
     savings = models.DecimalField(max_digits=12, decimal_places=2, db_column='savings')
     penalty_charge = models.DecimalField(max_digits=12, decimal_places=2, db_column='penaltycharge')
     savings_after_deduction = models.DecimalField(max_digits=12, decimal_places=2, db_column='savingsafterdeduction')

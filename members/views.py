@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from accounts.models import Personalinfo, Membershipapplication, Spouse, Children
+from accounts.models import Personalinfo, Membershipapplication, Spouse, Children, EmergencyContact
 from members.models import Savings
 from .models import Member
 from django.core.paginator import Paginator 
@@ -48,15 +48,14 @@ def approval(request):
         data = json.loads(request.body)
         application_id = data.get('applicationid')
         action = data.get('action')
-        account_number = data.get('account_number')
 
         try:
+            account_number = None
             membership_application = Membershipapplication.objects.get(application_id=application_id) 
             if action == 'approve':
                 member = Member.objects.create(
                     user_id=membership_application.user_id,
-                    person_id=membership_application.person_id,
-                    account_number=account_number
+                    person_id=membership_application.person_id
                 )
                 membership_application.status = 'Approved'
                 membership_application.verifier_id = approver
@@ -67,6 +66,8 @@ def approval(request):
                 membership_application.user_id.groups.add(member_group)
 
                 Savings.objects.create(member_id=member)
+
+                account_number = member.account_number
             else:
                 membership_application.status = 'Rejected'
                 membership_application.verifier_id = approver
@@ -89,7 +90,7 @@ def approval(request):
                 )
             )
             html = render_to_string('members/membership_table_body.html', {'membershipApplications': membership_applications})
-            return JsonResponse({'success': True, 'html': html})
+            return JsonResponse({'success': True, 'html': html, 'account_number': account_number})
         except Membershipapplication.DoesNotExist:
             return JsonResponse({'success': False})
         
@@ -120,7 +121,7 @@ def members_view(request):
     return render(request, 'members/approved_members.html', context)
 
 
-def member_details_view(request, member_id):
+def member_details(request, member_id):
     member = Member.objects.select_related('person_id').get(member_id=member_id)
     # Handle spouse safely
     try:
@@ -130,9 +131,16 @@ def member_details_view(request, member_id):
 
     # Handle children safely
     children = Children.objects.filter(person_id=member.person_id)  # returns queryset (empty if none)
+
+    try:
+        emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
+    except EmergencyContact.DoesNotExist:
+        emergency_contact = None
+
     context = {
         'member': member,
         'spouse': spouse,
-        'children': children
+        'children': children,
+        'emergency_contact': emergency_contact
     }
     return render(request, 'members/member_details.html', context)

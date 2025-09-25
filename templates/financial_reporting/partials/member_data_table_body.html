@@ -11,7 +11,7 @@
         {{ member.outstanding_balance|default:"0.00" }}
     </td>
     <td class="px-5 py-3" data-released-date="{{ member.date_loaned|date:'Y-m-d'|default:'' }}">
-        {{ member.date_loaned|date:"Y-m-d"|default:"" }}
+        {{ member.date_loaned|date:"M j, Y"|default:"" }}
     </td>
     <td class="px-5 py-3" data-savings-balance="{{ member.savings }}">
         {{ member.savings }}
@@ -40,7 +40,7 @@
         {{ member.outstanding_balance|default:"0.00" }}
     </td>
     <td class="px-5 py-3" data-released-date="{{ member.date_loaned|date:'Y-m-d'|default:'' }}">
-        {{ member.date_loaned|date:"Y-m-d"|default:"" }}
+        {{ member.date_loaned|date:"M j, Y"|default:"" }}
     </td>
     <td class="px-5 py-3" data-savings-balance="{{ member.savings }}">
         {{ member.savings }}
@@ -63,14 +63,14 @@
     <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
         {{ member.account_number }}
     </td>
-    <td class="px-5 py-3" data-name="{{ member.person_id.first_name }} {{ member.person_id.surname }}">
-        {{ member.person_id.first_name }} {{ member.person_id.surname }}
+    <td class="px-5 py-3" data-name="{{ member.person_id.first_name|upper }} {{ member.person_id.surname|upper }}">
+        {{ member.person_id.first_name|upper }} {{ member.person_id.surname|upper }}
     </td>
     <td class="px-5 py-3" data-loan-balance="{{ member.loan_balance|default:'0.00' }}">
         {{ member.loan_balance|default:"0.00" }}
     </td>
     <td class="px-5 py-3" data-released-date="{{ member.released_date|date:'Y-m-d'|default:'' }}">
-        {{ member.released_date|date:"Y-m-d"|default:"" }}
+        {{ member.released_date|date:"M j, Y"|default:"" }}
     </td>
     <td class="px-5 py-3" data-savings-balance="{{ member.savings_balance_with_penalty }}">
         {{ member.savings_balance_with_penalty }}

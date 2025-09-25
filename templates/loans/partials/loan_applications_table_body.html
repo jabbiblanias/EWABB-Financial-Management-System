@@ -58,6 +58,11 @@
     {% endif %} 
     </td>
   <td class="px-6 py-3 flex gap-2">
+    <!-- View Button -->
+    <a href="details/{{loanApplication.loan_application_id}}/"
+       class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+       View
+    </a>
     {% if loanApplication.status == "Pending" and request.user.groups.all.0.name == "Bookkeeper" or loanApplication.status == "Verified" and request.user.groups.all.0.name == "Admin" %}
     <!-- Approve -->
     <button onclick="openConfirmModal('confirmModal')" 
@@ -78,12 +83,6 @@
             data-action="reject">
       ✗
     </button>
-    {% else %}
-    <!-- View Button -->
-    <a href="details/{{loanApplication.loan_application_id}}/"
-       class="w-12 h-6 flex items-center justify-center rounded-2xl border border-blue-500 text-blue-500 hover:bg-blue-100">
-       View
-    </a>
     {% endif %}
   </td>
 </tr>

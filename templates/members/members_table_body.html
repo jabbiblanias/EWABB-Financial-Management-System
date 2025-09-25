@@ -1,5 +1,5 @@
 {% for member in members %}
-<tr id="row-{{ member.member_id }}" ondblclick="window.location.href='details/{{member.member_id}}/';" class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+<tr id="row-{{ member.member_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ member.member_id}}</td>
   <td class="px-6 py-3">{{ member.account_number }}</td>
   <td class="px-6 py-3">
@@ -11,5 +11,10 @@
   <td class="px-6 py-3">{{ member.person_id__date_of_birth }}</td>
   <td class="px-6 py-3">{{ member.person_id__gender }}</td>
   <td class="px-6 py-3">{{ member.person_id__civil_status }}</td>
+  <td class="px-6 py-3"><!-- View Button -->
+    <a href="details/{{member.member_id}}/"
+       class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+       details
+    </a></td>
 </tr>
 {% endfor %}

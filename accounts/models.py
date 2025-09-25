@@ -48,8 +48,6 @@ class Membershipapplication(models.Model):
     user_id = models.ForeignKey(User, models.DO_NOTHING, db_column='userid')
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
     date_accomplished = models.DateField(auto_now_add=True, db_column='dateaccomplished')
-    emergency_contact_name = models.CharField(max_length=100, db_column='emergencycontactname')
-    emergency_contact_address = models.TextField(db_column='emergencycontactaddress')
     status = models.CharField(max_length=10, default='Pending')
     verifier_id = models.ForeignKey(User, models.DO_NOTHING, db_column='verifierid', related_name='membershipapplication_verifierid_set', blank=True, null=True)
 
@@ -58,12 +56,23 @@ class Membershipapplication(models.Model):
         db_table = 'membershipapplication'
 
 
+class EmergencyContact(models.Model):
+    emergency_contact_id = models.AutoField(primary_key=True,db_column='emergency_contact_id')
+    person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
+    emergency_contact_name = models.CharField(max_length=100, db_column='emergency_contact_name')
+    emergency_contact_address = models.TextField(db_column='emergency_contact_address')
+
+    class Meta:
+        managed = False
+        db_table = 'emergencycontact'
+
+
 class Spouse(models.Model):
     spouse_id = models.AutoField(primary_key=True,db_column='spouseid')
-    person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid', blank=True, null=True)
-    spouse_first_name = models.CharField(max_length=50, blank=True, null=True,db_column='firstname')
+    person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
+    spouse_first_name = models.CharField(max_length=50, db_column='firstname')
     spouse_middle_name = models.CharField(max_length=50, blank=True, null=True,db_column='middlename')
-    spouse_surname = models.CharField(max_length=50, blank=True, null=True, db_column='surname')
+    spouse_surname = models.CharField(max_length=50, db_column='surname')
     occupation = models.CharField(max_length=100, blank=True, null=True)
     employer_business_name = models.CharField(max_length=100, blank=True, null=True,db_column='employerbusinessname')
     business_address = models.TextField(blank=True, null=True,db_column='businessaddress')

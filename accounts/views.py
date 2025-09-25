@@ -4,7 +4,7 @@ from notifications.models import EmailOTP
 from notifications.utils import registration_otp
 from django.db.models import Q
 from django.contrib.auth.models import User
-from .models import Personalinfo, Spouse, Membershipapplication, Children
+from .models import Personalinfo, Spouse, Membershipapplication, Children, EmergencyContact
 from django.db import transaction, IntegrityError
 from django.contrib import messages
 from django.http import JsonResponse
@@ -32,7 +32,6 @@ def login_view(request):
                     return redirect("login")
 
                 login(request, user)
-                messages.success(request, f"🎉 Welcome back, {user.username}!")
                 return redirect('dashboard')
 
         # Invalid login case
@@ -266,12 +265,16 @@ def registration_otp_verification_view(request):
                                     full_name=name,
                                     date_of_birth=bday
                                 )
-
-                        Membershipapplication.objects.create(
-                            user_id=user,
+                        
+                        EmergencyContact.objects.create(
                             person_id=personid,
                             emergency_contact_name=data.get('emergencyContactName'),
                             emergency_contact_address=data.get('emergencyContactAddress')
+                        )
+
+                        Membershipapplication.objects.create(
+                            user_id=user,
+                            person_id=personid
                         )
 
                         # All succeeded, clear session
