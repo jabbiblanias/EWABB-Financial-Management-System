@@ -172,7 +172,7 @@
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'
           },
-          body: JSON.stringify({account_number: account_number, loan_application_id: loan_application_id})
+          body: JSON.stringify({loan_application_id: loan_application_id})
         })
         .then(res => {
           if (!res.ok){

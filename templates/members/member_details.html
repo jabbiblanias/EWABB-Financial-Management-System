@@ -70,15 +70,17 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-gray-600">Member ID:</p>
-                            <p class="font-medium">{{ member.member_id }}</p>
+                                <p class="font-medium">{{ member.member_id }}</p> <br>
+                            <div>
+                                <p class="text-gray-600">Account Number:</p>
+                                <p class="font-medium">{{ member.account_number }}</p> <br>
+                            </div>
                         </div>
                         <div>
-                            <p class="text-gray-600">Account Number:</p>
-                            <p class="font-medium">{{ member.account_number }}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Membership Date:</p>
-                            <p class="font-medium">{{ member.membership_date|date:"m/d/Y" }}</p>
+                            <div>
+                                <p class="text-gray-600">Membership Date:</p>
+                                <p class="font-medium">{{ member.membership_date|date:"m/d/Y" }}</p> <br>
+                            </div>
                         </div>
                     </div>
 
@@ -210,15 +212,15 @@
                         <h2 class="text-blue-700 text-lg font-semibold mb-4">Person to Contact </h2>
                         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                             <div>
-                            <p><strong class="font-medium">Name:</strong> </p>
-                            <p>{{ emergency_contact.emergency_contact_name }}</p> <br>
+                                <p><strong class="font-medium">Name:</strong> </p>
+                                <p>{{ emergency_contact.emergency_contact_name }}</p> <br>
+                            </div>
+                            <div>
+                                <p><strong class="font-medium">Address:</strong></p>
+                                <p>{{ emergency_contact.emergency_contact_address }}</p> <br>
+                            </div>
                         </div>
-                        <div>
-                            <p><strong class="font-medium">Address:</strong></p>
-                            <p>{{ emergency_contact.emergency_contact_address }}</p> <br>
-                        </div>
-                        </div>
-                        
+
                     </div>
                 </section>
             </main>

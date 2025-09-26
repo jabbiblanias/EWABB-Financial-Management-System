@@ -1,26 +1,25 @@
 {% for loan in loans %}
-<tr id="row-{{ loan.loan_application_id }}" 
-ondblclick="window.location.href='details/{{loan.loan_application_id}}/';" 
-class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+<tr id="row-{{ loan.loan_application_id }}" ondblclick="window.location.href='details/{{loan.loan_application_id}}/';"
+    class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
     <td class="px-6 py-3">{{ loan.loan_amount }}</td>
     <td class="px-6 py-3">
-        {% if loan.loan_term_years %} 
+        {% if loan.loan_term_years %}
         {{ loan.loan_term_years }}
         {% if loan.loan_term_years > 1 %}
-            years
+        years
         {% else %}
-            year
+        year
         {% endif %}
         {% endif %}
-        {% if loan.loan_term_years and loan.loan_term_months %} 
-        and 
+        {% if loan.loan_term_years and loan.loan_term_months %}
+        and
         {% endif %}
-        {% if loan.loan_term_months %} 
+        {% if loan.loan_term_months %}
         {{ loan.loan_term_months }}
         {% if loan.loan_term_months > 1 %}
-            months
+        months
         {% else %}
-            month
+        month
         {% endif %}
         {% endif %}
         {% if loan.loan_term_days %} {{ loan.loan_term_days }} days{% endif %}
@@ -29,23 +28,28 @@ class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
     <td class="px-6 py-3">{{ loan.net_proceeds }}</td>
     <td class="px-6 py-3">{{ loan.amortization }}</td>
     <td class="px-6 py-3">
+        <!-- Status Badge -->
         {% if loan.status == 'Approved' %}
-            <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
-                {{ loan.status }}
-            </span>
+        <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
+            {{ loan.status }}
+        </span>
         {% elif loan.status == 'Pending' %}
-            <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
-                {{ loan.status }}
-            </span>
+        <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
+            {{ loan.status }}
+        </span>
         {% elif loan.status == 'Verified' %}
-            <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-700">
-                {{ loan.status }}
-            </span>
+        <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-700">
+            {{ loan.status }}
+        </span>
+        {% elif loan.status == 'Released' %}
+        <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-700">
+            {{ loan.status }}
+        </span>
         {% else %}
-            <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
-                {{ loan.status }}
-            </span>
-        {% endif %} 
+        <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+            {{ loan.status }}
+        </span>
+        {% endif %}
     </td>
 </tr>
 {% endfor %}

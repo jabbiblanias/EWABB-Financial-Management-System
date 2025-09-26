@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import LoanApplication, Member, Loan, LoanRepaymentSchedule
 from django.contrib.auth.decorators import login_required
 from datetime import date
-from .utils import parse_duration
+from .utils import parse_duration, format_loan_term
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 import json
@@ -10,6 +10,8 @@ from django.contrib import messages
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
 from django.db.models import OuterRef, Subquery
+from notifications.models import Notification
+from django.utils.dateformat import DateFormat
 
 
 @login_required
@@ -231,19 +233,51 @@ def approving_loan(request):
 
         try:
             loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id)
+            member = loan_application.member_id
             if bookkeeper:
                 if action == 'approve':
                     loan_application.status = 'Verified'
+
+                    Notification.objects.create(
+                        user_id=member.user_id,
+                        title="Loan Application Verified",
+                        message=f"Your loan application (ID: {loan_application.loan_application_id}) has been verified and is now under review for approval. "
+                                    f"Please wait for further updates."
+                    )
                 elif action == 'reject':
                     loan_application.status = 'Rejected'
+
+                    Notification.objects.create(
+                        user_id=member.user_id,
+                        title="Loan Application Rejected",
+                        message=f"Your loan application (ID: {loan_application.loan_application_id}) was declined. "
+                                f"For more information, please message us or contact the office."
+                    )
+
                 loan_application.verifier_id = user
                 loan_application.verified_date = date.today()
                 status = "Pending"
             elif admin:
                 if action == 'approve':
                     loan_application.status = 'Approved'
+
+                    Notification.objects.create(
+                        user_id=member.user_id,
+                        title="Loan Application Approved",
+                        message=f"Your loan application (ID: {loan_application.loan_application_id}) has been approved. "
+                                    f"Amount: ₱{loan_application.loan_amount:.2f}, Term: {format_loan_term(loan_application)}. "
+                                    f"Please proceed to the cashier to finalize the release."
+                    )
+
                 elif action == 'reject':
                     loan_application.status = 'Rejected'
+
+                    Notification.objects.create(
+                        user_id=member.user_id,
+                        title="Loan Application Rejected",
+                        message=f"Your loan application (ID: {loan_application.loan_application_id}) was declined. "
+                                f"For more information, please message us or contact the office."
+                    )
                 loan_application.approver_id = user
                 loan_application.approved_date = date.today()
                 status = "Verified"
@@ -253,6 +287,8 @@ def approving_loan(request):
             return JsonResponse({'success': True, 'html': html})
         except LoanApplication.DoesNotExist:
             return JsonResponse({'success': False})
+        except Member.DoesNotExist:
+            return JsonResponse({'success': False})
 
 
 @login_required
@@ -260,10 +296,9 @@ def approving_loan(request):
 def releasing(request):
     data = json.loads(request.body)
     loan_application_id = data.get('loan_application_id')
-    account_number = data.get('account_number')
     try:
         loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id, status='Approved')
-        member = Member.objects.get(account_number=account_number)
+        member = loan_application.member_id
         loan = Loan.objects.create(
             member_id=member,
             loan_application_id=loan_application,
@@ -298,6 +333,19 @@ def releasing(request):
                 remaining_days -= 30
         loan_application.status = "Released"
         loan_application.save()
+
+        schedules = LoanRepaymentSchedule.objects.filter(loan_id=loan).values("due_date").order_by("due_date").first()
+
+        Notification.objects.create(
+            user_id=member.user_id,
+            title="Loan Released",
+            message=(
+                f"Your approved loan (ID: {loan.loan_id}) has been successfully released. "
+                f"Amount Released: ₱{loan_application.net_proceeds:,.2f}. "
+                f"Start date of repayment: {DateFormat(schedules['due_date']).format('M d, Y')}"
+            )
+        )
+        
         context = cashier_approved_loans()
         html = render_to_string('loans/partials/cashier_loan_table_body.html', context)
         return JsonResponse({'success': True, 'html': html})

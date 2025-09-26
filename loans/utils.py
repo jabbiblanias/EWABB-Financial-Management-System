@@ -31,3 +31,29 @@ def convert_date(years=0, months=0, days=0):
     total_days = years_to_days + months_to_days + days
 
     return total_days
+
+def format_loan_term(loan):
+    parts = []
+
+    # Years
+    if loan.loan_term_years:
+        year_label = "years" if loan.loan_term_years > 1 else "year"
+        parts.append(f"{loan.loan_term_years} {year_label}")
+
+    # Months
+    if loan.loan_term_months:
+        month_label = "months" if loan.loan_term_months > 1 else "month"
+        parts.append(f"{loan.loan_term_months} {month_label}")
+
+    # Days
+    if loan.loan_term_days:
+        day_label = "days" if loan.loan_term_days > 1 else "day"
+        parts.append(f"{loan.loan_term_days} {day_label}")
+
+    # Join with "and" when needed
+    if len(parts) > 1:
+        return " and ".join([", ".join(parts[:-1]), parts[-1]]) if len(parts) > 2 else " and ".join(parts)
+    elif parts:
+        return parts[0]
+    else:
+        return "N/A"

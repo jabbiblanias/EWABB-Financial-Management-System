@@ -1867,9 +1867,6 @@
   .right-3 {
     right: calc(var(--spacing) * 3);
   }
-  .right-4 {
-    right: calc(var(--spacing) * 4);
-  }
   .right-5 {
     right: calc(var(--spacing) * 5);
   }
@@ -3107,31 +3104,13 @@
     border-left-style: var(--tw-border-style);
     border-left-width: 4px;
   }
-  .alert-error {
-    border-color: var(--color-error);
-    color: var(--color-error-content);
-    --alert-color: var(--color-error);
-  }
   .alert-info {
     border-color: var(--color-info);
     color: var(--color-info-content);
     --alert-color: var(--color-info);
   }
-  .alert-success {
-    border-color: var(--color-success);
-    color: var(--color-success-content);
-    --alert-color: var(--color-success);
-  }
-  .alert-warning {
-    border-color: var(--color-warning);
-    color: var(--color-warning-content);
-    --alert-color: var(--color-warning);
-  }
   .border-\[\#3d5af1\] {
     border-color: #3d5af1;
-  }
-  .border-black {
-    border-color: var(--color-black);
   }
   .border-blue-300 {
     border-color: var(--color-blue-300);
@@ -3222,9 +3201,6 @@
   }
   .bg-blue-100 {
     background-color: var(--color-blue-100);
-  }
-  .bg-blue-200 {
-    background-color: var(--color-blue-200);
   }
   .bg-blue-300 {
     background-color: var(--color-blue-300);

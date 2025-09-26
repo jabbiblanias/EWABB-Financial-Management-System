@@ -96,8 +96,27 @@ def approval(request):
         
 
 def membership_application_details(request, application_id):
-    membership_application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
-    context = {'membership_application': membership_application}
+    application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
+    # Handle spouse safely
+    try:
+        spouse = Spouse.objects.get(person_id=application.person_id)
+    except Spouse.DoesNotExist:
+        spouse = None
+
+    # Handle children safely
+    children = Children.objects.filter(person_id=application.person_id)  # returns queryset (empty if none)
+
+    try:
+        emergency_contact = EmergencyContact.objects.get(person_id=application.person_id)
+    except EmergencyContact.DoesNotExist:
+        emergency_contact = None
+
+    context = {
+        'application': application,
+        'spouse': spouse,
+        'children': children,
+        'emergency_contact': emergency_contact
+    }
     return render(request, 'members/membership_application_details.html', context)
     
 

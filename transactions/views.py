@@ -37,7 +37,7 @@ def transactions(request):
 
                 # 🔔 Member notification (different wording)
                 Notification.objects.create(
-                    user=member.user_id,
+                    user_id=member.user_id,
                     title="Savings Deposit",
                     message=(
                         f"You deposited ₱{amount:,} into your savings account on "
@@ -65,7 +65,7 @@ def transactions(request):
 
                     # 🔔 Member notification (different wording)
                     Notification.objects.create(
-                        user=member.user_id,
+                        user_id=member.user_id,
                         title="Withdrawal",
                         message=(
                             f"You withdrew ₱{amount:,} from your savings account on "
@@ -126,7 +126,7 @@ def record_payment(member_id, loan, payment_amount):
             loan.loan_status = "Completed"
             loan.save()
             Notification.objects.create(
-                user=member_id.user_id,
+                user_id=member_id.user_id,
                 title="Loan Fully Paid",
                 message=f"Your due on {repayment.due_date.strftime('%b %d, %Y')} has been paid. Congratulations, your loan is fully paid!"
             )
@@ -137,7 +137,7 @@ def record_payment(member_id, loan, payment_amount):
             if next_due:
                 note += f" Next due: {next_due.due_date.strftime('%b %d, %Y')} amount ₱{next_due.amount_due:,}."
             Notification.objects.create(
-                user=member_id.user_id,
+                user_id=member_id.user_id,
                 title="Loan Due Paid",
                 message=note
             )
@@ -165,7 +165,7 @@ def record_payment(member_id, loan, payment_amount):
 
         # 🔔 Create partial payment notification
         Notification.objects.create(
-            user=member_id.user_id,
+            user_id=member_id.user_id,
             title="Partial Loan Payment",
             message=f"Payment of ₱{payment_amount:,} recorded for due {repayment.due_date.strftime('%b %d, %Y')}. Remaining due: ₱{repayment.amount_due:,}."
         )
