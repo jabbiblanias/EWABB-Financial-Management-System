@@ -106,6 +106,7 @@
 </div>
 <script>
   document.getElementById("loanApplicationForm").addEventListener("submit", async function(e) {
+    this.disable = true;
     e.preventDefault()
     try {
       const form = e.target;
@@ -130,6 +131,7 @@
     } catch (Error) {
       console.error("Error", Error);
     }
+    this.disable = false;
   })
 </script>
 <script>
