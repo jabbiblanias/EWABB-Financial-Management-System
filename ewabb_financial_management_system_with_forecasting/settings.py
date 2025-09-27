@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'appointments',
     'programs',
     'notifications',
-    'dbbackup',
 ]
 
 if DEBUG:

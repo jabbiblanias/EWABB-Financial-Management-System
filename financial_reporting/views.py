@@ -28,10 +28,8 @@ def report_details(request, report_id):
     report = Financialreports.objects.filter(report_id=report_id).values("title", "status").first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
     context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_id': report_id}
-    if request.user.groups.filter(name='Bookkeeper').exists():
-        return render(request, 'financial_reporting/bookkeeper_members_report.html', context)
-    elif request.user.groups.filter(name='Admin').exists():
-        return render(request, 'financial_reporting/admin_report.html')
+    if request.user.groups.filter(name='Bookkeeper').exists() or request.user.groups.filter(name='Admin').exists():
+        return render(request, 'financial_reporting/members_report.html', context)
 
 
 def generate_report(request):
@@ -94,9 +92,9 @@ def generate_report(request):
     unique_title = generate_unique_name(Financialreports, 'title', f'report-{date.today().strftime("%Y-%m-%d")}')
     context = {'financial_report': financial_report, 'title': unique_title}
     if request.user.groups.filter(name='Bookkeeper').exists():
-        return render(request, 'financial_reporting/bookkeeper_members_report.html', context)
+        return render(request, 'financial_reporting/members_report.html', context)
     elif request.user.groups.filter(name='Admin').exists():
-        return render(request, 'financial_reporting/admin_report.html')
+        return render(request, 'financial_reporting/members_report.html')
     
 
 def submit_financial_report(request):

@@ -3,24 +3,24 @@
   <td class="px-6 py-3">{{ loanApplication.loan_application_id}}</td>
   <td class="px-6 py-3">{{ loanApplication.member_id__account_number }}</td>
   <td class="px-6 py-3">
-    {% if loanApplication.loan_term_years %} 
-      {{ loanApplication.loan_term_years }}
-      {% if loanApplication.loan_term_years > 1 %}
-        years
-      {% else %}
-        year
-      {% endif %}
+    {% if loanApplication.loan_term_years %}
+    {{ loanApplication.loan_term_years }}
+    {% if loanApplication.loan_term_years > 1 %}
+    years
+    {% else %}
+    year
     {% endif %}
-    {% if loanApplication.loan_term_years and loanApplication.loan_term_months %} 
-      and 
     {% endif %}
-    {% if loanApplication.loan_term_months %} 
-      {{ loanApplication.loan_term_months }}
-      {% if loanApplication.loan_term_months > 1 %}
-        months
-      {% else %}
-        month
-      {% endif %}
+    {% if loanApplication.loan_term_years and loanApplication.loan_term_months %}
+    and
+    {% endif %}
+    {% if loanApplication.loan_term_months %}
+    {{ loanApplication.loan_term_months }}
+    {% if loanApplication.loan_term_months > 1 %}
+    months
+    {% else %}
+    month
+    {% endif %}
     {% endif %}
     {% if loanApplication.loan_term_days %} {{ loanApplication.loan_term_days }} days{% endif %}
   </td>
@@ -28,7 +28,7 @@
   <td class="px-6 py-3">
     {{ loanApplication.amortization|floatformat:0 }}
     {% if loanApplication.loan_term_days %}
-      / Daily
+    / Daily
     {% else %}
     / Monthly
     {% endif %}
@@ -36,51 +36,47 @@
   <td class="px-6 py-3">
     <!-- Status Badge -->
     {% if loanApplication.status == 'Approved' %}
-        <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
-            {{ loanApplication.status }}
-        </span>
+    <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
+      {{ loanApplication.status }}
+    </span>
     {% elif loanApplication.status == 'Pending' %}
-        <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
-            {{ loanApplication.status }}
-        </span>
+    <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
+      {{ loanApplication.status }}
+    </span>
     {% elif loanApplication.status == 'Verified' %}
-        <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-700">
-            {{ loanApplication.status }}
-        </span>
+    <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-700">
+      {{ loanApplication.status }}
+    </span>
     {% elif loanApplication.status == 'Released' %}
-        <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-700">
-            {{ loanApplication.status }}
-        </span>
+    <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-700">
+      {{ loanApplication.status }}
+    </span>
     {% else %}
-        <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
-            {{ loanApplication.status }}
-        </span>
-    {% endif %} 
-    </td>
+    <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+      {{ loanApplication.status }}
+    </span>
+    {% endif %}
+  </td>
   <td class="px-6 py-3 flex gap-2">
     <!-- View Button -->
     <a href="details/{{loanApplication.loan_application_id}}/"
-       class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
-       View
+      class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+      View
     </a>
     {% if loanApplication.status == "Pending" and request.user.groups.all.0.name == "Bookkeeper" or loanApplication.status == "Verified" and request.user.groups.all.0.name == "Admin" %}
     <!-- Approve -->
-    <button onclick="openConfirmModal('confirmModal')" 
-            class="action-btn w-12 h-6 flex items-center justify-center rounded-full border border-green-500 text-green-500 hover:bg-green-100" 
-            data-id="{{ loanApplication.loan_application_id }}" 
-            data-account="{{ loanApplication.member_id__account_number }}"
-            data-amount="{{ loanApplication.loan_amount }}"
-            data-action="approve">
+    <button onclick="openConfirmModal('confirmModal')"
+      class="action-btn w-12 h-6 flex items-center justify-center rounded-full border border-green-500 text-green-500 hover:bg-green-100"
+      data-id="{{ loanApplication.loan_application_id }}" data-account="{{ loanApplication.member_id__account_number }}"
+      data-amount="{{ loanApplication.loan_amount }}" data-action="approve">
       ✓
     </button>
 
     <!-- Reject -->
-    <button onclick="openConfirmModal('rejectModal')" 
-            class="action-btn w-12 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100" 
-            data-id="{{ loanApplication.loan_application_id }}" 
-            data-account="{{ loanApplication.member_id__account_number }}"
-            data-amount="{{ loanApplication.loan_amount }}"
-            data-action="reject">
+    <button onclick="openConfirmModal('rejectModal')"
+      class="action-btn w-12 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100"
+      data-id="{{ loanApplication.loan_application_id }}" data-account="{{ loanApplication.member_id__account_number }}"
+      data-amount="{{ loanApplication.loan_amount }}" data-action="reject">
       ✗
     </button>
     {% endif %}

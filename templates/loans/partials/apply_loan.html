@@ -1,5 +1,5 @@
 <div id="popupApplication" class="hidden fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-  <form method="POST" action="{% url 'loan_applications' %}" class="bg-white rounded-xl shadow-md p-8 w-96">
+  <form id="loanApplicationForm" class="bg-white rounded-xl shadow-md p-8 w-96">
     {% csrf_token %}
     <!-- Account Number -->
   {% if request.user.groups.all.0.name ==  "Bookkeeper" %}
@@ -104,6 +104,36 @@
     </div>
   </form>
 </div>
+<script>
+  document.getElementById("loanApplicationForm").addEventListener("submit", async function(e) {
+    this.disable = true;
+    e.preventDefault()
+    try {
+      const form = e.target;
+      const formData = new FormData(form);
+      const response = await fetch("{% url 'apply_loan' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showAlert(data.message, "success");
+        closePopUp();
+        document.getElementById('loan_applications-table-body').innerHTML = data.loans;
+      }else {
+        showAlert(data.message, "error");
+      }
+    } catch (Error) {
+      console.error("Error", Error);
+    }
+    this.disable = false;
+  })
+</script>
 <script>
   function openPopUp() {
     document.getElementById('popupApplication').classList.remove('hidden');

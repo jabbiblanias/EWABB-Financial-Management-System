@@ -166,13 +166,14 @@
       document.getElementById("accountNumber").textContent = account_number;
       document.getElementById("loanAmount").textContent = `₱${loanAmount}`;
       document.getElementById('confirm').addEventListener('click', function() {
+        this.disable = true;
         fetch("{% url 'loan_release' %}", {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'
           },
-          body: JSON.stringify({account_number: account_number, loan_application_id: loan_application_id})
+          body: JSON.stringify({loan_application_id: loan_application_id})
         })
         .then(res => {
           if (!res.ok){
@@ -189,6 +190,7 @@
           }
         })
         .catch(error => console.error("Fetch Error: ", error))
+        btn.disabled = false;
       });
   }
 

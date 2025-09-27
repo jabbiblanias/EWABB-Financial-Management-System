@@ -1,6 +1,6 @@
 {% if report_id and status == "Submitted" %}
 {% for member in financial_report %}
-<tr>
+<tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
     <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
         {{ member.account_number }}
     </td>
@@ -29,7 +29,7 @@
 {% endfor %}
 {% elif report_id and status == "Draft" %}
 {% for member in financial_report %}
-<tr>
+<tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
     <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
         {{ member.account_number }}
     </td>
@@ -59,7 +59,7 @@
 {% endfor %}
 {% else %}
 {% for member in financial_report %}
-<tr>
+<tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
     <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
         {{ member.account_number }}
     </td>

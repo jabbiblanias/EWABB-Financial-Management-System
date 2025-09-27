@@ -28,6 +28,7 @@ def membership_application_view(request):
             'person_id__gender', 
             'person_id__civil_status'
         )
+        .order_by('application_id')
     )
     '''book_paginator = Paginator(membership_applications, 10)
 
@@ -96,8 +97,27 @@ def approval(request):
         
 
 def membership_application_details(request, application_id):
-    membership_application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
-    context = {'membership_application': membership_application}
+    application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
+    # Handle spouse safely
+    try:
+        spouse = Spouse.objects.get(person_id=application.person_id)
+    except Spouse.DoesNotExist:
+        spouse = None
+
+    # Handle children safely
+    children = Children.objects.filter(person_id=application.person_id)  # returns queryset (empty if none)
+
+    try:
+        emergency_contact = EmergencyContact.objects.get(person_id=application.person_id)
+    except EmergencyContact.DoesNotExist:
+        emergency_contact = None
+
+    context = {
+        'application': application,
+        'spouse': spouse,
+        'children': children,
+        'emergency_contact': emergency_contact
+    }
     return render(request, 'members/membership_application_details.html', context)
     
 
@@ -116,6 +136,7 @@ def members_view(request):
                 'person_id__gender', 
                 'person_id__civil_status',
             )
+            .order_by('member_id')
         )
     context = {'members': members}
     return render(request, 'members/approved_members.html', context)

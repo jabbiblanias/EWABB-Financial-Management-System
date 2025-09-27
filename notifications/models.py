@@ -32,10 +32,9 @@ class Notification(models.Model):
     ]
 
     notification_id = models.AutoField(primary_key=True, db_column='notification_id')
-    user = models.ForeignKey(User, models.DO_NOTHING, db_column='user_id')
+    user_id = models.ForeignKey(User, models.DO_NOTHING, db_column='user_id')
     title = models.CharField(max_length=255, db_column='title')
     message = models.TextField(db_column='message')
-    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, db_column='notification_type', null=True, blank=True)
     is_read = models.BooleanField(default=False, db_column='is_read')
     created_at = models.DateTimeField(auto_now_add=True, db_column='created_at')
 

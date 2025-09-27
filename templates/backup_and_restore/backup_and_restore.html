@@ -274,7 +274,7 @@
       e.preventDefault();
       try {
         const form = e.target;
-        pendingFormData = new FormData(form);
+        const pendingFormData = new FormData(form);
         const response = await fetch("{% url 'manual_backup' %}", {
           method: "POST",
           headers: {
@@ -323,7 +323,9 @@
           data = await response.json()
           if (data.status === "success") {
             showAlert(data.message, data.status)
-            window.location.reload();
+            setTimeout(() => {
+                window.location.href = "{% url 'login' %}";
+            }, 4000);
           }
         } catch (err) {
           console.log("Error: " + err);
