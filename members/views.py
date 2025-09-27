@@ -28,6 +28,7 @@ def membership_application_view(request):
             'person_id__gender', 
             'person_id__civil_status'
         )
+        .order_by('application_id')
     )
     '''book_paginator = Paginator(membership_applications, 10)
 
@@ -135,6 +136,7 @@ def members_view(request):
                 'person_id__gender', 
                 'person_id__civil_status',
             )
+            .order_by('member_id')
         )
     context = {'members': members}
     return render(request, 'members/approved_members.html', context)

@@ -89,19 +89,11 @@
                 <td class="px-6 py-3">{{ report.created_at|date:"Y-m-d h:i A" }}</td>
                 <td class="px-6 py-3">{{ report.last_updated|date:"Y-m-d h:i A" }}</td>
                 <td class="px-6 py-3">
-                  {% if report.status == "Submitted" %}
                   <!-- View Button -->
                   <a href="details/{{report.report_id}}/"
-                    class="w-12 h-6 flex items-center justify-center rounded-2xl border border-blue-500 text-blue-500 hover:bg-blue-100">
+                    class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
                     View
                   </a>
-                  {% else %}
-                  <!-- View Button -->
-                  <a href="details/{{report.report_id}}/"
-                    class="w-12 h-6 flex items-center justify-center rounded-2xl border border-blue-500 text-blue-500 hover:bg-blue-100">
-                    View
-                  </a>
-                  {% endif %}
                 </td>
               </tr>
               {% endfor %}

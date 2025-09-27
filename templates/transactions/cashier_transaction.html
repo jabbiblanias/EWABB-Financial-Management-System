@@ -220,55 +220,57 @@
 
 // When form is submitted → prevent send, just save the data
 document.getElementById("transactionForm").addEventListener("submit", function(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const form = e.target;
-    pendingFormData = new FormData(form);
+  const form = e.target;
+  pendingFormData = new FormData(form);
 
-    // Open confirmation modal here if needed
-    document.getElementById("confirmType").textContent = pendingFormData.get("transactionType")
-    document.getElementById("confirmAmount").textContent = `₱${pendingFormData.get("amount")}`
-    openTransactionModal();
+  // Open confirmation modal here if needed
+  document.getElementById("confirmType").textContent = pendingFormData.get("transactionType")
+  document.getElementById("confirmAmount").textContent = `₱${pendingFormData.get("amount")}`
+  openTransactionModal();
 });
 
 // Confirm button → send data
 document.getElementById("confirmTransaction").addEventListener("click", async function() {
-    if (!pendingFormData) return; // nothing to send
+  this.disable = true;
+  if (!pendingFormData) return; // nothing to send
 
-    try {
-        const response = await fetch("{% url 'save_transaction' %}", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: pendingFormData
-        });
+  try {
+      const response = await fetch("{% url 'save_transaction' %}", {
+          method: "POST",
+          headers: {
+              "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: pendingFormData
+      });
 
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-        }
+      if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status}`);
+      }
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.success) {
-          showAlert(data.message, "success");
-          document.getElementById("receiptModal").classList.remove("hidden")
-          document.getElementById("transaction-table-body").innerHTML = data.html;
-          document.getElementById("transactionForm").reset();
-            fillTableRows("myTable", 10);
-        } else {
-            showAlert(data.message, "failed");
-        }
+      if (data.success) {
+        showAlert(data.message, "success");
+        document.getElementById("receiptModal").classList.remove("hidden")
+        document.getElementById("transaction-table-body").innerHTML = data.html;
+        document.getElementById("transactionForm").reset();
+          fillTableRows("myTable", 10);
+      } else {
+          showAlert(data.message, "failed");
+      }
 
-        // clear saved data
-        pendingFormData = null;
+      // clear saved data
+      pendingFormData = null;
 
-        // close modal
-        closeTransactionModal();
+      // close modal
+      closeTransactionModal();
 
-    } catch (error) {
-        console.error("Fetch error:", error);
-    }
+  } catch (error) {
+      console.error("Fetch error:", error);
+  }
+  this.disable = false;
 });
 
       // Toast notification function
