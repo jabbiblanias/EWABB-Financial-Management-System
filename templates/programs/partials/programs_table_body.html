@@ -1,0 +1,10 @@
+{% for program in programs %}
+<tr class="border-b border-gray-200">
+    <td class="px-6 py-3">{{ program.program_id }}</td>
+    <td class="px-6 py-3">{{ program.program_name }}</td>
+    <td class="px-6 py-3">{{ program.date_started|date:"Y-m-d H:i A" }}</td>
+    <td class="px-6 py-3">{{ program.date_end|date:"Y-m-d H:i A" }}</td>
+    <td class="px-6 py-3">{{ program.status }}</td>
+    <td class="px-6 py-3">{{ program.total_profit }}</td>
+</tr>
+{% endfor %}
