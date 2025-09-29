@@ -17,10 +17,10 @@ from xhtml2pdf import pisa
 
 def member_loan_report(request):
     if request.user.groups.filter(name='Bookkeeper').exists():
-        reports = Financialreports.objects.all()
+        reports = Financialreports.objects.all().order_by("-last_updated")
         return render(request, 'financial_reporting/bookkeeper_report.html', {"reports": reports})
     elif request.user.groups.filter(name='Admin').exists():
-        reports = Financialreports.objects.filter(status="Submitted").all()
+        reports = Financialreports.objects.filter(status="Submitted").all().order_by("-last_updated")
         return render(request, 'financial_reporting/admin_report.html', {"reports": reports})
     
 

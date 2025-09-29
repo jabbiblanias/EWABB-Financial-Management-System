@@ -66,24 +66,30 @@
           <!-- Action buttons -->
           <div class="grid grid-cols-3 px-6 py-4">
             <div class="flex justify-left">
-              <button id="go-back" type="button" class="px-6 py-2 border bg-white rounded-lg hover:bg-gray-50">Back</button>
+              <button id="go-back" type="button"
+                class="px-6 py-2 border bg-white rounded-lg hover:bg-gray-50">Back</button>
             </div>
             {% if status != "Submitted" %}
             <div class=" flex justify-center items-center col-start-2 gap-4">
-              <input id="title" type="text" class="max-w-3xs mt-1 border border-gray-300 bg-gray-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center" value="{{ title }}" disabled>
+              <input id="title" type="text"
+                class="max-w-3xs mt-1 border border-gray-300 bg-gray-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center"
+                value="{{ title }}" disabled>
               <button id="edit" type="button">edit</button>
             </div>
             <div class="flex justify-end gap-4 col-span-1 col-end-4">
-              <button data-action="save" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Save</button>
-              <button data-action="submit" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Submit</button>
+              <button data-action="save"
+                class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Save</button>
+              <button data-action="submit"
+                class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Submit</button>
             </div>
             {% else %}
             <div class="flex justify-end gap-4 col-span-1 col-end-4">
-              <a href="{% url 'create-pdf' report_id %}" class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Export</a>
+              <a href="{% url 'create-pdf' report_id %}"
+                class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Export</a>
             </div>
             {% endif %}
           </div>
-          
+
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <table id="myTable" class="min-w-full text-sm">
               <thead class="bg-white border-b border-gray-200">
@@ -117,28 +123,32 @@
       </div>
     </div>
   </div>
+  <!-- Toast -->
+  <div id="toast"
+    class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+    role="status"></div>
   <script>
     document.getElementById("go-back").addEventListener("click", () => {
       history.back();
     });
-    document.getElementById("edit").addEventListener("click", function() {
+    document.getElementById("edit").addEventListener("click", function () {
       const title = document.getElementById("title");
 
-      if (title.hasAttribute("disabled")) {
+      if (title.disable) {
         // Enable
-        title.removeAttribute("disabled");
+        title.disable = false;
         title.classList.remove("bg-gray-200");
         this.textContent = "Lock"; // change button label
       } else {
         // Disable
-        title.setAttribute("disabled", true);
+        title.disable = true;
         title.classList.add("bg-gray-200");
         this.textContent = "Edit"; // change back
       }
     })
 
     document.querySelectorAll(".action-btn").forEach(btn => {
-    btn.addEventListener("click", async function (e) {
+      btn.addEventListener("click", async function (e) {
         e.preventDefault();
 
         const action = e.target.dataset.action;
@@ -146,48 +156,78 @@
 
         // Loop through each table row to collect data
         document.querySelectorAll("tbody tr").forEach(row => {
-            const accountNumberCell = row.querySelector("td[data-account-number]");
-            const remarksTextarea = row.querySelector("textarea");
+          const accountNumberCell = row.querySelector("td[data-account-number]");
+          const remarksTextarea = row.querySelector("textarea");
 
-            if (accountNumberCell && remarksTextarea) {
-                const accountNo = accountNumberCell.dataset.accountNumber;
-                
-                // Construct a new object for each member
-                const member = {
-                    name: row.querySelector("td[data-name]").dataset.name,
-                    outstanding_balance: row.querySelector("td[data-loan-balance]").dataset.loanBalance,
-                    date_loaned: row.querySelector("td[data-released-date]").dataset.releasedDate,
-                    savings: row.querySelector("td[data-savings-balance]").dataset.savingsBalance,
-                    penalty_charge: row.querySelector("td[data-penalty-amount]").dataset.penaltyAmount,
-                    savings_after_deduction: row.querySelector("td[data-savings-after-deduction]").dataset.savingsAfterDeduction,
-                    remarks: remarksTextarea.value
-                };
-                membersData[accountNo] = member;
-            }
+          if (accountNumberCell && remarksTextarea) {
+            const accountNo = accountNumberCell.dataset.accountNumber;
+
+            // Construct a new object for each member
+            const member = {
+              name: row.querySelector("td[data-name]").dataset.name,
+              outstanding_balance: row.querySelector("td[data-loan-balance]").dataset.loanBalance,
+              date_loaned: row.querySelector("td[data-released-date]").dataset.releasedDate,
+              savings: row.querySelector("td[data-savings-balance]").dataset.savingsBalance,
+              penalty_charge: row.querySelector("td[data-penalty-amount]").dataset.penaltyAmount,
+              savings_after_deduction: row.querySelector("td[data-savings-after-deduction]").dataset.savingsAfterDeduction,
+              remarks: remarksTextarea.value
+            };
+            membersData[accountNo] = member;
+          }
         });
 
         // The rest of your fetch request remains the same
         const response = await fetch("{% url 'submit_report' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify({
-                report_id: "{{ report_id }}",
-                title: document.getElementById("title").value,
-                action: action,
-                members: membersData
-            })
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({
+            report_id: "{{ report_id }}",
+            title: document.getElementById("title").value,
+            action: action,
+            members: membersData
+          })
         });
-
+        let message;
         if (response.ok) {
-            alert("Reports " + action + "d successfully!");
+          if (action === "save") {
+            message = "Report has successfully been saved"
+          } else {
+            message = "Report has successfully been submitted"
+          }
+          showAlert(message, "success")
         } else {
-            alert("Error while saving");
+          showAlert("Error while saving", "error");
         }
+      });
     });
-});
+    // Toast notification function
+    function showAlert(message, type) {
+      const toast = document.getElementById("toast");
+
+      // Remove old color classes before adding new one
+      toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+      // Style by type
+      if (type === "success") {
+        toast.classList.add("bg-emerald-600"); // green
+      } else if (type === "failed") {
+        toast.classList.add("bg-red-600");
+      } else {
+        toast.classList.add("bg-yellow-600"); // yellow default
+      }
+
+      // Set message
+      toast.textContent = message;
+
+      // Show toast
+      toast.classList.remove("hidden");
+
+      // Hide after 4s
+      setTimeout(() => toast.classList.add("hidden"), 3000);
+    }
   </script>
 </body>
 
