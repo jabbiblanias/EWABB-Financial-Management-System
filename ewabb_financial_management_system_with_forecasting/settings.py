@@ -112,7 +112,7 @@ WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.app'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-DB_NAME = os.getenv('POSTGRES_DB')
+DB_NAME = os.getenv('POSTGRES_DATABASE')
 DB_USER = os.getenv('POSTGRES_USER')
 DB_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 DB_HOST = os.getenv('POSTGRES_HOST')
