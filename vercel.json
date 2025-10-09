@@ -1,7 +1,17 @@
 {
-  "buildCommand": "pip install -r requirements.txt && chmod +x build_files.sh && ./build_files.sh && python manage.py collectstatic --noinput",
-  "outputDirectory": "staticfiles",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
+  "builds": [
+    { "src": "ewabb_financial_management_system_with_forecasting/wsgi.py", "use": "@vercel/python" },
+    {
+      "src": "build_files.sh",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "staticfiles"
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
+  ],
+  "outputDirectory": "staticfiles"
 }
