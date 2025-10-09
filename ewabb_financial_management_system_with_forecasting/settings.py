@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ewabb_financial_management_system_with_forecasting.vercel.application', '.now.sh', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['ewabb_financial_management_system_with_forecasting.vercel.app', '.now.sh', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -103,7 +103,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.application'
+WSGI_APPLICATION = 'ewabb_financial_management_system_with_forecasting.wsgi.app'
 
 
 # Database
