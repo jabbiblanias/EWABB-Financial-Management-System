@@ -189,8 +189,8 @@ CELERY_TIMEZONE = 'Asia/Manila'   # match your Django TIME_ZONE
 CELERY_ENABLE_UTC = True         # store times in UTC internally
 
 # Redis as broker
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
 
 CELERY_BEAT_SCHEDULE = {
     'update-due-loann-repayment-daily': {
