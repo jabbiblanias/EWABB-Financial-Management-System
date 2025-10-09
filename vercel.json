@@ -3,13 +3,9 @@
     {
       "src": "ewabb_financial_management_system_with_forecasting/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.11.9" }
-    }, 
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
       "config": {
-        "distDir": "staticfiles"
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.11"
       }
     }
   ],
