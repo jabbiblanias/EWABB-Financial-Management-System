@@ -5,7 +5,7 @@ python3 -m pip install -r requirements.txt
 
 # 2. Run the Tailwind build command
 # NOTE: Replace 'theme' with your actual tailwind app name if different
-python3 manage.py tailwind build --production
+python3 manage.py tailwind build
 
 # 3. Collect static files
 python3 manage.py collectstatic --noinput --clear
