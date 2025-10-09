@@ -1,4 +1,4 @@
-{% load static tailwind_tags %}
+{% load static  %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Empowering Women</title>
-  {% tailwind_css %}
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
   <style>
     /* Smooth scrolling */
     html {
