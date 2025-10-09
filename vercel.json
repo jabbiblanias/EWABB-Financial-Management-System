@@ -1,11 +1,17 @@
 {
   "builds": [
     { "src": "ewabb_financial_management_system_with_forecasting/wsgi.py", "use": "@vercel/python" },
-    { "src": "package.json", "use": "@vercel/static-build" }
+    {
+      "src": "build_files.sh",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "staticfiles"
+      }
+    }
   ],
-  "buildCommand": "bash build_files.sh",
   "routes": [
     { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
-  ]
+  ],
+  "outputDirectory": "staticfiles"
 }
