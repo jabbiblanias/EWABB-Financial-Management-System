@@ -38,4 +38,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Start the application
-CMD ["gunicorn", "ewabb_financial_management_system_with_forecasting.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "ewabb_financial_management_system_with_forecasting.wsgi:app", "--bind", "0.0.0.0:8000"]
