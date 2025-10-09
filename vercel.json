@@ -1,15 +1,8 @@
 {
-  "version": 2,
   "builds": [
-    {
-      "src": "ewabb_financial_management_system_with_forecasting/wsgi.py",
-      "use": "@vercel/python"
-    }
+    { "src": "ewabb_financial_management_system_with_forecasting/wsgi.py", "use": "@vercel/python" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py"
-    }
+    { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
   ]
 }
