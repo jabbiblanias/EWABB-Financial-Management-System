@@ -9,7 +9,4 @@ pip install -r requirements.txt
 python manage.py tailwind build --production
 
 # 3. Collect all static files (including the compiled Tailwind CSS)
-python manage.py collectstatic --noinput --clear
-
-# 4. (Optional) Run migrations
-python manage.py migrate --noinput
+python manage.py collectstatic --noinput
