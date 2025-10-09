@@ -32,7 +32,7 @@ def report_details(request, report_id):
         return render(request, 'financial_reporting/members_report.html', context)
 
 
-'''def generate_report(request):
+def generate_report(request):
     # Subquery: latest loan release date per member
     latest_loan_date = Loan.objects.filter(
         member_id=OuterRef('pk'), loan_status="Active"
@@ -50,9 +50,9 @@ def report_details(request, report_id):
     ).order_by('-date_evaluated').values('penalty_amount')[:1]
 
     # Subquery: latest penalty date per schedule
-    latest_penalty_date = LoanPenalty.objects.filter(
+    '''latest_penalty_date = LoanPenalty.objects.filter(
         schedule_id__loan_id__member_id=OuterRef('pk')
-    ).order_by('-date_evaluated').values('date_evaluated')[:1]
+    ).order_by('-date_evaluated').values('date_evaluated')[:1]'''
 
     # Subquery: active loan balance
     active_loan_balance = Loan.objects.filter(
@@ -193,7 +193,7 @@ def submit_financial_report(request):
     
     return JsonResponse({"status": "success"}, status=200)
 
-def pdf_report_export(request, report_id):
+'''def pdf_report_export(request, report_id):
     report = Financialreports.objects.filter(report_id=report_id).values("title", "status", "created_at").first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
     template_path = 'financial_reporting/pdfReport.html'
