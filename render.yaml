@@ -3,21 +3,8 @@ services:
     name: ewabb-web
     env: docker
     plan: free
-    buildCommand: ""
+    buildCommand: ""  # leave empty if Dockerfile handles build
     startCommand: gunicorn ewabb_financial_management_system_with_forecasting.wsgi:application --bind 0.0.0.0:8000
     envVars:
       - key: DATABASE_URL
-        value: your-db-url
-      - key: REDIS_URL
-        value: your-redis-url
-
-  - type: worker
-    name: ewabb-celery
-    env: docker
-    plan: free
-    startCommand: celery -A ewabb_financial_management_system_with_forecasting worker --loglevel=info
-    envVars:
-      - key: DATABASE_URL
-        value: your-db-url
-      - key: REDIS_URL
-        value: your-redis-url
+        value: postgresql://test_db_bgpe_user:qZC0TRx7xUFbHlFzYe5efzDR3LICBi0h@dpg-d3jnjger433s739f9140-a/test_db_bgpe
