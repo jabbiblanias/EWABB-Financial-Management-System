@@ -1,8 +1,24 @@
 {
   "builds": [
-    { "src": "ewabb_financial_management_system_with_forecasting/wsgi.py", "use": "@vercel/python" }
+    {
+      "src": "manage.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb",
+        "runtime": "python3.12"
+      }
+    }
   ],
+  "buildCommand": "python manage.py collectstatic --noinput",
+  "outputDirectory": "staticfiles",
   "routes": [
-    { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "manage.py"
+    }
   ]
 }
