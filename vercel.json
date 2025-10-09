@@ -10,7 +10,6 @@
     }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
   ]
 }
