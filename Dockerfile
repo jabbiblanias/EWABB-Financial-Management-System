@@ -1,41 +1,17 @@
-# Use official Python image
-FROM python:3.11.9-slim
+FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Set working directory
+# Set work directory
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpango1.0-dev \
-    libcairo2-dev \
-    libgdk-pixbuf2.0-dev \
-    libffi-dev \
-    libjpeg-dev \
-    zlib1g-dev \
-    git \
-    curl \
- && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
+RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-RUN pip install --upgrade pip
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Copy project
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
-
-# Expose the port
-EXPOSE 8000
-
-# Start the application
-CMD ["gunicorn", "ewabb_financial_management_system_with_forecasting.wsgi:app", "--bind", "0.0.0.0:8000"]
+# Default command
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
