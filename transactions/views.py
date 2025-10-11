@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from decimal import Decimal
 from django.template.loader import render_to_string
 from members.models import Member
+from programs.models import BusinessProgram
 from django.utils import timezone
 from notifications.models import Notification
 
@@ -23,6 +24,7 @@ def transactions(request):
             amount = Decimal(request.POST.get('amount'))
             amount_received = Decimal(request.POST.get('amountReceived') or 0)
             transaction_type = request.POST.get('transactionType')
+            program_id = request.POST.get('programType') or None
 
             member = Member.objects.get(account_number=account_number)
 
@@ -45,6 +47,15 @@ def transactions(request):
                         f"Your new balance is ₱{savings.balance:,}."
                     )
                 )
+                Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    savings_id=savings
+                )
             elif transaction_type == 'Loan Payment':
                 loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
                 if not loan:
@@ -54,6 +65,15 @@ def transactions(request):
                 if excess != 0:
                     amount -= excess
                 change += excess
+                Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    schedule_id=loan
+                )
             elif transaction_type == 'Withdrawal':
                 amount_received = None
                 change = None
@@ -73,21 +93,45 @@ def transactions(request):
                             f"Remaining balance: ₱{savings.balance:,}."
                         )
                     )
+                    Transactions.objects.create(
+                        member_id=member,
+                        cashier_id=cashier_id,
+                        amount=amount,
+                        amount_received=amount_received,
+                        change=change,
+                        transaction_type=transaction_type,
+                        savings_id=savings
+                    )
                 else:
                     # Not enough balance
                     toast_message = f"Account #{member.account_number} has insufficient balance!"
 
                     return JsonResponse({"success": False, "message": toast_message})
-                
-            
-            Transactions.objects.create(
-                member_id=member,
-                cashier_id=cashier_id,
-                amount=amount,
-                amount_received=amount_received,
-                change=change,
-                transaction_type=transaction_type
-            )
+            elif transaction_type == 'Program Deposit':
+                program = BusinessProgram.objects.get(program_id=program_id)
+                program.total_profit += amount
+                program.save()
+                toast_message = f"Program '{program.program_name}' deposit of ₱{amount} from Account #{member.account_number} completed successfully."
+
+                # 🔔 Member notification (different wording)
+                Notification.objects.create(
+                    user_id=member.user_id,
+                    title="Program Deposit",
+                    message=(
+                        f"You deposited ₱{amount:,} into {program.program_name} on "
+                        f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}."
+                    )
+                )
+
+                Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    program_id=program
+                )
             context = transaction_data()
             html = render_to_string('transactions/partials/cashier_transaction_table_body.html', context)
             return JsonResponse({"success": True, "message": toast_message, "html": html})
@@ -212,7 +256,12 @@ def transaction_data():
             "person_id__surname"
         )
     )
-    context = {"transactions": transactions, "members": members}
+    programs = (
+        BusinessProgram.objects
+        .filter(status="Active")
+        .values('program_id', 'program_name')
+        )
+    context = {"transactions": transactions, "members": members, "programs": programs}
     return context
 
 
@@ -233,13 +282,15 @@ def member_transaction_data(user):
     return context
 
 
-def loan_balance(request):
+def balance(request):
     account_number = request.GET.get("accountNumber")
+    transaction_type = request.GET.get("transactionType")
+
 
     # Check if member exists
     member = Member.objects.select_related("person_id").filter(account_number=account_number).first()
     if not member:
-        return JsonResponse({"exists": False, "loan_balance": None})
+        return JsonResponse({"exists": False, "balance": None})
     
     first_name = member.person_id.first_name
     middle_name = member.person_id.middle_name
@@ -249,10 +300,17 @@ def loan_balance(request):
         part for part in [last_name, first_name, middle_name, name_extension] if part
     )
 
-
-    # Get loan for this member
-    loan = Loan.objects.filter(member_id=member).exclude(loan_status="Completed").first()
-    if not loan:
+    if transaction_type == "Savings Deposit" or transaction_type == "Withdrawal":
+        savings = Savings.objects.filter(member_id=member).first()
+        if not savings:
+            return JsonResponse({"exists": True, "member_name": member_name})
+        balance = savings.balance
+    elif transaction_type == "Loan Payment":
+        # Get loan for this member
+        loan = Loan.objects.filter(member_id=member).exclude(loan_status="Completed").first()
+        if not loan:
+            return JsonResponse({"exists": True, "member_name": member_name})
+        balance = loan.remaining_balance
+    else:
         return JsonResponse({"exists": True, "member_name": member_name})
-
-    return JsonResponse({"exists": True, "member_name": member_name, "loan_balance": loan.remaining_balance})
+    return JsonResponse({"exists": True, "member_name": member_name, "balance": balance})

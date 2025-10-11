@@ -89,7 +89,7 @@ def upload_to_drive():
     os.remove(backup_file)
 
     print(f"Backup uploaded successfully to Google Drive: {uploaded_file.get('id')}")
-    return uploaded_file.get("id")
+    return True
 
 
 # 🔹 Upload backup file
@@ -121,10 +121,12 @@ def upload_to_local():
 
     if result.returncode == 0:
         print(f"Backup successful: {backup_file}")
+        return True
     else:
         print("Backup failed")
         print("STDOUT:", result.stdout)
         print("STDERR:", result.stderr)
+        return False
 
 
 # 🔹 Download file locally

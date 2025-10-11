@@ -282,13 +282,14 @@
           },
           body: pendingFormData
         })
-        data = await response.json()
-        if (data) {
-          document.getElementById("backup-result").innerText = data.message;
+        const data = await response.json();
+        if (data.status === "success") {
+          showAlert(data.message, data.status);
           closeManualBackupModal();
         }
+        
       } catch (err) {
-        document.getElementById("backup-result").innerText = "Error: " + err;
+        console.log("Error: " + err);
       };
     });
   </script>

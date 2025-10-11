@@ -1,287 +1,289 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Transactions</title>
-    {% tailwind_css %}
-    <script src="{% static 'partials/table-utils.js' %}"></script>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transactions</title>
+  {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       fillTableRows('myTable', 10);
     });
   </script>
-  </head>
+</head>
 
-  <body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-      <!-- Sidebar -->
-      {% include 'dashboard/partials/cashier_nav.html' %}
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    {% include 'dashboard/partials/cashier_nav.html' %}
 
-      <!-- Main content -->
-      <div class="flex-1 flex flex-col">
-        <!-- Top bar -->
-       <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white relative">
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top bar -->
+      <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white relative">
         <h2 class="text-lg font-semibold">Transaction</h2>
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-4">
-    <div id="notif" class="dropdown dropdown-end">
-      <button tabindex="0" role="button" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600" fill="currentColor">
-        <path
-          d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
-      </svg>
-    </button>
-      {% include 'partials/popup_notification.html' %}
-    </div>
-          <!-- Avatar with dropdown -->
-          <div class="dropdown dropdown-end">
-           <div class="flex items-center space-x-4">
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">CS</div>
-        <span class="text-sm font-medium">Cashier</span>
-        <div class="dropdown dropdown-end">
-          <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-               viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 9l-7 7-7-7" />
-          </svg>
-          <!-- Dropdown Menu -->
-          {% include "partials/profile_menu.html" %}
-        </div>
-        </div>
+            <div id="notif" class="dropdown dropdown-end">
+              <button tabindex="0" role="button"
+                class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600"
+                  fill="currentColor">
+                  <path
+                    d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
+                </svg>
+              </button>
+              {% include 'partials/popup_notification.html' %}
+            </div>
+            <!-- Avatar with dropdown -->
+            <div class="dropdown dropdown-end">
+              <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                  <div
+                    class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">
+                    CS</div>
+                  <span class="text-sm font-medium">Cashier</span>
+                  <div class="dropdown dropdown-end">
+                    <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                      viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <!-- Dropdown Menu -->
+                    {% include "partials/profile_menu.html" %}
+                  </div>
+                </div>
       </header>
 
-        <!-- Form section -->
-        <form id="transactionForm" class="p-10 grid grid-cols-2 gap-7 bg-white shadow rounded-lg m-6 pl-12 pr-20">
-            <!-- Left form -->
-            <div class="space-y-5 md:col-span-1">
-              <div>
-                <label class="block text-sm text-gray-600"
-                  >Transaction Type</label
-                >
-                <select
-                  id="transactionType"
-                  name="transactionType"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="" disabled selected hidden>
-                    -- Choose Transaction Type --
-                  </option>
-                  <option>Savings Deposit</option>
-                  <option>Withdrawal</option>
-                  <option>Loan Payment</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm text-gray-600"
-                  >Account Number</label
-                >
-                <input
-                  id="accountNumber"
-                  name="accountNumber"
-                  type="text"
-                  list="accountNumbers"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  required
-                />
-                <datalist id="accountNumbers">
-                    {% for member in members %}
-                        <option value="{{ member.account_number }}">
-                          {{ member.person_id__surname }},
-                          {{ member.person_id__first_name }}
-                          {% if member.person_id__name_extension %} {{ member.person_id__name_extension }}{% endif %}
-                          {% if member.person_id__middle_name %} {{ member.person_id__middle_name }}{% endif %}
-                        </option>
-                    {% endfor %}
-                </datalist>
-              </div>
-              <div id="receivedInput">
-                <label class="block text-sm text-gray-600">Amount Received</label>
-                <input
-                  id="amountReceived"
-                  name="amountReceived"
-                  type="text"
-                  oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label id="labelAmount" class="block text-sm text-gray-600">Payment/Deposit Amount</label>
-                <input
-                  id="amount"
-                  name="amount"
-                  type="text"
-                  oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Right Info -->
-            <div class="space-y-5 text-sm col-span-1 ml-6">
-              <p class="flex justify-between">
-                <span>Member Name</span>
-                <span id="memberName" class="ml-6 font-medium text-end">--</span>
-              </p>
-              <p class="flex justify-between">
-                <span>Current Loan Balance</span>
-                <span id="loanBalance" class="text-end ml-6 font-medium">0</span>
-              </p>
-              <p class="flex justify-between">
-                <span>New Loan Balance</span>
-                <span class="ml-10 font-medium">2,500</span>
-              </p>
-            </div>
-            <div class="space-x-4 col-span-2 flex justify-end">
-                <button 
-                type="reset"
-                class="px-6 py-2 rounded-lg border text-gray-600">
-                  Clear
-                </button>
-                <button class="px-6 py-2 rounded-lg bg-blue-600 text-white">
-                  Submit
-                </button>
-              </div>
-          </form>
-
-        <!-- Transactions Table -->
-        <div class="px-6 py-4">
-          <div class="flex justify-between items-center px-6 py-4">
-            <h1 class="font-semibold text-gray-700">All Transactions</h1>
+      <!-- Form section -->
+      <form id="transactionForm" class="p-10 grid grid-cols-2 gap-7 bg-white shadow rounded-lg m-6 pl-12 pr-20">
+        <!-- Left form -->
+        <div class="space-y-5 md:col-span-1">
+          <div>
+            <label class="block text-sm text-gray-600">Transaction Type</label>
+            <select id="transactionType" name="transactionType"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required>
+              <option value="" disabled selected hidden>
+                -- Choose Transaction Type --
+              </option>
+              <option>Savings Deposit</option>
+              <option>Withdrawal</option>
+              <option>Loan Payment</option>
+              <option>Program Deposit</option>
+            </select>
           </div>
-          <div class="bg-white rounded-xl shadow overflow-hidden">
-            <table id="myTable" class="min-w-full text-left text-sm text-black">
-                <thead class="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th class="px-6 py-3 text-left font-medium">Transaction ID</th>
-                    <th class="px-6 py-3 text-left font-medium">Type</th>
-                    <th class="px-6 py-3 text-left font-medium">Account No</th>
-                    <th class="px-6 py-3 text-left font-medium">Date</th>
-                    <th class="px-6 py-3 text-left font-medium">Amount</th>
-                  </tr>
-                </thead>
-                <tbody id="transaction-table-body" class="bg-white">
-                  {% include 'transactions/partials/cashier_transaction_table_body.html' %}
-                </tbody>
-              </table>
+          <div>
+            <label class="block text-sm text-gray-600">Account Number</label>
+            <input id="accountNumber" name="accountNumber" type="text" list="accountNumbers"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required />
+            <datalist id="accountNumbers">
+              {% for member in members %}
+              <option value="{{ member.account_number }}">
+                {{ member.person_id__surname }},
+                {{ member.person_id__first_name }}
+                {% if member.person_id__name_extension %} {{ member.person_id__name_extension }}{% endif %}
+                {% if member.person_id__middle_name %} {{ member.person_id__middle_name }}{% endif %}
+              </option>
+              {% endfor %}
+            </datalist>
           </div>
+          <!-- Program Dropdown -->
+          <div id="program" class="hidden">
+            <label class="block text-sm text-gray-600">Program</label>
+            <select id="programType" name="programType"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required>
+              <option value="" disabled selected hidden>
+                -- Choose a Program --
+              </option>
+              {% for program in programs %}
+              <option value="{{ program.program_id }}">
+                {{ program.program_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div id="receivedInput">
+            <label class="block text-sm text-gray-600">Amount Received</label>
+            <input id="amountReceived" name="amountReceived" type="text"
+              oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required />
+          </div>
+          <div>
+            <label id="labelAmount" class="block text-sm text-gray-600">Payment/Deposit Amount</label>
+            <input id="amount" name="amount" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required />
+              <p id="typeMessage" class="hidden text-xs text-red-500 mt-1">Payment or deposit amount must not be greater than the amount received</p>
+          </div>
+        </div>
 
-          <!-- Pagination -->
-          <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-              <button class="text-blue-500">&lt; Previous</button>
-              <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-              <button class="text-blue-500">2</button>
-              <button class="text-blue-500">3</button>
-              <button class="text-blue-500">4</button>
-              <button class="text-blue-500">Next &gt;</button>
-            </div>
+        <!-- Right Info -->
+        <div class="space-y-5 text-sm col-span-1 ml-6">
+          <p class="flex justify-between">
+            <span>Member Name</span>
+            <span id="memberName" class="ml-6 font-medium text-end">--</span>
+          </p>
+          <p class="flex justify-between">
+            <span id="balanceType">Savings Balance</span>
+            <span id="balance" class="text-end ml-6 font-medium">0</span>
+          </p>
+        </div>
+        <div class="space-x-4 col-span-2 flex justify-end">
+          <button type="reset" id="clear" class="px-6 py-2 rounded-lg border text-gray-600">
+            Clear
+          </button>
+          <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white">
+            Submit
+          </button>
+        </div>
+      </form>
+
+      <!-- Transactions Table -->
+      <div class="px-6 py-4">
+        <div class="flex justify-between items-center px-6 py-4">
+          <h1 class="font-semibold text-gray-700">All Transactions</h1>
+        </div>
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+          <table id="myTable" class="min-w-full text-left text-sm text-black">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-3 text-left font-medium">Transaction ID</th>
+                <th class="px-6 py-3 text-left font-medium">Type</th>
+                <th class="px-6 py-3 text-left font-medium">Account No</th>
+                <th class="px-6 py-3 text-left font-medium">Date</th>
+                <th class="px-6 py-3 text-left font-medium">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="transaction-table-body" class="bg-white">
+              {% include 'transactions/partials/cashier_transaction_table_body.html' %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
+          <button class="text-blue-500">&lt; Previous</button>
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
+          <button class="text-blue-500">2</button>
+          <button class="text-blue-500">3</button>
+          <button class="text-blue-500">4</button>
+          <button class="text-blue-500">Next &gt;</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Toast -->
-    <div
-      id="toast"
-      class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
-      role="status"></div>
-    
-    {% include 'transactions/partials/transaction_confirmation.html' %}
+  <!-- Toast -->
+  <div id="toast"
+    class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+    role="status"></div>
 
-    {% include 'transactions/partials/receipt.html' %}
-    <script>
-      document.getElementById("transactionType").addEventListener("change", function() {
-        let type = this.value;
-        const receiver = document.getElementById("receivedInput");
+  {% include 'transactions/partials/transaction_confirmation.html' %}
 
-        if (type === "Savings Deposit" || type === "Loan Payment") {
-          amountReceived.setAttribute("required", "required");
-          receiver.classList.remove("hidden");
-          document.getElementById("labelAmount").textContent = "Payment/Deposit Amount"
-        } else if (type === "Withdrawal") {
-          amountReceived.removeAttribute("required");
-          receiver.classList.add("hidden");
-          document.getElementById("amountReceived").value = ""
-          document.getElementById("labelAmount").textContent = "Withdrawal Amount"
+  {% include 'transactions/partials/receipt.html' %}
+  <script>
+    let timeout;
+    document.getElementById("transactionType").addEventListener("change", function () {
+      let type = this.value;
+      const receiver = document.getElementById("receivedInput");
+      const amount_received = document.getElementById("amountReceived");
+      const balance_type = document.getElementById("balanceType");
+      const program_type = document.getElementById("programType");
+      const program = document.getElementById("program");
 
-        }
-      });
-      async function getAccountNumbers() {
-        try {
-          const response = await fetch("% url 'account_numbers' %", {
-            method: "GET",
-            header: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": "{{ csrf_token }}"
-            },
-          });
-          
-        } catch (Error) {
-          console.error("Fetch error:", error)
-        }
+      if (type === "Savings Deposit" || type === "Loan Payment") {
+        amount_received.setAttribute("required", "required");
+        receiver.classList.remove("hidden");
+        document.getElementById("labelAmount").textContent = "Payment/Deposit Amount"
+      } else if (type === "Withdrawal") {
+        amount_received.removeAttribute("required");
+        receiver.classList.add("hidden");
+        amount_received.value = ""
+        document.getElementById("labelAmount").textContent = "Withdrawal Amount"
+      } 
+      if (type === "Program Deposit") {
+        program.classList.remove("hidden");
+        program_type.setAttribute("required", "required");
+      } else {
+        program.classList.add("hidden");
+        program_type.removeAttribute("required");
       }
-      let pendingFormData = null; // store form data globally
 
-// When form is submitted → prevent send, just save the data
-document.getElementById("transactionForm").addEventListener("submit", function(e) {
-  e.preventDefault();
+      if (type === "Savings Deposit" || type === "Withdrawal") {
+        balance_type.textContent = "Savings Balance";
+      } else if (type === "Loan Payment") {
+        balance_type.textContent = "Loan Balance";
+      }
+      clearTimeout(timeout);
+      timeout = setTimeout(getMemberData, 500)
+    });
+    let pendingFormData = null; // store form data globally
 
-  const form = e.target;
-  pendingFormData = new FormData(form);
+    // When form is submitted → prevent send, just save the data
+    document.getElementById("transactionForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (checkAmount()) {
+        return
+      }
 
-  // Open confirmation modal here if needed
-  document.getElementById("confirmType").textContent = pendingFormData.get("transactionType")
-  document.getElementById("confirmAmount").textContent = `₱${pendingFormData.get("amount")}`
-  openTransactionModal();
-});
+      const form = e.target;
+      pendingFormData = new FormData(form);
 
-// Confirm button → send data
-document.getElementById("confirmTransaction").addEventListener("click", async function() {
-  this.disable = true;
-  if (!pendingFormData) return; // nothing to send
+      // Open confirmation modal here if needed
+      document.getElementById("confirmType").textContent = pendingFormData.get("transactionType")
+      document.getElementById("confirmAmount").textContent = `₱${pendingFormData.get("amount")}`
+      openTransactionModal();
+    });
 
-  try {
-      const response = await fetch("{% url 'save_transaction' %}", {
+    // Confirm button → send data
+    document.getElementById("confirmTransaction").addEventListener("click", async function () {
+      this.disable = true;
+      if (!pendingFormData) return; // nothing to send
+
+      try {
+        const response = await fetch("{% url 'save_transaction' %}", {
           method: "POST",
           headers: {
-              "X-CSRFToken": "{{ csrf_token }}"
+            "X-CSRFToken": "{{ csrf_token }}"
           },
           body: pendingFormData
-      });
+        });
 
-      if (!response.ok) {
+        if (!response.ok) {
           throw new Error(`HTTP Error: ${response.status}`);
-      }
+        }
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        showAlert(data.message, "success");
-        document.getElementById("receiptModal").classList.remove("hidden")
-        document.getElementById("transaction-table-body").innerHTML = data.html;
-        document.getElementById("transactionForm").reset();
+        if (data.success) {
+          showAlert(data.message, "success");
+          document.getElementById("receiptModal").classList.remove("hidden")
+          document.getElementById("transaction-table-body").innerHTML = data.html;
+          document.getElementById("transactionForm").reset();
           fillTableRows("myTable", 10);
-      } else {
+        } else {
           showAlert(data.message, "failed");
+        }
+
+        // clear saved data
+        pendingFormData = null;
+
+        // close modal
+        closeTransactionModal();
+
+      } catch (error) {
+        console.error("Fetch error:", error);
       }
+      this.disable = false;
+    });
 
-      // clear saved data
-      pendingFormData = null;
-
-      // close modal
-      closeTransactionModal();
-
-  } catch (error) {
-      console.error("Fetch error:", error);
-  }
-  this.disable = false;
-});
-
-      // Toast notification function
+    // Toast notification function
     function showAlert(message, type) {
       const toast = document.getElementById("toast");
 
@@ -305,16 +307,17 @@ document.getElementById("confirmTransaction").addEventListener("click", async fu
       setTimeout(() => toast.classList.add("hidden"), 4000);
     }
 
-    let timeout;
-
-    document.getElementById("accountNumber").addEventListener("input", function() {
+    document.getElementById("accountNumber").addEventListener("input", function () {
       clearTimeout(timeout);
-      timeout = setTimeout(getLoanData, 500)
+      timeout = setTimeout(getMemberData, 500)
     })
 
-    async function getLoanData() {
+    async function getMemberData() {
+      const transaction_type = document.getElementById("transactionType").value;
+      const balance = document.getElementById("balance");
+
       const account_number = document.getElementById("accountNumber").value.trim();
-      const response = await fetch(`{% url 'loan_balance' %}?accountNumber=${encodeURIComponent(account_number)}`);
+      const response = await fetch(`{% url 'balance' %}?accountNumber=${encodeURIComponent(account_number)}&transactionType=${encodeURIComponent(transaction_type)}`);
 
       const data = await response.json();
 
@@ -324,12 +327,42 @@ document.getElementById("confirmTransaction").addEventListener("click", async fu
         document.getElementById("memberName").textContent = data.member_name
       }
 
-      if (data.loan_balance == null) {
-        document.getElementById("loanBalance").textContent = 0
+      if (data.balance == null) {
+        balance.textContent = 0
       } else {
-        document.getElementById("loanBalance").textContent = data.loan_balance
-      } 
+        balance.textContent = data.balance
+      }
     }
-    </script>
-  </body>
+
+    document.getElementById("transactionForm").addEventListener("reset", function() {
+      document.getElementById("memberName").textContent = "--"
+      document.getElementById("balanceType").textContent = "Savings Balance";
+      document.getElementById("balance").textContent = 0
+    })
+
+    document.getElementById("amount").addEventListener("input", function() {
+      clearTimeout(timeout);
+      timeout = setTimeout(checkAmount, 500);
+    })
+
+    function checkAmount() {
+      const transaction_type = document.getElementById("transactionType").value;
+
+      if (transaction_type !== "Withdrawal") {
+        const amount_received = document.getElementById("amountReceived").value;
+        const amount = document.getElementById("amount").value;
+        const error =  document.getElementById("typeMessage");
+
+        if (amount > amount_received) {
+          error.classList.remove("hidden")
+          return true
+        } else {
+          error.classList.add("hidden")
+          return false
+        }
+      }
+    }
+  </script>
+</body>
+
 </html>

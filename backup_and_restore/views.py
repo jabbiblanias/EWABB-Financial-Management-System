@@ -22,16 +22,16 @@ def manual_backup(request):
             storage = request.POST.get("backup_location")
             if storage == "cloud":
                 if upload_to_drive():
-                    return JsonResponse({"status": "success", "message": "Backup uploaded to Google Drive"})
+                    return JsonResponse({"status": "success", "message": "Backup to Google Drive has been successful"})
                 else:
                     return JsonResponse({"status": "failed", "message": "Backup to Google Drive has failed"})
             else:
                 if upload_to_local():
-                    return JsonResponse({"status": "success", "message": "Backup uploaded to Local Drive"})
+                    return JsonResponse({"status": "success", "message": "Backup to Local Drive has been successful"})
                 else:
                     return JsonResponse({"status": "failed", "message": "Backup to Local Drive has failed"})
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)})
+        return JsonResponse({"status": "error", "message": "Something went wrong."})
 
 
 def restore_from_drive(request):

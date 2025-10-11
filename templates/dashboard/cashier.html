@@ -48,14 +48,34 @@
         </div>
       </header>
       <!-- Stats -->
-      <div class="p-6 grid grid-cols-2 gap-6">
+      <div class="p-6 grid grid-cols-4 gap-6">
         <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
           <div class="bg-yellow-100 p-3 rounded-full">
             💰
           </div>
           <div>
-            <p class="text-gray-500 text-sm">My Balance</p>
+            <p class="text-gray-500 text-sm">Today Collections</p>
             <p class="text-2xl font-bold">₱84,589</p>
+          </div>
+          
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
+          <div class="bg-yellow-100 p-3 rounded-full">
+            💰
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Today Payouts</p>
+            <p class="text-2xl font-bold">₱84,589</p>
+          </div>
+          
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
+          <div class="bg-orange-100 p-3 rounded-full">
+            🏦
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">Today Transactions</p>
+            <p class="text-2xl font-bold">₱5,600</p>
           </div>
         </div>
         <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
@@ -63,49 +83,16 @@
             🏦
           </div>
           <div>
-            <p class="text-gray-500 text-sm">Daily Total Withdrawal</p>
+            <p class="text-gray-500 text-sm">Pending Loan Release</p>
             <p class="text-2xl font-bold">₱5,600</p>
           </div>
         </div>
       </div>
 
-      <!-- Recent Transactions -->
-      <div class="px-6">
-        <h2 class="font-bold mb-4">Recent Transaction</h2>
-        <div class="bg-white rounded-lg shadow p-6 space-y-4">
-          <div class="flex justify-between text-sm border-b pb-2">
-            <div>Jemi Wilson</div>
-            <div class="text-gray-500">28 January 2021</div>
-            <div>Withdrawal</div>
-            <div class="text-red-500">-₱850</div>
-          </div>
-          <div class="flex justify-between text-sm border-b pb-2">
-            <div>Jemi Wilson</div>
-            <div class="text-gray-500">25 January 2021</div>
-            <div>Savings</div>
-            <div class="text-green-500">+₱2,500</div>
-          </div>
-          <div class="flex justify-between text-sm border-b pb-2">
-            <div>Jemi Wilson</div>
-            <div class="text-gray-500">21 January 2021</div>
-            <div>Repayment</div>
-            <div class="text-green-500">+₱5,400</div>
-          </div>
-          <div class="flex justify-between text-sm">
-            <div>Jemi Wilson</div>
-            <div class="text-gray-500">21 January 2021</div>
-            <div>Savings</div>
-            <div class="text-green-500">+₱5,400</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Monthly Transactions -->
-      <div class="px-6 mt-6">
+      <div class="mt-5 bg-white p-6 rounded-xl shadow-sm m-6">
         <h2 class="font-bold mb-4">Monthly Transactions</h2>
-        <div class="bg-white rounded-lg shadow p-6">
-          <canvas id="monthlyChart" class="w-full h-64"></canvas>
-        </div>
+        <canvas id="monthlyChart" class="w-full h-20"></canvas>
       </div>
     </div>
   </div>

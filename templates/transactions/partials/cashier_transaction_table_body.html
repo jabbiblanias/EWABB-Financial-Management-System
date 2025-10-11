@@ -6,7 +6,7 @@
     <td class="px-6 py-3">{{ transaction.member_id__account_number }}</td>
     <td class="px-6 py-3">{{ transaction.transaction_date|date:"Y-m-d h:i A" }}</td>
     <td class="px-6 py-3">
-        {% if transaction.transaction_type == "Savings Deposit" or transaction.transaction_type == "Loan Payment" %}
+        {% if transaction.transaction_type == "Savings Deposit" or transaction.transaction_type == "Loan Payment" or transaction.transaction_type == "Program Deposit" %}
         <span class="text-green-700 font-semibold">
             + ₱{{ transaction.amount|intcomma }}
         </span>

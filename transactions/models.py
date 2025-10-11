@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from members.models import Member
+from members.models import Member, Savings
+from loans.models import LoanRepaymentSchedule, LoanPenalty
+from programs.models import BusinessProgram
 
 
 class Transactions(models.Model):
@@ -18,6 +20,10 @@ class Transactions(models.Model):
     change = models.DecimalField(max_digits=12, decimal_places=2)
     transaction_type = models.CharField(max_length=30, choices=TRANSACTION_TYPES, db_column='transactiontype')
     transaction_date = models.DateTimeField(auto_now_add=True, db_column='createdAt')
+    savings_id = models.ForeignKey(Savings, models.DO_NOTHING, db_column='savings_id')
+    schedule_id = models.ForeignKey(LoanRepaymentSchedule, models.DO_NOTHING, db_column='schedule_id')
+    penalty_id = models.ForeignKey(LoanPenalty, models.DO_NOTHING, db_column='penalty_id')
+    program_id = models.ForeignKey(BusinessProgram, models.DO_NOTHING, db_column='program_id')
 
     def __str__(self):
         return f"{self.transaction_type} by {self.member} on {self.date.strftime('%Y-%m-%d')}"
