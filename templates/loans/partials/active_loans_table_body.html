@@ -1,4 +1,4 @@
-{% for loan in loans %}
+{% for loan in page.object_list %}
 <tr id="row-{{ loan.loan_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ loan.loan_id}}</td>
   <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>

@@ -93,7 +93,7 @@
       <!-- Backup Table -->
       <div class="px-6 py-4">
         <div class="border border-gray-200 rounded-md overflow-hidden">
-          <table class="min-w-full text-sm">
+          <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">File Name</th>
@@ -103,32 +103,14 @@
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
               </tr>
             </thead>
-            <tbody id="backup-table-body" class="bg-white">
-              {% for backup in backups %}
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">{{ backup.name }}</td>
-                <td class="px-6 py-3">{{ backup.location }}</td>
-                <td class="px-6 py-3">{{ backup.size }}</td>
-                <td class="px-6 py-3">{{ backup.created_at|date:"Y-m-d h:i A" }}</td>
-                <td class="px-4 py-2">
-                  <button id="table-restore" onclick="openRestoreModal(this)"
-                    class="w-15 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100"
-                    data-name="{{ backup.name }}" data-location="{{ backup.location }}">Restore</button>
-                </td>
-              </tr>
-              {% endfor %}
+            <tbody id="table-body" class="bg-white">
+              {% include 'backup_and_restore/partials/backup_table_body.html' %}
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-          <button class="text-blue-500">&lt; Previous</button>
-          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-          <button class="text-blue-500">2</button>
-          <button class="text-blue-500">3</button>
-          <button class="text-blue-500">4</button>
-          <button class="text-blue-500">Next &gt;</button>
+        <div id="pagination-controls">
+          {% include 'partials/pagination.html' %}
         </div>
       </div>
     </div>

@@ -30,15 +30,24 @@ def membership_application_view(request):
         )
         .order_by('application_id')
     )
-    '''book_paginator = Paginator(membership_applications, 10)
+    paginator = Paginator(membership_applications, 10)
 
     page_num = request.GET.get('page')
 
-    page = book_paginator.get_page(page_num)'''
+    page = paginator.get_page(page_num)
     context = {
-        'membershipApplications': membership_applications
-        #'page': page
+        'membershipApplications': membership_applications,
+        'page': page
     }
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    if is_ajax:
+        html = render_to_string("members/partials/membership_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return render(request, 'members/membership_applications.html', context)
 
 
@@ -90,7 +99,7 @@ def approval(request):
                     'person_id__civil_status'
                 )
             )
-            html = render_to_string('members/membership_table_body.html', {'membershipApplications': membership_applications})
+            html = render_to_string('members/partials/membership_table_body.html', {'membershipApplications': membership_applications})
             return JsonResponse({'success': True, 'html': html, 'account_number': account_number})
         except Membershipapplication.DoesNotExist:
             return JsonResponse({'success': False})
@@ -138,7 +147,22 @@ def members_view(request):
             )
             .order_by('member_id')
         )
-    context = {'members': members}
+    paginator = Paginator(members, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'members': members, 'page': page}
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    if is_ajax:
+        html = render_to_string("members/partials/members_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
+    
     return render(request, 'members/approved_members.html', context)
 
 

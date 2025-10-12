@@ -12,11 +12,24 @@ from django.db import transaction
 from django.db.models import OuterRef, Subquery
 from notifications.models import Notification
 from django.utils.dateformat import DateFormat
+from django.core.paginator import Paginator 
 
 
 @login_required
 def loan_application_view(request):
     user = request.user
+
+    # detect ajax once here
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    # get shared data
+    context = loan_applications_data(request, ajax=is_ajax)
+
+    # if ajax, just return the JSON
+    if is_ajax:
+        return context  # this is your JsonResponse
+    
     if request.method == 'POST':
         if user.groups.filter(name='Bookkeeper').exists():
             return redirect('loan_applications')
@@ -24,15 +37,15 @@ def loan_application_view(request):
             return redirect('loans')
     else:
         if user.groups.filter(name='Admin').exists():
-            context = loan_applications_data()
             return render(request, 'loans/admin_loan.html', context)
         elif user.groups.filter(name='Bookkeeper').exists():
-            context = loan_applications_data()
             return render(request, 'loans/bookkeeper_loan.html', context)
         elif user.groups.filter(name='Cashier').exists():
-            context = cashier_approved_loans()
+            context = cashier_approved_loans(request, ajax=is_ajax)
             return render(request, 'loans/cashier_loan.html', context)
 
+@transaction.atomic
+@login_required
 def apply_loan(request):
     user = request.user
     if request.method == 'POST':
@@ -72,9 +85,10 @@ def apply_loan(request):
             )
             if user.groups.filter(name='Bookkeeper').exists():
                 context = loan_applications_data()
+                html = render_to_string('loans/partials/loan_applications_table_body.html', context, request=request)
             elif user.groups.filter(name='Member').exists():
                 context = member_loan_data(user)
-            html = render_to_string('loans/partials/loan_applications_table_body.html', context, request=request)
+                html = render_to_string('loans/partials/member_loan_table_body.html', context)
             return JsonResponse({"success": True, "message": f"Loan application ID {loan_application.loan_application_id} has successfully been created.", "loans": html})
         except Member.DoesNotExist:
             return JsonResponse({"success": False, "message": "Account number not found."})
@@ -112,22 +126,26 @@ def member_loan_data(user):
 @login_required
 def active_loans(request):
     user = request.user
-    status_filter = ''
+    # detect ajax once here
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    # get shared data
+    context = active_loans_data(request, ajax=is_ajax)
+
+    # if ajax, just return the JSON
+    if is_ajax:
+        return context  # this is your JsonResponse
+    
     if user.groups.filter(name='Bookkeeper').exists():
-        status_filter = 'Verified' or 'Approved'
-        context = active_loans_data()
         return render(request, 'loans/bookkeeper_active_loans.html', context)
-    elif user.groups.filter(name='Admin').exists():
-        status_filter = 'Approved' 
-        context = active_loans_data()  
+    elif user.groups.filter(name='Admin').exists(): 
         return render(request, 'loans/admin_active_loans.html', context)
     elif user.groups.filter(name='Cashier').exists():
-        status_filter = 'Approved' 
-        context = active_loans_data()  
         return render(request, 'loans/cashier_active_loans.html', context)
 
 
-def active_loans_data():
+def active_loans_data(request, ajax=False):
     # Subquery: get the earliest unpaid repayment for each loan
     latest_due = LoanRepaymentSchedule.objects.filter(
         loan_id=OuterRef('pk'),
@@ -157,10 +175,22 @@ def active_loans_data():
         .order_by("due_date")
     )
 
-    return {'loans': loans}
+    paginator = Paginator(loans, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'loans': loans, 'page': page}
+
+    if ajax:
+        html = render_to_string("loans/partials/active_loans_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+
+    return context
 
 
-def cashier_approved_loans():
+def cashier_approved_loans(request, ajax=False):
     loans = (
         LoanApplication.objects.filter(status='Approved')
         .select_related('member_id')
@@ -175,11 +205,23 @@ def cashier_approved_loans():
             'status'
         )
     )
-    context = {'loans' : loans}
+
+    paginator = Paginator(loans, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'loans': loans, 'page': page}
+
+    if ajax:
+        html = render_to_string("loans/partials/cashier_loan_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return context
 
  
-def loan_applications_data():
+def loan_applications_data(request, ajax=False):
     loan_applications = (
         LoanApplication.objects
         .select_related('member_id')
@@ -194,7 +236,19 @@ def loan_applications_data():
             'status'
         )
     )
-    context = {'loanApplications': loan_applications}
+    
+    paginator = Paginator(loan_applications, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'loanApplications': loan_applications, 'page': page}
+
+    if ajax:
+        html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return context
 
 @login_required
@@ -233,7 +287,7 @@ def loan_details_view(request, loan_id):
     }
     return render(request, 'loans/loan_details.html', context)
 
-
+@transaction.atomic
 @login_required
 def approving_loan(request):
     if request.method == 'POST':

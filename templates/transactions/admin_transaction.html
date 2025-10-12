@@ -86,21 +86,31 @@
                 <th class="px-6 py-3 text-left font-medium">Amount</th>
               </tr>
             </thead>
-            <tbody id="transaction-table-body" class="bg-white">
+            <tbody id="table-body" class="bg-white">
               {% include 'transactions/partials/cashier_transaction_table_body.html' %}
             </tbody>
           </table>
         </div>
 
         <!-- Pagination -->
+        {% if page.paginator.num_pages > 1 %}
         <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-          <button class="text-blue-500">&lt; Previous</button>
-          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-          <button class="text-blue-500">2</button>
-          <button class="text-blue-500">3</button>
-          <button class="text-blue-500">4</button>
-          <button class="text-blue-500">Next &gt;</button>
+          {% if page.has_previous %}
+          <a href="{% url 'transactions' %}?page={{ page.previous_page_number }}" class="text-blue-500">&lt;
+            Previous</a>
+          {% endif %}
+          {% for num in page.paginator.page_range %}
+          {% if page.number == num %}
+          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">{{ num }}</button>
+          {% else %}
+          <a href="?page={{ num }}" class="text-blue-500">{{ num }}</a>
+          {% endif %}
+          {% endfor %}
+          {% if page.has_next %}
+          <a href="{% url 'transactions' %}?page={{ page.next_page_number }}" class="text-blue-500">Next &gt;</a>
+          {% endif %}
         </div>
+        {% endif %}
       </div>
     </main>
   </div>

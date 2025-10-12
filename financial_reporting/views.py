@@ -11,17 +11,50 @@ from django.utils import timezone
 from django.db import transaction
 from .utils import generate_unique_name
 from django.http import HttpResponse
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
+from django.core.paginator import Paginator 
 #from xhtml2pdf import pisa
 
 
 def member_loan_report(request):
     if request.user.groups.filter(name='Bookkeeper').exists():
         reports = Financialreports.objects.all().order_by("-last_updated")
-        return render(request, 'financial_reporting/bookkeeper_report.html', {"reports": reports})
+
+        paginator = Paginator(reports, 10)
+
+        page_num = request.GET.get('page')
+
+        page = paginator.get_page(page_num)
+        context = {'reports': reports, 'page': page}
+
+        is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+        if is_ajax:
+            html = render_to_string("financial_reporting/partials/reports_table_body.html", {"page": page})
+            pagination = render_to_string("partials/pagination.html", {"page": page})
+            return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        
+        return render(request, 'financial_reporting/bookkeeper_report.html', context)
     elif request.user.groups.filter(name='Admin').exists():
         reports = Financialreports.objects.filter(status="Submitted").all().order_by("-last_updated")
-        return render(request, 'financial_reporting/admin_report.html', {"reports": reports})
+
+        paginator = Paginator(reports, 10)
+
+        page_num = request.GET.get('page')
+
+        page = paginator.get_page(page_num)
+        context = {'reports': reports, 'page': page}
+
+        is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+        if is_ajax:
+            html = render_to_string("financial_reporting/partials/reports_table_body.html", {"page": page})
+            pagination = render_to_string("partials/pagination.html", {"page": page})
+            return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        
+        return render(request, 'financial_reporting/admin_report.html', context)
     
 
 def report_details(request, report_id):

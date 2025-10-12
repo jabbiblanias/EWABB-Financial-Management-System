@@ -7,13 +7,14 @@ from .models import Transactions, Member
 from members.models import Savings
 from datetime import datetime
 from django.db.models import Sum
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from decimal import Decimal
 from django.template.loader import render_to_string
 from members.models import Member
 from programs.models import BusinessProgram
 from django.utils import timezone
 from notifications.models import Notification
+from django.core.paginator import Paginator 
 
 @transaction.atomic
 def transactions(request):
@@ -219,20 +220,32 @@ def record_payment(member_id, loan, payment_amount):
 
 def transaction_view(request):
     user = request.user
+
+    # detect ajax once here
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    # get shared data
+    context = transaction_data(request, ajax=is_ajax)
+
+    # if ajax, just return the JSON
+    if is_ajax:
+        return context  # this is your JsonResponse
+    
+    # otherwise, render template normally
     if user.groups.filter(name='Admin').exists():
-        context = transaction_data()
         return render(request, 'transactions/admin_transaction.html', context)
     elif user.groups.filter(name='Member').exists():
         context = member_transaction_data(user)
         return render(request, 'transactions/member_transaction.html', context)
     elif user.groups.filter(name='Bookkeeper').exists():
-        context = transaction_data()
         return render(request, 'transactions/bookkeeper_transaction.html', context)
     elif user.groups.filter(name='Cashier').exists():
-        context = transaction_data()
         return render(request, 'transactions/cashier_transaction.html', context)
+    else:
+        return HttpResponseForbidden("Unauthorized user group.")
     
-def transaction_data():
+def transaction_data(request, ajax=False):
     transactions = (
         Transactions.objects
         .select_related("member_id")
@@ -261,7 +274,19 @@ def transaction_data():
         .filter(status="Active")
         .values('program_id', 'program_name')
         )
-    context = {"transactions": transactions, "members": members, "programs": programs}
+    
+    paginator = Paginator(transactions, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    
+    if ajax:
+        html = render_to_string("transactions/partials/cashier_transaction_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
+    context = {"members": members, "programs": programs, "page": page}
     return context
 
 

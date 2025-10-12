@@ -1,11 +1,28 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import BusinessProgram
+from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 
 
 def program_view(request):
     programs = BusinessProgram.objects.all()
-    context = {"programs": programs}
+
+    paginator = Paginator(programs, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'programs': programs, 'page': page}
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+            or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    if is_ajax:
+        html = render_to_string("programs/partials/programs_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return render(request, 'programs/bookkeeper_program.html', context)
 
 def create_program(request):

@@ -57,99 +57,119 @@
                 </div>
       </header>
 
-      <!-- Form section -->
-      <form id="transactionForm" class="p-10 grid grid-cols-2 gap-7 bg-white shadow rounded-lg m-6 pl-12 pr-20">
-        <!-- Left form -->
-        <div class="space-y-5 md:col-span-1">
-          <div>
-            <label class="block text-sm text-gray-600">Transaction Type</label>
-            <select id="transactionType" name="transactionType"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required>
-              <option value="" disabled selected hidden>
-                -- Choose Transaction Type --
-              </option>
-              <option>Savings Deposit</option>
-              <option>Withdrawal</option>
-              <option>Loan Payment</option>
-              <option>Program Deposit</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm text-gray-600">Account Number</label>
-            <input id="accountNumber" name="accountNumber" type="text" list="accountNumbers"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required />
-            <datalist id="accountNumbers">
-              {% for member in members %}
-              <option value="{{ member.account_number }}">
-                {{ member.person_id__surname }},
-                {{ member.person_id__first_name }}
-                {% if member.person_id__name_extension %} {{ member.person_id__name_extension }}{% endif %}
-                {% if member.person_id__middle_name %} {{ member.person_id__middle_name }}{% endif %}
-              </option>
-              {% endfor %}
-            </datalist>
-          </div>
-          <!-- Program Dropdown -->
-          <div id="program" class="hidden">
-            <label class="block text-sm text-gray-600">Program</label>
-            <select id="programType" name="programType"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required>
-              <option value="" disabled selected hidden>
-                -- Choose a Program --
-              </option>
-              {% for program in programs %}
-              <option value="{{ program.program_id }}">
-                {{ program.program_name }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div id="receivedInput">
-            <label class="block text-sm text-gray-600">Amount Received</label>
-            <input id="amountReceived" name="amountReceived" type="text"
-              oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required />
-          </div>
-          <div>
-            <label id="labelAmount" class="block text-sm text-gray-600">Payment/Deposit Amount</label>
-            <input id="amount" name="amount" type="text" oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required />
-              <p id="typeMessage" class="hidden text-xs text-red-500 mt-1">Payment or deposit amount must not be greater than the amount received</p>
-          </div>
-        </div>
+      <!-- Main Form Card: Adapted to be a full-width centered panel -->
+      <div class="flex items-center justify-center">
+        <form id="transactionForm" class="p-10 grid grid-cols-1 md:grid-cols-2 gap-7 shadow rounded-2xl m-6 w-full">
 
-        <!-- Right Info -->
-        <div class="space-y-5 text-sm col-span-1 ml-6">
-          <p class="flex justify-between">
-            <span>Member Name</span>
-            <span id="memberName" class="ml-6 font-medium text-end">--</span>
-          </p>
-          <p class="flex justify-between">
-            <span id="balanceType">Savings Balance</span>
-            <span id="balance" class="text-end ml-6 font-medium">0</span>
-          </p>
-        </div>
-        <div class="space-x-4 col-span-2 flex justify-end">
-          <button type="reset" id="clear" class="px-6 py-2 rounded-lg border text-gray-600">
-            Clear
-          </button>
-          <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white">
-            Submit
-          </button>
-        </div>
-      </form>
+          <!-- Left form (Input Fields) -->
+          <div class="space-y-6 md:col-span-1">
+
+            <!-- Transaction Type -->
+            <div>
+              <label for="transactionType" class="block text-sm font-medium text-gray-700 mb-1">Transaction Type</label>
+              <select id="transactionType" name="transactionType"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 appearance-none bg-white"
+                required>
+                <option value="" disabled selected hidden>
+                  -- Choose Transaction Type --
+                </option>
+                <option>Savings Deposit</option>
+                <option>Withdrawal</option>
+                <option>Loan Payment</option>
+                <option>Program Deposit</option>
+              </select>
+            </div>
+
+            <!-- Account Number -->
+            <div>
+              <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+              <input id="accountNumber" name="accountNumber" type="text" list="accountNumbers"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 mt-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                placeholder="e.g., 12345" required />
+              <datalist id="accountNumbers">
+                {% for member in members %}
+                <option value="{{ member.account_number }}">
+                  {{ member.person_id__surname }},
+                  {{ member.person_id__first_name }}
+                  {% if member.person_id__name_extension %} {{ member.person_id__name_extension }}{% endif %}
+                  {% if member.person_id__middle_name %} {{ member.person_id__middle_name }}{% endif %}
+                </option>
+                {% endfor %}
+              </datalist>
+            </div>
+
+            <!-- Program Dropdown (Dynamically shown) -->
+            <div id="program" class="hidden">
+              <label for="programType" class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+              <select id="programType" name="programType"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 mt-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 appearance-none bg-white"
+                required>
+                <option value="" disabled selected hidden>
+                  -- Choose a Program --
+                </option>
+                <!-- Options populated from datalist stub above -->
+                <option value="1">Housing Program</option>
+                <option value="2">Education Program</option>
+              </select>
+            </div>
+
+            <!-- Amount Received (Hidden for Withdrawal) -->
+            <div id="receivedInput">
+              <label for="amountReceived" class="block text-sm font-medium text-gray-700 mb-1">Amount Received
+                (Cash)</label>
+              <input id="amountReceived" name="amountReceived" type="text"
+                oninput="this.value=this.value.replace(/[^0-9.]/g,'')"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 mt-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-right"
+                placeholder="0.00" required />
+            </div>
+
+            <!-- Payment/Deposit/Withdrawal Amount -->
+            <div>
+              <label id="labelAmount" for="amount" class="block text-sm font-medium text-gray-700 mb-1">Payment/Deposit
+                Amount</label>
+              <input id="amount" name="amount" type="text" oninput="this.value=this.value.replace(/[^0-9.]/g,'')"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 mt-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-right"
+                placeholder="0.00" required />
+              <p id="typeMessage" class="hidden text-xs text-red-600 mt-1 font-medium">Payment or deposit amount must
+                not be greater than the amount received.</p>
+            </div>
+          </div>
+
+          <!-- Right Info -->
+          <div
+            class="space-y-6 md:col-span-1 ml-6 p-6 bg-indigo-50/70 rounded-xl border border-indigo-200 shadow-inner h-fit">
+            <h3 class="text-xl font-bold text-indigo-700 border-b border-indigo-300 pb-2 mb-4">Member Details</h3>
+
+            <p class="flex justify-between items-center py-2 border-b border-indigo-100">
+              <span class="text-gray-700 font-medium">Member Name</span>
+              <span id="memberName" class="ml-6 font-extrabold text-indigo-800 text-end">--</span>
+            </p>
+            <p class="flex justify-between items-center py-2">
+              <span id="balanceType" class="text-gray-700 font-medium">Savings Balance</span>
+              <span id="balance" class="text-end ml-6 font-extrabold text-2xl text-indigo-900">0</span>
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-x-4 md:col-span-2 flex justify-end pt-6 border-t border-t-gray-200 mt-4">
+            <button type="reset" id="clear"
+              class="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition duration-200 shadow-sm">
+              Clear
+            </button>
+            <button type="submit"
+              class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition duration-200 shadow-md">
+              Submit Transaction
+            </button>
+          </div>
+        </form>
+      </div>
 
       <!-- Transactions Table -->
       <div class="px-6 py-4">
         <div class="flex justify-between items-center px-6 py-4">
           <h1 class="font-semibold text-gray-700">All Transactions</h1>
         </div>
-        <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="rounded-xl shadow overflow-hidden">
           <table id="myTable" class="min-w-full text-left text-sm text-black">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -160,20 +180,14 @@
                 <th class="px-6 py-3 text-left font-medium">Amount</th>
               </tr>
             </thead>
-            <tbody id="transaction-table-body" class="bg-white">
+            <tbody id="table-body" class="bg-white">
               {% include 'transactions/partials/cashier_transaction_table_body.html' %}
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-          <button class="text-blue-500">&lt; Previous</button>
-          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-          <button class="text-blue-500">2</button>
-          <button class="text-blue-500">3</button>
-          <button class="text-blue-500">4</button>
-          <button class="text-blue-500">Next &gt;</button>
+        <div id="pagination-controls">
+          {% include 'partials/pagination.html' %}
         </div>
       </div>
     </div>
@@ -206,7 +220,7 @@
         receiver.classList.add("hidden");
         amount_received.value = ""
         document.getElementById("labelAmount").textContent = "Withdrawal Amount"
-      } 
+      }
       if (type === "Program Deposit") {
         program.classList.remove("hidden");
         program_type.setAttribute("required", "required");
@@ -264,7 +278,7 @@
         if (data.success) {
           showAlert(data.message, "success");
           document.getElementById("receiptModal").classList.remove("hidden")
-          document.getElementById("transaction-table-body").innerHTML = data.html;
+          document.getElementById("table-body").innerHTML = data.html;
           document.getElementById("transactionForm").reset();
           fillTableRows("myTable", 10);
         } else {
@@ -334,13 +348,13 @@
       }
     }
 
-    document.getElementById("transactionForm").addEventListener("reset", function() {
+    document.getElementById("transactionForm").addEventListener("reset", function () {
       document.getElementById("memberName").textContent = "--"
       document.getElementById("balanceType").textContent = "Savings Balance";
       document.getElementById("balance").textContent = 0
     })
 
-    document.getElementById("amount").addEventListener("input", function() {
+    document.getElementById("amount").addEventListener("input", function () {
       clearTimeout(timeout);
       timeout = setTimeout(checkAmount, 500);
     })
@@ -351,7 +365,7 @@
       if (transaction_type !== "Withdrawal") {
         const amount_received = document.getElementById("amountReceived").value;
         const amount = document.getElementById("amount").value;
-        const error =  document.getElementById("typeMessage");
+        const error = document.getElementById("typeMessage");
 
         if (amount > amount_received) {
           error.classList.remove("hidden")

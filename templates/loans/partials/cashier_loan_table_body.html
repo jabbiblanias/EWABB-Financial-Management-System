@@ -1,4 +1,4 @@
-{% for loan in loans %}
+{% for loan in page.object_list %}
 <tr id="row-{{ loan.loan_application_id }}" 
 ondblclick="window.location.href='details/{{loan.loan_application_id}}/';" 
 class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">

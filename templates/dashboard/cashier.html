@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWABB Dashboard</title>
   {% tailwind_css %}
+  <script src="{% static 'dashboard/js/chart.umd.min.js' %}"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -48,46 +49,50 @@
         </div>
       </header>
       <!-- Stats -->
-      <div class="p-6 grid grid-cols-4 gap-6">
-        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
-          <div class="bg-yellow-100 p-3 rounded-full">
-            💰
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Today Collections</p>
-            <p class="text-2xl font-bold">₱84,589</p>
-          </div>
-          
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
-          <div class="bg-yellow-100 p-3 rounded-full">
-            💰
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Today Payouts</p>
-            <p class="text-2xl font-bold">₱84,589</p>
-          </div>
-          
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
-          <div class="bg-orange-100 p-3 rounded-full">
-            🏦
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Today Transactions</p>
-            <p class="text-2xl font-bold">₱5,600</p>
-          </div>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
-          <div class="bg-orange-100 p-3 rounded-full">
-            🏦
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm">Pending Loan Release</p>
-            <p class="text-2xl font-bold">₱5,600</p>
-          </div>
-        </div>
-      </div>
+      <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+  <!-- 💵 Today Collections -->
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <p class="text-sm text-gray-500">Today’s Collections</p>
+      <p class="text-3xl font-bold text-green-600 mt-1">₱84,589</p>
+      <p class="text-xs text-gray-400 mt-1">Payments, deposits, dues</p>
+    </div>
+    <div class="p-4 bg-green-100 text-green-600 rounded-full text-2xl">💰</div>
+  </div>
+
+  <!-- 📤 Today Payouts -->
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <p class="text-sm text-gray-500">Today’s Payouts</p>
+      <p class="text-3xl font-bold text-red-600 mt-1">₱42,120</p>
+      <p class="text-xs text-gray-400 mt-1">Withdrawals, loans, refunds</p>
+    </div>
+    <div class="p-4 bg-red-100 text-red-600 rounded-full text-2xl">📤</div>
+  </div>
+
+  <!-- 🧾 Total Transactions -->
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <p class="text-sm text-gray-500">Total Transactions</p>
+      <p class="text-3xl font-bold text-blue-600 mt-1">56</p>
+      <p class="text-xs text-gray-400 mt-1">Completed today</p>
+    </div>
+    <div class="p-4 bg-blue-100 text-blue-600 rounded-full text-2xl">🧾</div>
+  </div>
+
+  <!-- 🏦 Pending Loan Releases -->
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div>
+      <p class="text-sm text-gray-500">Pending Loan Releases</p>
+      <p class="text-3xl font-bold text-amber-600 mt-1">₱5,600</p>
+      <p class="text-xs text-gray-400 mt-1">Awaiting disbursement</p>
+    </div>
+    <div class="p-4 bg-amber-100 text-amber-600 rounded-full text-2xl">🏦</div>
+  </div>
+
+</div>
+
 
       <!-- Monthly Transactions -->
       <div class="mt-5 bg-white p-6 rounded-xl shadow-sm m-6">
@@ -96,9 +101,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const ctx = document.getElementById('monthlyChart').getContext('2d');
     new Chart(ctx, {

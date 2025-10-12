@@ -37,36 +37,15 @@
                 <th class="px-6 py-3 text-left font-medium text-blue-500">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {% for report in reports %}
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">{{ report.report_id }}</td>
-                <td class="px-6 py-3">{{ report.title }}</td>
-                <td class="px-6 py-3">{{ report.status }}</td>
-                <td class="px-6 py-3">{{ report.created_at|date:"Y-m-d h:i A" }}</td>
-                <td class="px-6 py-3">{{ report.last_updated|date:"Y-m-d h:i A" }}</td>
-                <td class="px-6 py-3">
-                  <!-- View Button -->
-                  <a href="details/{{report.report_id}}/"
-                    class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
-                    View
-                  </a>
-                </td>
-              </tr>
-              {% endfor %}
+            <tbody id="table-body">
+              {% include 'financial_reporting/partials/reports_table_body.html' %}
             </tbody>
           </table>
         </div>
 
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-          <button class="text-blue-500">&lt; Previous</button>
-          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-          <button class="text-blue-500">2</button>
-          <button class="text-blue-500">3</button>
-          <button class="text-blue-500">4</button>
-          <button class="text-blue-500">Next &gt;</button>
+        <div id="pagination-controls">
+          {% include 'partials/pagination.html' %}
         </div>
       </div>
 
