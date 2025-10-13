@@ -13,6 +13,7 @@ from django.db.models import OuterRef, Subquery
 from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
+from django.core.management import call_command
 
 
 @login_required
@@ -29,20 +30,14 @@ def loan_application_view(request):
     # if ajax, just return the JSON
     if is_ajax:
         return context  # this is your JsonResponse
-    
-    if request.method == 'POST':
-        if user.groups.filter(name='Bookkeeper').exists():
-            return redirect('loan_applications')
-        elif user.groups.filter(name='Member').exists():
-            return redirect('loans')
-    else:
-        if user.groups.filter(name='Admin').exists():
-            return render(request, 'loans/admin_loan.html', context)
-        elif user.groups.filter(name='Bookkeeper').exists():
-            return render(request, 'loans/bookkeeper_loan.html', context)
-        elif user.groups.filter(name='Cashier').exists():
-            context = cashier_approved_loans(request, ajax=is_ajax)
-            return render(request, 'loans/cashier_loan.html', context)
+
+    if user.groups.filter(name='Admin').exists():
+        return render(request, 'loans/admin_loan.html', context)
+    elif user.groups.filter(name='Bookkeeper').exists():
+        return render(request, 'loans/bookkeeper_loan.html', context)
+    elif user.groups.filter(name='Cashier').exists():
+        context = cashier_approved_loans(request, ajax=is_ajax)
+        return render(request, 'loans/cashier_loan.html', context)
 
 @transaction.atomic
 @login_required
@@ -96,14 +91,21 @@ def apply_loan(request):
 @login_required
 def member_loan_home(request):
     user = request.user
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    # get shared data
+    context = member_loan_data(request,user, ajax=is_ajax)
+
+    # if ajax, just return the JSON
+    if is_ajax:
+        return context  # this is your JsonResponse
     if request.user.groups.filter(name='Member').exists():
-        context = member_loan_data(user)
         return render(request, 'loans/member_loan.html', context)
-    else:
-        return redirect('loan_applications')
     
 
-def member_loan_data(user):
+def member_loan_data(request, user, ajax=False):
     member = Member.objects.get(user_id=user)
     loans = (
         LoanApplication.objects
@@ -119,7 +121,23 @@ def member_loan_data(user):
             'status'
         )
     )
-    context = {'loans': loans}
+
+    paginator = Paginator(loans, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+
+    context = {'loans': loans, 'page': page}
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    if ajax:
+        html = render_to_string("loans/partials/member_loan_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return context
 
 
@@ -421,3 +439,7 @@ def releasing(request):
 
 def loan_penalty():
     print()
+
+def run_daily_overdue_update(request):
+    call_command('update_overdue_repayments')
+    return JsonResponse({'status': 'success', 'job': 'daily overdue update executed'})

@@ -11,5 +11,9 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
-  ]
+  ],
+  "crons": [{
+    "path": "/api/overdue-repayments",
+    "schedule": "* * * * *"
+  }]
 }
