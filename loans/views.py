@@ -97,7 +97,7 @@ def member_loan_home(request):
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
     # get shared data
-    context = member_loan_data(request,user, ajax=is_ajax)
+    context = member_loan_data(request, user, ajax=is_ajax)
 
     # if ajax, just return the JSON
     if is_ajax:
