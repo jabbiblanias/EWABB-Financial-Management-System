@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import date
 from .utils import parse_duration, format_loan_term
 from django.template.loader import render_to_string
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 import json
 from django.contrib import messages
 from dateutil.relativedelta import relativedelta
@@ -14,6 +14,7 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
+from django.conf import settings
 
 
 @login_required
@@ -440,6 +441,15 @@ def releasing(request):
 def loan_penalty():
     print()
 
+def verify_cron_token(request):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if token != getattr(settings, "CRON_TOKEN", None):
+        return HttpResponseForbidden("Invalid token")
+    return None
+
 def run_daily_overdue_update(request):
+    auth_error = verify_cron_token(request)
+    if auth_error:
+        return auth_error
     call_command('update_overdue_repayments')
     return JsonResponse({'status': 'success', 'job': 'daily overdue update executed'})

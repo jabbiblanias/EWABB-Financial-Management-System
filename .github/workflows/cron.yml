@@ -1,0 +1,16 @@
+name: Trigger Django Cron Endpoints
+
+on:
+  schedule:
+    - cron: "0 8 * * *"   # Runs every day at 8 AM UTC
+    - cron: "0 20 * * *"  # Runs again at 8 PM UTC
+  workflow_dispatch:      # Allows manual trigger too
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call daily backup endpoint
+        run: |
+          curl -X GET "https://ewabb-financial-management-system.vercel.app/api/overdue-repayments/" \
+          -H "Authorization: Bearer ${{ secrets.CRON_TOKEN }}"
