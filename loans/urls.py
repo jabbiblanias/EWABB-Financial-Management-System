@@ -7,8 +7,8 @@ urlpatterns = [
     path('apply-loan', views.apply_loan, name='apply_loan'),
     path('loan-applications/approval', views.approving_loan, name='loan_approval'),
     path('loan-applications/release', views.releasing, name='loan_release'),
-    path('active-loans/', views.active_loans, name='active_loans'),
+    path('active-loans', views.active_loans, name='active_loans'),
     path('loan-applications/details/<int:loan_application_id>', views.loan_application_details_view, name='loanApplicationDetails'),
-    path('active-loans/details/<int:loan_id>/', views.loan_details_view, name='loanDetails'),
+    path('active-loans/details/<int:loan_id>', views.loan_details_view, name='loanDetails'),
     path('repayments-status-update', views.run_repayment_status_update, name="repayment_status_update")
 ]
