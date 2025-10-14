@@ -31,6 +31,7 @@ urlpatterns = [
     path('programs/', include('programs.urls')),
     path('backup_and_restore/', include('backup_and_restore.urls')),
     path('notifications/', include('notifications.urls')),
+    path('api/', include('loans.urls'))
 ]
 
 if settings.DEBUG:

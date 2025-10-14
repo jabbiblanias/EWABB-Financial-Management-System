@@ -10,5 +10,5 @@ urlpatterns = [
     path('active-loans/', views.active_loans, name='active_loans'),
     path('loan-applications/details/<int:loan_application_id>/', views.loan_application_details_view, name='loanApplicationDetails'),
     path('active-loans/details/<int:loan_id>/', views.loan_details_view, name='loanDetails'),
-    path('api/repayments-status-update/', views.run_repayment_status_update, name="repayment_status_update")
+    path('repayments-status-update/', views.run_repayment_status_update, name="repayment_status_update")
 ]
