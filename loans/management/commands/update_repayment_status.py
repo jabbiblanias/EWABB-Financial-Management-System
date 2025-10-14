@@ -8,11 +8,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         updated = LoanRepaymentSchedule.objects.filter(
-            due_date=date.today(),
-            status='Pending'
+            due_date=date.today()
         ).update(status='Due')
 
         updated = LoanRepaymentSchedule.objects.filter(
-            due_date__lt=date.today(),
-            status='Due'
+            due_date__lt=date.today()
         ).update(status='Overdue')
