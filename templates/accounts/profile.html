@@ -8,7 +8,16 @@
     {% tailwind_css %}
   </head>
   <body>
-    {% include 'dashboard/partials/member_nav.html' %}
+    {# --- Dynamic Navigation --- #}
+    {% if request.user.groups.all.0.name == "Member" %}
+      {% include 'dashboard/partials/member_nav.html' %}
+    {% elif request.user.groups.all.0.name == "Bookkeeper" %}
+      {% include 'dashboard/partials/bookkeeper_nav.html' %}
+    {% elif request.user.groups.all.0.name == "Cashier" %}
+      {% include 'dashboard/partials/cashier_nav.html' %}
+    {% elif request.user.groups.all.0.name == "Admin" %}
+      {% include 'dashboard/partials/admin_nav.html' %}
+    {% endif %}
     <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
     <!-- Profile Header -->
     <div class="mx-auto mt-5">
@@ -17,8 +26,8 @@
         <div class="px-6 -mt-16 flex items-end space-x-6">
           
           <div class="pb-4">
-            <h2 class="text-3xl font-bold text-white">Juan Dela Cruz</h2>
-            <p class="text-white">Member ID: <span class="font-semibold">#123456</span></p>
+            <h2 class="text-3xl font-bold text-white">{{ member.person_id.first_name }} {{ member.person_id.surname }}</h2>
+            <p class="text-white">Account No.: <span class="font-semibold">#{{ member.account_number }}</span></p>
           </div>
         </div>
       </div>
@@ -63,6 +72,165 @@
           <p><span class="font-medium">TIN:</span> 123-123-123</p>
         </div>
       </div>
+      <!-- Application Info Section -->
+                <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
+                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Membership Information</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600">Member ID:</p>
+                                <p class="font-medium">{{ member.member_id }}</p> <br>
+                            <div>
+                                <p class="text-gray-600">Account Number:</p>
+                                <p class="font-medium">{{ member.account_number }}</p> <br>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <p class="text-gray-600">Membership Date:</p>
+                                <p class="font-medium">{{ member.membership_date|date:"m/d/Y" }}</p> <br>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- Personal Information Section -->
+                <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
+                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Personal Information</h2>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+                        <div>
+                            <p><strong class="font-medium">Surname:</strong></p>
+                            <p>{{ member.person_id.surname }}</p> <br>
+                            <p><strong class="font-medium">First Name:</strong> </p>
+                            <p>{{ member.person_id.first_name }}</p> <br>
+                            <p><strong class="font-medium">Name Extension:</strong> </p>
+                            <p>{{ member.person_id.name_extension|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Middle Name:</strong> </p>
+                            <p>{{ member.person_id.middle_name|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Date of Birth:</strong></p>
+                            <p>{{ member.person_id.date_of_birth|date:"m/d/Y" }}</p> <br>
+                            <p><strong class="font-medium">Place of birth:</strong> </p>
+                            <p> {{ member.person_id.place_of_birth }}</p> <br>
+                            <p><strong class="font-medium">Gender:</strong> </p>
+                            <p> {{ member.person_id.gender }}</p> <br>
+                            <p><strong class="font-medium">Civil Status:</strong></p>
+                            <p>{{ member.person_id.civil_status }}</p> <br>
+                            <p><strong class="font-medium">Citizenship:</strong> </p>
+                            <p>{{ member.person_id.citizenship }}</p> <br>
+                            <p><strong class="font-medium">Height:</strong></p>
+                            <p>{{ member.person_id.height|floatformat:"-2" }} cm</p> <br>
+                            <p><strong class="font-medium">Weight:</strong> </p>
+                            <p>{{ member.person_id.weight|floatformat:"-2" }} kg</p> <br>
+                            <p><strong class="font-medium">Blood Type:</strong> </p>
+                            <p>{{ member.person_id.blood_type }}</p> <br>
+                            <p><strong class="font-medium">GSIS ID No.:</strong> </p>
+                            <p>{{ member.person_id.gsis_id_no|default:"--" }}</p> <br>
+
+                        </div>
+
+                        <div>
+                            <p><strong class="font-medium">PAG-IBIG No.:</strong> </p>
+                            <p>{{ member.person_id.pagibig_id_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">PhilHealth No.:</strong> </p>
+                            <p>{{ member.person_id.philhealth_id_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">SSS No.:</strong></p>
+                            <p>{{ member.person_id.sss_id_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Residential Address:</strong> </p>
+                            <p>{{ member.person_id.residential_address }}</p> <br>
+                            <p><strong class="font-medium">Residential ZIP Code:</strong> </p>
+                            <p>{{ member.person_id.residential_address_zip_code }}</p> <br>
+                            <p><strong class="font-medium">Residential Telephone No.:</strong></p>
+                            <p>{{ member.person_id.residential_address_telephone_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Permanent Address:</strong></p>
+                            <p>{{ member.person_id.permanent_address }}</p> <br>
+                            <p><strong class="font-medium">Permanent ZIP Code:</strong></p>
+                            <p>{{ member.person_id.permanent_address_zip_code }}</p> <br>
+                            <p><strong class="font-medium">Permanent Telephone No.:</strong></p>
+                            <p>{{ member.person_id.permanent_address_telephone_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Email address:</strong></p>
+                            <p>{{ member.person_id.contact_email_address|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Celphone No.:</strong></p>
+                            <p>{{ member.person_id.cellphone_no }}</p> <br>
+                            <p><strong class="font-medium">Agency Employee No.:</strong></p>
+                            <p>{{ member.person_id.agency_employee_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">TIN:</strong> </p>
+                            <p>{{ member.person_id.tin_no|default:"--" }}</p> <br>
+                        </div>
+                </section>
+
+                {% if spouse %}
+                <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
+                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Spouse Information</h2>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+                        <div>
+                            <p><strong class="font-medium">Spouse surname:</strong></p>
+                            <p>{{ spouse.spouse_surname }}</p> <br>
+                            <p><strong class="font-medium">First Name:</strong></p>
+                            <p>{{ spouse.spouse_first_name }}</p> <br>
+                            <p><strong class="font-medium">Middle Name:</strong></p>
+                            <p>{{ spouse.spouse_middle_name|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Occupation:</strong></p>
+                            <p>{{ spouse.occupation|default:"--" }}</p> <br>
+                        </div>
+                        <div>
+                            <p><strong class="font-medium"> Telephone no.</strong>:</strong></p>
+                            <p>{{ spouse.telephone_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium"> Employer / Business Name: </strong></p>
+                            <p>{{ spouse.employer_business_name|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Business address:</strong></p>
+                            <p>{{ spouse.business_address|default:"--" }}</p> <br>
+                        </div>
+
+
+
+                    </div>
+
+                </section>
+                {% endif %}
+
+                <!-- children Section -->
+                {% if children %}
+                <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
+                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Name of children</h2>
+                    <!-- Table -->
+                    <div class="border border-gray-200 rounded-md overflow-hidden">
+                        <table id="myTable" class="min-w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-600">Name</th>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-600">Date of Birth</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                {% for child in children %}
+                                <tr id="row-{{ forloop.counter }}" class="border-b border-gray-200">
+                                    <td class="px-6 py-3">{{ child.full_name }}</td>
+                                    <td class="px-6 py-3">{{ child.date_of_birth|date:"m/d/Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Person to Contact Section -->
+                <section>
+                    <div class="p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
+                        <h2 class="text-blue-700 text-lg font-semibold mb-4">Person to Contact </h2>
+                        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+                            <div>
+                                <p><strong class="font-medium">Name:</strong> </p>
+                                <p>{{ emergency_contact.emergency_contact_name }}</p> <br>
+                            </div>
+                            <div>
+                                <p><strong class="font-medium">Address:</strong></p>
+                                <p>{{ emergency_contact.emergency_contact_address }}</p> <br>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
     </div>
     </div>
   </body>

@@ -1,0 +1,18 @@
+<div id="firstLetter"
+    class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">
+    ...
+</div>
+<span id="fullName" class="text-sm font-medium">Loading...</span>
+
+<script>
+    fetch("{% url 'fetch_profile' %}")
+  .then(response => response.json())
+  .then(data => {
+      document.getElementById("firstLetter").textContent = data.first_letter || '?';
+      document.getElementById("fullName").textContent = data.full_name || 'Unknown';
+  })
+  .catch(err => {
+      console.error("Error:", err);
+      document.getElementById("fullName").textContent = "Failed to load";
+  });
+</script>

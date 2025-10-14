@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.home_page, name='home'),
     path('login/', views.login_view, name='login'),
-    path('profile/', views.profile_view, name='profile'),
+    path('profile/', views.profile_information, name='profile'),
     path('logout/', views.logout_view, name='logout'),
     path('register/1/', views.register_step1, name='register1'),
     path('register/2/', views.register_step2, name='register2'),
@@ -15,4 +15,6 @@ urlpatterns = [
     path('update-timer/', views.update_timer, name='update_timer'),
     path('resend/', views.resend_otp, name='resend'),
     path('register/complete/', views.success_view, name='complete_registration'),
+    path('fetch-profile/', views.fetch_profile, name='fetch_profile'),
+    
 ]
