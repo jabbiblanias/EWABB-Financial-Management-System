@@ -130,27 +130,58 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="md:col-span-2">
             <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-            <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+            <input name="childName" type="text" 
+              class="child-name w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+            <span class="childNameError text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
           </div>
           <div class="md:col-span-1">
             <label class="block text-sm font-medium mb-1">Date of Birth</label>
-            <input name="date" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+            <input name="childDateOfBirth" type="date" 
+              class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           </div>
         </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium m-1 flex justify-self-end-safe ">
+        <button type="button" onclick="this.parentElement.remove()" 
+          class="text-red-500 hover:text-red-700 text-sm font-medium m-1 flex justify-self-end-safe">
           Remove
         </button>
       </div>
-
     `;
     container.appendChild(newChild);
+
+    // Attach validation to the newly added input
+    attachChildValidation(newChild.querySelector('.child-name'));
   }
+
+  // Function to attach validation behavior
+  function attachChildValidation(input) {
+    const regex = /^[A-Za-z\s]+$/;
+    const errorSpan = input.nextElementSibling;
+
+    input.addEventListener('input', function () {
+      if (input.value === '' || regex.test(input.value)) {
+        errorSpan.classList.add('hidden');
+      } else {
+        errorSpan.classList.remove('hidden');
+      }
+    });
+
+    input.addEventListener('blur', function () {
+      if (input.value && !regex.test(input.value)) {
+        errorSpan.classList.remove('hidden');
+      }
+    });
+  }
+
   document.getElementById("go-back").addEventListener("click", () => {
     history.back();
   });
+
+  // Apply validation for initial child input on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.child-name').forEach(attachChildValidation);
+  });
 </script>
-</body>
-</html>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
