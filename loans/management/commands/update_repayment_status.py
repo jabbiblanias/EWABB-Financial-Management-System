@@ -1,16 +1,19 @@
-from datetime import date
+from django.utils import timezone
 from loans.models import Loan, LoanRepaymentSchedule
 from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "update loan status"
-
     def handle(self, *args, **options):
-        updated = LoanRepaymentSchedule.objects.filter(
-            due_date=date.today()
+        today = timezone.localdate()
+        updated_due = LoanRepaymentSchedule.objects.filter(
+            due_date=today
         ).update(status='Due')
 
-        updated = LoanRepaymentSchedule.objects.filter(
-            due_date__lt=date.today()
+        updated_overdue = LoanRepaymentSchedule.objects.filter(
+            due_date__lt=today
         ).update(status='Overdue')
+
+        self.stdout.write(self.style.SUCCESS(
+            f'Updated {updated_due} schedules to Due and {updated_overdue} to Overdue.'
+        ))
