@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import date
 from .utils import parse_duration, format_loan_term
 from django.template.loader import render_to_string
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse
 import json
 from django.contrib import messages
 from dateutil.relativedelta import relativedelta
@@ -14,7 +14,6 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
-from django.conf import settings
 
 
 @login_required
@@ -79,11 +78,15 @@ def apply_loan(request):
                     net_proceeds=net_proceeds
                 )
             )
+
+            is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
             if user.groups.filter(name='Bookkeeper').exists():
-                context = loan_applications_data()
+                context = loan_applications_data(request, ajax=is_ajax)
                 html = render_to_string('loans/partials/loan_applications_table_body.html', context, request=request)
             elif user.groups.filter(name='Member').exists():
-                context = member_loan_data(user)
+                context = member_loan_data(request,user, ajax=is_ajax)
                 html = render_to_string('loans/partials/member_loan_table_body.html', context)
             return JsonResponse({"success": True, "message": f"Loan application ID {loan_application.loan_application_id} has successfully been created.", "loans": html})
         except Member.DoesNotExist:
@@ -97,7 +100,7 @@ def member_loan_home(request):
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
     # get shared data
-    context = member_loan_data(request, user, ajax=is_ajax)
+    context = member_loan_data(request,user, ajax=is_ajax)
 
     # if ajax, just return the JSON
     if is_ajax:
@@ -202,7 +205,7 @@ def active_loans_data(request, ajax=False):
     context = {'loans': loans, 'page': page}
 
     if ajax:
-        html = render_to_string("loans/partials/active_loans_table_body.html", {"page": page})
+        html = render_to_string("loans/partials/active_loans_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
         return JsonResponse({"table_body_html": html, "pagination_html": pagination})
 
@@ -264,7 +267,7 @@ def loan_applications_data(request, ajax=False):
     context = {'loanApplications': loan_applications, 'page': page}
 
     if ajax:
-        html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page})
+        html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
         return JsonResponse({"table_body_html": html, "pagination_html": pagination})
     
@@ -441,15 +444,6 @@ def releasing(request):
 def loan_penalty():
     print()
 
-def verify_cron_token(request):
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    if token != getattr(settings, "CRON_TOKEN", None):
-        return HttpResponseForbidden("Invalid token")
-    return None
-
-def run_daily_overdue_update(request):
-    auth_error = verify_cron_token(request)
-    if auth_error:
-        return auth_error
-    call_command('update_overdue_repayments')
-    return JsonResponse({'status': 'success', 'job': 'daily overdue update executed'})
+def run_repayment_status_update(request):
+    call_command('update_repayment_status')
+    return JsonResponse({'status': 'success', 'job': 'daily repayment status update executed'})

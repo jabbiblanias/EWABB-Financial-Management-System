@@ -1,5 +1,5 @@
 {% load humanize %}
-{% for transaction in transactions %}
+{% for transaction in page.object_list %}
 <tr id="row-{{ transaction.transaction_id }}" class="border-b border-gray-200">
     <td class="px-6 py-3">{{ transaction.transaction_id }}</td>
     <td class="px-6 py-3">{{ transaction.transaction_type }}</td>

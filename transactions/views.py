@@ -133,7 +133,9 @@ def transactions(request):
                     transaction_type=transaction_type,
                     program_id=program
                 )
-            context = transaction_data()
+            is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+            context = transaction_data(request, ajax=is_ajax)
             html = render_to_string('transactions/partials/cashier_transaction_table_body.html', context)
             return JsonResponse({"success": True, "message": toast_message, "html": html})
     except IntegrityError as e:
@@ -236,8 +238,7 @@ def transaction_view(request):
     if user.groups.filter(name='Admin').exists():
         return render(request, 'transactions/admin_transaction.html', context)
     elif user.groups.filter(name='Member').exists():
-        context = member_transaction_data(user)
-        return render(request, 'transactions/member_transaction.html', context)
+        return member_transaction_data(request)
     elif user.groups.filter(name='Bookkeeper').exists():
         return render(request, 'transactions/bookkeeper_transaction.html', context)
     elif user.groups.filter(name='Cashier').exists():
@@ -290,7 +291,8 @@ def transaction_data(request, ajax=False):
     return context
 
 
-def member_transaction_data(user):
+def member_transaction_data(request):
+    user = request.user
     transactions = (
         Transactions.objects
         .select_related("member_id")
@@ -303,8 +305,24 @@ def member_transaction_data(user):
         )
         .order_by("-transaction_date")
     )
-    context = {"transactions": transactions}
-    return context
+    
+    paginator = Paginator(transactions, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    context = {"transactions": transactions, "page": page}
+    
+    if is_ajax:
+        html = render_to_string("transactions/partials/member_transaction_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
+    return render(request, 'transactions/member_transaction.html', context)
 
 
 def balance(request):

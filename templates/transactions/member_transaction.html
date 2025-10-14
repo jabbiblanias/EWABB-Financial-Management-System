@@ -21,7 +21,7 @@
         <div class="p-6 mt-6">
           <div class="px-6 py-4 text-lg font-semibold text-gray-700">All Transactions</div>
           <div class="bg-white shadow rounded-xl overflow-hidden">
-            <table id="myTable" class="min-w-full text-left">
+            <table id="myTable" class="min-w-full text-left text-sm">
               <thead>
                 <tr class="text-sm">
                   <th class="px-6 py-3 text-left font-medium">Transaction ID</th>
@@ -35,14 +35,9 @@
                 </tbody>
             </table>
           </div>
-          <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-              <button class="text-blue-500">&lt; Previous</button>
-              <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-              <button class="text-blue-500">2</button>
-              <button class="text-blue-500">3</button>
-              <button class="text-blue-500">4</button>
-              <button class="text-blue-500">Next &gt;</button>
-          </div>
+          <div id="pagination-controls">
+  {% include 'partials/pagination.html' %}
+</div>
         </div>
       </main>
     </div>

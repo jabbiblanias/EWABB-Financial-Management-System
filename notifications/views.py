@@ -3,6 +3,8 @@ from .models import Notification
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
+from django.template.loader import render_to_string
+from django.core.paginator import Paginator
 
 # Create your views here.
 def member_notifications(request):
@@ -18,7 +20,22 @@ def member_notifications(request):
         )
         .order_by('-created_at')
     )
-    context = {"notifications" : notifications}
+
+    paginator = Paginator(notifications, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'notifications': notifications, 'page': page}
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    if is_ajax:
+        html = render_to_string("notifications/partials/notifications_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return render(request, 'notifications/notification.html', context)
 
 

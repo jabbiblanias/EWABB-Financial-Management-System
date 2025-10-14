@@ -39,8 +39,8 @@
       Financial Report
     </a>
 
-    <a href="{% url 'loans' %}"
-       class="flex items-center px-6 py-3 {% if request.resolver_match.url_name == 'loans' %} text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %}">
+    <a href="{% url 'loan_applications' %}"
+       class="flex items-center px-6 py-3 {% if request.resolver_match.url_name == 'loan_applications' %} text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %}">
       <span class="w-5 mr-3 inline-block">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round"
              stroke-linejoin="round" stroke-width="4">

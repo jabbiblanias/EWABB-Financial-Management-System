@@ -4,11 +4,15 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "update if there are overdues"
+    help = "update loan status"
 
     def handle(self, *args, **options):
         updated = LoanRepaymentSchedule.objects.filter(
             due_date=date.today(),
             status='Pending'
         ).update(status='Due')
-        self.stdout.write(self.style.SUCCESS(f'Updated {updated} repayment schedules'))
+
+        updated = LoanRepaymentSchedule.objects.filter(
+            due_date__lt=date.today(),
+            status='Due'
+        ).update(status='Overdue')
