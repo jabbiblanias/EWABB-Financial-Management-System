@@ -55,7 +55,7 @@
     </a>
 
     <a href="{% url 'backup_and_restore' %}"
-       class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
+       class="flex items-center px-6 py-3 {% if request.resolver_match.url_name == 'backup_and_restore' %} text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %}">
       <span class="w-5 h-5 mr-3 inline-block">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
           <path
@@ -69,7 +69,15 @@
 
 <!-- Top Bar -->
 <header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm fixed top-0 left-64 right-0">
-  <h1 class="text-xl font-semibold">Loans</h1>
+  <h1 class="text-xl font-semibold">
+    {% if request.resolver_match.url_name == 'dashboard' %} Dashboard 
+    {% elif request.resolver_match.url_name == 'transactions' %} Transactions
+    {% elif request.resolver_match.url_name == 'financial_report' %} Financial Reports
+    {% elif request.resolver_match.url_name == 'loan_applications' %} Loans
+    {% elif request.resolver_match.url_name == 'backup_and_restore' %} Backup & Restore
+    {% elif request.resolver_match.url_name == 'profile' %} Profile
+    {% endif %}
+  </h1>
   <div class="flex items-center space-x-4">
     <div class="relative">
       <input type="text" placeholder="Search for member"
@@ -77,8 +85,7 @@
     </div>
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">AD</div>
-        <span class="text-sm font-medium">Admin</span>
+        {% include 'partials/header_profile.html' %}
         <div class="dropdown dropdown-end">
           <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                viewBox="0 0 24 24" stroke="currentColor">

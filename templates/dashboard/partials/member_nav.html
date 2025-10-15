@@ -57,6 +57,7 @@
       {% elif request.resolver_match.url_name == 'transactions' %} Transactions
       {% elif request.resolver_match.url_name == 'loans' %} Loans
       {% elif request.resolver_match.url_name == 'appointments' %} Appointments
+      {% elif request.resolver_match.url_name == 'profile' %} Profile
       {% endif %}
     </h1>
   </div>
@@ -82,10 +83,7 @@
       </svg>
     </button>
     <div class="flex items-center space-x-2 ">
-      <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">
-        M
-      </div>
-      <span class="text-sm font-medium">Maribel Yan</span>
+      {% include 'partials/header_profile.html' %}
       <div class="dropdown dropdown-end">
         <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
           viewBox="0 0 24 24" stroke="currentColor">

@@ -2,15 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from notifications.models import EmailOTP
 from notifications.utils import registration_otp
-from django.db.models import Q
+from django.db.models import Q, Value
 from django.contrib.auth.models import User
 from .models import Personalinfo, Spouse, Membershipapplication, Children, EmergencyContact
+from members.models import Member
 from django.db import transaction, IntegrityError
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password, check_password
 import json
 from django.utils import timezone
+from django.db.models.functions import Concat
 
 
 def login_view(request):
@@ -50,6 +52,85 @@ def logout_view(request):
 
 def profile_view(request):
     return render(request, 'accounts/profile.html')
+
+def fetch_profile(request):
+    user = request.user
+
+    # MEMBER
+    if user.groups.filter(name="Member").exists():
+        profile = (
+            Member.objects
+            .select_related("person_id")
+            .filter(user_id=user)
+            .annotate(
+                full_name=Concat(
+                    'person_id__first_name',
+                    Value(' '),
+                    'person_id__surname'
+                )
+            )
+            .values_list('full_name', flat=True)
+            .first()
+        )
+        full_name = profile if profile else user.username
+
+    # BOOKKEEPER, CASHIER, ADMIN
+    elif (
+        user.groups.filter(name="Bookkeeper").exists() or
+        user.groups.filter(name="Cashier").exists() or
+        user.groups.filter(name="Admin").exists()
+    ):
+        full_name = user.get_full_name() or user.username
+
+    else:
+        full_name = user.username
+
+    first_letter = full_name[0].upper() if full_name else ""
+
+    return JsonResponse({
+        "full_name": full_name,
+        "first_letter": first_letter
+    })
+
+def profile_information(request):
+    user = request.user
+
+    # MEMBER
+    if user.groups.filter(name="Member").exists():
+        member = Member.objects.select_related('person_id').get(user_id=user)
+        # Handle spouse safely
+        try:
+            spouse = Spouse.objects.get(person_id=member.person_id)
+        except Spouse.DoesNotExist:
+            spouse = None
+
+        # Handle children safely
+        children = Children.objects.filter(person_id=member.person_id)  # returns queryset (empty if none)
+
+        try:
+            emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
+        except EmergencyContact.DoesNotExist:
+            emergency_contact = None
+
+        context = {
+            'member': member,
+            'spouse': spouse,
+            'children': children,
+            'emergency_contact': emergency_contact
+        }
+    # BOOKKEEPER, CASHIER, ADMIN
+    elif (
+        user.groups.filter(name="Bookkeeper").exists() or
+        user.groups.filter(name="Cashier").exists() or
+        user.groups.filter(name="Admin").exists()
+    ):
+        full_name = user.get_full_name() or user.username
+
+    else:
+        full_name = user.username
+
+    return render(request, 'accounts/profile.html', context)
+
 
 def register_step1(request):
     if request.method == 'POST':
