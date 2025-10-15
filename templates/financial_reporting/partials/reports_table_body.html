@@ -1,0 +1,15 @@
+{% for report in page.object_list %}
+<tr class="border-b border-gray-200">
+    <td class="px-6 py-3">{{ report.report_id }}</td>
+    <td class="px-6 py-3">{{ report.title }}</td>
+    <td class="px-6 py-3">{{ report.status }}</td>
+    <td class="px-6 py-3">{{ report.created_at|date:"Y-m-d h:i A" }}</td>
+    <td class="px-6 py-3">{{ report.last_updated|date:"Y-m-d h:i A" }}</td>
+    <td class="px-6 py-3">
+        <!-- View Button -->
+        <a href="details/{{report.report_id}}/" class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+            View
+        </a>
+    </td>
+</tr>
+{% endfor %}

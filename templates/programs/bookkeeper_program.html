@@ -1,86 +1,217 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWABB Dashboard</title>
   {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fillTableRows('myTable', 10);
+    });
+  </script>
 </head>
+
 <body class="bg-gray-100 font-sans">
   <div class="flex h-screen">
-<!-- Sidebar -->
-      <aside class="w-64 max-h-screen bg-white border-r">
-        <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
-        <nav class="mt-6">
-          <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Dashboard </a>
-          <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Transactions</a>
-            <a href="{% url 'membershipApplication' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Members</a>
-          <a href="{% url 'financial_report' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span class="w-5 mr-3 inline-block"></span>Financial Reports </a>
-             <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Loans</a>
-           <a href="{% url 'appointments' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span class="w-5 mr-3 inline-block"></span>Appointments</a>
-         <a href="{% url 'programs' %}" class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]">  <span class="w-5 mr-3 inline-block"></span> Programs</a>
-
-                </nav>
-      </aside>
+    {% include 'dashboard/partials/bookkeeper_nav.html' %}
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
+    <main class="flex-1 flex flex-col">
       <!-- Top bar -->
-      <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
-        <h2 class="text-lg font-semibold">Program</h2>
+     <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white relative">
+        <h2 class="text-lg font-semibold">Programs</h2>
         <div class="flex items-center space-x-4">
-          <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-64" />
-          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-          <div class="flex items-center space-x-2">
-            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK</div>
-            <span class="text-sm">Bookkeeper</span>
-          </div>
+          <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-60" />
+          <div class="flex items-center space-x-4">
+    <div id="notif" class="dropdown dropdown-end">
+      <button tabindex="0" role="button" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600" fill="currentColor">
+        <path
+          d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
+      </svg>
+    </button>
+      {% include 'partials/popup_notification.html' %}
+    </div>
+          <!-- Avatar with dropdown -->
+          <div class="dropdown dropdown-end">
+           <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">BK</div>
+        <span class="text-sm font-medium">Bookkeeper</span>
+        <div class="dropdown dropdown-end">
+          <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 9l-7 7-7-7" />
+          </svg>
+          <!-- Dropdown Menu -->
+          {% include "partials/profile_menu.html" %}
+        </div>
         </div>
       </header>
 
-        <!-- Action buttons -->
-        <div class="flex justify-between items-center px-6 py-4 bg-gray-50 border-b border-gray-200">
-             <button class="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Add New</button>
-        </div>
+      <!-- Action buttons -->
+      <div class="flex justify-end px-6 py-4">
+        <button onclick="document.getElementById('popup-form').classList.remove('hidden')" class="rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700">Add new</button>
+      </div>
 
       <!-- Table -->
       <div class="px-6 py-4">
         <div class="border border-gray-200 rounded-md overflow-hidden">
-          <table class="min-w-full text-sm">
+          <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">ID</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Bussiness Program</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Date Start</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Date End</th>
+                <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Profits</th>
               </tr>
             </thead>
-            <tbody class="bg-white">
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">Bussiness Program 1</td>
-                <td class="px-4 py-3">August 16,2025 3:00 pm</td>
-                <td class="px-4 py-3">August 16,2025 3:00 pm</td>
-                <td class="px-4 py-3">₱ 12,000</td>
-              </tr>
-              <tr><td class="px-4 py-6" colspan="6"></td></tr>
-              <tr><td class="px-4 py-6" colspan="6"></td></tr>
+            <tbody id="table-body" class="bg-white">
+              {% include 'programs/partials/programs_table_body.html' %}
             </tbody>
           </table>
         </div>
 
-       <!-- Pagination -->
-    <div class="flex justify-end items-center space-x-2 mt-4">
-      <button class="text-blue-600 hover:underline">Previous</button>
-      <button class="px-3 py-1 rounded-full bg-blue-600 text-white">1</button>
-      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">2</button>
-      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">3</button>
-      <button class="px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100">4</button>
-      <button class="text-blue-600 hover:underline">Next</button>
-    </div>
+        <div id="pagination-controls">
+          {% include 'partials/pagination.html' %}
+        </div>
+      </div>
+    </main>
+  </div>
+    <!-- Popup Form Modal -->
+    <div id="popup-form" class="bg-opacity-50 fixed inset-0 z-50 flex hidden items-center justify-center bg-black/10">
+      <div class="w-96 rounded-lg bg-white shadow-lg">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4">
+          <h2 class="text-lg font-semibold">Business Program Form</h2>
+          <button type="button" onclick="closePopUp()" class="text-xl text-gray-500 hover:text-gray-800">✕</button>
+        </div>
 
+        <!-- Form Body -->
+        <form id="createProgramForm" class="space-y-4 px-6 py-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Bussiness Program</label>
+            <input id="program" type="text" name="program" placeholder="e.g., Bussiness Program 1" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none" required/>
+            <p id="programMessage" class="hidden text-xs mt-2 text-error">Business program already exist</p>
+          </div>
 
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date Start</label>
+            <input type="datetime-local" name="date_start" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none" required/>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date End</label>
+            <input type="datetime-local" name="date_end" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none" required/>
+          </div>
+          <!-- Footer -->
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closePopUp()" class="rounded bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300">Cancel</button>
+          <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">Save</button>
+        </div>
+        </form>
+
+        
       </div>
     </div>
-  </div>
+    <!-- Toast -->
+<div
+  id="toast"
+  class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+  role="status"></div>
+    <script>
+      let timeout;
+
+      function closePopUp() {
+        document.getElementById('popup-form').classList.add('hidden')
+      }
+
+      document.getElementById('program').addEventListener("input", function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(check_programExists, 500);
+      });
+
+      async function check_programExists() {
+        program = document.getElementById("program").value.trim();
+        const response = await fetch(`{% url 'check_program' %}?program=${encodeURIComponent(program)}`);
+
+        const data =  await response.json();
+
+        if (data.exists) {
+          document.getElementById("programMessage").classList.remove("hidden");
+          return true;
+        } else {
+          document.getElementById("programMessage").classList.add("hidden");
+          return false;
+        }
+      }
+
+      document.getElementById("createProgramForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        
+        const exists = await check_programExists();
+        if (exists) {
+          this.disable = false;
+          return;
+        }
+        
+        try {
+          const form = e.target;
+          const formData = new FormData(form);
+
+          const response = await fetch("{% url 'create_program' %}", {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: formData
+          })
+
+          const data = await response.json();
+
+          if (data.success) {
+            showAlert(data.message, "success")
+            closePopUp();
+          } else {
+            showAlert(data.message, "failed")
+          }
+        } catch (Error) {
+          console.error('Caught an error:', Error);
+        }
+        this.disable = false;
+      })
+      // Toast notification function
+    function showAlert(message, type) {
+      const toast = document.getElementById("toast");
+
+      // Remove old color classes before adding new one
+      toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+      // Style by type
+      if (type === "success") {
+        toast.classList.add("bg-emerald-600"); // green
+      } else if (type === "failed") {
+        toast.classList.add("bg-red-600");
+      } else {
+        toast.classList.add("bg-yellow-600"); // yellow default
+      }
+
+      // Set message
+      toast.textContent = message;
+
+      // Show toast
+      toast.classList.remove("hidden");
+
+      // Hide after 4s
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
+    </script>
 </body>
+
 </html>

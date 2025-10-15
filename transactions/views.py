@@ -7,12 +7,14 @@ from .models import Transactions, Member
 from members.models import Savings
 from datetime import datetime
 from django.db.models import Sum
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from decimal import Decimal
 from django.template.loader import render_to_string
 from members.models import Member
+from programs.models import BusinessProgram
 from django.utils import timezone
 from notifications.models import Notification
+from django.core.paginator import Paginator 
 
 @transaction.atomic
 def transactions(request):
@@ -23,6 +25,7 @@ def transactions(request):
             amount = Decimal(request.POST.get('amount'))
             amount_received = Decimal(request.POST.get('amountReceived') or 0)
             transaction_type = request.POST.get('transactionType')
+            program_id = request.POST.get('programType') or None
 
             member = Member.objects.get(account_number=account_number)
 
@@ -37,13 +40,22 @@ def transactions(request):
 
                 # 🔔 Member notification (different wording)
                 Notification.objects.create(
-                    user=member.user_id,
+                    user_id=member.user_id,
                     title="Savings Deposit",
                     message=(
                         f"You deposited ₱{amount:,} into your savings account on "
                         f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}. "
                         f"Your new balance is ₱{savings.balance:,}."
                     )
+                )
+                Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    savings_id=savings
                 )
             elif transaction_type == 'Loan Payment':
                 loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
@@ -54,6 +66,15 @@ def transactions(request):
                 if excess != 0:
                     amount -= excess
                 change += excess
+                Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    schedule_id=loan
+                )
             elif transaction_type == 'Withdrawal':
                 amount_received = None
                 change = None
@@ -65,7 +86,7 @@ def transactions(request):
 
                     # 🔔 Member notification (different wording)
                     Notification.objects.create(
-                        user=member.user_id,
+                        user_id=member.user_id,
                         title="Withdrawal",
                         message=(
                             f"You withdrew ₱{amount:,} from your savings account on "
@@ -73,22 +94,48 @@ def transactions(request):
                             f"Remaining balance: ₱{savings.balance:,}."
                         )
                     )
+                    Transactions.objects.create(
+                        member_id=member,
+                        cashier_id=cashier_id,
+                        amount=amount,
+                        amount_received=amount_received,
+                        change=change,
+                        transaction_type=transaction_type,
+                        savings_id=savings
+                    )
                 else:
                     # Not enough balance
                     toast_message = f"Account #{member.account_number} has insufficient balance!"
 
                     return JsonResponse({"success": False, "message": toast_message})
-                
-            
-            Transactions.objects.create(
-                member_id=member,
-                cashier_id=cashier_id,
-                amount=amount,
-                amount_received=amount_received,
-                change=change,
-                transaction_type=transaction_type
-            )
-            context = transaction_data()
+            elif transaction_type == 'Program Deposit':
+                program = BusinessProgram.objects.get(program_id=program_id)
+                program.total_profit += amount
+                program.save()
+                toast_message = f"Program '{program.program_name}' deposit of ₱{amount} from Account #{member.account_number} completed successfully."
+
+                # 🔔 Member notification (different wording)
+                Notification.objects.create(
+                    user_id=member.user_id,
+                    title="Program Deposit",
+                    message=(
+                        f"You deposited ₱{amount:,} into {program.program_name} on "
+                        f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}."
+                    )
+                )
+
+                Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    program_id=program
+                )
+            is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+            context = transaction_data(request, ajax=is_ajax)
             html = render_to_string('transactions/partials/cashier_transaction_table_body.html', context)
             return JsonResponse({"success": True, "message": toast_message, "html": html})
     except IntegrityError as e:
@@ -126,7 +173,7 @@ def record_payment(member_id, loan, payment_amount):
             loan.loan_status = "Completed"
             loan.save()
             Notification.objects.create(
-                user=member_id.user_id,
+                user_id=member_id.user_id,
                 title="Loan Fully Paid",
                 message=f"Your due on {repayment.due_date.strftime('%b %d, %Y')} has been paid. Congratulations, your loan is fully paid!"
             )
@@ -137,7 +184,7 @@ def record_payment(member_id, loan, payment_amount):
             if next_due:
                 note += f" Next due: {next_due.due_date.strftime('%b %d, %Y')} amount ₱{next_due.amount_due:,}."
             Notification.objects.create(
-                user=member_id.user_id,
+                user_id=member_id.user_id,
                 title="Loan Due Paid",
                 message=note
             )
@@ -165,7 +212,7 @@ def record_payment(member_id, loan, payment_amount):
 
         # 🔔 Create partial payment notification
         Notification.objects.create(
-            user=member_id.user_id,
+            user_id=member_id.user_id,
             title="Partial Loan Payment",
             message=f"Payment of ₱{payment_amount:,} recorded for due {repayment.due_date.strftime('%b %d, %Y')}. Remaining due: ₱{repayment.amount_due:,}."
         )
@@ -175,20 +222,31 @@ def record_payment(member_id, loan, payment_amount):
 
 def transaction_view(request):
     user = request.user
+
+    # detect ajax once here
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    # get shared data
+    context = transaction_data(request, ajax=is_ajax)
+
+    # if ajax, just return the JSON
+    if is_ajax:
+        return context  # this is your JsonResponse
+    
+    # otherwise, render template normally
     if user.groups.filter(name='Admin').exists():
-        context = transaction_data()
         return render(request, 'transactions/admin_transaction.html', context)
     elif user.groups.filter(name='Member').exists():
-        context = member_transaction_data(user)
-        return render(request, 'transactions/member_transaction.html', context)
+        return member_transaction_data(request)
     elif user.groups.filter(name='Bookkeeper').exists():
-        context = transaction_data()
         return render(request, 'transactions/bookkeeper_transaction.html', context)
     elif user.groups.filter(name='Cashier').exists():
-        context = transaction_data()
         return render(request, 'transactions/cashier_transaction.html', context)
+    else:
+        return HttpResponseForbidden("Unauthorized user group.")
     
-def transaction_data():
+def transaction_data(request, ajax=False):
     transactions = (
         Transactions.objects
         .select_related("member_id")
@@ -212,11 +270,29 @@ def transaction_data():
             "person_id__surname"
         )
     )
-    context = {"transactions": transactions, "members": members}
+    programs = (
+        BusinessProgram.objects
+        .filter(status="Active")
+        .values('program_id', 'program_name')
+        )
+    
+    paginator = Paginator(transactions, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    
+    if ajax:
+        html = render_to_string("transactions/partials/cashier_transaction_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
+    context = {"members": members, "programs": programs, "page": page}
     return context
 
 
-def member_transaction_data(user):
+def member_transaction_data(request):
+    user = request.user
     transactions = (
         Transactions.objects
         .select_related("member_id")
@@ -229,17 +305,35 @@ def member_transaction_data(user):
         )
         .order_by("-transaction_date")
     )
-    context = {"transactions": transactions}
-    return context
+    
+    paginator = Paginator(transactions, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    context = {"transactions": transactions, "page": page}
+    
+    if is_ajax:
+        html = render_to_string("transactions/partials/member_transaction_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
+    return render(request, 'transactions/member_transaction.html', context)
 
 
-def loan_balance(request):
+def balance(request):
     account_number = request.GET.get("accountNumber")
+    transaction_type = request.GET.get("transactionType")
+
 
     # Check if member exists
     member = Member.objects.select_related("person_id").filter(account_number=account_number).first()
     if not member:
-        return JsonResponse({"exists": False, "loan_balance": None})
+        return JsonResponse({"exists": False, "balance": None})
     
     first_name = member.person_id.first_name
     middle_name = member.person_id.middle_name
@@ -249,10 +343,17 @@ def loan_balance(request):
         part for part in [last_name, first_name, middle_name, name_extension] if part
     )
 
-
-    # Get loan for this member
-    loan = Loan.objects.filter(member_id=member).exclude(loan_status="Completed").first()
-    if not loan:
+    if transaction_type == "Savings Deposit" or transaction_type == "Withdrawal":
+        savings = Savings.objects.filter(member_id=member).first()
+        if not savings:
+            return JsonResponse({"exists": True, "member_name": member_name})
+        balance = savings.balance
+    elif transaction_type == "Loan Payment":
+        # Get loan for this member
+        loan = Loan.objects.filter(member_id=member).exclude(loan_status="Completed").first()
+        if not loan:
+            return JsonResponse({"exists": True, "member_name": member_name})
+        balance = loan.remaining_balance
+    else:
         return JsonResponse({"exists": True, "member_name": member_name})
-
-    return JsonResponse({"exists": True, "member_name": member_name, "loan_balance": loan.remaining_balance})
+    return JsonResponse({"exists": True, "member_name": member_name, "balance": balance})

@@ -25,9 +25,6 @@ class Member(models.Model):
         else:
             super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.account_number} - {self.name}"
-
     class Meta:
         managed = False
         db_table = 'member'

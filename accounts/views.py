@@ -48,6 +48,9 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+def profile_view(request):
+    return render(request, 'accounts/profile.html')
+
 def register_step1(request):
     if request.method == 'POST':
         surname = request.POST.get('surname')

@@ -28,16 +28,26 @@ def membership_application_view(request):
             'person_id__gender', 
             'person_id__civil_status'
         )
+        .order_by('application_id')
     )
-    '''book_paginator = Paginator(membership_applications, 10)
+    paginator = Paginator(membership_applications, 10)
 
     page_num = request.GET.get('page')
 
-    page = book_paginator.get_page(page_num)'''
+    page = paginator.get_page(page_num)
     context = {
-        'membershipApplications': membership_applications
-        #'page': page
+        'membershipApplications': membership_applications,
+        'page': page
     }
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    if is_ajax:
+        html = render_to_string("members/partials/membership_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
     return render(request, 'members/membership_applications.html', context)
 
 
@@ -89,15 +99,34 @@ def approval(request):
                     'person_id__civil_status'
                 )
             )
-            html = render_to_string('members/membership_table_body.html', {'membershipApplications': membership_applications})
+            html = render_to_string('members/partials/membership_table_body.html', {'membershipApplications': membership_applications})
             return JsonResponse({'success': True, 'html': html, 'account_number': account_number})
         except Membershipapplication.DoesNotExist:
             return JsonResponse({'success': False})
         
 
 def membership_application_details(request, application_id):
-    membership_application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
-    context = {'membership_application': membership_application}
+    application = Membershipapplication.objects.select_related('person_id').get(application_id=application_id)
+    # Handle spouse safely
+    try:
+        spouse = Spouse.objects.get(person_id=application.person_id)
+    except Spouse.DoesNotExist:
+        spouse = None
+
+    # Handle children safely
+    children = Children.objects.filter(person_id=application.person_id)  # returns queryset (empty if none)
+
+    try:
+        emergency_contact = EmergencyContact.objects.get(person_id=application.person_id)
+    except EmergencyContact.DoesNotExist:
+        emergency_contact = None
+
+    context = {
+        'application': application,
+        'spouse': spouse,
+        'children': children,
+        'emergency_contact': emergency_contact
+    }
     return render(request, 'members/membership_application_details.html', context)
     
 
@@ -116,8 +145,24 @@ def members_view(request):
                 'person_id__gender', 
                 'person_id__civil_status',
             )
+            .order_by('member_id')
         )
-    context = {'members': members}
+    paginator = Paginator(members, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'members': members, 'page': page}
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    if is_ajax:
+        html = render_to_string("members/partials/members_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    
+    
     return render(request, 'members/approved_members.html', context)
 
 

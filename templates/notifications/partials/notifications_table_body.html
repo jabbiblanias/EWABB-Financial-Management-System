@@ -1,0 +1,76 @@
+{% for notification in page.object_list %}
+{% if notification.is_read %}
+<!-- Read -->
+<tr class="hover:bg-gray-50 transition">
+    <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
+    <td class="px-4 py-3">{{ forloop.counter|add:page.start_index|add:"-1" }}</td>
+    <td class="px-4 py-3 max-w-sm ">
+        <div data-id="{{ notification.notification_id }}"
+  data-title="{{ notification.title|escapejs }}"
+  data-message="{{ notification.message|escapejs }}"
+  data-date="{{ notification.created_at|date:'M d, Y h:i A' }}"
+  data-read="{{ notification.is_read }}"
+  onclick="handleNotifClick(this)" class="cursor-pointer">
+            <div class="font-semibold text-gray-900 ">{{ notification.title }}</div>
+            <p class="line-clamp-1 text-gray-600 ml-4">{{ notification.message }}</p>
+        </div>
+
+    </td>
+    <td class="px-4 py-3 text-left">{{ notification.created_at|date:"M d, Y h:i A" }}</td>
+    <td class="px-4 py-3">
+        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium">Read</span>
+    </td>
+</tr>
+{% else %}
+<tr id="row-{{notification.notification_id}}" class="bg-blue-50 hover:bg-blue-100 transition">
+    <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
+    <td class="px-4 py-3">{{ forloop.counter|add:page.start_index|add:"-1" }}</td>
+    <td class="px-4 py-3 max-w-sm ">
+        <div data-id="{{ notification.notification_id }}"
+  data-title="{{ notification.title|escapejs }}"
+  data-message="{{ notification.message|escapejs }}"
+  data-date="{{ notification.created_at|date:'M d, Y h:i A' }}"
+  data-read="{{ notification.is_read }}"
+  onclick="handleNotifClick(this)" class="cursor-pointer">
+            <div class="font-semibold text-gray-900 ">{{ notification.title }}</div>
+            <p class="line-clamp-1 text-gray-600 ml-4">{{ notification.message }}</p>
+        </div>
+
+    </td>
+
+    <td class="px-4 py-3 text-left font-semibold">{{ notification.created_at|date:"M d, Y h:i A" }}</td>
+    <td class="px-4 py-3">
+        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 font-medium">
+            Unread
+        </span>
+    </td>
+</tr>
+{% endif %}
+{% endfor %}
+
+<script>
+    function handleNotifClick(el) {
+  const id = el.dataset.id;
+  const title = el.dataset.title;
+  const message = el.dataset.message;
+  const created_at = el.dataset.date;
+  const is_read = el.dataset.read;
+  openNotifPopup(id, title, message, created_at, is_read);
+
+  if (is_read === "False" || is_read === false) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+        row.classList.remove("bg-blue-50", "hover:bg-blue-100");
+        row.classList.add("hover:bg-gray-50");
+        row.querySelector("span").className = "px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium";
+        row.querySelector("span").textContent = "Read";
+    }
+
+    // Remove bold font from date
+    const dateCell = row.querySelector("td.text-left.font-semibold");
+    if (dateCell) {
+        dateCell.classList.remove("font-semibold");
+    }
+  }
+}
+</script>

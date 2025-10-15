@@ -11,12 +11,8 @@
     <!-- Navbar -->
     <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
       <h1 class="text-white font-bold text-xl">EWABB</h1>
-      <div class="space-x-4">
-        <button
-          class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded"
-        >
-          Login
-        </button>
+     <div class="space-x-4">
+        <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block"> Login</a>
       </div>
     </nav>
 
@@ -53,7 +49,7 @@
     </div>
 
     <!-- Form Section -->
-    <form class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" 
+    <form id="register1Form" class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" 
           method="POST" action="{% url 'register1' %}">
       {% csrf_token %}
       <div class="text-center">
@@ -504,6 +500,11 @@
         </button>
       </div>
     </form>
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600"
+      role="status">Some fields contain invalid information.</div>
   </body>
 </html>
 
@@ -585,27 +586,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-   Object.keys(rules).forEach((field) => {
+   // Real-time validation
+  Object.keys(rules).forEach((field) => {
     const input = document.getElementById(field);
     const error = document.getElementById(rules[field].errorId);
-
     if (!input) return;
 
-    // While typing
     input.addEventListener("input", function () {
       if (input.value === "" || rules[field].regex.test(input.value)) {
-        error.classList.add("hidden"); // Hide if valid or empty
+        error.classList.add("hidden");
       } else {
-        error.classList.remove("hidden"); // Show if invalid
-      }
-    });
-
-    // On blur
-    input.addEventListener("blur", function () {
-      if (input.value && !rules[field].regex.test(input.value)) {
         error.classList.remove("hidden");
       }
     });
+  });
+
+  // Prevent submit if invalid
+  const form = document.getElementById("register1Form");
+  form.addEventListener("submit", function (e) {
+    let isValid = true;
+
+    Object.keys(rules).forEach((field) => {
+      const input = document.getElementById(field);
+      const error = document.getElementById(rules[field].errorId);
+      if (!input) return;
+
+      if (input.value && !rules[field].regex.test(input.value)) {
+        error.classList.remove("hidden");
+        isValid = false;
+      }
+    });
+
+    if (!isValid) {
+      e.preventDefault(); // Stop going next
+      const toast = document.getElementById("toast");
+      toast.classList.remove("hidden");
+
+      // Hide after 4s
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
   });
 });
 </script>

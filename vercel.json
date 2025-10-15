@@ -1,15 +1,19 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "ewabb_financial_management_system_with_forecasting/wsgi.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.11"
+      }
     }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py"
-    }
-  ]
+    { "src": "/(.*)", "dest": "ewabb_financial_management_system_with_forecasting/wsgi.py" }
+  ],
+  "crons": [{
+    "path": "/loans/repayments-status-update/",
+    "schedule": "0 0 * * *"
+  }]
 }

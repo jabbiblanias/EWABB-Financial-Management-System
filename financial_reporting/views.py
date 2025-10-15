@@ -11,27 +11,58 @@ from django.utils import timezone
 from django.db import transaction
 from .utils import generate_unique_name
 from django.http import HttpResponse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+from django.template.loader import get_template, render_to_string
+from django.core.paginator import Paginator 
+#from xhtml2pdf import pisa
 
 
 def member_loan_report(request):
     if request.user.groups.filter(name='Bookkeeper').exists():
-        reports = Financialreports.objects.all()
-        return render(request, 'financial_reporting/bookkeeper_report.html', {"reports": reports})
+        reports = Financialreports.objects.all().order_by("-last_updated")
+
+        paginator = Paginator(reports, 10)
+
+        page_num = request.GET.get('page')
+
+        page = paginator.get_page(page_num)
+        context = {'reports': reports, 'page': page}
+
+        is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+        if is_ajax:
+            html = render_to_string("financial_reporting/partials/reports_table_body.html", {"page": page})
+            pagination = render_to_string("partials/pagination.html", {"page": page})
+            return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        
+        return render(request, 'financial_reporting/bookkeeper_report.html', context)
     elif request.user.groups.filter(name='Admin').exists():
-        reports = Financialreports.objects.filter(status="Submitted").all()
-        return render(request, 'financial_reporting/admin_report.html', {"reports": reports})
+        reports = Financialreports.objects.filter(status="Submitted").all().order_by("-last_updated")
+
+        paginator = Paginator(reports, 10)
+
+        page_num = request.GET.get('page')
+
+        page = paginator.get_page(page_num)
+        context = {'reports': reports, 'page': page}
+
+        is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+        if is_ajax:
+            html = render_to_string("financial_reporting/partials/reports_table_body.html", {"page": page})
+            pagination = render_to_string("partials/pagination.html", {"page": page})
+            return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        
+        return render(request, 'financial_reporting/admin_report.html', context)
     
 
 def report_details(request, report_id):
     report = Financialreports.objects.filter(report_id=report_id).values("title", "status").first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
     context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_id': report_id}
-    if request.user.groups.filter(name='Bookkeeper').exists():
-        return render(request, 'financial_reporting/bookkeeper_members_report.html', context)
-    elif request.user.groups.filter(name='Admin').exists():
-        return render(request, 'financial_reporting/admin_report.html')
+    if request.user.groups.filter(name='Bookkeeper').exists() or request.user.groups.filter(name='Admin').exists():
+        return render(request, 'financial_reporting/members_report.html', context)
 
 
 def generate_report(request):
@@ -94,9 +125,9 @@ def generate_report(request):
     unique_title = generate_unique_name(Financialreports, 'title', f'report-{date.today().strftime("%Y-%m-%d")}')
     context = {'financial_report': financial_report, 'title': unique_title}
     if request.user.groups.filter(name='Bookkeeper').exists():
-        return render(request, 'financial_reporting/bookkeeper_members_report.html', context)
+        return render(request, 'financial_reporting/members_report.html', context)
     elif request.user.groups.filter(name='Admin').exists():
-        return render(request, 'financial_reporting/admin_report.html')
+        return render(request, 'financial_reporting/members_report.html')
     
 
 def submit_financial_report(request):
@@ -195,7 +226,7 @@ def submit_financial_report(request):
     
     return JsonResponse({"status": "success"}, status=200)
 
-def pdf_report_export(request, report_id):
+'''def pdf_report_export(request, report_id):
     report = Financialreports.objects.filter(report_id=report_id).values("title", "status", "created_at").first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
     template_path = 'financial_reporting/pdfReport.html'
@@ -213,6 +244,7 @@ def pdf_report_export(request, report_id):
     if pisa_status.err:
         return HttpResponse('we had some errors <pre>' + html + '</pre>')
     return response
+'''
 
 def pdf_report(request):
     return render(request, 'financial_reporting/pdfReport.html')

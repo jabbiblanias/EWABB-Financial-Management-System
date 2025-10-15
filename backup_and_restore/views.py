@@ -4,6 +4,8 @@ from django.contrib import messages
 import os
 from django.http import JsonResponse
 import json
+from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 
 
 def backup_and_restore_view(request):
@@ -13,7 +15,22 @@ def backup_and_restore_view(request):
     # Optional: Sort by creation date descending
     all_backups.sort(key=lambda x: x['created_at'], reverse=True)
     backups = all_backups
-    return render(request, 'backup_and_restore/backup_and_restore.html', {"backups": backups})
+
+    paginator = Paginator(backups, 10)
+
+    page_num = request.GET.get('page')
+
+    page = paginator.get_page(page_num)
+    context = {'backups': backups, 'page': page}
+
+    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
+            or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+
+    if is_ajax:
+        html = render_to_string("backup_and_restore/partials/backup_table_body.html", {"page": page})
+        pagination = render_to_string("partials/pagination.html", {"page": page})
+        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+    return render(request, 'backup_and_restore/backup_and_restore.html', context)
 
 
 def manual_backup(request):
@@ -22,16 +39,16 @@ def manual_backup(request):
             storage = request.POST.get("backup_location")
             if storage == "cloud":
                 if upload_to_drive():
-                    return JsonResponse({"status": "success", "message": "Backup uploaded to Google Drive"})
+                    return JsonResponse({"status": "success", "message": "Backup to Google Drive has been successful"})
                 else:
                     return JsonResponse({"status": "failed", "message": "Backup to Google Drive has failed"})
             else:
                 if upload_to_local():
-                    return JsonResponse({"status": "success", "message": "Backup uploaded to Local Drive"})
+                    return JsonResponse({"status": "success", "message": "Backup to Local Drive has been successful"})
                 else:
                     return JsonResponse({"status": "failed", "message": "Backup to Local Drive has failed"})
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)})
+        return JsonResponse({"status": "error", "message": "Something went wrong."})
 
 
 def restore_from_drive(request):

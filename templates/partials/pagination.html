@@ -1,0 +1,66 @@
+<!-- Pagination -->
+{% if page.paginator.num_pages > 1 %}
+<div id="pagination-controls"
+     class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-2">
+  
+  {% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}" class="text-blue-500 ajax-page">&lt; Prev</a>
+  {% endif %}
+
+  {# Always show first page #}
+  {% if page.number > 3 %}
+    <a href="?page=1" class="text-blue-500 ajax-page">1</a>
+    {% if page.number > 4 %}
+      <span>…</span>
+    {% endif %}
+  {% endif %}
+
+  {# Show 2 pages before and after current page #}
+  {% for num in page.paginator.page_range %}
+    {% if num >= page.number|add:-2 and num <= page.number|add:2 %}
+      {% if page.number == num %}
+        <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">{{ num }}</button>
+      {% else %}
+        <a href="?page={{ num }}" class="text-blue-500 ajax-page">{{ num }}</a>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {# Always show last page #}
+  {% if page.number < page.paginator.num_pages|add:-2 %}
+    {% if page.number < page.paginator.num_pages|add:-3 %}
+      <span>…</span>
+    {% endif %}
+    <a href="?page={{ page.paginator.num_pages }}" class="text-blue-500 ajax-page">
+      {{ page.paginator.num_pages }}
+    </a>
+  {% endif %}
+
+  {% if page.has_next %}
+    <a href="?page={{ page.next_page_number }}" class="text-blue-500 ajax-page">Next &gt;</a>
+  {% endif %}
+</div>
+{% endif %}
+
+
+<script>
+document.addEventListener('click', async function (e) {
+  if (e.target.classList.contains('ajax-page')) {
+    e.preventDefault();
+    const url = e.target.getAttribute('href');
+
+    const response = await fetch(url, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await response.json();
+
+    // Replace table and pagination dynamically
+    document.getElementById("table-body").innerHTML = data.table_body_html;
+    document.querySelector('#pagination-controls').innerHTML = data.pagination_html;
+
+    // Scroll smoothly to top of table
+    document.querySelector('#table-body').scrollIntoView({ behavior: 'smooth' });
+    fillTableRows('myTable', 10);
+  }
+});
+</script>

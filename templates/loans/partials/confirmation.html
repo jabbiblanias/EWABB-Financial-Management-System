@@ -206,7 +206,7 @@
     })
     .then(data => {
       if (data.success) {
-        document.getElementById('loan_applications-table-body').innerHTML = data.html;
+        document.getElementById('table-body').innerHTML = data.html;
         fillTableRows('myTable', 10);
         attachActionListeners();  // rebind new buttons
         if (action === "approve"){
@@ -239,7 +239,7 @@
     toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
 
     // Style by type
-    if (type === "approve") {
+    if (type === "approve" || type === "success") {
       toast.classList.add("bg-emerald-600"); // green
     } else if (type === "reject") {
       toast.classList.add("bg-red-600"); // red

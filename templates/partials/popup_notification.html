@@ -30,7 +30,7 @@
                         notifList.innerHTML += `
               <li onclick="openNotifPopup(${n.notification_id}, '${n.title}', '${n.message}', '${n.created_at}', '${n.is_read}')"
               id="notif-${n.notification_id}"
-              class="px-4 py-3 border-b border-gray-200 ${n.is_read ? "text-gray-700 hover:bg-gray-50" : "bg-blue-50 hover:bg-blue-100"}">
+              class="cursor-pointer px-4 py-3 border-b border-gray-200 ${n.is_read ? "text-gray-700 hover:bg-gray-50" : "bg-blue-50 hover:bg-blue-100"}">
                 <p class="text-sm font-medium">${n.title}</p>
                 <p class="text-xs text-gray-500 truncate">${n.message}</p>
                 <p class="text-xs text-gray-400">${n.created_at}</p>

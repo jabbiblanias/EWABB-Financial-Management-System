@@ -46,30 +46,30 @@
       <div class="grid grid-cols-1 md:grid-cols-2 md:gap-8 mb-12">
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
-          <input name="spouseSurname" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseSurname" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="spouseSurnameError" class="text-red-500 text-xs hidden">Surname must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">First Name</label>
-          <input name="spouseFirstName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseFirstName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="spouseFirstNameError" class="text-red-500 text-xs hidden">Surname must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">Middle Name</label>
-          <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="spouseMiddleNameError" class="text-red-500 text-xs hidden">Middle must not contain numbers</span>
 
           <label class="block text-sm font-medium mb-1">Occupation</label>
-          <input name="occupation" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="occupation" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="occupationError" class="text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
         </div>
         <div class="ml-3">
           <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
-          <input name="employerBusinessName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="employerBusinessName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Business Address</label>
-          <input name="businessAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="businessAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
           <label class="block text-sm font-medium mb-1">Telephone No.</label>
-          <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <span id="businessTelephoneNoError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
         </div>
       </div>
@@ -120,6 +120,11 @@
         <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</button>
       </div>
     </form>
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600"
+      role="status">Some fields contain invalid information.</div>
 <script>
   function addChild() {
     const container = document.getElementById('children-container');
@@ -221,6 +226,46 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   };
 
+  // Prevent submit if invalid
+  const form = document.querySelector("form");
+  const childInputs = document.getElementsByName("childName");
+  form.addEventListener("submit", function (e) {
+    let isValid = true;
+
+    // Attach validation
+  Object.keys(rules).forEach((field) => {
+    const inputs = document.getElementsByName(field);
+
+    inputs.forEach = Array.prototype.forEach; // Fix for NodeList
+
+    inputs.forEach((input) => {
+      // Create error span if not already in HTML
+      let error = document.getElementById(rules[field].errorId);
+      if (!error) {
+        error = document.createElement("span");
+        error.id = rules[field].errorId;
+        error.className = "text-red-500 text-sm hidden";
+        error.textContent = "Invalid input";
+        input.insertAdjacentElement("afterend", error);
+      }
+
+      if (input.value && !rules[field].regex.test(input.value)) {
+        error.classList.remove("hidden");
+        isValid = false;
+      }
+    });
+  });
+
+    if (!isValid) {
+      e.preventDefault(); // Stop going next
+      const toast = document.getElementById("toast");
+      toast.classList.remove("hidden");
+
+      // Hide after 4s
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
+  });
+
   // Attach validation
   Object.keys(rules).forEach((field) => {
     const inputs = document.getElementsByName(field);
@@ -243,13 +288,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (input.value === "" || rules[field].regex.test(input.value)) {
           error.classList.add("hidden");
         } else {
-          error.classList.remove("hidden");
-        }
-      });
-
-      // Validate on blur
-      input.addEventListener("blur", function () {
-        if (input.value && !rules[field].regex.test(input.value)) {
           error.classList.remove("hidden");
         }
       });

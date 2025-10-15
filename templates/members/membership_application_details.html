@@ -12,48 +12,41 @@
 <body class="bg-gray-100 font-sans">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 max-h-screen bg-white shadow">
-            <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
-            <nav class="mt-6">
-                <a href="{% url 'dashboard' %}"
-                    class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-                        class="w-5 mr-3 inline-block"></span>Dashboard </a>
-                <a href="{% url 'transactions' %}"
-                    class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-                        class="w-5 mr-3 inline-block"></span>Transactions</a>
-                <a href="{% url 'membershipApplication' %}"
-                    class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]"> <span
-                        class="w-5 mr-3 inline-block"></span> Members</a>
-                <a href="{% url 'financial_report' %}"
-                    class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span
-                        class="w-5 mr-3 inline-block"></span>Financial Reports </a>
-                <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-                        class="w-5 mr-3 inline-block"></span> Loans</a>
-                <a href="{% url 'appointments' %}"
-                    class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span
-                        class="w-5 mr-3 inline-block"></span>Appointments</a>
-                <a href="{% url 'programs' %}"
-                    class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-                        class="w-5 mr-3 inline-block"></span>Programs</a>
-            </nav>
-        </aside>
+        {% include 'dashboard/partials/bookkeeper_nav.html' %}
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Top bar -->
-            <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
-                <h2 class="text-lg font-semibold">Members</h2>
-                <div class="flex items-center space-x-4">
-                    <input type="text" placeholder="Search for member"
-                        class="px-4 py-2 border border-gray-300 rounded-full w-64" />
-                    <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-                    <div class="flex items-center space-x-2">
-                        <div
-                            class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">
-                            BK</div>
-                        <span class="text-sm">Bookkeeper</span>
-                    </div>
-                </div>
-            </header>
+           <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white relative">
+        <h2 class="text-lg font-semibold">Members</h2>
+        <div class="flex items-center space-x-4">
+          <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-60" />
+          <div class="flex items-center space-x-4">
+    <div id="notif" class="dropdown dropdown-end">
+      <button tabindex="0" role="button" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600" fill="currentColor">
+        <path
+          d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
+      </svg>
+    </button>
+      {% include 'partials/popup_notification.html' %}
+    </div>
+          <!-- Avatar with dropdown -->
+          <div class="dropdown dropdown-end">
+           <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">BK</div>
+        <span class="text-sm font-medium">Bookkeeper</span>
+        <div class="dropdown dropdown-end">
+          <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 9l-7 7-7-7" />
+          </svg>
+          <!-- Dropdown Menu -->
+          {% include "partials/profile_menu.html" %}
+        </div>
+        </div>
+      </header>
 
             <!-- Main container -->
             <main class=" bg-white p-6">
@@ -64,15 +57,36 @@
                     <button class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-700">Back</button>
                 </div>
 
-                <!-- Application Info Section -->
+                <!-- Application Info -->
                 <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
-                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Membership Application Information</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <div><p class="text-gray-600">Member ID:</p><p class="font-medium">MBR-2025-045</p></div>
-        <div><p class="text-gray-600">Account Number:</p><p class="font-medium">ACCT-000123</p></div>
-        <div><p class="text-gray-600">Membership Date:</p><p class="font-medium">2025-08-21</p></div>
-      </div>
-
+                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Application Info</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600">Application ID:</p>
+                            <p class="font-medium">{{ application.application_id }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Date Accomplished:</p>
+                            <p class="font-medium">{{ application.date_accomplished|date:"m/d/Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Status:</p>
+                            <!-- Status Badge -->
+                            {% if application.status == 'Approved' %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
+                                {{ application.status }}
+                            </span>
+                            {% elif application.status == 'Pending' %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
+                                {{ application.status }}
+                            </span>
+                            {% else %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+                                {{ application.status }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Personal Information Section -->
@@ -81,84 +95,85 @@
                     <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                         <div>
                             <p><strong class="font-medium">Surname:</strong></p>
-                            <p>Buates</p> <br>
+                            <p>{{ application.person_id.surname }}</p> <br>
                             <p><strong class="font-medium">First Name:</strong> </p>
-                            <p>John April</p> <br>
+                            <p>{{ application.person_id.first_name }}</p> <br>
                             <p><strong class="font-medium">Name Extension:</strong> </p>
-                            <p>John April</p> <br>
+                            <p>{{ application.person_id.name_extension|default:"--" }}</p> <br>
                             <p><strong class="font-medium">Middle Name:</strong> </p>
-                            <p>Atos</p> <br>
+                            <p>{{ application.person_id.middle_name|default:"--" }}</p> <br>
                             <p><strong class="font-medium">Date of Birth:</strong></p>
-                            <p>April 16, 2003</p> <br>
+                            <p>{{ application.person_id.date_of_birth|date:"m/d/Y" }}</p> <br>
                             <p><strong class="font-medium">Place of birth:</strong> </p>
-                            <p> BRTTH</p> <br>
+                            <p> {{ application.person_id.place_of_birth }}</p> <br>
                             <p><strong class="font-medium">Gender:</strong> </p>
-                            <p> Male</p> <br>
+                            <p> {{ application.person_id.gender }}</p> <br>
                             <p><strong class="font-medium">Civil Status:</strong></p>
-                            <p> Single</p> <br>
+                            <p>{{ application.person_id.civil_status }}</p> <br>
                             <p><strong class="font-medium">Citizenship:</strong> </p>
-                            <p> Filipino</p> <br>
+                            <p>{{ application.person_id.citizenship }}</p> <br>
                             <p><strong class="font-medium">Height:</strong></p>
-                            <p> 175 cm</p> <br>
+                            <p>{{ application.person_id.height|floatformat:"-2" }} cm</p> <br>
                             <p><strong class="font-medium">Weight:</strong> </p>
-                            <p> 60 </p> <br>
+                            <p>{{ application.person_id.weight|floatformat:"-2" }} kg</p> <br>
                             <p><strong class="font-medium">Blood Type:</strong> </p>
-                            <p> O+</p> <br>
+                            <p>{{ application.person_id.blood_type }}</p> <br>
                             <p><strong class="font-medium">GSIS ID No.:</strong> </p>
-                            <p> 9090-567-1</p> <br>
+                            <p>{{ application.person_id.gsis_id_no|default:"--" }}</p> <br>
 
                         </div>
 
                         <div>
                             <p><strong class="font-medium">PAG-IBIG No.:</strong> </p>
-                            <p> 9090-567-1</p> <br>
+                            <p>{{ application.person_id.pagibig_id_no|default:"--" }}</p> <br>
                             <p><strong class="font-medium">PhilHealth No.:</strong> </p>
-                            <p>9807-5578-1</p> <br>
+                            <p>{{ application.person_id.philhealth_id_no|default:"--" }}</p> <br>
                             <p><strong class="font-medium">SSS No.:</strong></p>
-                            <p> 5786-789-987</p> <br>
+                            <p>{{ application.person_id.sss_id_no|default:"--" }}</p> <br>
                             <p><strong class="font-medium">Residential Address:</strong> </p>
-                            <p>Cabangan, Tarlac City</p> <br>
-                            <p><strong class="font-medium">ZIP Code:</strong> </p>
-                            <p>4510</p> <br>
-                            <p><strong class="font-medium">ZIP Code:</strong></p>
-                            <p> 4510</p> <br>
-                            <p><strong class="font-medium">Telephone No.:</strong></p>
-                            <p> 0938 565 5872</p> <br>
+                            <p>{{ application.person_id.residential_address }}</p> <br>
+                            <p><strong class="font-medium">Residential ZIP Code:</strong> </p>
+                            <p>{{ application.person_id.residential_address_zip_code }}</p> <br>
+                            <p><strong class="font-medium">Residential Telephone No.:</strong></p>
+                            <p>{{ application.person_id.residential_address_telephone_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Permanent Address:</strong></p>
+                            <p>{{ application.person_id.permanent_address }}</p> <br>
+                            <p><strong class="font-medium">Permanent ZIP Code:</strong></p>
+                            <p>{{ application.person_id.permanent_address_zip_code }}</p> <br>
+                            <p><strong class="font-medium">Permanent Telephone No.:</strong></p>
+                            <p>{{ application.person_id.permanent_address_telephone_no|default:"--" }}</p> <br>
                             <p><strong class="font-medium">Email address:</strong></p>
-                            <p> Jhonny@gmail.com</p> <br>
-                            <p><strong class="font-medium">Permanent address:</strong></p>
-                            <p> April 16, 2003</p> <br>
+                            <p>{{ application.person_id.contact_email_address|default:"--" }}</p> <br>
                             <p><strong class="font-medium">Celphone No.:</strong></p>
-                            <p> 0938 565 5872</p> <br>
+                            <p>{{ application.person_id.cellphone_no }}</p> <br>
                             <p><strong class="font-medium">Agency Employee No.:</strong></p>
-                            <p> 0919186871</p> <br>
+                            <p>{{ application.person_id.agency_employee_no|default:"--" }}</p> <br>
                             <p><strong class="font-medium">TIN:</strong> </p>
-                            <p> 0919186871</p> <br>
+                            <p>{{ application.person_id.tin_no|default:"--" }}</p> <br>
                         </div>
                 </section>
 
+                {% if spouse %}
                 <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
                     <h2 class="text-blue-700 text-lg font-semibold mb-4">Spouse Information</h2>
                     <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                         <div>
                             <p><strong class="font-medium">Spouse surname:</strong></p>
-                            <p>Buates</p> <br>
+                            <p>{{ spouse.spouse_surname }}</p> <br>
                             <p><strong class="font-medium">First Name:</strong></p>
-                            <p> John April</p> <br>
+                            <p>{{ spouse.spouse_first_name }}</p> <br>
                             <p><strong class="font-medium">Middle Name:</strong></p>
-                            <p>Levantino</p> <br>
-                            <p><strong class="font-medium">Date of Birth[mm/dd/yy]:</strong></p>
-                            <p>Buates</p> <br>
+                            <p>{{ spouse.spouse_middle_name|default:"--" }}</p> <br>
+                            <p><strong class="font-medium">Occupation:</strong></p>
+                            <p>{{ spouse.occupation|default:"--" }}</p> <br>
                         </div>
                         <div>
-                            <p><strong class="font-medium">Occupation:</strong></p>
-                            <p>Teacher</p> <br>
                             <p><strong class="font-medium"> Telephone no.</strong>:</strong></p>
-                            <p>09696967890</p> <br>
-                            <p><strong class="font-medium"> Employee B.U.S. name: </strong></p>
-                            <p>P&G Company</p> <br>
+                            <p>{{ spouse.telephone_no|default:"--" }}</p> <br>
+                            <p><strong class="font-medium"> Employer / Business Name: </strong></p>
+                            <p>{{ spouse.employer_business_name|default:"--" }}</p> <br>
                             <p><strong class="font-medium">Business address:</strong></p>
-                            <p>Santa Rosa, Laguna</p> <br>
+                            <p>{{ spouse.business_address|default:"--" }}</p> <br>
                         </div>
 
 
@@ -166,41 +181,49 @@
                     </div>
 
                 </section>
-
+                {% endif %}
 
                 <!-- children Section -->
+                {% if children %}
                 <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
                     <h2 class="text-blue-700 text-lg font-semibold mb-4">Name of children</h2>
-                    <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                            <p><strong class="font-medium">Name:</strong> </p> <br>
-                            <p> John April Bercasio Bilanias</p> <br>
-                            <p>Alyssa Atos Levantino</p> <br>
-                            <p>Kaila Capua Atos</p> <br>
-                            <p>Bibeth Buates</p> <br>
-
-                        </div>
-                        <div>
-                            <p> <strong class="font-medium">Date of Birth:</strong></p> <br>
-                            <p>06/09/1999</p> <br>
-                            <p> 06/09/1999</p> <br>
-                            <p> 06/09/1999</p> <br>
-                            <p> 06/09/1999</p> <br>
-                        </div>
+                    <!-- Table -->
+                    <div class="border border-gray-200 rounded-md overflow-hidden">
+                        <table id="myTable" class="min-w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-600">Name</th>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-600">Date of Birth</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                {% for child in children %}
+                                <tr id="row-{{ forloop.counter }}" class="border-b border-gray-200">
+                                    <td class="px-6 py-3">{{ child.full_name }}</td>
+                                    <td class="px-6 py-3">{{ child.date_of_birth|date:"m/d/Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </section>
+                {% endif %}
 
                 <!-- Person to Contact Section -->
                 <section>
                     <div class="p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
-                        <h2 class="text-blue-700 text-lg font-semibold mb-4">Person to Contact </h2> <strong
-                            class="font-medium">In case of emergency contact</strong>
-                        <div>
-                            <p><strong class="font-medium">Name:</strong> </p>
-                            <p> [Emergency Contact Name]</p> <br>
-                            <p><strong class="font-medium">address:</strong></p>
-                            <p>Santa Rosa, Laguna</p> <br>
+                        <h2 class="text-blue-700 text-lg font-semibold mb-4">Person to Contact </h2>
+                        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+                            <div>
+                                <p><strong class="font-medium">Name:</strong> </p>
+                                <p>{{ emergency_contact.emergency_contact_name }}</p> <br>
+                            </div>
+                            <div>
+                                <p><strong class="font-medium">Address:</strong></p>
+                                <p>{{ emergency_contact.emergency_contact_address }}</p> <br>
+                            </div>
                         </div>
+
                     </div>
                 </section>
             </main>

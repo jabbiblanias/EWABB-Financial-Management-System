@@ -20,6 +20,49 @@
     <!-- Sidebar -->
     {% include 'dashboard/partials/admin_nav.html' %}
 
+    
+<!-- Top Bar -->
+<header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm fixed top-0 left-64 right-0">
+  <h1 class="text-xl font-semibold">Backups</h1>
+  <div class="flex items-center space-x-4">
+    <div class="relative">
+      <input
+        type="text"
+        placeholder="Search for member"
+        class="px-4 py-2 border rounded-full text-sm focus:outline-none"
+      />
+    </div>
+    <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+              <div
+                class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold"
+              >
+                AD
+              </div>
+              <span class="text-sm font-medium">Admin</span>
+              <div class="dropdown dropdown-end">
+                <svg tabindex="0" role="button"
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+                </svg>
+                <!-- Dropdown Menu -->
+                {% include "partials/profile_menu.html" %}
+              </div>
+            </div>
+  </div>
+</header>
+
+
     <!-- Main Content -->
     <div class="ml-64 mr-4 mt-[72px] flex-1">
 
@@ -50,7 +93,7 @@
       <!-- Backup Table -->
       <div class="px-6 py-4">
         <div class="border border-gray-200 rounded-md overflow-hidden">
-          <table class="min-w-full text-sm">
+          <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th class="px-6 py-3 text-left font-medium text-gray-600">File Name</th>
@@ -60,32 +103,14 @@
                 <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
               </tr>
             </thead>
-            <tbody id="backup-table-body" class="bg-white">
-              {% for backup in backups %}
-              <tr class="border-b border-gray-200">
-                <td class="px-6 py-3">{{ backup.name }}</td>
-                <td class="px-6 py-3">{{ backup.location }}</td>
-                <td class="px-6 py-3">{{ backup.size }}</td>
-                <td class="px-6 py-3">{{ backup.created_at|date:"Y-m-d h:i A" }}</td>
-                <td class="px-4 py-2">
-                  <button id="table-restore" onclick="openRestoreModal(this)"
-                    class="w-15 h-6 flex items-center justify-center rounded-2xl border border-red-500 text-red-500 hover:bg-red-100"
-                    data-name="{{ backup.name }}" data-location="{{ backup.location }}">Restore</button>
-                </td>
-              </tr>
-              {% endfor %}
+            <tbody id="table-body" class="bg-white">
+              {% include 'backup_and_restore/partials/backup_table_body.html' %}
             </tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-          <button class="text-blue-500">&lt; Previous</button>
-          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">1</button>
-          <button class="text-blue-500">2</button>
-          <button class="text-blue-500">3</button>
-          <button class="text-blue-500">4</button>
-          <button class="text-blue-500">Next &gt;</button>
+        <div id="pagination-controls">
+          {% include 'partials/pagination.html' %}
         </div>
       </div>
     </div>
@@ -231,7 +256,7 @@
       e.preventDefault();
       try {
         const form = e.target;
-        pendingFormData = new FormData(form);
+        const pendingFormData = new FormData(form);
         const response = await fetch("{% url 'manual_backup' %}", {
           method: "POST",
           headers: {
@@ -239,13 +264,14 @@
           },
           body: pendingFormData
         })
-        data = await response.json()
-        if (data) {
-          document.getElementById("backup-result").innerText = data.message;
+        const data = await response.json();
+        if (data.status === "success") {
+          showAlert(data.message, data.status);
           closeManualBackupModal();
         }
+        
       } catch (err) {
-        document.getElementById("backup-result").innerText = "Error: " + err;
+        console.log("Error: " + err);
       };
     });
   </script>
@@ -280,7 +306,9 @@
           data = await response.json()
           if (data.status === "success") {
             showAlert(data.message, data.status)
-            window.location.reload();
+            setTimeout(() => {
+                window.location.href = "{% url 'login' %}";
+            }, 4000);
           }
         } catch (err) {
           console.log("Error: " + err);

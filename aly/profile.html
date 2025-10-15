@@ -1,0 +1,66 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWABB Member Profile</title>
+    {% tailwind_css %}
+  </head>
+    <!-- Profile Header -->
+    <div class="max-w-5xl mx-auto mt-10">
+      <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-900 to-blue-600 h-40"></div>
+        <div class="px-6 -mt-16 flex items-end space-x-6">
+          
+          <div class="pb-4">
+            <h2 class="text-3xl font-bold text-white">Juan Dela Cruz</h2>
+            <p class="text-white">Member ID: <span class="font-semibold">#123456</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Details -->
+    <div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Personal Information -->
+      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+        <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4">Personal Information</h3>
+        <ul class="space-y-2 text-gray-700">
+          <li><span class="font-medium">Full Name:</span> Juan M. Dela Cruz</li>
+          <li><span class="font-medium">Date of Birth:</span> January 15, 1990</li>
+          <li><span class="font-medium">Place of Birth:</span> Manila, Philippines</li>
+          <li><span class="font-medium">Gender:</span> Male</li>
+          <li><span class="font-medium">Civil Status:</span> Single</li>
+          <li><span class="font-medium">Citizenship:</span> Filipino</li>
+          <li><span class="font-medium">Blood Type:</span> O+</li>
+        </ul>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+        <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4">Contact Information</h3>
+        <ul class="space-y-2 text-gray-700">
+          <li><span class="font-medium">Cellphone:</span> +639171234567</li>
+          <li><span class="font-medium">Email:</span> juan.delacruz@email.com</li>
+          <li><span class="font-medium">Residential Address:</span> 123 St., Brgy. Sampaloc, Manila</li>
+          <li><span class="font-medium">Permanent Address:</span> 456 St., Brgy. Sta. Mesa, Manila</li>
+        </ul>
+      </div>
+
+      <!-- Government IDs -->
+      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2">
+        <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4">Government IDs</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+          <p><span class="font-medium">GSIS:</span> 12345678910</p>
+          <p><span class="font-medium">PAG-IBIG:</span> 1234-5678-9012</p>
+          <p><span class="font-medium">PhilHealth:</span> 12-345678901-2</p>
+          <p><span class="font-medium">SSS:</span> 12-3456789-0</p>
+          <p><span class="font-medium">TIN:</span> 123-123-123</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

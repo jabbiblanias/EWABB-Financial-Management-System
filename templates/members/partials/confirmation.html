@@ -165,6 +165,7 @@
         const application_id = this.dataset.id;
         const name = this.dataset.name;
         const action = this.dataset.action;
+        button.disable = true;
 
         if (action == "approve"){
           document.getElementById("approveMembershipName").textContent = name;
@@ -175,6 +176,7 @@
           const button = document.getElementById("reject");
           button.onclick = () => handleConfirmClick(application_id, action);
         }
+        button.disable = false;
       });
     });
   }
@@ -196,7 +198,7 @@
     })
     .then(data => {
       if (data.success) {
-        document.getElementById('membership-table-body').innerHTML = data.html;
+        document.getElementById('table-body').innerHTML = data.html;
         fillTableRows('myTable', 10);
         attachActionListeners();  // rebind new buttons
         if (action === "approve"){
