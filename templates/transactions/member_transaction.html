@@ -1,45 +1,58 @@
-{% load static tailwind_tags %}
+{{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EWABB Transactions</title>
-    {% tailwind_css %}
-    <script src="{% static 'partials/table-utils.js' %}"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      fillTableRows('myTable', 10);
-    });
-  </script>
-  </head>
-  <body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-      {% include 'dashboard/partials/member_nav.html' %}
-      <!-- Main Content -->
-      <main class="ml-64 mt-[72px] flex-1">
-        <div class="p-6 mt-6">
-          <div class="px-6 py-4 text-lg font-semibold text-gray-700">All Transactions</div>
-          <div class="bg-white shadow rounded-xl overflow-hidden">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Transactions</title>
+  {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+  {% include 'dashboard/partials/member_nav.html' %}
+
+
+     <main class="flex-1 mt-[72px] md:ml-64 p-4 md:p-6 overflow-y-auto">
+        <div class="max-w-full">
+          <div class="px-2 md:px-6 py-4 text-lg font-semibold text-gray-700">
+            All Transactions
+          </div>
+
+          <div class="bg-white shadow rounded-xl overflow-x-auto">
             <table id="myTable" class="min-w-full text-left text-sm">
-              <thead>
-                <tr class="text-sm">
-                  <th class="px-6 py-3 text-left font-medium">Transaction ID</th>
-                  <th class="px-6 py-3 text-left font-medium">Transaction Type</th>
-                  <th class="px-6 py-3 text-left font-medium">Date</th>
-                  <th class="px-6 py-3 text-left font-medium">Amount</th>
+              <thead class="bg-gray-50">
+                <tr class="text-sm text-gray-700">
+                  <th class="px-4 md:px-6 py-3 font-medium whitespace-nowrap">Transaction ID</th>
+                  <th class="px-4 md:px-6 py-3 font-medium whitespace-nowrap">Transaction Type</th>
+                  <th class="px-4 md:px-6 py-3 font-medium whitespace-nowrap">Date</th>
+                  <th class="px-4 md:px-6 py-3 font-medium whitespace-nowrap">Amount</th>
                 </tr>
               </thead>
-               <tbody id="table-body" class="bg-white">
-                  {% include 'transactions/partials/member_transaction_table_body.html' %}
-                </tbody>
+              <tbody id="table-body" class="bg-white">
+                {% include 'transactions/partials/member_transaction_table_body.html' %}
+              </tbody>
             </table>
           </div>
-          <div id="pagination-controls">
-  {% include 'partials/pagination.html' %}
-</div>
+
+          <!-- Pagination -->
+          <div id="pagination-controls" class="mt-4 flex justify-center md:justify-start">
+            {% include 'partials/pagination.html' %}
+          </div>
         </div>
       </main>
     </div>
+
+    <script>
+      // Close mobile sidebar when clicking outside
+      document.addEventListener("click", function (event) {
+        const sidebar = document.getElementById("mobileSidebar");
+        const toggle = document.getElementById("menuToggle");
+        if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+          sidebar.classList.add("hidden");
+        }
+      });
+    </script>
   </body>
 </html>
