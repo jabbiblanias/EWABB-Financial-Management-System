@@ -1,26 +1,46 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Empowering Women</title>
   <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
   <style>
-    /* Smooth scrolling */
     html {
       scroll-behavior: smooth;
+    }
+
+    /* Sidebar animation */
+    #sidebar {
+      transition: transform 0.3s ease;
+      transform: translateX(-100%);
+    }
+
+    #sidebar.active {
+      transform: translateX(0);
+    }
+
+    /* Overlay fade effect */
+    #overlay {
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #overlay.active {
+      opacity: 1;
+      pointer-events: auto;
     }
   </style>
 </head>
 
-<body class="font-sans text-gray-700">
-  <!-- Header with Wave Background -->
-  <header class="relative bg-blue-900 text-white overflow-hidden">
-    <!-- Wave Texture -->
+<body class="font-sans text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-900 transition-colors duration-300">
+
+  <!-- Header -->
+  <header class="relative bg-blue-900 text-white overflow-hidden dark:bg-blue-950">
     <div class="absolute inset-0">
-      <svg class="w-full h-full text-blue-800 opacity-20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <svg class="w-full h-full text-blue-800 opacity-20 dark:text-blue-700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         <pattern id="wave" x="0" y="0" width="100" height="40" patternUnits="userSpaceOnUse">
           <path d="M0 20 Q 25 0 50 20 T 100 20 V40 H0 Z" fill="currentColor" />
         </pattern>
@@ -28,33 +48,41 @@
       </svg>
     </div>
 
-    <!-- Nav -->
+    <!-- Navbar -->
     <nav class="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-6">
+      <button id="hamburger" class="md:hidden text-3xl focus:outline-none">☰</button>
       <div class="text-2xl font-bold">EWABB</div>
-      <div class="flex items-center gap-6">
-        <a href="#about" class="hover:text-blue-300 transition">About</a>
-        <a href="#services" class="hover:text-blue-300 transition">Services</a>
-        <a href="#program" class="hover:text-blue-300 transition">Program</a>
-        <a href="#team" class="hover:text-blue-300 transition">Team</a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-6">
+        <a href="#about" class="hover:text-yellow-300 transition nav-link">About</a>
+        <a href="#services" class="hover:text-yellow-300 transition nav-link">Services</a>
+        <a href="#program" class="hover:text-yellow-300 transition nav-link">Program</a>
+        <a href="#team" class="hover:text-yellow-300 transition nav-link">Team</a>
       </div>
+
+      <!-- Buttons -->
       <div class="flex items-center gap-4">
         <a href="{% url 'login' %}" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-semibold py-2 px-4 rounded-lg transition">Login</a>
         <a href="{% url 'register1' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition">Register</a>
       </div>
     </nav>
 
-    <!-- Hero -->
+    <!-- About -->
     <div class="relative max-w-7xl mx-auto flex flex-col md:flex-row items-center px-6 py-16">
       <div class="flex-1 text-center md:text-left">
         <h1 class="text-4xl md:text-5xl font-bold leading-tight">
           Empowering Women, <br /> Forging Brighter Futures.
         </h1>
-        <p class="mt-4 text-blue-200 text-lg">
+        <p class="mt-4 text-blue-200 text-lg dark:text-blue-100">
           A professional digital banking platform dedicated to financial empowerment.
         </p>
         <div class="mt-6 flex gap-4 justify-center md:justify-start">
-          <a href="#about" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-lg shadow transition">Get Started</a>
-          <a href="#services" class="bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition">Learn More</a>
+          <a href="#about"
+            class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-6 rounded-lg shadow transition">Get
+            Started</a>
+          <a href="#services"
+            class="bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition">Learn More</a>
         </div>
       </div>
       <div class="flex-1 mt-10 md:mt-0">
@@ -63,116 +91,169 @@
     </div>
   </header>
 
+  <!-- Sidebar -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
+  <div id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-blue-900 dark:bg-blue-950 text-white z-50 flex flex-col p-6 space-y-6 overflow-y-auto">
+    <div class="flex justify-between items-center mb-8">
+      <span class="text-2xl font-bold">Menu</span>
+      <button id="closeSidebar" class="text-3xl font-bold text-white">×</button>
+    </div>
+    <a href="#about" class="hover:text-yellow-300 text-lg nav-link">About</a>
+    <a href="#services" class="hover:text-yellow-300 text-lg nav-link">Services</a>
+    <a href="#program" class="hover:text-yellow-300 text-lg nav-link">Program</a>
+    <a href="#team" class="hover:text-yellow-300 text-lg nav-link">Team</a>
+  </div>
+
   <!-- About -->
-  <section id="about" class="py-16 px-6">
+  <section id="about" class="py-16 px-6 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
     <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
       <div>
-        <h2 class="text-3xl font-bold mb-4">About EWABB</h2>
-        <p class="text-lg text-gray-600 mb-4">
-          The Empowered Women Association of Barangay Bañadero (EWABB) is dedicated to providing financial support and opportunities to women. Through innovative banking services, EWABB fosters savings, loans, and investments for stronger communities.
+        <h2 class="text-3xl font-bold mb-4 dark:text-white">About EWABB</h2>
+        <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
+          The Empowered Women Association of Barangay Bañadero (EWABB) is dedicated to providing financial support and
+          opportunities to women. Through innovative banking services, EWABB fosters savings, loans, and investments for
+          stronger communities.
         </p>
       </div>
-      <img src="https://img.freepik.com/free-vector/team-leader-concept-illustration_114360-1007.jpg" alt="About Image" class="w-full rounded-lg shadow-md" />
+      <img src="https://img.freepik.com/free-vector/team-leader-concept-illustration_114360-1007.jpg" alt="About Image"
+        class="w-full rounded-lg shadow-md" />
     </div>
   </section>
 
-  <!-- Services with Wave Background -->
-  <section id="services" class="relative bg-blue-900 text-white py-16 overflow-hidden">
-    <!-- Wave Background -->
+  <!-- Services -->
+  <section id="services" class="relative bg-blue-900 text-white dark:bg-blue-950 py-16 overflow-hidden">
     <div class="absolute inset-0">
-      <svg class="w-full h-full text-blue-800 opacity-20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <svg class="w-full h-full text-blue-800 opacity-20 dark:text-blue-700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         <use href="#wave" />
       </svg>
     </div>
-
     <div class="relative max-w-7xl mx-auto">
       <h2 class="text-3xl font-bold text-center mb-12">Our Services</h2>
       <div class="grid md:grid-cols-3 gap-8">
         <div class="bg-white/10 p-6 rounded-lg shadow hover:scale-105 transition">
           <h3 class="text-xl font-semibold mb-2">Savings</h3>
-          <p class="text-blue-200">Secure and grow your money with easy savings plans.</p>
+          <p class="text-blue-200 dark:text-blue-100">Secure and grow your money with easy savings plans.</p>
         </div>
         <div class="bg-white/10 p-6 rounded-lg shadow hover:scale-105 transition">
           <h3 class="text-xl font-semibold mb-2">Loans</h3>
-          <p class="text-blue-200">Flexible and accessible loans tailored to your needs.</p>
+          <p class="text-blue-200 dark:text-blue-100">Flexible and accessible loans tailored to your needs.</p>
         </div>
         <div class="bg-white/10 p-6 rounded-lg shadow hover:scale-105 transition">
           <h3 class="text-xl font-semibold mb-2">Investments</h3>
-          <p class="text-blue-200">Smart investment options to secure your future.</p>
+          <p class="text-blue-200 dark:text-blue-100">Smart investment options to secure your future.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Program -->
-  <section id="program" class="py-16 px-6 bg-gray-50">
+  <section id="program" class="py-16 px-6 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
     <div class="max-w-7xl mx-auto text-center">
-      <h2 class="text-3xl font-bold mb-6 text-gray-800">Our Programs</h2>
-      <p class="max-w-2xl mx-auto text-gray-600 mb-12">
+      <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Our Programs</h2>
+      <p class="max-w-2xl mx-auto text-gray-600 dark:text-gray-300 mb-12">
         EWABB supports women through dedicated initiatives that strengthen financial independence and community growth.
       </p>
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
-          <h3 class="text-xl font-semibold mb-2 text-gray-800">Microfinance</h3>
-          <p class="text-gray-600">Accessible loans that give women the power to start and sustain small businesses.</p>
+        <div class="bg-white dark:bg-gray-700 p-8 rounded-lg shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Microfinance</h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            Accessible loans that give women the power to start and sustain small businesses.
+          </p>
         </div>
         <div class="bg-blue-600 text-white p-8 rounded-lg shadow-lg hover:scale-105 transition">
           <h3 class="text-xl font-semibold mb-2">Skills Training</h3>
           <p>Workshops and mentorship to help women gain knowledge, confidence, and opportunities.</p>
         </div>
-        <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition">
-          <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Projects</h3>
-          <p class="text-gray-600">Collective efforts that invest in the barangay’s growth and empower future generations.</p>
+        <div class="bg-white dark:bg-gray-700 p-8 rounded-lg shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Community Projects</h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            Collective efforts that invest in the barangay’s growth and empower future generations.
+          </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Work Everywhere with Wave -->
-  <section class="relative bg-blue-900 text-white py-16 text-center overflow-hidden">
-    <div class="relative max-w-4xl mx-auto">
-      <h2 class="text-3xl font-bold mb-4">Your Work, Everywhere You Are</h2>
-      <p class="text-blue-200">
-        Access your financial tools on any device, anytime, anywhere.
-      </p>
-    </div>
-  </section>
-
   <!-- Team -->
-  <section id="team" class="py-16 px-6">
+  <section id="team" class="py-16 px-6 bg-white dark:bg-gray-900 transition-colors duration-300">
     <div class="max-w-7xl mx-auto text-center mb-12">
-      <h2 class="text-3xl font-bold">Meet Our Team</h2>
+      <h2 class="text-3xl font-bold dark:text-white">Meet Our Team</h2>
     </div>
     <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-      <div class="bg-white rounded-lg shadow p-6">
-        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" class="w-24 h-24 mx-auto rounded-full mb-4" alt="CEO">
-        <h3 class="font-semibold">Arthur Marco</h3>
-        <p class="text-gray-500 text-sm">Founder & CEO</p>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
+          class="w-24 h-24 mx-auto rounded-full mb-4" alt="CEO">
+        <h3 class="font-semibold dark:text-white">Arthur Marco</h3>
+        <p class="text-gray-500 dark:text-gray-300 text-sm">Founder & CEO</p>
       </div>
-      <div class="bg-white rounded-lg shadow p-6">
-        <img src="{% static 'accounts/images/nancy.jpg' %}" class="w-24 h-24 mx-auto rounded-full mb-4" alt="Bookkeeper">
-        <h3 class="font-semibold">Nancy Levantino</h3>
-        <p class="text-gray-500 text-sm">Bookkeeper</p>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <img src="{% static 'accounts/images/nancy.jpg' %}" class="w-24 h-24 mx-auto rounded-full mb-4"
+          alt="Bookkeeper">
+        <h3 class="font-semibold dark:text-white">Nancy Levantino</h3>
+        <p class="text-gray-500 dark:text-gray-300 text-sm">Bookkeeper</p>
       </div>
-      <div class="bg-white rounded-lg shadow p-6">
-        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" class="w-24 h-24 mx-auto rounded-full mb-4" alt="Cashier">
-        <h3 class="font-semibold">Arthur Marco</h3>
-        <p class="text-gray-500 text-sm">Cashier</p>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
+          class="w-24 h-24 mx-auto rounded-full mb-4" alt="Cashier">
+        <h3 class="font-semibold dark:text-white">Arthur Marco</h3>
+        <p class="text-gray-500 dark:text-gray-300 text-sm">Cashier</p>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-400 py-8 text-center">
+  <footer class="bg-gray-900 text-gray-400 py-8 text-center dark:bg-black dark:text-gray-300">
     <p>© 2025 EWABB Banking. All Rights Reserved.</p>
   </footer>
 
-  <!-- Define Wave Pattern Once -->
+  <!-- Hidden SVG pattern -->
   <svg class="hidden">
     <pattern id="wave" x="0" y="0" width="100" height="40" patternUnits="userSpaceOnUse">
       <path d="M0 20 Q 25 0 50 20 T 100 20 V40 H0 Z" fill="currentColor" />
     </pattern>
   </svg>
 
+  <!-- Sidebar Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const hamburger = document.getElementById("hamburger");
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const closeBtn = document.getElementById("closeSidebar");
+      const links = document.querySelectorAll(".nav-link");
+
+      function openSidebar() {
+        sidebar.classList.add("active");
+        overlay.classList.add("active");
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+      }
+
+      hamburger.addEventListener("click", openSidebar);
+      closeBtn.addEventListener("click", closeSidebar);
+      overlay.addEventListener("click", closeSidebar);
+
+      // Smooth scroll and auto-close
+      links.forEach(link => {
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute("href"));
+          if (target) {
+            closeSidebar();
+            setTimeout(() => {
+              window.scrollTo({
+                top: target.offsetTop - 50,
+                behavior: "smooth"
+              });
+            }, 300);
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>
