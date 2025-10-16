@@ -8,7 +8,13 @@
     {% tailwind_css %}
 </head>
 <body class="bg-gray-100 font-sans antialiased">
-    <div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    {# --- Dynamic Navigation --- #}
+    {% if request.user.groups.all.0.name == "Bookkeeper" %}
+      {% include 'dashboard/partials/bookkeeper_nav.html' %}
+    {% elif request.user.groups.all.0.name == "Admin" %}
+      {% include 'dashboard/partials/admin_nav.html' %}
+    {% endif %}
+    <div class="p-6 ml-64 mr-4 mt-[72px] flex-1">
         <h1 class="text-3xl font-semibold text-blue-600 mb-6">Loan Application Details</h1>
 
         <!-- Loan Information Section -->

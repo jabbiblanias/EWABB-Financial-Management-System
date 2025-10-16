@@ -11,7 +11,14 @@
 
 <body class="font-sans">
     <!-- Sidebar -->
-    {% include 'dashboard/partials/admin_nav.html' %}
+    {# --- Dynamic Navigation --- #}
+    {% if request.user.groups.all.0.name == "Bookkeeper" %}
+      {% include 'dashboard/partials/bookkeeper_nav.html' %}
+    {% elif request.user.groups.all.0.name == "Cashier" %}
+      {% include 'dashboard/partials/cashier_nav.html' %}
+    {% elif request.user.groups.all.0.name == "Admin" %}
+      {% include 'dashboard/partials/admin_nav.html' %}
+    {% endif %}
     <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
         <h1 class="ml-3 text-3xl font-semibold text-blue-600 mb-6">Loan Details</h1>
 

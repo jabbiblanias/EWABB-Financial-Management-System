@@ -7,7 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         today = timezone.localdate()
         EXCLUDE_STATUSES = ['Paid', 'Canceled']
-
+        
         updated_due = LoanRepaymentSchedule.objects.filter(
             due_date=today
         ).exclude(
