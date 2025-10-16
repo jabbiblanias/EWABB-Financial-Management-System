@@ -13,7 +13,7 @@ from .utils import generate_unique_name
 from django.http import HttpResponse
 from django.template.loader import get_template, render_to_string
 from django.core.paginator import Paginator 
-#from xhtml2pdf import pisa
+from xhtml2pdf import pisa
 
 
 def member_loan_report(request):
@@ -226,7 +226,7 @@ def submit_financial_report(request):
     
     return JsonResponse({"status": "success"}, status=200)
 
-'''def pdf_report_export(request, report_id):
+def pdf_report_export(request, report_id):
     report = Financialreports.objects.filter(report_id=report_id).values("title", "status", "created_at").first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
     template_path = 'financial_reporting/pdfReport.html'
@@ -244,7 +244,6 @@ def submit_financial_report(request):
     if pisa_status.err:
         return HttpResponse('we had some errors <pre>' + html + '</pre>')
     return response
-'''
 
 def pdf_report(request):
     return render(request, 'financial_reporting/pdfReport.html')

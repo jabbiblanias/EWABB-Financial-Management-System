@@ -243,7 +243,7 @@ def cashier_approved_loans(request, ajax=False):
     return context
 
  
-def loan_applications_data(request, ajax=False):
+def loan_applications_data(request, ajax=False, page=None):
     loan_applications = (
         LoanApplication.objects
         .select_related('member_id')
@@ -261,15 +261,16 @@ def loan_applications_data(request, ajax=False):
     
     paginator = Paginator(loan_applications, 10)
 
-    page_num = request.GET.get('page')
+    page_num = page or request.GET.get('page')
 
     page = paginator.get_page(page_num)
+
     context = {'loanApplications': loan_applications, 'page': page}
 
     if ajax:
         html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
-        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
     
     return context
 
@@ -316,6 +317,7 @@ def approving_loan(request):
         data = json.loads(request.body)
         loan_application_id = data.get('loan_application_id')
         action = data.get('action')
+        page = data.get('page', 1)
         user = request.user
         bookkeeper = user.groups.filter(name='Bookkeeper').exists()
         admin = user.groups.filter(name='Admin').exists()
@@ -372,9 +374,10 @@ def approving_loan(request):
                 loan_application.approved_date = date.today()
                 status = "Verified"
             loan_application.save()
-            context = loan_applications_data()
-            html = render_to_string('loans/partials/loan_applications_table_body.html', context, request=request)
-            return JsonResponse({'success': True, 'html': html})
+
+            # get shared data
+            context = loan_applications_data(request, ajax=True, page=page)
+            return context
         except LoanApplication.DoesNotExist:
             return JsonResponse({'success': False})
         except Member.DoesNotExist:
