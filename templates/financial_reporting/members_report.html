@@ -93,7 +93,7 @@
     role="status"></div>
   <script>
     document.getElementById("go-back").addEventListener("click", () => {
-      history.back();
+      window.location.href = "{% url 'financial_report' %}";
     });
     document.getElementById("edit").addEventListener("click", function () {
       const title = document.getElementById("title");
@@ -158,10 +158,12 @@
         if (response.ok) {
           if (action === "save") {
             message = "Report has successfully been saved"
+            showAlert(message, "success")
           } else {
             message = "Report has successfully been submitted"
+            showAlert(message, "success")
+            window.location.href = "{% url 'financial_report' %}";
           }
-          showAlert(message, "success")
         } else {
           showAlert("Error while saving", "error");
         }
