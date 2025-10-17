@@ -38,7 +38,13 @@
 
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm fixed top-0 left-64 right-0">
-  <h2 class="text-lg font-semibold">Dashboard</h2>
+  <h2 class="text-lg font-semibold">
+    {% if request.resolver_match.url_name == 'dashboard' %} Dashboard 
+    {% elif request.resolver_match.url_name == 'transactions' %} Transactions
+    {% elif request.resolver_match.url_name == 'loan_applications' or request.resolver_match.url_name == 'loanDetails' %} Loans
+    {% elif request.resolver_match.url_name == 'profile' %} Profile
+    {% endif %}
+  </h2>
   <div class="flex items-center space-x-4">
     <div class="flex items-center space-x-4">
       <div id="notif" class="dropdown dropdown-end">

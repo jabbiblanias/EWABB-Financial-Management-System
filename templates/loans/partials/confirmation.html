@@ -189,37 +189,41 @@
     });
   }
 
-  function fetchAPI(loan_application_id, action){
-    fetch("{% url 'loan_approval' %}", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({ loan_application_id: loan_application_id, action: action})
-    })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`HTTP error: ${res.status}`);
+  function fetchAPI(loan_application_id, action) {
+  const baseUrl = "{% url 'loan_approval' %}";  // Django fills this in
+  const fullUrl = `${baseUrl}?page=${currentPage}`; // JS adds ?page
+
+  fetch(fullUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}',
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: JSON.stringify({ loan_application_id: loan_application_id, action: action, page: currentPage })
+  })
+  .then((res) => {
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+    return res.json();
+  })
+  .then(data => {
+    if (data.success) {
+      document.getElementById('table-body').innerHTML = data.table_body_html;
+      document.getElementById("pagination-controls").innerHTML = data.pagination_html;
+      fillTableRows('myTable', 10);
+      attachActionListeners();
+      if (action === "approve"){
+        showAlert(`Loan Application ID ${loan_application_id} has been approved.`, "approve");
+      } else if (action === "reject"){
+        showAlert(`Loan Application ID ${loan_application_id} has been rejected.`, "reject");
       }
-      return res.json();
-    })
-    .then(data => {
-      if (data.success) {
-        document.getElementById('table-body').innerHTML = data.html;
-        fillTableRows('myTable', 10);
-        attachActionListeners();  // rebind new buttons
-        if (action === "approve"){
-          showAlert(`"Loan Application ID ${loan_application_id}" has been approved.`, "approve");
-        }else if(action === "reject"){
-          showAlert(`"Loan Application ID ${loan_application_id}" has been rejected.`, "reject");
-        }
-      } else {
-        showAlert("Something went wrong.", "warning");
-      }
-    })
-    .catch(error => console.error('Fetch error:', error));
-  }
+    } else {
+      showAlert("Something went wrong.", "warning");
+    }
+  })
+  .catch(error => console.error('Fetch error:', error));
+}
+
 
   function handleConfirmClick(loan_application_id, action){
     fetchAPI(loan_application_id, action);

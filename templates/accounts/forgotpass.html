@@ -1,0 +1,59 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forgot Password | EWABB</title>
+    {% tailwind_css %}
+  </head>
+
+  <body class="bg-gray-100 dark:bg-gray-900 font-sans transition-colors duration-300">
+    
+    <!-- Navbar -->
+    <nav class="bg-blue-900 dark:bg-gray-800 px-6 py-4 flex justify-between items-center shadow-md">
+      <h1 class="text-white font-bold text-xl">EWABB</h1>
+      <div class="space-x-4">
+        <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block">
+          Back to Login
+        </a>
+      </div>
+    </nav>
+
+    <!-- Forgot Password Section -->
+    <section class="flex items-center justify-center min-h-screen px-4 -mt-20">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-8 shadow-lg transition-colors duration-300">
+        <h2 class="text-2xl font-bold text-center text-blue-900 dark:text-blue-300 mb-2">
+          Forgot Password
+        </h2>
+        <p class="text-gray-600 dark:text-gray-300 text-center mb-6">
+          Enter your registered email address and we’ll send you a link to reset your password.
+        </p>
+
+        <!-- Form -->
+        <form method="POST" action="{% url 'password_reset' %}" class="space-y-5">
+          {% csrf_token %}
+          <div>
+            <label for="email" class="block text-gray-700 dark:text-gray-200 font-medium mb-1">
+              Email Address
+            </label>
+            <input type="email" name="email" id="email" required
+                   class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-600 focus:outline-none transition-colors duration-300">
+          </div>
+
+          <button type="submit"
+                  class="w-full bg-blue-800 text-white font-semibold py-2.5 rounded-md hover:bg-blue-900 transition">
+            Send Reset Link
+          </button>
+        </form>
+
+        <p class="text-sm text-gray-600 dark:text-gray-300 text-center mt-6">
+          Remember your password? 
+          <a href="{% url 'login' %}" class="text-blue-700 dark:text-blue-400 font-medium hover:underline">Login here</a>
+        </p>
+      </div>
+    </section>
+
+
+  </body>
+</html>
