@@ -1,0 +1,14 @@
+EWABB Membership Approved 🎉
+====================================
+
+Dear {{ first_name|default:"User" }},
+
+We are pleased to inform you that your membership application with EWABB has been APPROVED.
+
+You can now log in to your EWABB account and start accessing member benefits, including loans, savings, and financial services.
+
+Log in here:
+{{ login_url }}
+
+------------------------------------
+© {{ current_year }} EWABB. All rights reserved.

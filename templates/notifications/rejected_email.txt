@@ -1,0 +1,10 @@
+Hello {{ first_name|default:"User" }},
+
+We regret to inform you that your membership application with EWABB has been REJECTED.
+
+If you believe this was a mistake or would like to reapply, please contact our support team at:
+support@ewabb.com
+
+Thank you for your interest in EWABB.
+
+© {{ current_year }} EWABB. All rights reserved.

@@ -1,12 +1,14 @@
 Dear {{ first_name|default:"User" }},
 
-Thank you for registering with {{ site_name }}.
+Your One-Time Password (OTP) for verifying your EWABB account is:
 
-Your OTP is: {{ otp }}
+{{ otp }}
 
-⚠️ This OTP will expire in 5 minutes.
+Please enter this code on the verification page to complete your registration.
+This code is valid for a limited time, so make sure to use it soon.
 
-If you did not attempt to register, please ignore this email.
+If you did not request this, please ignore this message.
 
-Best regards,
-The {{ site_name }} Team
+Thank you,
+The EWABB Team
+© {{ current_year }} EWABB. All rights reserved.

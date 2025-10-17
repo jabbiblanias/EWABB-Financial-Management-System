@@ -190,17 +190,15 @@
   }
 
   function fetchAPI(loan_application_id, action) {
-  const baseUrl = "{% url 'loan_approval' %}";  // Django fills this in
-  const fullUrl = `${baseUrl}?page=${currentPage}`; // JS adds ?page
 
-  fetch(fullUrl, {
+  fetch(`{% url 'loan_approval' %}?page=${encodeURIComponent(currentPage)}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': '{{ csrf_token }}',
       "X-Requested-With": "XMLHttpRequest",
     },
-    body: JSON.stringify({ loan_application_id: loan_application_id, action: action, page: currentPage })
+    body: JSON.stringify({ loan_application_id: loan_application_id, action: action })
   })
   .then((res) => {
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);

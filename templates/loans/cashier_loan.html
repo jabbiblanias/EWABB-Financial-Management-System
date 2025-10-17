@@ -144,7 +144,7 @@
       document.getElementById("loanAmount").textContent = `₱${loanAmount}`;
       document.getElementById('confirm').addEventListener('click', function() {
         this.disable = true;
-        fetch("{% url 'loan_release' %}", {
+        fetch(`{% url 'loan_release' %}?page=${encodeURIComponent(currentPage)}`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
@@ -160,7 +160,8 @@
         })
         .then(data => {
           if(data.success) {
-            document.getElementById('table-body').innerHTML = data.html;
+            document.getElementById('table-body').innerHTML = data.table_body_html;
+            document.getElementById("pagination-controls").innerHTML = data.pagination_html;
             fillTableRows('myTable', 10);
             showAlert(`"Loan Application ${loan_application_id}" has been released.`, "released");
             closePopUp();
