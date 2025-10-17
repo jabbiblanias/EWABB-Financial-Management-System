@@ -4,23 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Passbook Print</title>
-  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
-  
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     body {
       font-family: "Courier New", monospace;
       font-size: 14px;
       color: #000;
       margin: 40px;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      font-size: 15px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
     }
 
     table {
@@ -73,7 +63,7 @@
       }
     }
 
-    /* Optional fixed font style (Tailwind can’t directly set Courier font globally) */
+    /* Optional: Fixed monospace font */
     body {
       font-family: "Courier New", monospace;
     }
@@ -120,8 +110,7 @@
       </tr>
 
       <!-- Extra blank rows -->
-      {% for i in 1|to:7 %}
-      <tr class="h-[22px]">
+      <tr class="h-[22px]" repeat="7">
         <td class="border border-black px-2 py-1"></td>
         <td class="border border-black px-2 py-1"></td>
         <td class="border border-black px-2 py-1"></td>
@@ -129,7 +118,6 @@
         <td class="border border-black px-2 py-1"></td>
         <td class="border border-black px-2 py-1"></td>
       </tr>
-      {% endfor %}
     </tbody>
   </table>
 
@@ -144,14 +132,14 @@
     const dateTime = urlParams.get('dateTime');
     const amount = urlParams.get('amount');
 
-    // Display values
+    // Fill in values
     document.getElementById("depositorName").textContent = memberName || "DEPOSITORS";
     document.getElementById("accountNumber").textContent = accountNo || "";
     document.getElementById("entryDate").textContent = dateTime || "";
     document.getElementById("entryDescription").textContent = transactionType || "";
     document.getElementById("entryPayment").textContent = amount || "";
 
-    // Auto print
+    // Auto print when loaded
     window.onload = () => window.print();
   </script>
 </body>
