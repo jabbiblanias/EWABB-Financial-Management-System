@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.contrib.auth.models import Group
 from django.db import transaction
-
+from notifications.utils import email_approved, email_rejected
+from django.contrib.auth.models import User
 
 
 @login_required
@@ -78,10 +79,24 @@ def approval(request):
                 Savings.objects.create(member_id=member)
 
                 account_number = member.account_number
+
+                personal_info = membership_application.person_id
+                user = membership_application.user_id
+                first_name = personal_info.first_name
+                email = user.email
+
+                email_approved(first_name, email)
             else:
                 membership_application.status = 'Rejected'
                 membership_application.verifier_id = approver
                 membership_application.save()
+
+                personal_info = membership_application.person_id
+                user = membership_application.user_id
+                first_name = personal_info.first_name
+                email = user.email
+
+                email_rejected(first_name, email)
 
             # Re-fetch and re-render the table body
             membership_applications = (

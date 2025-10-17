@@ -86,26 +86,24 @@
 
 <!-- Top bar -->
 <header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm fixed top-0 left-64 right-0">
-  <h2 class="text-lg font-semibold">Dashboard</h2>
+  <h2 class="text-lg font-semibold">
+    {% if request.resolver_match.url_name == 'dashboard' %} Dashboard 
+    {% elif request.resolver_match.url_name == 'transactions' %} Transactions
+    {% elif request.resolver_match.url_name == 'membershipApplication' or request.resolver_match.url_name == 'membershipApplicationDetails' %} Members
+    {% elif request.resolver_match.url_name == 'members' or request.resolver_match.url_name == 'memberDetails' %} Members
+    {% elif request.resolver_match.url_name == 'loan_applications' or request.resolver_match.url_name == 'loanApplicationDetails' %} Loans
+    {% elif request.resolver_match.url_name == 'active_loans' or request.resolver_match.url_name == 'loanDetails' %} Loans
+    {% elif request.resolver_match.url_name == 'profile' %} Profile
+    {% endif %}
+  </h2>
   <div class="flex items-center space-x-4">
-    <input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-60" />
+    <!--<input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-60" />-->
     <div class="flex items-center space-x-4">
-      <div id="notif" class="dropdown dropdown-end">
-        <button tabindex="0" role="button" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600" fill="currentColor">
-            <path
-              d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
-          </svg>
-        </button>
-        {% include 'partials/popup_notification.html' %}
-      </div>
       <!-- Avatar with dropdown -->
       <div class="dropdown dropdown-end">
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-[#3d5af1] rounded-full flex items-center justify-center text-white font-semibold">BK
-            </div>
-            <span class="text-sm font-medium">Bookkeeper</span>
+            {% include 'partials/header_profile.html' %}
             <div class="dropdown dropdown-end">
               <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                 viewBox="0 0 24 24" stroke="currentColor">

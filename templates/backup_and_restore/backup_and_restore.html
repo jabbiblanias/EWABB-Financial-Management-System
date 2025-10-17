@@ -28,7 +28,7 @@
       <div class="px-6 pt-4 flex justify-between">
         <div class="flex border-b border-gray-200">
           <a href="#" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Backup Files</a>
-          <a href="#" class="px-4 py-2 text-gray-500 hover:text-blue-600">Activity History</a>
+          <!--<a href="#" class="px-4 py-2 text-gray-500 hover:text-blue-600">Activity History</a>-->
         </div>
         <!-- Backup Options -->
         <div class="flex space-x-4">
@@ -215,7 +215,7 @@
       try {
         const form = e.target;
         const pendingFormData = new FormData(form);
-        const response = await fetch("{% url 'manual_backup' %}", {
+        const response = await fetch(`{% url 'manual_backup' %}?page=${encodeURIComponent(currentPage)}`, {
           method: "POST",
           headers: {
             "X-CSRFToken": "{{ csrf_token }}"
@@ -224,8 +224,12 @@
         })
         const data = await response.json();
         if (data.status === "success") {
+          document.getElementById('table-body').innerHTML = data.table_body_html;
+          document.getElementById("pagination-controls").innerHTML = data.pagination_html;
           showAlert(data.message, data.status);
           closeManualBackupModal();
+        } else {
+          showAlert(data.message, data.status);
         }
         
       } catch (err) {

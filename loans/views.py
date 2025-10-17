@@ -14,6 +14,7 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
+from django.db.models import Case, When, Value, IntegerField
 
 
 @login_required
@@ -207,7 +208,7 @@ def active_loans_data(request, ajax=False):
     if ajax:
         html = render_to_string("loans/partials/active_loans_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
-        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        return JsonResponse({"success": True ,"table_body_html": html, "pagination_html": pagination})
 
     return context
 
@@ -226,6 +227,7 @@ def cashier_approved_loans(request, ajax=False):
             'amortization',
             'status'
         )
+        .order_by("-application_date")
     )
 
     paginator = Paginator(loans, 10)
@@ -238,15 +240,53 @@ def cashier_approved_loans(request, ajax=False):
     if ajax:
         html = render_to_string("loans/partials/cashier_loan_table_body.html", {"page": page})
         pagination = render_to_string("partials/pagination.html", {"page": page})
-        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
     
     return context
 
  
-def loan_applications_data(request, ajax=False, page=None):
+def loan_applications_data(request, ajax=False):
+    user = request.user
+    is_bookkeeper = user.groups.filter(name='Bookkeeper').exists()
+    is_admin = user.groups.filter(name='Admin').exists()
+
+    # 🧩 Dynamic order based on role
+    if is_bookkeeper:
+        status_order_case = Case(
+            When(status='Pending', then=Value(1)),
+            When(status='Verified', then=Value(2)),
+            When(status='Approved', then=Value(3)),
+            When(status='Released', then=Value(4)),
+            When(status='Rejected', then=Value(5)),
+            default=Value(6),
+            output_field=IntegerField(),
+        )
+    elif is_admin:
+        status_order_case = Case(
+            When(status='Verified', then=Value(1)),
+            When(status='Pending', then=Value(2)),
+            When(status='Approved', then=Value(3)),
+            When(status='Released', then=Value(4)),
+            When(status='Rejected', then=Value(5)),
+            default=Value(6),
+            output_field=IntegerField(),
+        )
+    else:
+        # default ordering if neither role
+        status_order_case = Case(
+            When(status='Pending', then=Value(1)),
+            When(status='Verified', then=Value(2)),
+            When(status='Approved', then=Value(3)),
+            When(status='Released', then=Value(4)),
+            When(status='Rejected', then=Value(5)),
+            default=Value(6),
+            output_field=IntegerField(),
+        )
     loan_applications = (
         LoanApplication.objects
         .select_related('member_id')
+        .annotate(status_order=status_order_case)
+        .order_by('status_order', '-application_date')  # 👈 status first, then newest ID
         .values(
             'loan_application_id',
             'member_id__account_number',
@@ -261,7 +301,7 @@ def loan_applications_data(request, ajax=False, page=None):
     
     paginator = Paginator(loan_applications, 10)
 
-    page_num = page or request.GET.get('page')
+    page_num = request.GET.get('page')
 
     page = paginator.get_page(page_num)
 
@@ -317,7 +357,6 @@ def approving_loan(request):
         data = json.loads(request.body)
         loan_application_id = data.get('loan_application_id')
         action = data.get('action')
-        page = data.get('page', 1)
         user = request.user
         bookkeeper = user.groups.filter(name='Bookkeeper').exists()
         admin = user.groups.filter(name='Admin').exists()
@@ -376,7 +415,7 @@ def approving_loan(request):
             loan_application.save()
 
             # get shared data
-            context = loan_applications_data(request, ajax=True, page=page)
+            context = loan_applications_data(request, ajax=True)
             return context
         except LoanApplication.DoesNotExist:
             return JsonResponse({'success': False})
@@ -436,10 +475,8 @@ def releasing(request):
                 f"Start date of repayment: {DateFormat(schedules['due_date']).format('M d, Y')}"
             )
         )
-        
-        context = cashier_approved_loans()
-        html = render_to_string('loans/partials/cashier_loan_table_body.html', context)
-        return JsonResponse({'success': True, 'html': html})
+        context = cashier_approved_loans(request, ajax=True)
+        return context
     except (LoanApplication.DoesNotExist, Member.DoesNotExist):
         return JsonResponse({'success': False})
 
@@ -450,3 +487,55 @@ def loan_penalty():
 def run_repayment_status_update(request):
     call_command('update_repayment_status')
     return JsonResponse({'status': 'success', 'job': 'daily repayment status update executed'})
+
+
+def calculate_loan_risk(member, loan):
+    """
+    Simple rule-based risk scoring system.
+    """
+    score = 0
+
+    # 1. Overdue rate
+    total_payments = loan.repayments.count()
+    overdue_payments = loan.repayments.filter(is_overdue=True).count()
+    overdue_rate = (overdue_payments / total_payments) if total_payments > 0 else 0
+    if overdue_rate > 0.3:
+        score += 40
+    elif overdue_rate > 0.1:
+        score += 20
+
+    # 2. Missed payments
+    missed_count = loan.repayments.filter(status='missed').count()
+    if missed_count >= 3:
+        score += 30
+    elif missed_count == 2:
+        score += 15
+
+    # 3. Number of loans taken
+    total_loans = member.loans.count()
+    if total_loans > 2:
+        score += 10
+
+    # 4. Loan term
+    if loan.term_months > 24:
+        score += 5
+
+    # 5. Loan amount relative to average
+    avg_amount = Loan.objects.aggregate(avg=models.Avg('amount'))['avg'] or 0
+    if loan.amount > avg_amount:
+        score += 10
+
+    # 6. Membership duration
+    membership_months = (timezone.now().date() - member.date_joined).days / 30
+    if membership_months < 6:
+        score += 5
+
+    # Classification
+    if score <= 20:
+        risk_level = "Low"
+    elif score <= 50:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+
+    return {"score": score, "risk_level": risk_level}

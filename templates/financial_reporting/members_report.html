@@ -18,45 +18,9 @@
 <body class="font-sans">
   <div class="flex h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 max-h-screen bg-white border-r">
-      <div class="p-6 text-2xl font-bold text-[#1f2b6c]">EWABB</div>
-      <nav class="mt-6">
-        <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-            class="w-5 mr-3 inline-block"></span>Dashboard </a>
-        <a href="{% url 'transactions' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-            class="w-5 mr-3 inline-block"></span>Transactions</a>
-        <a href="{% url 'membershipApplication' %}"
-          class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span
-            class="w-5 mr-3 inline-block"></span> Members</a>
-        <a href="{% url 'financial_report' %}"
-          class="flex items-center px-6 py-3 text-[#3d5af1] font-semibold bg-[#f1f5ff]"> <span
-            class="w-5 mr-3 inline-block"></span>Financial Reports </a>
-        <a href="{% url 'loans' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-            class="w-5 mr-3 inline-block"></span> Loans</a>
-        <a href="{% url 'appointments' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"> <span
-            class="w-5 mr-3 inline-block"></span>Appointments</a>
-        <a href="{% url 'programs' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]"><span
-            class="w-5 mr-3 inline-block"></span>Programs</a>
-
-
-      </nav>
-    </aside>
+    {% include 'dashboard/partials/bookkeeper_nav.html' %}
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
-      <!-- Top bar -->
-      <header class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
-        <h2 class="text-lg font-semibold">Financial Reports</h2>
-        <div class="flex items-center space-x-4">
-          <input type="text" placeholder="Search for member"
-            class="px-4 py-2 border border-gray-300 rounded-full w-64" />
-          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-          <div class="flex items-center space-x-2">
-            <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-semibold">BK
-            </div>
-            <span class="text-sm">Bookkeeper</span>
-          </div>
-        </div>
-      </header>
+    <div class="p-6 ml-64 mr-4 mt-[72px] flex-1">
 
       <!-- Table -->
       <div class="px-6 py-4">
