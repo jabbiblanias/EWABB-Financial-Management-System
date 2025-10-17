@@ -357,3 +357,6 @@ def balance(request):
     else:
         return JsonResponse({"exists": True, "member_name": member_name})
     return JsonResponse({"exists": True, "member_name": member_name, "balance": balance})
+
+def passbook_print(request):
+    return render(request, 'transactions/passbook.html')
