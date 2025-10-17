@@ -23,6 +23,7 @@
     <main class="md:ml-64 md:mr-4 mt-[72px] flex-1">
       <!-- Content -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-7 mt-10 p-6">
+
         <!-- Calendar -->
         <div class="w-full col-span-3 md:col-span-2">
           <div class="bg-white rounded-2xl shadow px-12 py-6">
@@ -56,7 +57,7 @@
               <div>Fri</div>
               <div>Sat</div>
             </div>
-            <div id="dates" class="grid grid-cols-7 gap-1 min-h-[23rem]"></div>
+            <div id="dates" class="grid grid-cols-7 gap-1 min-h-[18rem] md:min-h-[23rem]"></div>
           </div>
         </div>
 
@@ -335,8 +336,9 @@
 
     function renderCalendar(year, month) {
       datesEl.innerHTML = "";
-      const cellHeight = "h-14";
-      const cellWidth = "w-24";
+      // use a smaller responsive height for mobile and remove fixed width
+      const cellHeight = "h-12 md:h-14";
+      const cellWidth = "";
 
       const first = new Date(year, month, 1);
       const last = new Date(year, month + 1, 0);
