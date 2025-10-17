@@ -32,3 +32,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    function openPrintPage() {
+      // Get the values from the modal
+      const transactionId = document.getElementById("transaction_id").textContent;
+      const accountNo = document.getElementById("accountNo").textContent;
+      const memberName = document.getElementById("memberName").textContent;
+      const transactionType = document.getElementById("transaction_type").textContent;
+      const dateTime = document.getElementById("dateTime").textContent;
+      const amount = document.getElementById("amount").textContent;
+
+      // Create a query string to send data to print.html
+      const params = new URLSearchParams({
+        transaction_id,
+        accountNo,
+        memberName,
+        transaction_type,
+        dateTime,
+        amount
+      });
+
+      // Open the print page with the parameters
+      window.open(`passbook.html?${params.toString()}`, "_blank");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passbook Print</title>
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      color: #000;
+      margin: 40px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #000;
+    }
+
+    th, td {
+      border: 1px solid #000;
+      padding: 4px 6px;
+      text-align: center;
+    }
+
+    th {
+      font-weight: bold;
+      background-color: #fdfdfd;
+    }
+
+    td {
+      height: 22px;
+    }
+
+    th:nth-child(1), td:nth-child(1) {
+      width: 13%;
+      text-align: left;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+      width: 30%;
+      text-align: left;
+    }
+
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(6), td:nth-child(6) {
+      width: 14%;
+    }
+
+    @media print {
+      body {
+        margin: 10mm;
+      }
+      button {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with depositor info -->
+  <div class="header">
+    <span id="depositorName">DEPOSITORS</span>
+    <span>ACCOUNT NUMBER <br> <span id="accountNumber" class="ml-4"> </br> </span></span>
+  </div>
+
+  <!-- Passbook Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>DATE</th>
+        <th>DESCRIPTION</th>
+        <th colspan="2">LOAN</th>
+        <th colspan="2">CBU</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>PAYMENT</th>
+        <th>BALANCE</th>
+        <th>PAYMENT</th>
+        <th>BALANCE</th>
+      </tr>
+    </thead>
+    <tbody id="passbookEntries">
+      <!-- The first entry will be inserted here -->
+      <tr>
+        <td id="entryDate"></td>
+        <td id="entryDescription"></td>
+        <td></td>
+        <td></td>
+        <td id="entryPayment"></td>
+        <td></td>
+      </tr>
+
+      <!-- Extra blank rows -->
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    // Parse query parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const transactionId = urlParams.get('transaction_id');
+    const accountNo = urlParams.get('accountNo');
+    const memberName = urlParams.get('memberName');
+    const transactionType = urlParams.get('transaction_type');
+    const dateTime = urlParams.get('dateTime');
+    const amount = urlParams.get('amount');
+
+    // Display values in the passbook layout
+    document.getElementById("depositorName").textContent = memberName || "DEPOSITORS";
+    document.getElementById("accountNumber").textContent = accountNo || "";
+    document.getElementById("entryDate").textContent = dateTime || "";
+    document.getElementById("entryDescription").textContent = transactionType || "";
+    document.getElementById("entryPayment").textContent = amount || "";
+
+    // Automatically open print dialog
+    window.onload = () => {
+      window.print();
+    };
+  </script>
+</body>
+</html>
