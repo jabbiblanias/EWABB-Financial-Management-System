@@ -62,59 +62,74 @@
     }
 
     @media print {
+      @page {
+        margin: 10mm;
+      }
       body {
         margin: 10mm;
       }
       button {
-        display: none;
+        display: none !important;
       }
+    }
+
+    /* Optional fixed font style (Tailwind can’t directly set Courier font globally) */
+    body {
+      font-family: "Courier New", monospace;
     }
   </style>
 </head>
-<body>
-  <!-- Header with depositor info -->
-  <div class="header">
+<body class="text-[14px] text-black m-10 print:m-[10mm]">
+
+  <!-- Header -->
+  <div class="flex justify-between font-bold uppercase mb-2 text-[15px]">
     <span id="depositorName">DEPOSITORS</span>
-    <span>ACCOUNT NUMBER <br> <span id="accountNumber" class="ml-4"> </br> </span></span>
+    <span>
+      ACCOUNT NUMBER <br>
+      <span id="accountNumber" class="ml-4"></span>
+    </span>
   </div>
 
   <!-- Passbook Table -->
-  <table>
+  <table class="w-full border border-black border-collapse">
     <thead>
-      <tr>
-        <th>DATE</th>
-        <th>DESCRIPTION</th>
-        <th colspan="2">LOAN</th>
-        <th colspan="2">CBU</th>
+      <tr class="bg-gray-50">
+        <th class="border border-black text-left w-[13%] px-2 py-1">DATE</th>
+        <th class="border border-black text-left w-[30%] px-2 py-1">DESCRIPTION</th>
+        <th class="border border-black w-[14%] px-2 py-1" colspan="2">LOAN</th>
+        <th class="border border-black w-[14%] px-2 py-1" colspan="2">CBU</th>
       </tr>
-      <tr>
-        <th></th>
-        <th></th>
-        <th>PAYMENT</th>
-        <th>BALANCE</th>
-        <th>PAYMENT</th>
-        <th>BALANCE</th>
+      <tr class="bg-gray-50">
+        <th class="border border-black"></th>
+        <th class="border border-black"></th>
+        <th class="border border-black px-2 py-1">PAYMENT</th>
+        <th class="border border-black px-2 py-1">BALANCE</th>
+        <th class="border border-black px-2 py-1">PAYMENT</th>
+        <th class="border border-black px-2 py-1">BALANCE</th>
       </tr>
     </thead>
     <tbody id="passbookEntries">
-      <!-- The first entry will be inserted here -->
-      <tr>
-        <td id="entryDate"></td>
-        <td id="entryDescription"></td>
-        <td></td>
-        <td></td>
-        <td id="entryPayment"></td>
-        <td></td>
+      <!-- Dynamic first entry -->
+      <tr class="h-[22px]">
+        <td id="entryDate" class="border border-black px-2 py-1 text-left"></td>
+        <td id="entryDescription" class="border border-black px-2 py-1 text-left"></td>
+        <td class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
+        <td id="entryPayment" class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
       </tr>
 
       <!-- Extra blank rows -->
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      {% for i in 1|to:7 %}
+      <tr class="h-[22px]">
+        <td class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
+        <td class="border border-black px-2 py-1"></td>
+      </tr>
+      {% endfor %}
     </tbody>
   </table>
 
@@ -129,17 +144,15 @@
     const dateTime = urlParams.get('dateTime');
     const amount = urlParams.get('amount');
 
-    // Display values in the passbook layout
+    // Display values
     document.getElementById("depositorName").textContent = memberName || "DEPOSITORS";
     document.getElementById("accountNumber").textContent = accountNo || "";
     document.getElementById("entryDate").textContent = dateTime || "";
     document.getElementById("entryDescription").textContent = transactionType || "";
     document.getElementById("entryPayment").textContent = amount || "";
 
-    // Automatically open print dialog
-    window.onload = () => {
-      window.print();
-    };
+    // Auto print
+    window.onload = () => window.print();
   </script>
 </body>
 </html>
