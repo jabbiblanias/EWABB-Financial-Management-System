@@ -99,7 +99,7 @@
             <span class="ml-2 text-gray-800">Cloud (Google Drive/S3)</span>
           </label>
         </div>
-        <p id="defaultLocation" class="hidden text-xs text-gray-500">Default path is <code>C:\Backups\EWABB</code></p>
+        <p id="defaultLocation" class="text-xs text-gray-500">Default path is <code>C:\Backups\EWABB</code></p>
         <button id="backup-btn" type="submit"
           class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 shadow">
           Backup now
@@ -207,14 +207,19 @@
     function closeManualBackupModal() {
       document.getElementById('backupModal').classList.add('hidden');
     }
-    document.getElementById("table-restore").addEventListener("click", {
-
-    })
     document.getElementById("backupForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       try {
         const form = e.target;
         const pendingFormData = new FormData(form);
+        const backup_button = document.getElementById("backup-btn")
+        backup_button.disabled = true;
+
+        // Show spinner + text (Tailwind spinner with SVG)
+        backup_button.innerHTML = `
+            <span class="loading loading-spinner loading-sm"></span>
+            Backing up...
+        `;
         const response = await fetch(`{% url 'manual_backup' %}?page=${encodeURIComponent(currentPage)}`, {
           method: "POST",
           headers: {

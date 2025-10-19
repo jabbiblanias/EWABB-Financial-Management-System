@@ -16,7 +16,7 @@ from datetime import timedelta
 from django.db.models import Count
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from django.utils.timezone import now
-from django.shortcuts import render
+from loans.models import Loan
 
 
 @login_required
@@ -24,7 +24,8 @@ def dashboard_view(request):
     user = request.user
     
     if user.groups.filter(name='Admin').exists():
-        return render(request, 'dashboard/admin.html')
+        context = admin_dashboard_data()
+        return render(request, 'dashboard/admin.html', context)
     elif user.groups.filter(name='Member').exists():
         context = member_dashboard_data(user)
         return render(request, 'dashboard/member.html', context)
@@ -251,6 +252,9 @@ def member_dashboard_data(user):
 
 def bookkeeper_dashboard_data():
     total_members = Member.objects.count()
+    pending_verification = LoanApplication.objects.filter(status="Pending").count()
+    total_loans = Loan.objects.aggregate(total=Sum('remaining_balance'))['total'] or 0
+    total_savings = Savings.objects.aggregate(total=Sum('balance'))['total'] or 0
 
     today = date.today()
     start_of_week = today - timedelta(days=today.weekday() + 1)  # Sunday
@@ -309,16 +313,12 @@ def bookkeeper_dashboard_data():
         'monthly_data': json.dumps(monthly_counts),
         'yearly_labels': json.dumps(yearly_labels),
         'yearly_data': json.dumps(yearly_counts),
-        "total_members": total_members
+        "total_members": total_members,
+        "total_loan": total_loans,
+        "total_savings": total_savings,
+        "verification": pending_verification
     }
-    print(daily_labels)
-    print(daily_counts)
     return context
-
-from django.db.models import Sum
-from django.db.models.functions import TruncDay, TruncMonth, TruncYear
-from transactions.models import Transactions
-import json
 
 def cashier_dashboard_data(request):
     cashier = request.user  # Logged-in cashier
@@ -428,8 +428,19 @@ def cashier_dashboard_data(request):
         "monthly_data": json.dumps(monthly_data),
         "yearly_labels": json.dumps(yearly_labels),
         "yearly_data": json.dumps(yearly_data),
-        "loans": loans
+        "loans": loans,
     }
     return context
 
-    
+def admin_dashboard_data():
+    total_members = Member.objects.count()
+    pending_approval = LoanApplication.objects.filter(status="Verified").count()
+    total_loans = Loan.objects.aggregate(total=Sum('remaining_balance'))['total'] or 0
+    total_savings = Savings.objects.aggregate(total=Sum('balance'))['total'] or 0
+    context = {
+        "total_members": total_members,
+        "total_loan": total_loans,
+        "total_savings": total_savings,
+        "approvals": pending_approval
+    }
+    return context

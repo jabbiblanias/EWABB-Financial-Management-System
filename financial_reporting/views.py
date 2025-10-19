@@ -249,15 +249,19 @@ def pdf_report_export(request, report_id):
 def pdf_report(request):
     return render(request, 'financial_reporting/pdfReport.html')
 
-def report_csv(request):
-    # Set up the HTTP response for CSV download
+def report_csv(request, report_id):
+    report = Financialreports.objects.filter(
+        report_id=report_id
+    ).values("title", "status", "created_at").first()
+
+    financial_report = Memberfinancialdata.objects.filter(report_id=report_id)
+
     response = HttpResponse(content_type="text/csv")
-    filename = f"Financial_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    response ['Content-Disposition'] = F'attachment; filename = "{report["title"]}.csv"'
 
     writer = csv.writer(response)
 
-    # Write the header row (same as your PDF)
+    # Write header row
     writer.writerow([
         "Account No",
         "Name",
@@ -270,15 +274,18 @@ def report_csv(request):
         "Signature",
     ])
 
-     # Example data (replace with database query)
-    data = [
-        ["10023456", "John Doe", 50000, "2025-02-20", 15000, 300, 14700, "On Time", ""],
-        ["10023457", "Jane Smith", 30000, "2025-03-12", 12000, 240, 11760, "Late Payment", ""],
-        ["10023458", "Carlos Reyes", 40000, "2025-04-05", 10000, 200, 9800, "Good Standing", ""],
-    ]
-
     # Write data rows
-    for row in data:
-        writer.writerow(row)
+    for row in financial_report:
+        writer.writerow([
+            row.account_number,
+            row.name,  # example of related name
+            row.outstanding_balance,
+            row.date_loaned.strftime("%b %d, %Y") if row.date_loaned else "",
+            row.savings,
+            row.penalty_charge,
+            row.savings_after_deduction,
+            row.remarks,
+            "",
+        ])
 
     return response

@@ -31,7 +31,7 @@
           <div class="grid grid-cols-3 px-6 py-4">
             <div class="flex justify-left">
               <button id="go-back" type="button"
-                class="px-6 py-2 border bg-white rounded-lg hover:bg-gray-50">Back</button>
+                class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-700">Back</button>
             </div>
             {% if status != "Submitted" %}
             <div class=" flex justify-center items-center col-start-2 gap-4">
@@ -47,34 +47,26 @@
                 class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Submit</button>
             </div>
             {% else %}
-            <div class="flex justify-end gap-4 col-span-1 col-end-4">
-              <button type="button" onclick="showExportOptions()"
-                class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Export</a>
-            </div>
+            <!-- Action buttons -->
+<div class="flex justify-end gap-4 col-span-1 col-end-4">
+  <!-- Export PDF -->
+  <a id="exportPdfBtn"
+  href="{% url 'create-pdf' report_id %}"
+    class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-full shadow transition">
+    <i class="fa-solid fa-file-pdf"></i>
+    Export to PDF
+</a>
+
+  <!-- Export CSV -->
+  <a id="exportCsvBtn"
+  href="{% url 'report_csv' report_id %}"
+    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-full shadow transition">
+    <i class="fa-solid fa-file-csv"></i>
+    Export to CSV
+</a>
+</div>
             {% endif %}
           </div>
-
-          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-          <script>
-          function showExportOptions() {
-            Swal.fire({
-              title: "Financial Report",
-              text: "Choose your preferred format:",
-              icon: "question",
-              showCancelButton: true,
-              confirmButtonText: "PDF",
-              cancelButtonText: "CSV",
-              confirmButtonColor: "#2563eb",
-              cancelButtonColor: "#10b981",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.href = "{% url 'create-pdf' report_id %}";
-              } else if (result.dismiss === Swal.DismissReason.cancel) {
-                window.location.href = "{% url 'csv_report' %}";
-              }
-            });
-            }
-            </script>
 
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <table id="myTable" class="min-w-full text-sm">
@@ -180,12 +172,11 @@
         if (response.ok) {
           if (action === "save") {
             message = "Report has successfully been saved"
-            showAlert(message, "success")
           } else {
             message = "Report has successfully been submitted"
-            showAlert(message, "success")
-            window.location.href = "{% url 'financial_report' %}";
           }
+          showAlert(message, "success")
+            window.location.href = "{% url 'financial_report' %}";
         } else {
           showAlert("Error while saving", "error");
         }
