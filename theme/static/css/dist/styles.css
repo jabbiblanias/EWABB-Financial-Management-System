@@ -59,6 +59,7 @@
     --color-indigo-900: oklch(35.9% 0.144 278.697);
     --color-purple-100: oklch(94.6% 0.033 307.174);
     --color-purple-300: oklch(82.7% 0.119 306.383);
+    --color-purple-600: oklch(55.8% 0.288 302.321);
     --color-purple-700: oklch(49.6% 0.265 301.924);
     --color-pink-100: oklch(94.8% 0.028 342.258);
     --color-pink-500: oklch(65.6% 0.241 354.308);
@@ -2402,6 +2403,9 @@
   .z-10 {
     z-index: 10;
   }
+  .z-30 {
+    z-index: 30;
+  }
   .z-40 {
     z-index: 40;
   }
@@ -2419,29 +2423,6 @@
   }
   .col-span-3 {
     grid-column: span 3 / span 3;
-  }
-  .stat-value {
-    grid-column-start: 1;
-    white-space: nowrap;
-    font-size: 2rem;
-    font-weight: 800;
-  }
-  .stat-title {
-    grid-column-start: 1;
-    white-space: nowrap;
-    color: var(--color-base-content);
-  }
-  @supports (color: color-mix(in lab, red, red)) {
-    .stat-title {
-      color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
-    }
-  }
-  .stat-title {
-    font-size: 0.75rem;
-  }
-  .stat-actions {
-    grid-column-start: 1;
-    white-space: nowrap;
   }
   .col-start-1 {
     grid-column-start: 1;
@@ -2482,6 +2463,9 @@
     .container {
       max-width: 96rem;
     }
+  }
+  .m-0 {
+    margin: calc(var(--spacing) * 0);
   }
   .m-1 {
     margin: calc(var(--spacing) * 1);
@@ -3002,9 +2986,6 @@
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
-  .h-20 {
-    height: calc(var(--spacing) * 20);
-  }
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
@@ -3016,6 +2997,12 @@
   }
   .h-64 {
     height: calc(var(--spacing) * 64);
+  }
+  .h-\[5in\] {
+    height: 5in;
+  }
+  .h-\[18px\] {
+    height: 18px;
   }
   .h-\[22px\] {
     height: 22px;
@@ -3110,11 +3097,20 @@
   .w-96 {
     width: calc(var(--spacing) * 96);
   }
+  .w-\[8in\] {
+    width: 8in;
+  }
+  .w-\[12\%\] {
+    width: 12%;
+  }
   .w-\[13\%\] {
     width: 13%;
   }
   .w-\[14\%\] {
     width: 14%;
+  }
+  .w-\[28\%\] {
+    width: 28%;
   }
   .w-\[30\%\] {
     width: 30%;
@@ -3178,6 +3174,9 @@
   }
   .table-auto {
     table-layout: auto;
+  }
+  .table-fixed {
+    table-layout: fixed;
   }
   .border-collapse {
     border-collapse: collapse;
@@ -3712,6 +3711,9 @@
   .p-10 {
     padding: calc(var(--spacing) * 10);
   }
+  .p-\[0\.25in\] {
+    padding: 0.25in;
+  }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
   }
@@ -3766,6 +3768,9 @@
   .py-16 {
     padding-block: calc(var(--spacing) * 16);
   }
+  .py-\[2px\] {
+    padding-block: 2px;
+  }
   .pt-4 {
     padding-top: calc(var(--spacing) * 4);
   }
@@ -3804,6 +3809,12 @@
   }
   .text-right {
     text-align: right;
+  }
+  .align-top {
+    vertical-align: top;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
   }
   .font-sans {
     font-family: var(--font-sans);
@@ -3846,11 +3857,18 @@
   .text-\[11px\] {
     font-size: 11px;
   }
+  .text-\[12px\] {
+    font-size: 12px;
+  }
   .text-\[14px\] {
     font-size: 14px;
   }
   .text-\[15px\] {
     font-size: 15px;
+  }
+  .leading-\[1\.1rem\] {
+    --tw-leading: 1.1rem;
+    line-height: 1.1rem;
   }
   .leading-normal {
     --tw-leading: var(--leading-normal);
@@ -3978,6 +3996,9 @@
   }
   .text-pink-500 {
     color: var(--color-pink-500);
+  }
+  .text-purple-600 {
+    color: var(--color-purple-600);
   }
   .text-purple-700 {
     color: var(--color-purple-700);
@@ -4615,6 +4636,11 @@
     }
   }
   @media (width >= 48rem) {
+    .md\:w-\[calc\(100\%-16rem\)\] {
+      width: calc(100% - 16rem);
+    }
+  }
+  @media (width >= 48rem) {
     .md\:w-auto {
       width: auto;
     }
@@ -4761,8 +4787,34 @@
     }
   }
   @media print {
+    .print\:m-0 {
+      margin: calc(var(--spacing) * 0);
+    }
+  }
+  @media print {
     .print\:m-\[10mm\] {
       margin: 10mm;
+    }
+  }
+  @media print {
+    .print\:h-\[5in\] {
+      height: 5in;
+    }
+  }
+  @media print {
+    .print\:w-\[8in\] {
+      width: 8in;
+    }
+  }
+  @media print {
+    .print\:p-\[0\.2in\] {
+      padding: 0.2in;
+    }
+  }
+  @media print {
+    .print\:leading-\[1rem\] {
+      --tw-leading: 1rem;
+      line-height: 1rem;
     }
   }
 }

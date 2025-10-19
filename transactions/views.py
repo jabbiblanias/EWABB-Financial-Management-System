@@ -140,7 +140,7 @@ def transactions(request):
                 "transaction_type": transaction_id.transaction_type,
                 "account_number": transaction_id.member_id.account_number,
                 "member_name": f"{person_id.first_name} {person_id.surname}",
-                "transaction_date": DateFormat(transaction_id.transaction_date).format("Y-m-d H:i A"),
+                "transaction_date": DateFormat(transaction_id.transaction_date).format("Y-m-d"),
                 "amount_received": f"{transaction_id.amount_received or 0:.2f}",
                 "amount": f"{transaction_id.amount or 0:.2f}",
                 "change": f"{transaction_id.change or 0:.2f}",

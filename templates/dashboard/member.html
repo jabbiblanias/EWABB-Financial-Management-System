@@ -83,7 +83,7 @@
             <select id="timeframe"
               class="border-gray-300 focus:ring-2 focus:ring-blue-400 text-sm rounded-lg p-2 w-full md:w-auto">
               <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>
             </select>
           </div>
@@ -101,9 +101,9 @@
             labels: JSON.parse('{{ daily_labels|safe }}'),
             data: JSON.parse('{{ daily_data|safe }}')
           },
-          weekly: {
-            labels: JSON.parse('{{ weekly_labels|safe }}'),
-            data: JSON.parse('{{ weekly_data|safe }}')
+          monthly: {
+            labels: JSON.parse('{{ monthly_labels|safe }}'),
+            data: JSON.parse('{{ monthly_data|safe }}')
           },
           yearly: {
             labels: JSON.parse('{{ yearly_labels|safe }}'),
