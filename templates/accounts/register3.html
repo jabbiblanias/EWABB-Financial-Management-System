@@ -133,9 +133,12 @@
       </div>
     </div>
 <script>
+  let timeout;
+
   document.getElementById("go-back").addEventListener("click", () => {
     history.back();
   });
+  
 function togglePassword(inputId, eyeId, eyeOffId) {
   const input = document.getElementById(inputId);
   const eyeIcon = document.getElementById(eyeId);
@@ -173,7 +176,7 @@ document.getElementById('email').addEventListener("input", function () {
   clearTimeout(timeout);
   timeout = setTimeout(checkMail, 500);
 });
-let timeout;
+
 async function checkMail() {
   const email = document.getElementById("email").value.trim();
   const emailMessage = document.getElementById("emailMessage");

@@ -15,6 +15,7 @@ from programs.models import BusinessProgram
 from django.utils import timezone
 from notifications.models import Notification
 from django.core.paginator import Paginator 
+from django.utils.dateformat import DateFormat
 
 @transaction.atomic
 def transactions(request):
@@ -48,7 +49,7 @@ def transactions(request):
                         f"Your new balance is ₱{savings.balance:,}."
                     )
                 )
-                Transactions.objects.create(
+                transaction_id = Transactions.objects.create(
                     member_id=member,
                     cashier_id=cashier_id,
                     amount=amount,
@@ -66,14 +67,14 @@ def transactions(request):
                 if excess != 0:
                     amount -= excess
                 change += excess
-                Transactions.objects.create(
+                transaction_id = Transactions.objects.create(
                     member_id=member,
                     cashier_id=cashier_id,
                     amount=amount,
                     amount_received=amount_received,
                     change=change,
                     transaction_type=transaction_type,
-                    schedule_id=loan
+                    loan_id=loan
                 )
             elif transaction_type == 'Withdrawal':
                 amount_received = None
@@ -94,7 +95,7 @@ def transactions(request):
                             f"Remaining balance: ₱{savings.balance:,}."
                         )
                     )
-                    Transactions.objects.create(
+                    transaction_id = Transactions.objects.create(
                         member_id=member,
                         cashier_id=cashier_id,
                         amount=amount,
@@ -124,7 +125,7 @@ def transactions(request):
                     )
                 )
 
-                Transactions.objects.create(
+                transaction_id = Transactions.objects.create(
                     member_id=member,
                     cashier_id=cashier_id,
                     amount=amount,
@@ -133,15 +134,24 @@ def transactions(request):
                     transaction_type=transaction_type,
                     program_id=program
                 )
-            is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
-              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
-            context = transaction_data(request, ajax=is_ajax)
-            html = render_to_string('transactions/partials/cashier_transaction_table_body.html', context)
-            return JsonResponse({"success": True, "message": toast_message, "html": html})
+            person_id = member.person_id
+            transaction = {
+                "transaction_id": transaction_id.transaction_id,
+                "transaction_type": transaction_id.transaction_type,
+                "account_number": transaction_id.member_id.account_number,
+                "member_name": f"{person_id.first_name} {person_id.surname}",
+                "transaction_date": DateFormat(transaction_id.transaction_date).format("Y-m-d H:i A"),
+                "amount_received": f"{transaction_id.amount_received or 0:.2f}",
+                "amount": f"{transaction_id.amount or 0:.2f}",
+                "change": f"{transaction_id.change or 0:.2f}",
+            }
+            print(transaction)
+            context = transaction_data(request, ajax=True, transaction=transaction, toast_message=toast_message)
+            return context
     except IntegrityError as e:
         return JsonResponse({"success": False, "message": "Transaction failed. Please try again."})
 
-
+@transaction.atomic
 def record_payment(member_id, loan, payment_amount):
 
     repayment = LoanRepaymentSchedule.objects.filter(
@@ -246,7 +256,7 @@ def transaction_view(request):
     else:
         return HttpResponseForbidden("Unauthorized user group.")
     
-def transaction_data(request, ajax=False):
+def transaction_data(request, ajax=False, transaction=None, toast_message=None):
     transactions = (
         Transactions.objects
         .select_related("member_id")
@@ -285,7 +295,7 @@ def transaction_data(request, ajax=False):
     if ajax:
         html = render_to_string("transactions/partials/cashier_transaction_table_body.html", {"page": page})
         pagination = render_to_string("partials/pagination.html", {"page": page})
-        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        return JsonResponse({"success": True, "message": toast_message, "table_body_html": html, "pagination_html": pagination, "transaction": transaction})
     
     context = {"members": members, "programs": programs, "page": page}
     return context
@@ -350,7 +360,7 @@ def balance(request):
         balance = savings.balance
     elif transaction_type == "Loan Payment":
         # Get loan for this member
-        loan = Loan.objects.filter(member_id=member).exclude(loan_status="Completed").first()
+        loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
         if not loan:
             return JsonResponse({"exists": True, "member_name": member_name})
         balance = loan.remaining_balance

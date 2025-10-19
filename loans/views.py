@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from .models import LoanApplication, Member, Loan, LoanRepaymentSchedule
+from .models import LoanApplication, Member, Loan, LoanRepaymentSchedule, LoanPenalty
 from django.contrib.auth.decorators import login_required
 from datetime import date
-from .utils import parse_duration, format_loan_term
+from .utils import parse_duration, format_loan_term, compute_loan_breakdown
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 import json
@@ -14,7 +14,8 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
-from django.db.models import Case, When, Value, IntegerField
+from django.db.models import Case, When, Value, IntegerField, Sum, Max
+from decimal import Decimal
 
 
 @login_required
@@ -47,51 +48,55 @@ def apply_loan(request):
     if request.method == 'POST':
         try:
             loan_type = request.POST.get('loanType')
-            loan_amount = request.POST.get('loanAmount')
+            loan_amount = Decimal(request.POST.get('loanAmount', 0))
             loan_term = request.POST.get('loanTerm')
-            total_payable = request.POST.get('totalPayable')
-            amortization = request.POST.get('amortization')
-            cbu = request.POST.get('cbu')
-            insurance = request.POST.get('insurance')
-            service_charge = request.POST.get('serviceCharge')
-            net_proceeds = request.POST.get('releaseAmount') 
+
+            # 🔁 Reuse the computation logic
+            computed = compute_loan_breakdown(loan_amount, loan_term)
 
             years, months, days = parse_duration(loan_term)
-            if user.groups.filter(name='Bookkeeper').exists():
-                account_number=request.POST.get('accountNumber')
-                member=Member.objects.get(account_number=account_number)
-            elif user.groups.filter(name='Member').exists():
-                member=Member.objects.get(user_id=user)
 
-            loan_application = (
-                LoanApplication.objects.create(
-                    member_id=member,
-                    loan_type=loan_type,
-                    loan_amount=loan_amount,
-                    loan_term_years=years,
-                    loan_term_months=months,
-                    loan_term_days=days,
-                    total_payable=total_payable,
-                    amortization=amortization,
-                    cbu=cbu,
-                    insurance=insurance,
-                    service_charge=service_charge,
-                    net_proceeds=net_proceeds
-                )
+            # Determine member
+            if user.groups.filter(name='Bookkeeper').exists():
+                account_number = request.POST.get('accountNumber')
+                member = Member.objects.get(account_number=account_number)
+            else:
+                member = Member.objects.get(user_id=user)
+
+            loan_application = LoanApplication.objects.create(
+                member_id=member,
+                loan_type=loan_type,
+                loan_amount=loan_amount,
+                loan_term_years=years,
+                loan_term_months=months,
+                loan_term_days=days,
+                total_payable=computed["totalPayable"],
+                amortization=computed["amortization"],
+                cbu=computed["cbu"],
+                insurance=computed["insurance"],
+                service_charge=computed["serviceCharge"],
+                net_proceeds=computed["releaseAmount"]
             )
 
-            is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
-              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
-
+            # Render updated loan list
+            is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest"
             if user.groups.filter(name='Bookkeeper').exists():
                 context = loan_applications_data(request, ajax=is_ajax)
                 html = render_to_string('loans/partials/loan_applications_table_body.html', context, request=request)
-            elif user.groups.filter(name='Member').exists():
-                context = member_loan_data(request,user, ajax=is_ajax)
+            else:
+                context = member_loan_data(request, user, ajax=is_ajax)
                 html = render_to_string('loans/partials/member_loan_table_body.html', context)
-            return JsonResponse({"success": True, "message": f"Loan application ID {loan_application.loan_application_id} has successfully been created.", "loans": html})
+
+            return JsonResponse({
+                "success": True,
+                "message": f"Loan application ID {loan_application.loan_application_id} successfully created.",
+                "loans": html
+            })
+
         except Member.DoesNotExist:
             return JsonResponse({"success": False, "message": "Account number not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
 
 @login_required
 def member_loan_home(request):
@@ -134,9 +139,6 @@ def member_loan_data(request, user, ajax=False):
     page = paginator.get_page(page_num)
 
     context = {'loans': loans, 'page': page}
-
-    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
-              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
     if ajax:
         html = render_to_string("loans/partials/member_loan_table_body.html", {"page": page})
@@ -250,7 +252,7 @@ def loan_applications_data(request, ajax=False):
     is_bookkeeper = user.groups.filter(name='Bookkeeper').exists()
     is_admin = user.groups.filter(name='Admin').exists()
 
-    # 🧩 Dynamic order based on role
+    # 🧩 Order priority based on role
     if is_bookkeeper:
         status_order_case = Case(
             When(status='Pending', then=Value(1)),
@@ -272,7 +274,6 @@ def loan_applications_data(request, ajax=False):
             output_field=IntegerField(),
         )
     else:
-        # default ordering if neither role
         status_order_case = Case(
             When(status='Pending', then=Value(1)),
             When(status='Verified', then=Value(2)),
@@ -282,13 +283,16 @@ def loan_applications_data(request, ajax=False):
             default=Value(6),
             output_field=IntegerField(),
         )
+
+    # 🔍 Filter only Verified and Pending loans
     loan_applications = (
         LoanApplication.objects
         .select_related('member_id')
         .annotate(status_order=status_order_case)
-        .order_by('status_order', '-application_date')  # 👈 status first, then newest ID
+        .order_by('status_order', '-application_date')
         .values(
             'loan_application_id',
+            'member_id',
             'member_id__account_number',
             'loan_term_years',
             'loan_term_months',
@@ -298,15 +302,22 @@ def loan_applications_data(request, ajax=False):
             'status'
         )
     )
-    
+
+    for loan in loan_applications:
+        if loan['status'] == "Pending" or loan['status'] == "Verified":
+            member_id = loan['member_id']
+            risk_data = calculate_member_loan_risk(member_id)
+            loan['risk_percentage'] = risk_data.get('risk_percentage')
+            loan['risk_level'] = risk_data.get('risk_level')
+
+    # 🧭 Paginate
     paginator = Paginator(loan_applications, 10)
-
     page_num = request.GET.get('page')
-
     page = paginator.get_page(page_num)
 
-    context = {'loanApplications': loan_applications, 'page': page}
+    context = {'page': page}
 
+    # 🧱 For AJAX refresh
     if ajax:
         html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
@@ -316,8 +327,19 @@ def loan_applications_data(request, ajax=False):
 
 @login_required
 def loan_application_details_view(request, loan_application_id):
-    loan_application_details = LoanApplication.objects.select_related('member_id').get(loan_application_id=loan_application_id)
-    context = {'loan_application_details' : loan_application_details}
+    loan_application_details = LoanApplication.objects.select_related('member_id', 'verifier_id', 'approver_id').get(loan_application_id=loan_application_id)
+    verifier = (
+        loan_application_details.verifier_id.get_full_name()
+        if loan_application_details.verifier_id
+        else None
+    )
+
+    approver = (
+        loan_application_details.approver_id.get_full_name()
+        if loan_application_details.approver_id
+        else None
+    )
+    context = {'loan_application_details' : loan_application_details, "verifier": verifier, "approver": approver}
     return render(request, 'loans/loan_application_details.html', context)
 
 @login_required
@@ -488,54 +510,85 @@ def run_repayment_status_update(request):
     call_command('update_repayment_status')
     return JsonResponse({'status': 'success', 'job': 'daily repayment status update executed'})
 
+def compute_loan_details(request):
+    try:
+        loan_amount = Decimal(request.GET.get('loanAmount', 0))
+        term = request.GET.get('loanTerm', '')
 
-def calculate_loan_risk(member, loan):
-    """
-    Simple rule-based risk scoring system.
-    """
-    score = 0
+        data = compute_loan_breakdown(loan_amount, term)
+        return JsonResponse({"success": True, "data": data})
 
-    # 1. Overdue rate
-    total_payments = loan.repayments.count()
-    overdue_payments = loan.repayments.filter(is_overdue=True).count()
-    overdue_rate = (overdue_payments / total_payments) if total_payments > 0 else 0
-    if overdue_rate > 0.3:
-        score += 40
-    elif overdue_rate > 0.1:
-        score += 20
+    except ValueError as ve:
+        return JsonResponse({"success": False, "message": str(ve)})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)})
 
-    # 2. Missed payments
-    missed_count = loan.repayments.filter(status='missed').count()
-    if missed_count >= 3:
-        score += 30
-    elif missed_count == 2:
-        score += 15
 
-    # 3. Number of loans taken
-    total_loans = member.loans.count()
-    if total_loans > 2:
-        score += 10
+def calculate_member_loan_risk(member_id):
+    try:
+        loans = Loan.objects.filter(member_id=member_id).order_by('released_date')
+        if not loans.exists():
+            return {
+                "member_id": member_id,
+                "risk_percentage": 0,
+                "risk_level": "No Loan History",
+            }
 
-    # 4. Loan term
-    if loan.term_months > 24:
-        score += 5
+        schedules = LoanRepaymentSchedule.objects.filter(loan_id__in=loans)
+        penalties = LoanPenalty.objects.filter(schedule_id__loan_id__in=loans)
 
-    # 5. Loan amount relative to average
-    avg_amount = Loan.objects.aggregate(avg=models.Avg('amount'))['avg'] or 0
-    if loan.amount > avg_amount:
-        score += 10
+        total_schedules = schedules.count()
+        total_penalties = penalties.count()
+        total_penalty_amount = penalties.aggregate(total=Sum('penalty_amount'))['total'] or Decimal('0.00')
 
-    # 6. Membership duration
-    membership_months = (timezone.now().date() - member.date_joined).days / 30
-    if membership_months < 6:
-        score += 5
+        total_payable = LoanApplication.objects.filter(
+            loan_application_id__in=loans.values_list('loan_application_id', flat=True)
+        ).aggregate(total=Sum('total_payable'))['total'] or Decimal('0.00')
 
-    # Classification
-    if score <= 20:
-        risk_level = "Low"
-    elif score <= 50:
-        risk_level = "Medium"
-    else:
-        risk_level = "High"
+        # --- Risk Factors ---
+        penalty_frequency_ratio = (total_penalties / total_schedules) if total_schedules > 0 else 0
+        penalty_amount_ratio = (float(total_penalty_amount) / float(total_payable)) if total_payable > 0 else 0
 
-    return {"score": score, "risk_level": risk_level}
+        # 🧠 Loan Growth Ratio (based on highest previous loan)
+        current_loan = loans.last()
+        current_amount = float(current_loan.loan_application_id.loan_amount)
+        previous_max = float(
+            loans.exclude(pk=current_loan.pk)
+                 .aggregate(max_amt=Max('loan_application_id__loan_amount'))['max_amt'] or 0
+        )
+        loan_growth_ratio = max((current_amount / previous_max - 1), 0) if previous_max > 0 else 0
+
+        # --- Weighted Risk Formula ---
+        risk_score = (
+            (penalty_frequency_ratio * 0.55) +
+            (penalty_amount_ratio * 0.30) +
+            (loan_growth_ratio * 0.15)
+        )
+
+        risk_percentage = min(round(risk_score * 100, 2), 100)
+
+        # --- Risk Interpretation ---
+        if risk_percentage < 25:
+            risk_level = "Low"
+        elif risk_percentage < 50:
+            risk_level = "Moderate"
+        elif risk_percentage < 75:
+            risk_level = "High"
+        else:
+            risk_level = "Critical"
+
+        return {
+            "member_id": member_id,
+            "risk_percentage": risk_percentage,
+            "risk_level": risk_level,
+            "total_loans": loans.count(),
+            "total_penalties": total_penalties,
+            "total_penalty_amount": float(total_penalty_amount),
+            "loan_growth_ratio": round(loan_growth_ratio, 2),
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+

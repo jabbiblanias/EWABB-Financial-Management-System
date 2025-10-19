@@ -1,46 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transaction Receipt</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-50 flex items-center justify-center h-screen">
-
-  <!-- Button to open modal (for testing only) -->
-  <button onclick="document.getElementById('receiptModal').classList.remove('hidden')"
-          class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
-    Show Receipt
-  </button>
-
-  <!-- Receipt Modal -->
+<!-- Receipt Modal -->
   <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-black/10 flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
       <div class="space-y-4">
         <div class="flex justify-between items-center">
           <span class="text-gray-600">Transaction ID</span>
-          <span id="transaction_id" class="font-semibold">00124356678</span>
+          <span id="transaction_id" class="font-semibold"></span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-gray-600">Account No.</span>
-          <span id="accountNo" class="font-semibold">12345678910</span>
+          <span id="accountNo" class="font-semibold"></span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-gray-600">Member Name</span>
-          <span id="memberName" class="font-semibold">Mark Anthony Dela Cruz</span>
+          <span id="name" class="font-semibold"></span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-gray-600">Transaction Type</span>
-          <span id="transaction_type" class="font-semibold">Savings</span>
+          <span id="transaction_type" class="font-semibold"></span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-gray-600">Date and Time</span>
-          <span id="dateTime" class="font-semibold">March 12, 2025 10:30 am</span>
+          <span id="dateTime" class="font-semibold"></span>
         </div>
         <div class="flex justify-between items-center">
-          <span class="text-gray-600">Amount</span>
-          <span id="amount" class="font-semibold">10,000</span>
+          <span class="text-gray-600">Cash</span>
+          <span id="amount_received" class="font-semibold"></span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Amount Due</span>
+          <span id="amountDue" class="font-semibold"></span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Change</span>
+          <span id="change" class="font-semibold"></span>
         </div>
       </div>
 
@@ -58,7 +50,6 @@
       </div>
     </div>
   </div>
-
   <script>
   function openPrintPage() {
     // Get values from modal
@@ -83,6 +74,3 @@
     window.open(`{% url 'print_passbook' %}?${params.toString()}`, "_blank");
   }
   </script>
-
-</body>
-</html>

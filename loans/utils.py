@@ -1,5 +1,53 @@
+from decimal import Decimal
 import re
 
+def extract_months(term: str) -> int:
+    """Helper function to parse '1 year and 3 months' → 15 months"""
+    import re
+    months = 0
+    year_match = re.search(r"(\d+)\s*year", term)
+    month_match = re.search(r"(\d+)\s*month", term)
+
+    if year_match:
+        months += int(year_match.group(1)) * 12
+    if month_match:
+        months += int(month_match.group(1))
+    return months or 1
+
+def compute_loan_breakdown(loan_amount: Decimal, term: str) -> dict:
+    """Reusable loan computation logic."""
+    term = term.lower()
+
+    if loan_amount <= 0:
+        raise ValueError("Loan amount must be greater than zero.")
+
+    if "100" in term:  # 100-day loan
+        total_loan = loan_amount
+        service_charge = total_loan * Decimal('0.07')
+        cbu = total_loan * Decimal('0.10')
+        insurance = total_loan * Decimal('0.01')
+        total_amount = total_loan - service_charge - cbu - insurance
+        amortization = loan_amount * Decimal('0.01')  # daily rate
+        period_label = "Daily"
+    else:
+        months = extract_months(term)
+        total_loan = loan_amount * ((Decimal('0.02') * months) + 1)
+        service_charge = (total_loan - loan_amount) / 2
+        cbu = (total_loan - loan_amount) / 2
+        insurance = total_loan * Decimal('0.01')
+        total_amount = total_loan - service_charge - cbu - insurance
+        amortization = total_loan / months
+        period_label = "Monthly"
+
+    return {
+        "totalPayable": round(total_loan, 2),
+        "serviceCharge": round(service_charge, 2),
+        "cbu": round(cbu, 2),
+        "insurance": round(insurance, 2),
+        "releaseAmount": round(total_amount, 2),
+        "amortization": round(amortization, 2),
+        "displayValue": period_label,
+    }
 
 def parse_duration(duration_str):
     # Lowercase for consistency

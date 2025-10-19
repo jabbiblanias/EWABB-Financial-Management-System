@@ -1,7 +1,7 @@
 from django.shortcuts import render 
 from django.contrib.auth.decorators import login_required
-from members.models import Member
-from members.models import Savings
+from members.models import Member, Savings
+from loans.models import LoanApplication
 from transactions.models import Transactions
 from django.db.models import Sum, F, Case, When, DecimalField, Window
 import json
@@ -23,7 +23,8 @@ def dashboard_view(request):
         context = bookkeeper_dashboard_data()
         return render(request, 'dashboard/bookkeeper.html', context)
     elif user.groups.filter(name='Cashier').exists():
-        return render(request, 'dashboard/cashier.html')
+        context = cashier_dashboard_data()
+        return render(request, 'dashboard/cashier.html', context)
     
 
 def member_dashboard_data(user):
@@ -236,5 +237,10 @@ def member_dashboard_data(user):
 def bookkeeper_dashboard_data():
     total_members = Member.objects.count()
     context = {"total_members": total_members}
+    return context
+
+def cashier_dashboard_data():
+    loans = LoanApplication.objects.filter(status='Approved').count()
+    context = {"loans": loans}
     return context
     

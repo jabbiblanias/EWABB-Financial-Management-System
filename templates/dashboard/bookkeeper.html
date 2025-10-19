@@ -12,55 +12,32 @@
     {% include 'dashboard/partials/bookkeeper_nav.html' %}
 
     <!-- Main Content -->
-    <div class="p-6 ml-64 mr-4 mt-[72px] flex-1">
-
-      <!-- Dashboard content -->
-      <main class="space-y-6">
-        <div class="grid grid-cols-3 gap-6">
-          <!-- Total Member -->
-          <div class="stat bg-white p-6 rounded-xl shadow-sm">
-            <div class="stat-title font-semibold">Total Members</div>
-            <div class="stat-value">{{ total_members }}</div>
-            <div class="stat-actions">
-            </div>
-          </div>
-
-          <!-- Upcoming Appointments -->
-          <div class="bg-white shadow p-4 rounded-xl">
-            <h3 class="font-medium mb-2">Today Appointments</h3>
-            <div class="flex justify-between text-sm border-b border-gray-200 py-1">
-              <span>Cashier</span><span class="text-blue-500">May 3, 2025 12:30 AM</span>
-            </div>
-            <div class="flex justify-between text-sm border-b border-gray-200 py-1">
-              <span>Cashier</span><span class="text-blue-500">May 3, 2025 12:30 AM</span>
-            </div>
-            <div class="flex justify-between text-sm border-gray-200 py-1">
-              <span>Cashier</span><span class="text-blue-500">May 3, 2025 12:30 AM</span>
-            </div>
-          </div>
-
-          <!-- Active Loans -->
-          <div class="bg-white shadow p-4 rounded-xl">
-            <h3 class="font-medium mb-2">Active Loans</h3>
-            <div class="flex justify-between text-sm border-b border-gray-200 py-1">
-              <span>Educational</span><span class="text-blue-500">May 3, 2025</span><span>300</span>
-            </div>
-            <div class="flex justify-between text-sm border-b border-gray-200 py-1">
-              <span>Personal Loan</span><span class="text-blue-500">May 9, 2025</span><span>330</span>
-            </div>
-            <div class="flex justify-between text-sm border-b border-gray-200 py-1">
-              <span>Business Loan</span><span class="text-blue-500">May 10, 2025</span><span>450</span>
-            </div>
-          </div>
+    <div class="ml-64 mr-4 mt-[72px] flex-1">
+      <section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-4 sm:p-6">
+          <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
+          <h3 class="text-sm text-gray-500">Total Members</h3>
+          <p class="text-3xl font-bold text-blue-700 mt-1">{{ total_members }}</p>
         </div>
+        <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
+          <h3 class="text-sm text-gray-500">Total Loans</h3>
+          <p class="text-3xl font-bold text-green-600 mt-1">₱2.8M</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
+          <h3 class="text-sm text-gray-500">Total Savings</h3>
+          <p class="text-3xl font-bold text-purple-600 mt-1">₱4.3M</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition">
+          <h3 class="text-sm text-gray-500">Pending Verifications</h3>
+          <p class="text-3xl font-bold text-red-500 mt-1">14</p>
+        </div>
+        </section>    
 
         <!-- Members Growth -->
-        <div class="bg-white shadow p-4 rounded-xl">
+        <div class="bg-white shadow p-6 m-6 rounded-xl">
           <h3 class="font-medium mb-4">Members Growth</h3>
           <div class="h-64 flex items-end space-x-6"></div>
         </div>
-      </main>
-    </div>
+    </main>
   </div>
 </body>
 </html>
