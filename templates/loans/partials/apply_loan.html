@@ -46,8 +46,6 @@
                             name="loanAmount"
                             id="amount"
                             type="text"
-                            oninput="this.value=this.value.replace(/[^0-9.]/g,'')"
-                            onkeyup="updateLoanDetails()"
                             required
                             class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 text-right"
                             placeholder="0.00"
@@ -95,47 +93,51 @@
                 <div class="flex justify-between items-center py-2 border-b border-indigo-100">
                     <span class="text-gray-700 font-medium">Amortization</span>
                     <div class="flex items-center text-lg">
-                        <input type="text" name="amortization" id="amortization"
-                            class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36 pr-1"
-                            value="0.00" readonly />
+                        <span name="amortization" id="amortization"
+                            class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36 pr-1">0.00</span>
                         <span id="displayValue" class="text-indigo-600 font-bold"> / Daily</span>
                     </div>
                 </div>
 
                 <div class="flex justify-between items-center py-2 border-b border-indigo-100">
                     <span class="text-gray-700 font-medium">Total Payable</span>
-                    <input type="text" name="totalPayable" id="totalPayable" 
-                        class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36" 
-                        value="0.00" readonly/>
+                    <span name="totalPayable" id="totalPayable" 
+                        class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36">
+                        0.00
+                </span>
                 </div>
 
                 <div class="flex justify-between items-center py-2 border-b border-indigo-100">
                     <span class="text-gray-700 text-sm">Service Charge (-)</span>
-                    <input type="text" name="serviceCharge" id="serviceCharge" 
-                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36" 
-                        value="0.00" readonly/>
+                    <span name="serviceCharge" id="serviceCharge" 
+                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
+                        0.00
+                </span>
                 </div>
 
                 <div class="flex justify-between items-center py-2 border-b border-indigo-100">
                     <span class="text-gray-700 text-sm">CBU Deduction (-)</span>
-                    <input type="text" name="cbu" id="cbu" 
-                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36" 
-                        value="0.00" readonly/>
+                    <span name="cbu" id="cbu" 
+                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
+                        0.00
+                    </span>
                 </div>
 
                 <div class="flex justify-between items-center py-2 border-b border-indigo-100">
                     <span class="text-gray-700 text-sm">Insurance Fee (-)</span>
-                    <input type="text" name="insurance" id="insurance" 
-                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36" 
-                        value="0.00" readonly/>
+                    <span name="insurance" id="insurance" 
+                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
+                        0.00
+                </span>
                 </div>
 
                 <!-- Release Amount (Highlighted) -->
                 <div class="flex justify-between items-center pt-4 border-t border-indigo-300">
                     <span class="text-indigo-800 font-bold text-lg">Net Release Amount</span>
-                    <input type="text" name="releaseAmount" id="releaseAmount" 
-                        class="text-indigo-900 font-extrabold text-2xl text-right tabular-nums bg-transparent outline-none w-44" 
-                        value="0.00" readonly/>
+                    <span name="releaseAmount" id="releaseAmount" 
+                        class="text-indigo-900 font-extrabold text-2xl text-right tabular-nums bg-transparent outline-none w-44">
+                        0.00
+                    </span>
                 </div>
             </div>
         </div>
@@ -159,7 +161,24 @@
   class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
   role="status"></div>
 <script>
+  const termSlider = document.getElementById('loan-term');
+  const termValueDisplay = document.getElementById('term-value');
+  let timeout;
+  // 1. Define the custom loan terms in an array.
+  const loanTerms = [
+    '100 days',
+    '4 months', '5 months',
+    '6 months', '7 months', '8 months', '9 months', '10 months', '11 months',
+    '1 year',
+    '1 year and 1 month', '1 year and 2 months', '1 year and 3 months',
+    '1 year and 4 months', '1 year and 5 months', '1 year and 6 months',
+    '1 year and 7 months', '1 year and 8 months', '1 year and 9 months',
+    '1 year and 10 months', '1 year and 11 months',
+    '2 years'
+  ];
+
   document.getElementById("loanApplicationForm").addEventListener("submit", async function(e) {
+    const currentUrlName = "{{ request.resolver_match.url_name }}";
     this.disable = true;
     e.preventDefault()
     try {
@@ -178,7 +197,9 @@
       if (data.success) {
         showAlert(data.message, "success");
         closePopUp();
-        document.getElementById('table-body').innerHTML = data.loans;
+        if (currentUrlName == "loan_applications") {
+          document.getElementById('table-body').innerHTML = data.loans;
+        }
       }else {
         showAlert(data.message, "error");
       }
@@ -187,8 +208,7 @@
     }
     this.disable = false;
   })
-</script>
-<script>
+
   function openPopUp() {
     document.getElementById('popupApplication').classList.remove('hidden');
   }
@@ -206,98 +226,18 @@
     document.getElementById('loan-term').value = 0;
     updateValue(0);
   }
-  
-  // 1. Define the custom loan terms in an array.
-  const loanTerms = [
-    '100 days',
-    '4 months', '5 months',
-    '6 months', '7 months', '8 months', '9 months', '10 months', '11 months',
-    '1 year',
-    '1 year and 1 month', '1 year and 2 months', '1 year and 3 months',
-    '1 year and 4 months', '1 year and 5 months', '1 year and 6 months',
-    '1 year and 7 months', '1 year and 8 months', '1 year and 9 months',
-    '1 year and 10 months', '1 year and 11 months',
-    '2 years'
-  ];
-
-  const termSlider = document.getElementById('loan-term');
-  const termValueDisplay = document.getElementById('term-value');
 
   // 2. The function now uses the slider's value as an index for the array.
   function updateValue(index) {
     termValueDisplay.value = loanTerms[index];
-    updateLoanDetails();
+    clearTimeout(timeout);
+    timeout = setTimeout(updateLoanDetails, 500);
   }
 
   // 3. Call the function on page load to set the initial value.
   window.onload = function() {
     updateValue(termSlider.value);
   };
-
-  function updateLoanDetails() {
-    const value = parseFloat(document.getElementById('amount').value) || 0;
-
-    const totalPayable = document.getElementById('totalPayable');
-    const serviceCharge = document.getElementById('serviceCharge');
-    const releasedAmount = document.getElementById('releaseAmount');
-    const amortization = document.getElementById('amortization');
-    const cbu = document.getElementById('cbu');
-    const insurance = document.getElementById('insurance');
-    const term = document.getElementById('term-value').value;
-    const amortizationDisplay = document.getElementById('displayValue');
-
-    let computed_service_charge, computed_cbu, computed_insurance, totalAmount, months, totalLoan;
-
-    if (term == "100 days") {
-      totalLoan  = value;
-      computed_service_charge = (totalLoan * 0.07).toFixed(2);
-      computed_cbu = (totalLoan * 0.1).toFixed(2);
-      computed_insurance = (totalLoan * 0.01).toFixed(2);
-      totalAmount = totalLoan - computed_service_charge - computed_cbu - computed_insurance;
-
-      totalPayable.value = totalLoan.toFixed(2);
-      serviceCharge.value =  computed_service_charge;
-      cbu.value = computed_cbu;
-      insurance.value = computed_insurance;
-      amortization.value = value * 0.01;
-      amortizationDisplay.textContent = " / Daily";
-      releasedAmount.value = totalAmount.toFixed(2);
-    } else {
-      months = termConvertion(term);
-      totalLoan = value * ((0.02 * months) + 1);
-      computed_amortization = parseInt(totalLoan / months);
-      computed_service_charge = ((totalLoan - value) / 2).toFixed(2);
-      computed_cbu = ((totalLoan - value) / 2).toFixed(2);
-      computed_insurance = (totalLoan * 0.01).toFixed(2);
-      totalAmount = totalLoan - computed_service_charge - computed_cbu - computed_insurance;
-
-      totalPayable.value = totalLoan.toFixed(2);
-      serviceCharge.value =  computed_service_charge; // Assuming 2% service charge
-      cbu.value = computed_cbu; // Replace with actual CBU value logic
-      insurance.value = computed_insurance; // Assuming 0.5% insurance
-      amortization.value = computed_amortization; // Assuming 10 months for simplicity
-      amortizationDisplay.textContent = " / Monthly";
-      releasedAmount.value = totalAmount.toFixed(2);
-    }
-  }
-
-  function termConvertion(term) {
-    let months = 0;
-
-    // Extract years
-    const yearMatch = term.match(/(\d+)\s*year/);
-    if (yearMatch) {
-      months += parseInt(yearMatch[1], 10) * 12;
-    }
-
-    // Extract months
-    const monthMatch = term.match(/(\d+)\s*month/);
-    if (monthMatch) {
-      months += parseInt(monthMatch[1], 10);
-    }
-
-    return months;
-  }
 
   // Toast notification function
   function showAlert(message, type) {
@@ -324,4 +264,40 @@
     // Hide after 4s
     setTimeout(() => toast.classList.add("hidden"), 4000);
   }
+
+document.getElementById('amount').addEventListener('input', e => {
+  const value = e.target.value;
+  if (!/^\d*\.?\d*$/.test(value)) {
+    e.target.value = value.slice(0, -1);
+  }
+  clearTimeout(timeout);
+  timeout = setTimeout(updateLoanDetails, 500);
+});
+async function updateLoanDetails() {
+  const loanAmount = parseFloat(document.getElementById('amount').value) || 0;
+  const loanTerm = document.getElementById('term-value').value;
+
+  if (!loanAmount) return;
+
+  try {
+    const response = await fetch(`{% url 'compute_loan_details' %}?loanAmount=${loanAmount}&loanTerm=${encodeURIComponent(loanTerm)}`);
+    const result = await response.json();
+
+    if (result.success) {
+      const data = result.data;
+
+      document.getElementById('totalPayable').textContent = data.totalPayable;
+      document.getElementById('serviceCharge').textContent = data.serviceCharge;
+      document.getElementById('cbu').textContent = data.cbu;
+      document.getElementById('insurance').textContent = data.insurance;
+      document.getElementById('releaseAmount').textContent = data.releaseAmount;
+      document.getElementById('amortization').textContent = data.amortization;
+      document.getElementById('displayValue').textContent = " / " + data.displayValue;
+    } else {
+      console.error(result.message);
+    }
+  } catch (err) {
+    console.error("Error computing loan details:", err);
+  }
+}
 </script>

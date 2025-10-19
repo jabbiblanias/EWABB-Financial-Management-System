@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from members.models import Member, Savings
-from loans.models import LoanRepaymentSchedule, LoanPenalty
+from loans.models import LoanRepaymentSchedule, LoanPenalty, Loan
 from programs.models import BusinessProgram
 
 
@@ -21,7 +21,7 @@ class Transactions(models.Model):
     transaction_type = models.CharField(max_length=30, choices=TRANSACTION_TYPES, db_column='transactiontype')
     transaction_date = models.DateTimeField(auto_now_add=True, db_column='createdAt')
     savings_id = models.ForeignKey(Savings, models.DO_NOTHING, db_column='savings_id')
-    schedule_id = models.ForeignKey(LoanRepaymentSchedule, models.DO_NOTHING, db_column='schedule_id')
+    loan_id = models.ForeignKey(Loan, models.DO_NOTHING, db_column='loan_id')
     penalty_id = models.ForeignKey(LoanPenalty, models.DO_NOTHING, db_column='penalty_id')
     program_id = models.ForeignKey(BusinessProgram, models.DO_NOTHING, db_column='program_id')
 

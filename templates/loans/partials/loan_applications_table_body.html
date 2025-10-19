@@ -1,8 +1,8 @@
 {% for loanApplication in page.object_list %}
 <tr id="row-{{ loanApplication.loan_application_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ loanApplication.loan_application_id}}</td>
-  <td class="px-6 py-3">{{ loanApplication.member_id__account_number }}</td>
-  <td class="px-6 py-3">
+  <td class="px-3 py-3">{{ loanApplication.member_id__account_number }}</td>
+  <td class="px-3 py-3">
     {% if loanApplication.loan_term_years %}
     {{ loanApplication.loan_term_years }}
     {% if loanApplication.loan_term_years > 1 %}
@@ -24,8 +24,8 @@
     {% endif %}
     {% if loanApplication.loan_term_days %} {{ loanApplication.loan_term_days }} days{% endif %}
   </td>
-  <td class="px-6 py-3">{{ loanApplication.loan_amount }}</td>
-  <td class="px-6 py-3">
+  <td class="px-3 py-3">{{ loanApplication.loan_amount }}</td>
+  <td class="px-3 py-3">
     {{ loanApplication.amortization|floatformat:0 }}
     {% if loanApplication.loan_term_days %}
     / Daily
@@ -33,7 +33,7 @@
     / Monthly
     {% endif %}
   </td>
-  <td class="px-6 py-3">
+  <td class="px-3 py-3">
     <!-- Status Badge -->
     {% if loanApplication.status == 'Approved' %}
     <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
@@ -55,6 +55,32 @@
     <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
       {{ loanApplication.status }}
     </span>
+    {% endif %}
+  </td>
+  <!-- 🔮 Loan Risk -->
+  <td class="px-3 py-3">
+    {% if loanApplication.risk_level == 'Low' %}
+      <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
+        {{ loanApplication.risk_percentage }}% ({{ loanApplication.risk_level }})
+      </span>
+    {% elif loanApplication.risk_level == 'Moderate' %}
+      <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
+        {{ loanApplication.risk_percentage }}% ({{ loanApplication.risk_level }})
+      </span>
+    {% elif loanApplication.risk_level == 'High' %}
+      <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+        {{ loanApplication.risk_percentage }}% ({{ loanApplication.risk_level }})
+      </span>
+    {% elif loanApplication.risk_level == 'Critical' %}
+      <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+        {{ loanApplication.risk_percentage }}% ({{ loanApplication.risk_level }})
+      </span>
+    {% elif loanApplication.risk_level == 'No Loan History' %}
+      <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-700">
+        {{ loanApplication.risk_percentage }}% ({{ loanApplication.risk_level }})
+      </span>
+    {% else %}
+    N/A
     {% endif %}
   </td>
   <td class="px-6 py-3 flex gap-2">

@@ -1,37 +1,79 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Application Info</title>
-    {% tailwind_css %}
-</head>
-<body class="bg-gray-100 font-sans antialiased">
-    {# --- Dynamic Navigation --- #}
-    {% if request.user.groups.all.0.name == "Bookkeeper" %}
-      {% include 'dashboard/partials/bookkeeper_nav.html' %}
-    {% elif request.user.groups.all.0.name == "Admin" %}
-      {% include 'dashboard/partials/admin_nav.html' %}
-    {% endif %}
-    <div class="p-6 ml-64 mr-4 mt-[72px] flex-1">
-        <h1 class="text-3xl font-semibold text-blue-600 mb-6">Loan Application Details</h1>
 
-        <!-- Loan Information Section -->
-        <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
-           <h2 class="text-2xl font-semibold text-blue-600 mb-4">Loan Application Information</h2> 
-           <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div>
-                <p><strong class="font-medium">Loan Application ID</strong></p> <p>12345</p> <br>
-                <p><strong class="font-medium">Member ID</strong></p> <p>98765</p> <br>
-                <p><strong class="font-medium">Outstanding Balance</strong></p> <p>5000.00</p> <br>
-                </div>
-                <div>
-                <p><strong class="font-medium">Loan Status</strong></p> <p>Ongoing</p> <br>
-                <p><strong class="font-medium">Released By ID</strong></p> <p>1001</p> <br>
-                <p><strong class="font-medium">Released Date</strong></p> <p>09-01-2025</p> <br>
-            </div>
-           </div>
-        </section>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Application Info</title>
+  {% tailwind_css %}
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+  {# --- Dynamic Navigation --- #}
+  {% if request.user.groups.all.0.name == "Bookkeeper" %}
+  {% include 'dashboard/partials/bookkeeper_nav.html' %}
+  {% elif request.user.groups.all.0.name == "Admin" %}
+  {% include 'dashboard/partials/admin_nav.html' %}
+  {% endif %}
+  <div class="p-6 ml-64 mr-4 mt-[72px] flex-1">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-semibold text-blue-600">Loan Application Details</h1>
+      <a href="{% url 'loan_applications' %}"
+        class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-700">Back</a>
+    </div>
+
+
+    <!-- Loan Information Section -->
+    <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
+      <h2 class="text-2xl font-semibold text-blue-600 mb-4">Loan Application Information</h2>
+      <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+        <div>
+          <p><strong class="font-medium">Loan Application ID</strong></p>
+          <p>{{ loan_application_details.loan_application_id }}</p> <br>
+          <p><strong class="font-medium">Account Number</strong></p>
+          <p>{{ loan_application_details.member_id.account_number }}</p> <br>
+          <p><strong class="font-medium">Outstanding Balance</strong></p>
+          <p>{{ loan_application_details.total_payable }}</p> <br>
+          <p><strong class="font-medium">Loan Status</strong></p>
+          <p>
+            <!-- Status Badge -->
+            {% if loan_application_details.status == 'Approved' %}
+            <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
+              {{ loan_application_details.status }}
+            </span>
+            {% elif loan_application_details.status == 'Pending' %}
+            <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
+              {{ loan_application_details.status }}
+            </span>
+            {% elif loan_application_details.status == 'Verified' %}
+            <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-700">
+              {{ loan_application_details.status }}
+            </span>
+            {% elif loan_application_details.status == 'Released' %}
+            <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-700">
+              {{ loan_application_details.status }}
+            </span>
+            {% else %}
+            <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+              {{ loan_application_details.status }}
+            </span>
+            {% endif %}
+          </p> <br>
+        </div>
+        <div>
+
+          <p><strong class="font-medium">Verified By</strong></p>
+          <p>{{ verifier|default:"--" }}</p> <br>
+          <p><strong class="font-medium">Verified Date</strong></p>
+          <p>{{ loan_application_details.verified_date|default:"--" }}</p> <br>
+          <p><strong class="font-medium">Approval By</strong></p>
+          <p>{{ approver|default:"--" }}</p> <br>
+          <p><strong class="font-medium">Approval Date</strong></p>
+          <p>{{ loan_application_details.approved_date|default:"--" }}</p> <br>
+        </div>
+      </div>
+    </section>
 </body>
+
 </html>

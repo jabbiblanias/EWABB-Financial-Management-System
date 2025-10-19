@@ -42,9 +42,10 @@
   </div>
 </div>
 <script>
+  const modal = document.getElementById("transactionModal");
   // Listen for Enter key while modal is open
   document.addEventListener("keydown", function (e) {
-    const modal = document.getElementById("transactionModal");
+    
 
     // Only trigger if modal is visible
     if (!modal.classList.contains("hidden") && e.key === "Enter") {
@@ -53,9 +54,9 @@
     }
   });
   function closeTransactionModal() {
-    transactionModal.classList.add("hidden");
+    modal.classList.add("hidden");
   }
   function openTransactionModal() {
-    transactionModal.classList.remove("hidden");
+    modal.classList.remove("hidden");
   }
 </script>
