@@ -8,4 +8,6 @@ urlpatterns = [
     path("submit/", views.submit_financial_report, name="submit_report"),
     path("pdf/", views.pdf_report, name="pdf_report"),
     path('createPdf/<int:report_id>/', views.pdf_report_export, name ='create-pdf'),
+    path("csv/",views.report_csv, name="csv_report"),
+    path("csv/<int:report_id>/", views.report_csv, name="report_csv"),
 ]

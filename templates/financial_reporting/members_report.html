@@ -48,11 +48,33 @@
             </div>
             {% else %}
             <div class="flex justify-end gap-4 col-span-1 col-end-4">
-              <a href="{% url 'create-pdf' report_id %}"
+              <button type="button" onclick="showExportOptions()"
                 class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Export</a>
             </div>
             {% endif %}
           </div>
+
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script>
+          function showExportOptions() {
+            Swal.fire({
+              title: "Financial Report",
+              text: "Choose your preferred format:",
+              icon: "question",
+              showCancelButton: true,
+              confirmButtonText: "PDF",
+              cancelButtonText: "CSV",
+              confirmButtonColor: "#2563eb",
+              cancelButtonColor: "#10b981",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = "{% url 'create-pdf' report_id %}";
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                window.location.href = "{% url 'csv_report' %}";
+              }
+            });
+            }
+            </script>
 
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <table id="myTable" class="min-w-full text-sm">

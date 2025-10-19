@@ -14,7 +14,8 @@ from django.http import HttpResponse
 from django.template.loader import get_template, render_to_string
 from django.core.paginator import Paginator 
 from xhtml2pdf import pisa
-
+from datetime import datetime
+import csv
 
 def member_loan_report(request):
     if request.user.groups.filter(name='Bookkeeper').exists():
@@ -247,3 +248,37 @@ def pdf_report_export(request, report_id):
 
 def pdf_report(request):
     return render(request, 'financial_reporting/pdfReport.html')
+
+def report_csv(request):
+    # Set up the HTTP response for CSV download
+    response = HttpResponse(content_type="text/csv")
+    filename = f"Financial_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+
+    # Write the header row (same as your PDF)
+    writer.writerow([
+        "Account No",
+        "Name",
+        "Amount of Loan Balance",
+        "Date Loaned",
+        "Savings",
+        "2% Penalty Charges",
+        "Savings After Deduction",
+        "Remarks",
+        "Signature",
+    ])
+
+     # Example data (replace with database query)
+    data = [
+        ["10023456", "John Doe", 50000, "2025-02-20", 15000, 300, 14700, "On Time", ""],
+        ["10023457", "Jane Smith", 30000, "2025-03-12", 12000, 240, 11760, "Late Payment", ""],
+        ["10023458", "Carlos Reyes", 40000, "2025-04-05", 10000, 200, 9800, "Good Standing", ""],
+    ]
+
+    # Write data rows
+    for row in data:
+        writer.writerow(row)
+
+    return response
