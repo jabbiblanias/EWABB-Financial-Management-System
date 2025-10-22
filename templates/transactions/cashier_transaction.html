@@ -224,7 +224,7 @@
 
     // Confirm button → send data
     document.getElementById("confirmTransaction").addEventListener("click", async function () {
-      this.disable = true;
+      this.disabled = true;
       if (!pendingFormData) return; // nothing to send
 
       try {
@@ -272,7 +272,7 @@
       } catch (error) {
         console.error("Fetch error:", error);
       }
-      this.disable = false;
+      this.disabled = false;
     });
 
     // Toast notification function

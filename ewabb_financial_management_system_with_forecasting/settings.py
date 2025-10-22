@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'loans',
     'transactions',
     'financial_reporting',
-    'appointments',
     'programs',
     'notifications',
 ]
@@ -200,11 +199,7 @@ CELERY_BEAT_SCHEDULE = {
     'update-overdue-loans-repayment-daily': {
         'task': 'loans.tasks.update_overdue_repayments',
         'schedule': crontab(minute=48, hour=21),  # run every midnight
-    },
-    'update-appointment-daily': {
-        'task': 'appointments.tasks.update_ended_appointments',
-        'schedule': crontab(minute='*'),  # run every midnight
-    },
+    }
 }
 
 GOOGLE_DRIVE_FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")  # backups folder in Google Drive

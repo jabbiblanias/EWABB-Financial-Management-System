@@ -16,8 +16,21 @@
   <div class="flex flex-col md:flex-row min-h-screen">
     <!-- Main Content -->
     <main class="md:ml-64 mx-2 sm:mx-4 mt-[72px] flex-1">
+      <div class="pt-6 pl-6 pr-6 flex justify-end">
+        <div class="flex space-x-5 items-center">
+          <label for="availability-status" class="text-sm font-semibold text-gray-800 select-none">
+            Cashier Status
+          </label>
+
+          <!-- Dropdown Selector -->
+          <div id="availability-status" class=" p-1 pl-2 pr-2 rounded-lg border-gray-300 shadow-sm text-base font-medium 
+                   focus:border-indigo-500 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                   <span id="available" value="available" class="text-grey-600">Loading...</span>
+        </div>
+        </div>
+      </div>
       <!-- Info Boxes -->
-      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-4 sm:p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-4 sm:p-6">
         <!-- Savings -->
         <div
           class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
@@ -55,17 +68,15 @@
           <div class="p-3 bg-green-100 text-green-600 rounded-full text-xl sm:text-2xl">📅</div>
         </div>
 
-        <!-- Appointment -->
+        <!-- Next Due -->
         <div
           class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
           <div>
-            <p class="text-sm text-gray-500">Next Appointment</p>
-            <h2 class="text-sm sm:text-lg font-semibold text-indigo-600 mt-1">
-              {{ member.next_appointment_date|default:"Oct 18, 2025" }}
-            </h2>
-            <p class="text-xs text-gray-400 mt-1">With {{ member.appointment_with|default:"Loan Officer" }}</p>
+            <p class="text-sm text-gray-500">Next Due</p>
+            <h2 class="text-xl sm:text-3xl font-bold text-green-600 mt-1">₱{{ member.next_due_amount|default:"2,000" }}</h2>
+            <p class="text-xs text-gray-400 mt-1">Due {{ member.next_due_date|default:"Oct 25, 2025" }}</p>
           </div>
-          <div class="p-3 bg-indigo-100 text-indigo-600 rounded-full text-xl sm:text-2xl">📅</div>
+          <div class="p-3 bg-green-100 text-green-600 rounded-full text-xl sm:text-2xl">📅</div>
         </div>
       </div>
 
@@ -96,6 +107,7 @@
       </div>
 
       <script>
+        fetchStatus();
         const datasets = {
           daily: {
             labels: JSON.parse('{{ daily_labels|safe }}'),
@@ -166,6 +178,23 @@
           savingsChart.data.datasets[0].data = datasets[selected].data;
           savingsChart.update();
         });
+
+        async function fetchStatus() {
+          try {
+            const cashier_status = document.getElementById('available');
+            const response = await fetch('{% url "cashier_availability" %}');
+            const data = await response.json();
+            if (data.status) {
+                cashier_status.textContent = '🟢 Available';
+                cashier_status.classList.add('text-green-600');
+            } else {
+                cashier_status.textContent = '🔴 Unavailable';
+                cashier_status.classList.add('text-red-600');
+            }
+          } catch (error) {
+            console.error('Error fetching cashier status:', error);
+          }
+        } 
       </script>
     </main>
   </div>

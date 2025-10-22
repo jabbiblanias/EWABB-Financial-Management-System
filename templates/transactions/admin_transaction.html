@@ -51,24 +51,9 @@
         </div>
 
         <!-- Pagination -->
-        {% if page.paginator.num_pages > 1 %}
-        <div class="px-6 py-4 text-sm text-gray-500 flex justify-end items-center space-x-4">
-          {% if page.has_previous %}
-          <a href="{% url 'transactions' %}?page={{ page.previous_page_number }}" class="text-blue-500">&lt;
-            Previous</a>
-          {% endif %}
-          {% for num in page.paginator.page_range %}
-          {% if page.number == num %}
-          <button class="w-6 h-6 bg-blue-600 text-white rounded text-xs">{{ num }}</button>
-          {% else %}
-          <a href="?page={{ num }}" class="text-blue-500">{{ num }}</a>
-          {% endif %}
-          {% endfor %}
-          {% if page.has_next %}
-          <a href="{% url 'transactions' %}?page={{ page.next_page_number }}" class="text-blue-500">Next &gt;</a>
-          {% endif %}
-        </div>
-        {% endif %}
+          <div id="pagination-controls" class="mt-4 flex justify-end">
+            {% include 'partials/pagination.html' %}
+          </div>
       </div>
     </main>
   </div>

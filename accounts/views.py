@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from notifications.models import EmailOTP
-from notifications.utils import registration_otp
+from notifications.utils import otp
 from django.db.models import Q, Value
 from django.contrib.auth.models import User
 from .models import Personalinfo, Spouse, Membershipapplication, Children, EmergencyContact
@@ -17,31 +17,59 @@ from django.db.models.functions import Concat
 
 def login_view(request):
     if request.method == 'POST':
-        identifier = request.POST.get('emailUsername', '').strip()
+        email = request.POST.get('email', '').strip()
         password = request.POST.get('password')
 
-        # Find user by username or email
-        user_obj = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
-
-        if user_obj:
+        # 🔍 Find user by email
+        try:
+            user_obj = User.objects.get(email=email)
             user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
 
-            if user:
-                # Check membership status
-                if Membershipapplication.objects.filter(user_id=user, status="Pending").exists(): 
-                    request.session["identifier"] = identifier
-                    messages.warning(request, "Your application is still pending.")
-                    return redirect("login")
+        if user:
+            # ✅ Check membership status
+            if Membershipapplication.objects.filter(user_id=user, status="Pending").exists(): 
+                request.session["email"] = email
+                messages.warning(request, "Your application is still pending.")
+                return redirect("login")
+            
+            login(request, user)
+            return redirect('dashboard')
+            
+            request.session["email"] = email
+            request.session["user_id"] = user.id
 
-                login(request, user)
-                return redirect('dashboard')
+            member = Member.objects.select_related('person_id').get(user_id=user)
+            first_name = member.person_id.first_name
+            otp(first_name, email)
+            return redirect('login_verification')
 
-        # Invalid login case
-        request.session["identifier"] = identifier
-        messages.error(request, "Invalid username/email or password.")
+        # ❌ Invalid login
+        request.session["email"] = email
+        messages.error(request, "Invalid email or password.")
         return redirect("login")
 
     return render(request, 'accounts/login.html')
+
+def login_verification(request):
+    if request.method == "POST":
+        email = request.session["email"]
+        user_id = request.session["user_id"]
+        input_code = request.POST.get('code')
+        otp = EmailOTP.objects.filter(email=email).latest('created_at')
+        if not otp.is_valid():
+            messages.error(request, "OTP expired")
+            return redirect('register_verify')
+        elif otp.otp_code != input_code:
+            messages.error(request, "Invalid OTP")
+        else:
+            # ✅ Log in user
+            user = User.objects.get(pk=user_id)
+            login(request, user)
+            return redirect('dashboard')
+
+    return render(request, 'accounts/verification.html', {'form_action': 'login_verification'})
 
 def home_page(request):
     return render(request, 'accounts/index.html')
@@ -265,7 +293,7 @@ def register_step3(request):
             request.session['register_data'] = data
             request.session.modified = True  # ensures Django writes the session
 
-            registration_otp(first_name, email)
+            otp(first_name, email)
             
             return redirect('register_verify')
 
@@ -374,7 +402,7 @@ def registration_otp_verification_view(request):
             messages.error(request, "OTP not found")
             return redirect('register_verify')
 
-    return render(request, 'accounts/verification.html')
+    return render(request, 'accounts/verification.html', {'form_action': 'register_verify'})
 
 
 def check_email(request):
@@ -383,14 +411,12 @@ def check_email(request):
     return JsonResponse({"exists": exists})
 
 
-def check_username(request):
-    username = request.GET.get("username")
-    exists = User.objects.filter(username=username).exists()
-    return JsonResponse({"exists": exists})
-
-
 def update_timer(request):
-    email = request.session.get("register_data", {}).get("email")
+    email = None
+    if "register_data" in request.session:
+        email = request.session.get("register_data", {}).get("email")
+    elif "email" in request.session:
+        email = request.session.get("email")
     if not email:
         return JsonResponse({"status": False, "message": "No email in session"})
 
@@ -415,15 +441,22 @@ def update_timer(request):
     
 
 def resend_otp(request):
-    session_data = request.session.get("register_data", {})
-    first_name = session_data.get("first_name")
-    email = session_data.get("email")
+    # Check both registration and login sessions
+    email = None
+    first_name = None
+    if "register_data" in request.session:
+        data = request.session["register_data"]
+        email = data.get("email")
+        first_name = data.get("first_name")
+    elif "email" and "first_name" in request.session:
+        email = request.session["email"]
+        first_name = request.session["first_name"]
 
     if not email:
         return JsonResponse({"status": False, "message": "No email in session"})
 
     # Call your function to generate and send OTP
-    registration_otp(first_name, email)
+    otp(first_name, email)
 
     return JsonResponse({"status": True, "message": "OTP resent successfully"})
 

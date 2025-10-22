@@ -16,6 +16,7 @@ from django.core.paginator import Paginator
 from django.core.management import call_command
 from django.db.models import Case, When, Value, IntegerField, Sum, Max
 from decimal import Decimal
+from members.models import Savings
 
 
 @login_required
@@ -590,5 +591,13 @@ def calculate_member_loan_risk(member_id):
     except Exception as e:
         return {"error": str(e)}
 
-
-
+def member_savings(request):
+    user = request.user
+    if user.groups.filter(name='Bookkeeper').exists():
+        account_number = request.GET.get('accountNumber')
+        member = Member.objects.get(account_number=account_number)
+    elif user.groups.filter(name='Member').exists():
+        member = Member.objects.get(user_id=user)
+    savings = Savings.objects.get(member_id=member)
+    member_savings = savings.balance
+    return JsonResponse({"success": True, "member_savings": member_savings})

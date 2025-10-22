@@ -17,6 +17,8 @@ from django.db.models import Count
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from django.utils.timezone import now
 from loans.models import Loan
+from .models import CashierStatus
+from django.http import JsonResponse
 
 
 @login_required
@@ -38,7 +40,6 @@ def dashboard_view(request):
     
 
 def member_dashboard_data(user):
-
     today = date.today()
 
     # ---------- 🟢 DAILY ----------
@@ -233,8 +234,6 @@ def member_dashboard_data(user):
         .get(member_id__user_id=user)
         .balance
     )
-    print(monthly_labels)
-    print(monthly_data)
 
     # ---------- CONTEXT ----------
     context = {
@@ -324,6 +323,7 @@ def cashier_dashboard_data(request):
     cashier = request.user  # Logged-in cashier
 
     loans = LoanApplication.objects.filter(status='Approved').count()
+    cashier_availability = cashier.cashierstatus.status if hasattr(cashier, 'cashierstatus') else 'unavailable'
 
     # === Get current week range (Sunday → Saturday) ===
     today = timezone.localtime().date()
@@ -429,6 +429,7 @@ def cashier_dashboard_data(request):
         "yearly_labels": json.dumps(yearly_labels),
         "yearly_data": json.dumps(yearly_data),
         "loans": loans,
+        "cashier_availability": cashier_availability,
     }
     return context
 
@@ -444,3 +445,26 @@ def admin_dashboard_data():
         "approvals": pending_approval
     }
     return context
+
+
+def cashier_status(request):
+    user = request.user
+    cashier = CashierStatus.objects.get(user_id=user)
+    cashier_availability = cashier.status
+    return JsonResponse({"status": cashier_availability})
+
+def update_status(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        status = data.get("status")
+        user = request.user
+
+        CashierStatus.objects.filter(user_id=user).update(status=status)
+        cashier = CashierStatus.objects.get(user_id=user)
+        cashier_availability = cashier.status
+        return JsonResponse({"status": cashier_availability})
+
+def cashier_transaction_availablity(request):
+    user = request.user
+    cashier_availability = CashierStatus.objects.filter(status="available").exists()
+    return JsonResponse({"status": cashier_availability})
