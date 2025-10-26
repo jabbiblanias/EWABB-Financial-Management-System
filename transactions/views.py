@@ -17,6 +17,17 @@ from notifications.models import Notification
 from django.core.paginator import Paginator 
 from django.utils.dateformat import DateFormat
 
+
+def member_details(request, member_id):
+    member = Member.objects.select_related('person_id').get(member_id=member_id)
+    transactions = Transactions.objects.filter(member_id=member)
+    context = {
+        'member': member,
+        'transactions': transactions
+    }
+    return render(request, 'transactions/member_ledger.html', context)
+
+
 @transaction.atomic
 def transactions(request):
     try:

@@ -74,9 +74,10 @@
 </aside>
 
 <!-- Top bar -->
-<header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm fixed top-0 left-64 right-0">
-  <h2 class="text-lg font-semibold">
-    {% if request.resolver_match.url_name == 'dashboard' %} Dashboard 
+<!-- Fixed Header -->
+<header class="flex justify-between items-center px-6 py-3 bg-white shadow-sm fixed top-0 left-64 right-0 z-40">
+  <h2 class="text-lg font-semibold text-gray-800">
+    {% if request.resolver_match.url_name == 'dashboard' %} Dashboard
     {% elif request.resolver_match.url_name == 'transactions' %} Transactions
     {% elif request.resolver_match.url_name == 'membershipApplication' or request.resolver_match.url_name == 'membershipApplicationDetails' %} Members
     {% elif request.resolver_match.url_name == 'members' or request.resolver_match.url_name == 'memberDetails' %} Members
@@ -85,25 +86,23 @@
     {% elif request.resolver_match.url_name == 'profile' %} Profile
     {% endif %}
   </h2>
-  <div class="flex items-center space-x-4">
-    <!--<input type="text" placeholder="Search for member" class="px-4 py-2 border border-gray-300 rounded-full w-60" />-->
-    <div class="flex items-center space-x-4">
-      <!-- Avatar with dropdown -->
+
+  <div class="flex items-center space-x-6">
+    <!-- Search Box -->
+    {% include 'partials/search_bar.html' %}
+
+    <!-- Profile -->
+    <div class="flex items-center space-x-2">
+      {% include 'partials/header_profile.html' %}
       <div class="dropdown dropdown-end">
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            {% include 'partials/header_profile.html' %}
-            <div class="dropdown dropdown-end">
-              <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-              <!-- Dropdown Menu -->
-              {% include "partials/profile_menu.html" %}
-            </div>
-          </div>
-        </div>
+        <svg tabindex="0" role="button" xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 text-gray-700 hover:text-blue-600 cursor-pointer"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        {% include "partials/profile_menu.html" %}
       </div>
     </div>
   </div>
 </header>
+

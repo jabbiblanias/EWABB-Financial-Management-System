@@ -120,7 +120,7 @@ def generate_report(request):
             default=F('savings_balance'),
             output_field=DecimalField()
         ),
-        # Savings after deduction = original savings
+        # Savings after deduction = original savings 
         savings_after_deduction=F('savings_balance')
     )
     unique_title = generate_unique_name(Financialreports, 'title', f'report-{date.today().strftime("%Y-%m-%d")}')

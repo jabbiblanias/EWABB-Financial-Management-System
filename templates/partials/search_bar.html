@@ -1,0 +1,61 @@
+<div class="relative w-72">
+    <input type="text" id="searchBox" placeholder="Search member..." autocomplete="off"
+        class="w-full border border-gray-300 rounded-xl py-2 px-4 text-gray-700 focus:border-blue-500 focus:ring focus:ring-blue-100 outline-none" />
+    <!-- Suggestions Dropdown -->
+    <div id="suggestions"
+        class="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto hidden z-50">
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchBox = document.getElementById('searchBox');
+        const suggestions = document.getElementById('suggestions');
+
+        searchBox.addEventListener('input', async function () {
+            const query = this.value.trim();
+
+            if (query.length < 1) {
+                suggestions.classList.add('hidden');
+                return;
+            }
+
+            const response = await fetch(`/search-member/?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            if (data.length > 0) {
+                let html = '';
+                data.forEach(item => {
+                    const fullName = `${item["person_id__first_name"]} ${item["person_id__surname"]}`;
+                    html += `
+          <div class="suggestion-item px-4 py-2 hover:bg-blue-50 cursor-pointer transition"
+               data-id="${item.member_id}">
+            <div class="text-gray-800 font-medium">${fullName}</div>
+            <div class="text-sm text-gray-500">Account No: ${item.account_number}</div>
+          </div>`;
+                });
+
+                suggestions.innerHTML = html;
+                suggestions.classList.remove('hidden');
+            } else {
+                suggestions.innerHTML = '<div class="p-3 text-gray-500 text-sm">No results found.</div>';
+                suggestions.classList.remove('hidden');
+            }
+        });
+
+        // Click event: redirect to details page
+        suggestions.addEventListener('click', function (e) {
+            const item = e.target.closest('.suggestion-item');
+            if (item) {
+                const memberId = item.dataset.id;
+                window.location.href = `/transactions/member-ledger/${memberId}/`;  // redirects to the detail page
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!suggestions.contains(e.target) && e.target !== searchBox) {
+                suggestions.classList.add('hidden');
+            }
+        });
+    });
+</script>

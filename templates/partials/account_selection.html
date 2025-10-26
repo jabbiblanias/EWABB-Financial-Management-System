@@ -1,0 +1,59 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const accountNumber = document.getElementById('accountNumber');
+        const nameSuggestions = document.getElementById('nameSuggestions');
+
+        accountNumber.addEventListener('input', async function () {
+            const query = this.value.trim();
+
+            if (query.length < 1) {
+                nameSuggestions.classList.add('hidden');
+                return;
+            }
+
+            const response = await fetch(`/search-member/?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            if (data.length > 0) {
+                let html = '';
+                data.forEach(item => {
+                    const fullName = `${item["person_id__first_name"]} ${item["person_id__surname"]}`;
+                    html += `
+          <div class="suggestion-item px-4 py-2 hover:bg-blue-50 cursor-pointer transition"
+          data-account="${item.account_number}"
+       data-name="${item.person_id__first_name} ${item.person_id__surname}">
+            <div class="text-gray-800 font-medium">${item.account_number}</div>
+            <div class="text-sm text-gray-500">Name: ${fullName} </div>
+          </div>`;
+                });
+
+                nameSuggestions.innerHTML = html;
+                nameSuggestions.classList.remove('hidden');
+            } else {
+                nameSuggestions.innerHTML = '<div class="p-3 text-gray-500 text-sm">No results found.</div>';
+                nameSuggestions.classList.remove('hidden');
+            }
+        });
+        // Click event: fill the input instead of redirect
+        nameSuggestions.addEventListener('click', function (e) {
+            const item = e.target.closest('.suggestion-item');
+            if (item) {
+                const account = item.dataset.account;
+                accountNumber.value = account;
+                nameSuggestions.classList.add('hidden');
+
+                // Only trigger getMemberData if it exists (for pages that need it)
+                if (typeof getMemberData === 'function') {
+                    getMemberData();
+                }
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!nameSuggestions.contains(e.target) && e.target !== accountNumber) {
+                nameSuggestions.classList.add('hidden');
+            }
+        });
+    });
+</script>

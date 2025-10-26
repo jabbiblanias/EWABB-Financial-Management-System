@@ -8,6 +8,8 @@ class Member(models.Model):
     user_id = models.ForeignKey(User, models.DO_NOTHING, db_column='userid')
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
     account_number = models.CharField(max_length=20, unique=True, blank=True, db_column='accountnumber')
+    insurance = models.DecimalField(max_digits=12, decimal_places=2, default=0, db_column='insurance')
+    cbu = models.DecimalField(max_digits=12, decimal_places=2, default=0, db_column='cbu')
     membership_date = models.DateField(auto_now_add=True, db_column='membershipdate')
 
     def save(self, *args, **kwargs):

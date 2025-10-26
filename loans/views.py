@@ -14,9 +14,11 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
-from django.db.models import Case, When, Value, IntegerField, Sum, Max
+from django.db.models import Case, When, Value, IntegerField, Sum, Max, F
 from decimal import Decimal
 from members.models import Savings
+from transactions.models import Transactions
+
 
 
 @login_required
@@ -64,20 +66,24 @@ def apply_loan(request):
             else:
                 member = Member.objects.get(user_id=user)
 
-            loan_application = LoanApplication.objects.create(
-                member_id=member,
-                loan_type=loan_type,
-                loan_amount=loan_amount,
-                loan_term_years=years,
-                loan_term_months=months,
-                loan_term_days=days,
-                total_payable=computed["totalPayable"],
-                amortization=computed["amortization"],
-                cbu=computed["cbu"],
-                insurance=computed["insurance"],
-                service_charge=computed["serviceCharge"],
-                net_proceeds=computed["releaseAmount"]
-            )
+            if loan_amount <= member.savings.balance:
+                loan_application = LoanApplication.objects.create(
+                    member_id=member,
+                    loan_type=loan_type,
+                    loan_amount=loan_amount,
+                    loan_term_years=years,
+                    loan_term_months=months,
+                    loan_term_days=days,
+                    total_payable=computed["totalPayable"],
+                    amortization=computed["amortization"],
+                    cbu=computed["cbu"],
+                    insurance=computed["insurance"],
+                    service_charge=computed["serviceCharge"],
+                    net_proceeds=computed["releaseAmount"]
+                )
+            else:
+                # If not enough balance, handle accordingly (e.g., show error)
+                return JsonResponse({"success": False, "message": "Insufficient savings balance."})
 
             # Render updated loan list
             is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest"
@@ -253,7 +259,7 @@ def loan_applications_data(request, ajax=False):
     is_bookkeeper = user.groups.filter(name='Bookkeeper').exists()
     is_admin = user.groups.filter(name='Admin').exists()
 
-    # 🧩 Order priority based on role
+    #Order priority based on role
     if is_bookkeeper:
         status_order_case = Case(
             When(status='Pending', then=Value(1)),
@@ -311,14 +317,14 @@ def loan_applications_data(request, ajax=False):
             loan['risk_percentage'] = risk_data.get('risk_percentage')
             loan['risk_level'] = risk_data.get('risk_level')
 
-    # 🧭 Paginate
+    #Paginate
     paginator = Paginator(loan_applications, 10)
     page_num = request.GET.get('page')
     page = paginator.get_page(page_num)
 
     context = {'page': page}
 
-    # 🧱 For AJAX refresh
+    #For AJAX refresh
     if ajax:
         html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
@@ -451,6 +457,7 @@ def approving_loan(request):
 def releasing(request):
     data = json.loads(request.body)
     loan_application_id = data.get('loan_application_id')
+    user = request.user
     try:
         loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id, status='Approved')
         member = loan_application.member_id
@@ -486,6 +493,19 @@ def releasing(request):
                 )
         loan_application.status = "Released"
         loan_application.save()
+
+        Member.objects.filter(member_id=member.member_id).update(
+            insurance=F('insurance') + loan_application.insurance,
+            cbu=F('cbu') + loan_application.cbu
+        )
+
+        Transactions.objects.create(
+            member_id=member,
+            cashier_id=user,
+            amount=loan_application.net_proceeds,
+            transaction_type='Loan Release', # 👈 Use 'Penalty Accrual'
+            loan_id=loan
+        )
 
         schedules = LoanRepaymentSchedule.objects.filter(loan_id=loan).values("due_date").order_by("due_date").first()
 
@@ -550,7 +570,7 @@ def calculate_member_loan_risk(member_id):
         penalty_frequency_ratio = (total_penalties / total_schedules) if total_schedules > 0 else 0
         penalty_amount_ratio = (float(total_penalty_amount) / float(total_payable)) if total_payable > 0 else 0
 
-        # 🧠 Loan Growth Ratio (based on highest previous loan)
+        # Loan Growth Ratio (based on highest previous loan)
         current_loan = loans.last()
         current_amount = float(current_loan.loan_application_id.loan_amount)
         previous_max = float(

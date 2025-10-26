@@ -159,6 +159,29 @@ def profile_information(request):
 
     return render(request, 'accounts/profile.html', context)
 
+from django.http import JsonResponse
+from django.db.models import Q
+
+def search_member(request):
+    query = request.GET.get('q', '')
+    results = []
+
+    if query:
+        members = Member.objects.select_related('person_id').filter(
+            Q(person_id__first_name__icontains=query) |
+            Q(person_id__surname__icontains=query) |
+            Q(account_number__icontains=query)
+        ).values(
+            'member_id',
+            'person_id__first_name',
+            'person_id__surname',
+            'account_number'
+        )[:10]
+
+        results = list(members)
+
+    return JsonResponse(results, safe=False)
+
 
 def register_step1(request):
     if request.method == 'POST':

@@ -16,5 +16,5 @@ urlpatterns = [
     path('resend/', views.resend_otp, name='resend'),
     path('register/complete/', views.success_view, name='complete_registration'),
     path('fetch-profile/', views.fetch_profile, name='fetch_profile'),
-    
+    path('search-member/', views.search_member, name='search-member'),
 ]

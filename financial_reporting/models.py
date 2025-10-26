@@ -1,4 +1,6 @@
 from django.db import models
+from members.models import Member
+from django.contrib.auth.models import User
 
 
 class Financialreports(models.Model):
@@ -34,3 +36,29 @@ class Memberfinancialdata(models.Model):
     class Meta:
         managed = False
         db_table = 'memberfinancialdata'
+
+
+class Revenue(models.Model):
+    revenue_id = models.AutoField(primary_key=True)
+    source = models.CharField(max_length=50)  # e.g. 'Loan Interest', 'Service Charge', 'Penalty', 'Program Income'
+    member_id = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    date_collected = models.DateTimeField(auto_now_add=True)
+    remarks = models.TextField(blank=True, null=True)
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, db_column='recorded_by')
+
+    class Meta:
+        managed = False
+        db_table = 'revenue'
+
+class Expense(models.Model):
+    expense_id = models.AutoField(primary_key=True)
+    source = models.CharField(max_length=100)  # e.g. 'Service Charge', 'Utility', 'Salary'
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    date_recorded = models.DateTimeField(auto_now_add=True)
+    remarks = models.TextField(blank=True, null=True)
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, db_column='recorded_by')
+
+    class Meta:
+        managed = False
+        db_table = 'expense'
