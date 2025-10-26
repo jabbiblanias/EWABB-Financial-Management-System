@@ -3,9 +3,12 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db import transaction
 from dateutil.relativedelta import relativedelta # 👈 Requires python-dateutil
-from loans.models import LoanRepaymentSchedule, LoanPenalty, Loan, LoanApplication
+from loans.models import LoanRepaymentSchedule, LoanPenalty, Loan
+from transactions.models import Transactions
 from members.models import Savings
+from notifications.models import Notification
 from django.db.models import F
+from django.utils.formats import DateFormat
 
 
 # Define constants
@@ -14,7 +17,7 @@ EXCLUDE_STATUSES = ['Paid', 'Canceled']
 
 
 class Command(BaseCommand):
-    help = 'Updates loan repayment statuses and creates monthly penalties for overdue schedules.'
+    help = 'Updates loan repayment statuses either due or overdueand creates monthly penalties for overdue schedules.'
 
     def handle(self, *args, **options):
         today = timezone.localdate()
@@ -27,6 +30,30 @@ class Command(BaseCommand):
         ).exclude(
             status__in=EXCLUDE_STATUSES
         ).update(status='Due')
+
+        due_schedules = LoanRepaymentSchedule.objects.filter(
+            due_date=today,
+            status='DUE'
+        ).select_related(
+            'loan__member__user' # Optimize to fetch related objects (Loan, Member, User)
+        )
+
+        # --- 3. Iterate and create a notification for each schedule ---
+        for schedule in due_schedules:
+            # Ensure you have access to the necessary data (e.g., loan, member, user ID)
+            loan_id = schedule.loan_id
+            member_id = loan_id.member_id
+            
+            Notification.objects.create(
+                user_id=member_id.user_id, # Assuming 'member' has a 'user' relationship
+                title="Friendly Reminder: Loan Payment Due Today",
+                message=(
+                    f"Your loan payment (ID: {loan_id}) is due today, "
+                    f"{DateFormat(schedule.due_date).format('M d, Y')}. "
+                    f"The amount due is **₱{schedule.amount_due:,.2f}**. "
+                    f"Please ensure your payment is made promptly."
+                )
+            )
 
         # --- 2. Identify Schedules with DueDate < Today to 'Overdue' (Bulk Update for efficiency) ---
         # This flags *all* past-due, non-final schedules to Overdue in one query.
@@ -83,22 +110,76 @@ class Command(BaseCommand):
                         savings.balance -= penalty_amount
                         savings.save()
 
-                        LoanPenalty.objects.create(
-                            schedule_id=schedule,
-                            penalty_amount=penalty_amount,
-                            penalty_type='Savings Penalty Deduction',
-                            date_evaluated=today # The date the penalty was created
+                        penalty = (
+                            LoanPenalty.objects.create(
+                                schedule_id=schedule,
+                                penalty_amount=penalty_amount,
+                                penalty_type='Savings Penalty Deduction',
+                                date_evaluated=today # The date the penalty was created
+                            )
                         )
+
+                        Transactions.objects.create(
+                            member_id=member,
+                            cashier_id=None, # System transaction, no physical cashier
+                            amount=penalty_amount,
+                            transaction_type='Penalty Deduction', # 👈 Use 'Penalty Deduction'
+                            loan_id=schedule.loan,
+                            penalty_id=penalty
+                        )
+
+                        Notification.objects.create(
+                            user_id=member.user_id,
+                            title="Penalty Deducted from Savings",
+                            message=(
+                                f"A loan penalty has been deducted from your savings account. "
+                                f"Due Date: {DateFormat(schedule.due_date).format('M d, Y')}. "
+                                f"Penalty Amount: ₱{penalty_amount:,.2f}. "
+                                f"Your updated savings balance is ₱{savings.balance:,.2f}."
+                            )
+                        )
+
                     else:
                         LoanRepaymentSchedule.objects.filter(pk=schedule.pk).update(
                             amount_due=F('amount_due') + penalty_amount
                         )
-                        LoanPenalty.objects.create(
-                            schedule_id=schedule,
-                            penalty_amount=penalty_amount,
-                            penalty_type='Amount Due Penalty Added',
-                            date_evaluated=today # The date the penalty was created
+                        penalty = (
+                            LoanPenalty.objects.create(
+                                schedule_id=schedule,
+                                penalty_amount=penalty_amount,
+                                penalty_type='Amount Due Penalty Added',
+                                date_evaluated=today # The date the penalty was created
+                            )
                         )
+
+                        # The Schedule object is 'schedule'
+                        loan_pk = schedule.loan_id # Get the primary key of the related Loan
+
+                        # Use F() to safely add the penalty_amount to the OutstandingBalance field in the database
+                        Loan.objects.filter(pk=loan_pk).update(
+                            remaining_balance=F('remaining_balance') + penalty_amount
+                        )
+
+                        Transactions.objects.create(
+                            member_id=member,
+                            cashier_id=None, # System transaction
+                            amount=penalty_amount,
+                            transaction_type='Penalty Accrual', # 👈 Use 'Penalty Accrual'
+                            loan_id=schedule.loan,
+                            penalty_id=penalty
+                        )
+
+                        Notification.objects.create(
+                            user_id=member.user_id,
+                            title="Penalty Added to Loan Due",
+                            message=(
+                                f"A penalty has been added to your loan repayment amount. "
+                                f"Due Date: {DateFormat(schedule.due_date).format('M d, Y')}. "
+                                f"Penalty Amount: ₱{penalty_amount:,.2f}. "
+                                f"Your new total amount due is ₱{schedule.amount_due:,.2f}."
+                            )
+                        )
+
                     penalties_created_count += 1
                         
                 # Count schedules processed for reporting
@@ -106,6 +187,7 @@ class Command(BaseCommand):
 
 
         # --- Report Results ---
+        # Count schedules processed for reporting
         self.stdout.write(self.style.SUCCESS(
             f'Updated {updated_due} schedules to Due.'
         ))

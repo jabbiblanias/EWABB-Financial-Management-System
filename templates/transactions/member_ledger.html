@@ -50,24 +50,22 @@
 
     <tbody>
         {% for transaction in transactions %}
-        {% if transaction.transaction_type == "Savings Deposit" %}
         <tr>
         <td class="border border-black py-1">{{ transaction.transaction_date|date:"m/d/Y" }}</td>
         <td class="border border-black py-1 text-left pl-2">{{ transaction.transaction_type }}</td>
-        <td class="border border-black py-1">₱{{ transaction.amount }}</td>
-        <td class="border border-black py-1">₱{{ transaction.loan_balance }}</td>
-        <td class="border border-black py-1">₱{{ transaction.amount }}</td>
-        <td class="border border-black py-1">₱8,000</td>
+        {% if transaction.transaction_type == "Loan Payment" or transaction.transaction_type == "Loan Release" %}
+        <td class="border border-black py-1">₱{{ transaction.amount|default:0 }}</td>
+        {% else %}
+        <td class="border border-black py-1">--</td>
+        {% endif %}
+        <td class="border border-black py-1">₱{{ transaction.loan_balance|default:0 }}</td>
+        {% if transaction.transaction_type == "Savings Deposit" or transaction.transaction_type == "Withdrawal" %}
+        <td class="border border-black py-1">₱{{ transaction.amount|default:0 }}</td>
+        {% else %}
+        <td class="border border-black py-1">--</td>
+        {% endif %}
+        <td class="border border-black py-1">₱0.00</td>
       </tr>
-      <tr>
-        <td class="border border-black py-1">{{ transaction.transaction_date|date:"m/d/Y" }}</td>
-        <td class="border border-black py-1 text-left pl-2">{{ transaction.transaction_type }}</td>
-        <td class="border border-black py-1">₱{{ transaction.amount }}</td>
-        <td class="border border-black py-1">₱{{ transaction.loan_balance }}</td>
-        <td class="border border-black py-1">₱2,000</td>
-        <td class="border border-black py-1">₱8,000</td>
-      </tr>
-      {% endif %}
       {% endfor %}
     </tbody>
   </table>
