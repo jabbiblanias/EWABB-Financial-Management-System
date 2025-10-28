@@ -31,9 +31,6 @@ class LoanApplication(models.Model):
     verified_date = models.DateField(null=True, blank=True, db_column='verifieddate')
     approver_id = models.ForeignKey(User, related_name='approved_loans', on_delete=models.SET_NULL, null=True, blank=True, db_column='approverid')
     approved_date = models.DateField(null=True, blank=True, db_column='approveddate')
-
-    def __str__(self):
-        return f"Loan Application #{self.id} - {self.member}"
     
     class Meta:
         managed = False
@@ -54,9 +51,6 @@ class Loan(models.Model):
     loan_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active', db_column='loanstatus')
     released_by_id = models.ForeignKey(User, models.DO_NOTHING, db_column='releasedbyid')
     released_date = models.DateTimeField(auto_now_add=True, db_column='releaseddate')
-
-    def __str__(self):
-        return f"Loan #{self.loan_id} - {self.member_id}"
     
     class Meta:
         managed = False
@@ -80,9 +74,6 @@ class LoanRepaymentSchedule(models.Model):
     paid_date = models.DateTimeField(null=True, blank=True, db_column='paiddate')
     last_updated = models.DateTimeField(null=True, blank=True, db_column='lastupdated')
     paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, db_column='paidamount')
-
-    def __str__(self):
-        return f"Schedule #{self.id} for Loan #{self.loan.id}"
     
     class Meta:
         managed = False
@@ -95,9 +86,6 @@ class LoanPenalty(models.Model):
     penalty_amount = models.DecimalField(max_digits=12, decimal_places=2, db_column='penaltyamount')
     penalty_type = models.CharField(max_length=20, db_column='penaltytype')
     date_evaluated = models.DateField(db_column='dateevaluated')
-
-    def __str__(self):
-        return f"Penalty #{self.id} for Schedule #{self.schedule.id}"
     
     class Meta:
         managed = False

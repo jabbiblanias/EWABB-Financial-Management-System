@@ -201,15 +201,19 @@
 
         if (currentUrlName === "loan_applications") {
           document.getElementById('table-body').innerHTML = data.loans;
+          attachActionListeners();
+        }
+        else {
+          document.getElementById('table-body').innerHTML = data.loans;
         }
       } else {
         showAlert(data.message, "error");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+    } finally {
+      submitButton.disabled = false;
     }
-
-    submitButton.disabled = false;
   });
 
 
@@ -322,19 +326,19 @@
   }
 
 
-  async function loanAmountAvailability(e) {
-    const savings = await memberSavings();
-    const loanAmount = parseFloat(e.target.value) || 0;
-    const errorText = document.getElementById('amountError');
+  async function loanAmountAvailability(inputElement) {
+  const savings = await memberSavings();
+  const loanAmount = parseFloat(inputElement.value) || 0;
+  const errorText = document.getElementById('amountError');
 
-    if (loanAmount > savings && savings > 0) {
-      errorText.classList.remove('hidden');
-      return true;
-    } else {
-      errorText.classList.add('hidden');
-      return false
-    }
+  if (loanAmount > savings && savings > 0) {
+    errorText.classList.remove('hidden');
+    return true;
+  } else {
+    errorText.classList.add('hidden');
+    return false;
   }
+}
 
   document.getElementById('amount').addEventListener('input', e => {
     const value = e.target.value;
@@ -343,7 +347,7 @@
     }
     clearTimeout(timeout);
     timeout = setTimeout(function () {
-      loanAmountAvailability(e);
+      loanAmountAvailability(e.target);
       updateLoanDetails();
     }, 500);
 

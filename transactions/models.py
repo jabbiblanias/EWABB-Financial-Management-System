@@ -26,6 +26,7 @@ class Transactions(models.Model):
     loan_id = models.ForeignKey(Loan, models.DO_NOTHING, db_column='loan_id')
     penalty_id = models.ForeignKey(LoanPenalty, models.DO_NOTHING, db_column='penalty_id')
     program_id = models.ForeignKey(BusinessProgram, models.DO_NOTHING, db_column='program_id')
+    description = models.TextField(db_column='description', null=True, blank=True)
 
     def __str__(self):
         return f"{self.transaction_type} by {self.member} on {self.date.strftime('%Y-%m-%d')}"

@@ -8,7 +8,7 @@ from transactions.models import Transactions
 from members.models import Savings
 from notifications.models import Notification
 from django.db.models import F
-from django.utils.formats import DateFormat
+from django.utils.dateformat import DateFormat
 
 
 # Define constants
@@ -33,22 +33,20 @@ class Command(BaseCommand):
 
         due_schedules = LoanRepaymentSchedule.objects.filter(
             due_date=today,
-            status='DUE'
+            status='Due'
         ).select_related(
-            'loan__member__user' # Optimize to fetch related objects (Loan, Member, User)
+            'loan_id', # Optimize to fetch related objects (Loan, Member, User)
         )
 
         # --- 3. Iterate and create a notification for each schedule ---
         for schedule in due_schedules:
             # Ensure you have access to the necessary data (e.g., loan, member, user ID)
-            loan_id = schedule.loan_id
-            member_id = loan_id.member_id
             
             Notification.objects.create(
-                user_id=member_id.user_id, # Assuming 'member' has a 'user' relationship
+                user_id=schedule.loan_id.member_id.user_id, # Assuming 'member' has a 'user' relationship
                 title="Friendly Reminder: Loan Payment Due Today",
                 message=(
-                    f"Your loan payment (ID: {loan_id}) is due today, "
+                    f"Your loan payment (ID: {schedule.loan_id.pk}) is due today, "
                     f"{DateFormat(schedule.due_date).format('M d, Y')}. "
                     f"The amount due is **₱{schedule.amount_due:,.2f}**. "
                     f"Please ensure your payment is made promptly."
@@ -125,7 +123,8 @@ class Command(BaseCommand):
                             amount=penalty_amount,
                             transaction_type='Penalty Deduction', # 👈 Use 'Penalty Deduction'
                             loan_id=schedule.loan,
-                            penalty_id=penalty
+                            penalty_id=penalty,
+                            savings_id=savings
                         )
 
                         Notification.objects.create(

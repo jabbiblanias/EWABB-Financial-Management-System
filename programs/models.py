@@ -20,17 +20,3 @@ class BusinessProgram(models.Model):
     class Meta:
         managed = False
         db_table = "businessprogram"
-
-
-class Funds(models.Model):
-    fund_id = models.AutoField(primary_key=True)
-    fund_name = models.CharField(max_length=100)
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.fund_name} - {self.balance}"
-    
-    class Meta:
-        managed = False
-        db_table = "funds"

@@ -145,6 +145,15 @@ def transactions(request):
                     transaction_type=transaction_type,
                     program_id=program
                 )
+            elif transaction_type == 'Expense':
+                transaction_id = Transactions.objects.create(
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    program_id=program
+                )
             person_id = member.person_id
             transaction = {
                 "transaction_id": transaction_id.transaction_id,
@@ -377,7 +386,7 @@ def balance(request):
         balance = loan.remaining_balance
     else:
         return JsonResponse({"exists": True, "member_name": member_name})
-    return JsonResponse({"exists": True, "member_name": member_name, "balance": balance})
+    return JsonResponse({"exists": True, "member_name": member_name, "balance": Decimal(balance)})
 
 def passbook_print(request):
     return render(request, 'transactions/partials/passbook.html')
