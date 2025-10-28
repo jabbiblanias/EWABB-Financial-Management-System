@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>financialReportPdf</title>
+  <style>
+    @page {
+      size: 612pt 936pt;   /* 8.5in x 13in */
+      margin: 72pt 24pt;   /* top/bottom = 72pt (1in), left/right = 36pt (0.5in) */
+    }
+    body {
+      background: #f8f8f8;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+    }
+    .title {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .title h1 {
+      font-size: 16px;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin: 0;
+    }
+    .title p {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin: 5px 0 5px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    /* Header with bold border */
+    thead th {
+      border: 1px solid black;
+      padding: 2px;
+      font-weight: bold;
+    }
+
+    /* Allow only loan balance to wrap */
+    .col-loan {
+      white-space: normal !important;
+    }
+
+    /* Single border for data rows */
+    tbody td {
+      border: 1px solid black;
+      padding: 3px;
+      white-space: nowrap; /* Keep data in one line */
+    }
+
+    /* Column widths */
+    .col-account { width: 70px; }
+    .col-name { width: 190px; }
+    .col-loan { width: 100px; }
+    .col-date { width: 100px; }
+    .col-savings { width: 70px; }
+    .col-penalty { width: 90px; }
+    .col-after { width: 100px; }
+    .col-remarks { width: 90px; }
+    .col-signature { width: 90px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Centered Title -->
+    <div class="title">
+      <h1>{{ "Empowered Women's Association of Barangay Bañadero (EWABB)"|upper }}</h1>
+      <p>{{ "Updated Report as of"|upper }} {{ report_date|date:"F d, Y"|upper }}</p>
+    </div>
+
+    <!-- Table -->
+    <table>
+      <thead>
+        <tr>
+          <th class="col-account">Account No</th>
+          <th class="col-name">Name</th>
+          <th class="col-loan">Amount of<br>Loan Balance</th>
+          <th class="col-date">Date Loaned</th>
+          <th class="col-savings">Savings</th>
+          <th class="col-penalty">2% Penalty Charges</th>
+          <th class="col-after">Savings After Deduction</th>
+          <th class="col-remarks">Remarks</th>
+          <th class="col-signature">Signature</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in financial_report %}
+        <tr>
+          <td class="col-account">{{ member.account_number }}</td>
+          <td class="col-name">{{ member.name }}</td>
+          <td class="col-loan">{{ member.outstanding_balance|default:"0.00" }}</td>
+          <td class="col-date">{{ member.date_loaned|date:"M j, Y"|default:" " }}</td>
+          <td class="col-savings">{{ member.savings }}</td>
+          <td class="col-penalty">{{ member.penalty_charge|default:"0.00" }}</td>
+          <td class="col-after">{{ member.savings_after_deduction|default:"0.00" }}</td>
+          <td class="col-remarks">{{ member.remarks|default:"" }}</td>
+          <td class="col-signature"></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

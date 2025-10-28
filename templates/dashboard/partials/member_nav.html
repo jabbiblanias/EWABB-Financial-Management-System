@@ -30,16 +30,6 @@
           </g>
         </svg> </span>
       Loans</a>
-    <a href="{% url 'appointments' %}" class="flex items-center px-6 py-3 {% if request.resolver_match.url_name == 'appointments' %}text-[#3d5af1] font-semibold bg-[#f1f5ff] {% else %} text-gray-600 hover:text-[#3d5af1] {% endif %}">
-      <span class="w-5 mr-3 inline-block"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-5 h-5">
-          <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="24" cy="11" r="7" />
-            <path d="M4 41c0-8.837 8.059-16 18-16" />
-            <circle cx="34" cy="34" r="9" />
-            <path d="M33 31v4h4" />
-          </g>
-        </svg></span>
-      Appointments</a>
   </nav>
 </aside>
 
@@ -56,7 +46,6 @@
       {% if request.resolver_match.url_name == 'dashboard' %} Dashboard 
       {% elif request.resolver_match.url_name == 'transactions' %} Transactions
       {% elif request.resolver_match.url_name == 'loans' %} Loans
-      {% elif request.resolver_match.url_name == 'appointments' %} Appointments
       {% elif request.resolver_match.url_name == 'profile' %} Profile
       {% endif %}
     </h1>
@@ -134,16 +123,6 @@
             </g>
           </svg> </span>
         Loans</a>
-      <a href="{% url 'appointments' %}" class="flex items-center px-6 py-3 text-gray-600 hover:text-[#3d5af1]">
-        <span class="w-5 mr-3 inline-block"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-5 h-5">
-            <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="24" cy="11" r="7" />
-              <path d="M4 41c0-8.837 8.059-16 18-16" />
-              <circle cx="34" cy="34" r="9" />
-              <path d="M33 31v4h4" />
-            </g>
-          </svg></span>
-        Appointments</a>
     </nav>
   </div>
 </div>

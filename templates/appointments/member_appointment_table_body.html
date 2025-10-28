@@ -1,8 +1,0 @@
-{% for appointment in appointments %}
-<tr id="row-{{ appointment.appointment_id }}" class="text-sm">
-    <td class="px-2 md:px-6 py-3">{{ appointment.appointment_date }}</td>
-    <td class="px-2 md:px-6 py-3">{{ appointment.appointment_time }}</td>
-    <td class="px-2 md:px-6 py-3">{{ appointment.appointment_type }}</td>
-    <td class="px-2 md:px-6 py-3">{{ appointment.status }}</td>
-</tr>
-{% endfor %}

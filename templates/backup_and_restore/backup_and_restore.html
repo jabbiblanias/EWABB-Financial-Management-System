@@ -1,6 +1,6 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
   <meta charset="UTF-8" />
@@ -236,6 +236,12 @@
         } else {
           showAlert(data.message, data.status);
         }
+        backup_button.disabled = false;
+
+          // Show spinner + text (Tailwind spinner with SVG)
+          backup_button.innerHTML = `
+              Backup now
+          `;
         
       } catch (err) {
         console.log("Error: " + err);

@@ -1,6 +1,6 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
   <meta charset="UTF-8" />
@@ -22,6 +22,11 @@
 
     <!-- Main Content -->
     <div class="ml-64 mr-4 mt-[72px] flex-1">
+      <!-- Action buttons -->
+      <div class="flex justify-end px-6 py-3 mt-6 mr-2">
+        <a href="{% url 'dividend_report' %}"
+          class="border border-blue-600 text-blue-500 rounded-full hover:bg-blue-50 p-1 text-sm">Generate Dividend</a>
+      </div>
       <!-- Financial Report Section -->
       <!-- Table -->
       <div class="mt-6 px-6 py-4">

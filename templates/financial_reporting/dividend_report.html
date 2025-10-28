@@ -41,8 +41,6 @@
               <button id="edit" type="button">edit</button>
             </div>
             <div class="flex justify-end gap-4 col-span-1 col-end-4">
-              <button data-action="save"
-                class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Save</button>
               <button data-action="submit"
                 class="action-btn bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">Submit</button>
             </div>
@@ -50,7 +48,7 @@
             <!-- Action buttons -->
             <div class="flex justify-end gap-4 col-span-1 col-end-4">
               <!-- Export PDF -->
-              <a id="exportPdfBtn" href="{% url 'monthly_pdf' report_id %}"
+              <a id="exportPdfBtn" href="{% url 'dividend_pdf' report_id %}"
                 class="flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd"
@@ -61,7 +59,7 @@
               </a>
 
               <!-- Export CSV -->
-              <a id="exportCsvBtn" href="{% url 'monthly_csv' report_id %}"
+              <a id="exportCsvBtn" href="{% url 'dividend_csv' report_id %}"
                 class="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd"
@@ -87,11 +85,14 @@
                   <th class="px-5 py-3 text-left font-medium text-blue-500">Savings</th>
                   <th class="px-5 py-3 text-left font-medium text-blue-500">Penalty charge</th>
                   <th class="px-5 py-3 text-left font-medium text-blue-500">Savings After Deduction</th>
-                  <th class="px-5 py-3 text-left font-medium text-blue-500">Remarks</th>
+                  <!-- <th class="px-5 py-3 text-left font-medium text-blue-500">Add Coop Share</th> -->
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Total Savings / Investment</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Dividend {{ date|date:"F Y" }} at {{ rate_percentage }}%</th>
+                  <th class="px-5 py-3 text-left font-medium text-blue-500">Updated Savings / Investment</th>
                 </tr>
               </thead>
               <tbody id="member-financial-report-table-body">
-                {% include 'financial_reporting/partials/member_data_table_body.html' %}
+                {% include 'financial_reporting/partials/dividend_data_table_body.html' %}
               </tbody>
             </table>
           </div>
@@ -143,9 +144,8 @@
         // Loop through each table row to collect data
         document.querySelectorAll("tbody tr").forEach(row => {
           const accountNumberCell = row.querySelector("td[data-account-number]");
-          const remarksTextarea = row.querySelector("textarea");
 
-          if (accountNumberCell && remarksTextarea) {
+          if (accountNumberCell) {
             const accountNo = accountNumberCell.dataset.accountNumber;
 
             // Construct a new object for each member
@@ -156,37 +156,36 @@
               savings: row.querySelector("td[data-savings-balance]").dataset.savingsBalance,
               penalty_charge: row.querySelector("td[data-penalty-amount]").dataset.penaltyAmount,
               savings_after_deduction: row.querySelector("td[data-savings-after-deduction]").dataset.savingsAfterDeduction,
-              remarks: remarksTextarea.value
+              total_savings_investment: row.querySelector("td[data-total-savings-investment]").dataset.totalSavingsInvestment,
+              dividend_amount: row.querySelector("td[data-dividend-amount]").dataset.dividendAmount,
+              updated_savings_investment: row.querySelector("td[data-updated-savings-investment]").dataset.updatedSavingsInvestment
             };
             membersData[accountNo] = member;
           }
         });
 
         // The rest of your fetch request remains the same
-        const response = await fetch("{% url 'submit_monthly_report' %}", {
+        const response = await fetch("{% url 'submit_dividend_report' %}", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": "{{ csrf_token }}"
           },
           body: JSON.stringify({
-            report_id: "{{ report_id }}",
             title: document.getElementById("title").value,
-            action: action,
+            rate: "{{ rate }}",
+            period_start: "{{ period_start|date:'Y-m-d' }}",
+            period_end: "{{ period_end|date:'Y-m-d' }}",
+            net_surplus: "{{ net_surplus }}",
             members: membersData
           })
         });
-        let message;
         if (response.ok) {
-          if (action === "save") {
-            message = "Report has successfully been saved"
-          } else {
-            message = "Report has successfully been submitted"
-          }
-          showAlert(message, "success")
+          showAlert("Dividend has been distributed successfully", "success")
+          showAlert("Dividend report has successfully been submitted", "success")
           window.location.href = "{% url 'financial_report' %}";
         } else {
-          showAlert("Error while saving", "error");
+          showAlert("Error while submitting", "error");
         }
       });
     });

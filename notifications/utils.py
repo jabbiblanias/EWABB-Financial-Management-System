@@ -8,7 +8,7 @@ from django.conf import settings
 from django.urls import reverse
 
 
-def registration_otp(first_name, email):
+def otp(first_name, email):
     code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     EmailOTP.objects.create(email=email, otp_code=code)
 

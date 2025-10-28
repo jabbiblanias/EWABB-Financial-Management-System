@@ -6,4 +6,5 @@ urlpatterns = [
     path('save_transaction/', views.transactions, name="save_transaction"),
     path('loan_balance/', views.balance, name="balance"),
     path('passbook_print/', views.passbook_print, name='print_passbook'),
+    path('member-ledger/<int:member_id>/', views.member_details, name='member_ledger'),
 ]

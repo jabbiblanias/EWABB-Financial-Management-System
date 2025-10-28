@@ -1,6 +1,7 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,59 +9,74 @@
   {% tailwind_css %}
   <script src="{% static 'dashboard/js/chart.umd.min.js' %}"></script>
 </head>
+
 <body class="bg-gray-100 font-sans">
 
   <!-- Sidebar -->
   <div class="flex">
     <!-- Sidebar -->
-     {% include 'dashboard/partials/cashier_nav.html' %}
+    {% include 'dashboard/partials/cashier_nav.html' %}
 
     <!-- Main Content -->
     <div class="ml-64 mr-4 mt-[72px] flex-1">
+      <div class="pt-3 pl-6 pr-6 flex justify-end">
+        <div class="flex space-x-5">
+          <label for="availability-status" class="text-lg font-semibold text-gray-800 select-none">
+            Set status
+          </label>
+
+          <!-- Dropdown Selector -->
+          <select id="availability-status" class="min-w-42 rounded-lg border-gray-300 shadow-sm text-base font-medium 
+                   focus:border-indigo-500 focus:ring-indigo-500 transition duration-150 ease-in-out">
+            <option value="available" class="text-green-600">🟢 Available</option>
+            <option value="unavailable" class="text-red-600">🔴 Unavailable</option>
+          </select>
+        </div>
+      </div>
       <!-- Stats -->
       <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-  <!-- 💵 Today Collections -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-    <div>
-      <p class="text-sm text-gray-500">Today’s Collections</p>
-      <p class="text-3xl font-bold text-green-600 mt-1">₱84,589</p>
-      <p class="text-xs text-gray-400 mt-1">Payments, deposits, dues</p>
-    </div>
-    <div class="p-4 bg-green-100 text-green-600 rounded-full text-2xl">💰</div>
-  </div>
+        <!-- 💵 Today Collections -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Today’s Collections</p>
+            <p class="text-3xl font-bold text-green-600 mt-1">₱84,589</p>
+            <p class="text-xs text-gray-400 mt-1">Payments, deposits, dues</p>
+          </div>
+          <div class="p-4 bg-green-100 text-green-600 rounded-full text-2xl">💰</div>
+        </div>
 
-  <!-- 📤 Today Payouts -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-    <div>
-      <p class="text-sm text-gray-500">Today’s Payouts</p>
-      <p class="text-3xl font-bold text-red-600 mt-1">₱42,120</p>
-      <p class="text-xs text-gray-400 mt-1">Withdrawals, loans, refunds</p>
-    </div>
-    <div class="p-4 bg-red-100 text-red-600 rounded-full text-2xl">📤</div>
-  </div>
+        <!-- 📤 Today Payouts -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Today’s Payouts</p>
+            <p class="text-3xl font-bold text-red-600 mt-1">₱42,120</p>
+            <p class="text-xs text-gray-400 mt-1">Withdrawals, loans, refunds</p>
+          </div>
+          <div class="p-4 bg-red-100 text-red-600 rounded-full text-2xl">📤</div>
+        </div>
 
-  <!-- 🧾 Total Transactions -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-    <div>
-      <p class="text-sm text-gray-500">Total Transactions</p>
-      <p class="text-3xl font-bold text-blue-600 mt-1">56</p>
-      <p class="text-xs text-gray-400 mt-1">Completed today</p>
-    </div>
-    <div class="p-4 bg-blue-100 text-blue-600 rounded-full text-2xl">🧾</div>
-  </div>
+        <!-- 🧾 Total Transactions -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Total Transactions</p>
+            <p class="text-3xl font-bold text-blue-600 mt-1">56</p>
+            <p class="text-xs text-gray-400 mt-1">Completed today</p>
+          </div>
+          <div class="p-4 bg-blue-100 text-blue-600 rounded-full text-2xl">🧾</div>
+        </div>
 
-  <!-- 🏦 Pending Loan Releases -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-    <div>
-      <p class="text-sm text-gray-500">Pending Loan Releases</p>
-      <p class="text-3xl font-bold text-amber-600 mt-1">{{ loans }}</p>
-      <p class="text-xs text-gray-400 mt-1">Awaiting disbursement</p>
-    </div>
-    <div class="p-4 bg-amber-100 text-amber-600 rounded-full text-2xl">🏦</div>
-  </div>
+        <!-- 🏦 Pending Loan Releases -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Pending Loan Releases</p>
+            <p class="text-3xl font-bold text-amber-600 mt-1">{{ loans }}</p>
+            <p class="text-xs text-gray-400 mt-1">Awaiting disbursement</p>
+          </div>
+          <div class="p-4 bg-amber-100 text-amber-600 rounded-full text-2xl">🏦</div>
+        </div>
 
-</div>
+      </div>
 
 
       <!--  Transactions -->
@@ -91,76 +107,117 @@
     </div>
   </div>
   <script>
-        const datasets = {
-          daily: {
-            labels: JSON.parse('{{ daily_labels|safe }}'),
-            data: JSON.parse('{{ daily_data|safe }}')
-          },
-          monthly: {
-            labels: JSON.parse('{{ monthly_labels|safe }}'),
-            data: JSON.parse('{{ monthly_data|safe }}')
-          },
-          yearly: {
-            labels: JSON.parse('{{ yearly_labels|safe }}'),
-            data: JSON.parse('{{ yearly_data|safe }}')
-          }
-        };
+    const datasets = {
+      daily: {
+        labels: JSON.parse('{{ daily_labels|safe }}'),
+        data: JSON.parse('{{ daily_data|safe }}')
+      },
+      monthly: {
+        labels: JSON.parse('{{ monthly_labels|safe }}'),
+        data: JSON.parse('{{ monthly_data|safe }}')
+      },
+      yearly: {
+        labels: JSON.parse('{{ yearly_labels|safe }}'),
+        data: JSON.parse('{{ yearly_data|safe }}')
+      }
+    };
 
-        const ctx = document.getElementById("transactionsChart").getContext("2d");
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, "rgba(54, 162, 235, 0.4)");
-        gradient.addColorStop(1, "rgba(54, 162, 235, 0)");
+    const ctx = document.getElementById("transactionsChart").getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, "rgba(54, 162, 235, 0.4)");
+    gradient.addColorStop(1, "rgba(54, 162, 235, 0)");
 
-        const savingsChart = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: datasets.daily.labels,
-            datasets: [
-              {
-                label: "Savings",
-                data: datasets.daily.data,
-                backgroundColor: gradient,
-                borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                fill: true,
-                tension: 0.4,
-              },
-            ],
+    const savingsChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: datasets.daily.labels,
+        datasets: [
+          {
+            label: "Transactions",
+            data: datasets.daily.data,
+            backgroundColor: gradient,
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+            tension: 0.4,
           },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: "#1f2b6c",
-                titleFont: { size: 13 },
-                bodyFont: { size: 12 },
-                padding: 10,
-              },
-            },
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: { color: "#6b7280" },
-              },
-              y: {
-                beginAtZero: true,
-                grid: { color: "#f3f4f6" },
-                ticks: { color: "#6b7280" },
-              },
-            },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#1f2b6c",
+            titleFont: { size: 13 },
+            bodyFont: { size: 12 },
+            padding: 10,
           },
-        });
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: "#6b7280" },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: "#f3f4f6" },
+            ticks: { color: "#6b7280" },
+          },
+        },
+      },
+    });
 
-        document.getElementById("timeframe").addEventListener("change", function () {
-          const selected = this.value;
-          savingsChart.data.labels = datasets[selected].labels;
-          savingsChart.data.datasets[0].data = datasets[selected].data;
-          savingsChart.update();
-        });
-      </script>
+    document.getElementById("timeframe").addEventListener("change", function () {
+      const selected = this.value;
+      savingsChart.data.labels = datasets[selected].labels;
+      savingsChart.data.datasets[0].data = datasets[selected].data;
+      savingsChart.update();
+    });
+  </script>
+  <script>
+    const statusSelect = document.getElementById('availability-status');
+
+    fetchStatus();
+  
+  async function fetchStatus() {
+    try {
+      const response = await fetch('{% url "get_cashier_status" %}');
+      const data = await response.json();
+      if (data.status) {
+        statusSelect.value = data.status;
+      }
+    } catch (error) {
+      console.error('Error fetching cashier status:', error);
+    }
+  } 
+    
+  async function updateStatus() {
+    try {
+      const response = await fetch('{% url "update_status" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }, 
+        body: JSON.stringify({"status": statusSelect.value})
+      });
+      const data = await response.json();
+      if (data.status) {
+        statusSelect.value = data.status;
+      }
+    } catch (error) {
+      console.error('Error fetching cashier status:', error);
+    }
+  }
+  // Attach listener for changes
+  statusSelect.addEventListener('change', function() {
+    updateStatus();
+  });
+</script>
 </body>
+
 </html>

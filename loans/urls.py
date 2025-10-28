@@ -6,6 +6,7 @@ urlpatterns = [
     path('loan-applications/', views.loan_application_view, name='loan_applications'),
     path('compute-loan/', views.compute_loan_details, name='compute_loan_details'),
     path('apply-loan/', views.apply_loan, name='apply_loan'),
+    path('member-savings/', views.member_savings, name='get_member_savings'),
     path('loan-applications/approval/', views.approving_loan, name='loan_approval'),
     path('loan-applications/release/', views.releasing, name='loan_release'),
     path('active-loans/', views.active_loans, name='active_loans'),

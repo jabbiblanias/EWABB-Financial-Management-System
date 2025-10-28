@@ -51,23 +51,24 @@
       </div>
     </div>
   </div>
-
-  <!-- Form Section -->
-
-  <div class="flex justify-center flex-grow">
-    <div class="w-full max-w-md mt-6 px-4 sm:px-0">
-      <form id="registerForm" class="space-y-5 bg-white rounded-2xl shadow-lg px-8 py-10 mb-10 border border-gray-200" method="POST" action="{% url 'register3' %}">
-        {% csrf_token %}
-        <h2 class="text-center text-2xl sm:text-3xl font-bold mb-6">Create an Account</h2>
-
-    <!-- Username -->
-    <div>
-      <label class="text-sm font-medium">Username</label>
-      <input id="username" name="username" type="text" placeholder="Enter your username"
-        class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        pattern="[A-Za-z][A-Za-z0-9\-]*" minlength="3" maxlength="30" title="Only letters, numbers, or dash" required />
-      <p id="usernameMessage" class="hidden text-xs mt-2 text-red-500"></p>
-    </div>
+  
+    <!-- Form Section -->
+    <div class="w-full flex justify-center">
+      <div class="w-full max-w-md mt-10">
+        <form id="registerForm" class="space-y-4 bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" method="POST" action="{% url 'register3' %}">
+          {% csrf_token %}
+          <h2 class="text-center text-3xl font-bold mb-8">Create an Account</h2>
+          <!-- Username -->
+          <div>
+            <label class="text-sm font-medium">Username</label>
+            <input id="username" name="username" type="text" placeholder="Enter your username" class="input validator w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" 
+            pattern="[A-Za-z][A-Za-z0-9\-]*" minlength="3" maxlength="30" title="Only letters, numbers or dash" required/>
+            <p class="validator-hint hidden">
+              Must be 3 to 30 characters
+              <br/>containing only letters, numbers or dash
+            </p>
+            <p id="usernameMessage" class="hidden text-xs mt-2 text-error"></p>
+          </div>
 
     <!-- Email -->
     <div>
@@ -183,59 +184,71 @@
       const emailMessage = document.getElementById("emailMessage");
       if (!email) { emailMessage.textContent = ""; emailMessage.classList.add("hidden"); return false; }
 
-      try {
-        const response = await fetch(`{% url 'check_email' %}?email=${encodeURIComponent(email)}`);
-        const data = await response.json();
-        if (data.exists) {
-          emailMessage.textContent = "Email is already registered";
-          emailMessage.classList.remove("hidden");
-          return false;
-        } else {
-          emailMessage.classList.add("hidden");
-          return true;
-        }
-      } catch {
-        emailMessage.textContent = "Error checking email";
-        emailMessage.classList.remove("hidden");
-        return false;
-      }
-    }
+  try {
+    // AJAX to check email uniqueness
+  const response = await fetch(`{% url 'check_email' %}?email=${encodeURIComponent(email)}`);
+    
+  const data = await response.json();
+  if (data.exists) {
+    emailMessage.classList.remove("hidden")
+    emailMessage.textContent = "Email is already registered";
+    return false
+  } else {
+    emailMessage.classList.add("hidden")
+    return true;
+  }
+  }catch {
+      emailMessage.textContent = "Error checking email";
+      return false;
+    };
+}
 
-    document.getElementById('username').addEventListener("input", function () {
-      clearTimeout(usernameTimeout);
-      usernameTimeout = setTimeout(checkUsername, 500);
-    });
+document.getElementById('username').addEventListener("input", function () {
+  clearTimeout(timeout);
+  timeout = setTimeout(checkUsername, 500);
+});
 
-    async function checkUsername() {
-      const username = document.getElementById("username").value.trim();
-      const usernameMessage = document.getElementById("usernameMessage");
-      if (!username) { usernameMessage.textContent = ""; usernameMessage.classList.add("hidden"); return false; }
+async function checkUsername() {
+  const username = document.getElementById("username").value.trim();
+  const usernameMessage = document.getElementById("usernameMessage");
 
-      try {
-        const response = await fetch(`{% url 'check_username' %}?username=${encodeURIComponent(username)}`);
-        const data = await response.json();
-        if (data.exists) {
-          usernameMessage.textContent = "Username already exists";
-          usernameMessage.classList.remove("hidden");
-          return false;
-        } else {
-          usernameMessage.classList.add("hidden");
-          return true;
-        }
-      } catch {
-        usernameMessage.textContent = "Error checking username";
-        usernameMessage.classList.remove("hidden");
-        return false;
-      }
-    }
+  if (!username) {
+    usernameMessage.textContent = "";
+    return false;
+ }
 
-    document.getElementById('registerForm').addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const valid = await checkMail() && await checkUsername() && checkPasswordMatch();
-      if (!valid) return;
-      e.target.submit();
-    });
-  </script>
+  try {
+    // AJAX to check email uniqueness
+  const response = await fetch(`{% url 'check_username' %}?username=${encodeURIComponent(username)}`);
+    
+  const data = await response.json();
+  if (data.exists) {
+    usernameMessage.classList.remove("hidden")
+    usernameMessage.textContent = "Username already exist";
+    return false;
+  } else {
+    usernameMessage.classList.add("hidden")
+    return true;
+  }
+  }catch {
+      usernameMessage.textContent = "Error checking username";
+      return false;
+    };
+}
 
+document.getElementById('registerForm').addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const valid = await checkMail() && await checkUsername() && checkPasswordMatch()
+  if (!valid) {
+    console.log("Form not submitted — email already exists.");
+    return; // stop submit
+  }
+
+  // proceed with submit (AJAX or normal)
+  console.log("Submit form...");
+  e.target.submit(); // normal submit
+})
+</script>
 </body>
 </html>

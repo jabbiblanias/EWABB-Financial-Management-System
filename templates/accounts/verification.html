@@ -9,7 +9,7 @@
   {% load static %}
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <form method="POST" action="{% url 'register_verify' %}" class="bg-white rounded-md shadow w-[360px] p-6">
+  <form method="POST" action="{% url form_action %}" class="bg-white rounded-md shadow w-[360px] p-6">
     {% csrf_token %}
     <!-- Illustration -->
     <div class="flex justify-center mb-4">
@@ -18,7 +18,7 @@
     
     <!-- OTP Verification Label -->
     <h2 class="font-semibold text-gray-800 mb-2 text-center">OTP Verification</h2>
-    <p class="text-xs mb-5 text-center">The verification code has been sent to your email <br> <span class="font-bold">{{ request.session.register_data.email|default:'' }}</span></p>
+    <p class="text-xs mb-5 text-center">The verification code has been sent to your email <br> <span class="font-bold">{% firstof request.session.register_data.email request.session.email '' %}</span></p>
     
     <!-- Error / success messages -->
 {% if messages %}
@@ -66,7 +66,7 @@
   let timeLeft = 60; // seconds
   const timerEl = document.getElementById("timer");
   const resendBtn = document.getElementById("resendBtn");
-  const email = "{{ request.session.register_data.email|default:'' }}"
+  const email = "{% firstof request.session.register_data.email request.session.email '' %}"
 
   fetch(`{% url 'update_timer' %}`)
   .then(res => res.json())

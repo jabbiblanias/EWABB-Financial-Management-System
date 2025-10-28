@@ -14,8 +14,12 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
-from django.db.models import Case, When, Value, IntegerField, Sum, Max
-from decimal import Decimal
+from django.db.models import Case, When, Value, IntegerField, Sum, Max, F
+from decimal import ROUND_HALF_UP, Decimal
+from members.models import Savings
+from transactions.models import Transactions
+from financial_reporting.models import Funds, Revenue, Expense
+
 
 
 @login_required
@@ -62,21 +66,27 @@ def apply_loan(request):
                 member = Member.objects.get(account_number=account_number)
             else:
                 member = Member.objects.get(user_id=user)
+            savings = Savings.objects.get(member_id=member)
+            print(savings.balance)
 
-            loan_application = LoanApplication.objects.create(
-                member_id=member,
-                loan_type=loan_type,
-                loan_amount=loan_amount,
-                loan_term_years=years,
-                loan_term_months=months,
-                loan_term_days=days,
-                total_payable=computed["totalPayable"],
-                amortization=computed["amortization"],
-                cbu=computed["cbu"],
-                insurance=computed["insurance"],
-                service_charge=computed["serviceCharge"],
-                net_proceeds=computed["releaseAmount"]
-            )
+            if loan_amount <= savings.balance:
+                loan_application = LoanApplication.objects.create(
+                    member_id=member,
+                    loan_type=loan_type,
+                    loan_amount=loan_amount,
+                    loan_term_years=years,
+                    loan_term_months=months,
+                    loan_term_days=days,
+                    total_payable=computed["totalPayable"],
+                    amortization=computed["amortization"],
+                    cbu=computed["cbu"],
+                    insurance=computed["insurance"],
+                    service_charge=computed["serviceCharge"],
+                    net_proceeds=computed["releaseAmount"]
+                )
+            else:
+                # If not enough balance, handle accordingly (e.g., show error)
+                return JsonResponse({"success": False, "message": "Insufficient savings balance."})
 
             # Render updated loan list
             is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest"
@@ -252,7 +262,7 @@ def loan_applications_data(request, ajax=False):
     is_bookkeeper = user.groups.filter(name='Bookkeeper').exists()
     is_admin = user.groups.filter(name='Admin').exists()
 
-    # 🧩 Order priority based on role
+    #Order priority based on role
     if is_bookkeeper:
         status_order_case = Case(
             When(status='Pending', then=Value(1)),
@@ -310,14 +320,14 @@ def loan_applications_data(request, ajax=False):
             loan['risk_percentage'] = risk_data.get('risk_percentage')
             loan['risk_level'] = risk_data.get('risk_level')
 
-    # 🧭 Paginate
+    #Paginate
     paginator = Paginator(loan_applications, 10)
     page_num = request.GET.get('page')
     page = paginator.get_page(page_num)
 
     context = {'page': page}
 
-    # 🧱 For AJAX refresh
+    #For AJAX refresh
     if ajax:
         html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
@@ -450,6 +460,7 @@ def approving_loan(request):
 def releasing(request):
     data = json.loads(request.body)
     loan_application_id = data.get('loan_application_id')
+    user = request.user
     try:
         loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id, status='Approved')
         member = loan_application.member_id
@@ -476,15 +487,61 @@ def releasing(request):
             total_months = (loan_years * 12) + loan_months
             payment_date = released_date
 
-            for _ in range(total_months):
+            # Adjust last amortization to fix rounding issues (e.g., ₱0.02 difference)
+            base_amortization = (loan_application.total_payable / total_months).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            total_rounded = base_amortization * total_months
+            difference = (loan_application.total_payable - total_rounded).quantize(Decimal('0.01'))
+
+            # Adjust last amortization to fix rounding error (e.g., ₱0.02)
+            last_amortization = (base_amortization + difference).quantize(Decimal('0.01'))
+
+            for i in range(total_months):
                 payment_date += relativedelta(months=1)
+                amount_due = last_amortization if i == total_months - 1 else amortization
                 LoanRepaymentSchedule.objects.create(
                     loan_id=loan,
                     due_date=payment_date,
-                    amount_due=amortization,
+                    amount_due=amount_due,
                 )
         loan_application.status = "Released"
         loan_application.save()
+
+        Member.objects.filter(member_id=member.member_id).update(
+            insurance=F('insurance') + loan_application.insurance
+        )
+
+        Savings.objects.filter(member_id=member.member_id).update(
+            balance=F('balance') + loan_application.cbu
+        )
+
+        Revenue.objects.create(
+            source='Service Charge',
+            member_id=member,
+            amount=loan_application.service_charge/Decimal('2'),
+            loan_id=loan
+        )
+
+        Expense.objects.create(
+            source='Service Charge',
+            member_id=member,
+            amount=loan_application.service_charge/Decimal('2'),
+            loan_id=loan
+        )
+
+        Funds.objects.filter(fund_name='Expenses').update(
+            balance=F('balance') + (Decimal(loan_application.service_charge) / Decimal('2'))
+        )
+
+        Funds.objects.filter(fund_name='Revenue').update(
+            balance=F('balance') + (Decimal(loan_application.service_charge) / Decimal('2'))
+        )
+        Transactions.objects.create(
+            member_id=member,
+            cashier_id=user,
+            amount=loan_application.net_proceeds,
+            transaction_type='Loan Release', # 👈 Use 'Penalty Accrual'
+            loan_id=loan
+        )
 
         schedules = LoanRepaymentSchedule.objects.filter(loan_id=loan).values("due_date").order_by("due_date").first()
 
@@ -502,9 +559,6 @@ def releasing(request):
     except (LoanApplication.DoesNotExist, Member.DoesNotExist):
         return JsonResponse({'success': False})
 
-
-def loan_penalty():
-    print()
 
 def run_repayment_status_update(request):
     call_command('update_repayment_status')
@@ -549,7 +603,7 @@ def calculate_member_loan_risk(member_id):
         penalty_frequency_ratio = (total_penalties / total_schedules) if total_schedules > 0 else 0
         penalty_amount_ratio = (float(total_penalty_amount) / float(total_payable)) if total_payable > 0 else 0
 
-        # 🧠 Loan Growth Ratio (based on highest previous loan)
+        # Loan Growth Ratio (based on highest previous loan)
         current_loan = loans.last()
         current_amount = float(current_loan.loan_application_id.loan_amount)
         previous_max = float(
@@ -590,5 +644,50 @@ def calculate_member_loan_risk(member_id):
     except Exception as e:
         return {"error": str(e)}
 
+def member_savings(request):
+    try:
+        user = request.user
+        if user.groups.filter(name='Bookkeeper').exists():
+            account_number = request.GET.get('accountNumber')
+            member = Member.objects.get(account_number=account_number)
+        elif user.groups.filter(name='Member').exists():
+            member = Member.objects.get(user_id=user)
+        savings = Savings.objects.get(member_id=member)
+        member_savings = savings.balance
+        return JsonResponse({"success": True, "member_savings": member_savings})
+    except Member.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Account number not found."})
+    except Savings.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Savings record not found."})
+    
+def check_active_loan(request):
+    try:
+        user = request.user
+        if user.groups.filter(name='Bookkeeper').exists():
+            account_number = request.GET.get('accountNumber')
+            member = Member.objects.get(account_number=account_number)
+        elif user.groups.filter(name='Member').exists():
+            member = Member.objects.get(user_id=user)
+        
+        active_loan_exists = Loan.objects.filter(member_id=member, loan_status='Active').exists()
+        return JsonResponse({"success": True, "active_loan_exists": active_loan_exists})
+    except Member.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Account number not found."})
 
-
+def check_active_loan_and_remaining_balance(request):
+    try:
+        user = request.user
+        if user.groups.filter(name='Bookkeeper').exists():
+            account_number = request.GET.get('accountNumber')
+            member = Member.objects.get(account_number=account_number)
+        elif user.groups.filter(name='Member').exists():
+            member = Member.objects.get(user_id=user)
+        
+        active_loan = Loan.objects.filter(member_id=member, loan_status='Active').first()
+        if active_loan:
+            remaining_balance = active_loan.remaining_balance
+            return JsonResponse({"success": True, "active_loan_exists": True, "remaining_balance": remaining_balance})
+        else:
+            return JsonResponse({"success": True, "active_loan_exists": False, "remaining_balance": None})
+    except Member.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Account number not found."})

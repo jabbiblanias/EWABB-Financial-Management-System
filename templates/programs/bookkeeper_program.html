@@ -125,7 +125,7 @@
         
         const exists = await check_programExists();
         if (exists) {
-          this.disable = false;
+          this.disabled = false;
           return;
         }
         
@@ -152,7 +152,7 @@
         } catch (Error) {
           console.error('Caught an error:', Error);
         }
-        this.disable = false;
+        this.disabled = false;
       })
       // Toast notification function
     function showAlert(message, type) {

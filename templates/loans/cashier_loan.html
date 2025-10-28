@@ -1,6 +1,6 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -143,7 +143,7 @@
       document.getElementById("accountNumber").textContent = account_number;
       document.getElementById("loanAmount").textContent = `₱${loanAmount}`;
       document.getElementById('confirm').addEventListener('click', function() {
-        this.disable = true;
+        this.disabled = true;
         fetch(`{% url 'loan_release' %}?page=${encodeURIComponent(currentPage)}`, {
           method: "POST",
           headers: {
@@ -168,7 +168,9 @@
           }
         })
         .catch(error => console.error("Fetch Error: ", error))
-        btn.disabled = false;
+        .finally(() => {
+          this.disabled = false;
+        });
       });
   }
 

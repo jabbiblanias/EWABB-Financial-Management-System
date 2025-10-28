@@ -1,163 +1,153 @@
 <div id="popupApplication" class="hidden fixed inset-0 flex items-center justify-center bg-black/30 z-50">
-    <!-- Form Card: Wider, better shadow, and rounded corners -->
-    <form id="loanApplicationForm" class="bg-white rounded-2xl shadow-2xl p-6 md:p-10 w-full max-w-4xl max-h-[100vh] overflow-y-auto">
+  <!-- Form Card: Wider, better shadow, and rounded corners -->
+  <form id="loanApplicationForm"
+    class="bg-white rounded-2xl shadow-2xl p-6 md:p-10 w-full max-w-4xl max-h-[100vh] overflow-y-auto">
 
-        <!-- Header -->
-        <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b border-b-gray-200 pb-2">Loan Application</h2>
+    <!-- Header -->
+    <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b border-b-gray-200 pb-2">Loan Application</h2>
 
-        <!-- Main Content Grid -->
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- LEFT COLUMN: Input Fields -->
-            <div class="space-y-6">
-                {% if request.user.groups.all.0.name == "Bookkeeper" %}
-                <div class="form-group">
-                    <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-                    <input
-                        name="accountNumber"
-                        id="accountNumber"
-                        type="text"
-                        required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"
-                        placeholder="Enter account number"
-                    />
-                </div>
-                {% endif %}
+    <!-- Main Content Grid -->
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- LEFT COLUMN: Input Fields -->
+      <div class="space-y-6">
+        {% if request.user.groups.all.0.name == "Bookkeeper" %}
+        <div class="form-group relative">
+          <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+          <input name="accountNumber" id="accountNumber" type="text" required
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"
+            placeholder="Enter account number" />
+          <!-- Suggestions Dropdown -->
+          <div id="nameSuggestions"
+            class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto hidden z-50">
+          </div>
+          {% include 'partials/account_selection.html' %}
+        </div>
+        {% endif %}
 
-                <!-- Loan Type -->
-                <div class="form-group">
-                    <label for="loanType" class="block text-sm font-medium text-gray-700 mb-1">Loan Type</label>
-                    <select required 
-                    id="loanType"
-                    name="loanType"
-                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 appearance-none bg-white">
-                      <option value="" selected hidden>-- Choose Loan Type --</option>
-                      <option>Personal Loan</option>
-                      <option>Business Loan</option>
-                      <option>Emergency Loan</option>
-                    </select>
-                </div>
-
-                <!-- Amount -->
-                <div class="form-group">
-                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount (₱)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">₱</span>
-                        <input
-                            name="loanAmount"
-                            id="amount"
-                            type="text"
-                            required
-                            class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 text-right"
-                            placeholder="0.00"
-                        />
-                    </div>
-                </div>
-
-                <!-- Term Slider -->
-                <div class="form-group pt-4">
-                    <label for="loan-term" class="block text-sm font-medium text-gray-700 mb-4">
-                        Term in Months
-                    </label>
-                    <div class="slider-container relative mb-4">
-                        <input type="range" 
-                        id="loan-term"
-                        class="w-full accent-indigo-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                        min="0"
-                        max="21"
-                        step="1"
-                        value="0"
-                        oninput="updateValue(this.value)"
-                        required/>
-                        
-                        <!-- Value Display integrated below the slider -->
-                        <div class="flex justify-between text-xs text-gray-500 mt-2">
-                            <span>100 Days</span>
-                            <span>2 Years</span>
-                        </div>
-                    </div>
-                    <!-- Central Display for current term -->
-                    <div class="flex justify-center -mt-2">
-                        <input type="text" id="term-value" name="loanTerm" 
-                            class="text-indigo-700 font-bold text-lg text-center bg-indigo-50 border border-indigo-300 py-1 rounded-full shadow-inner w-fit outline-none" 
-                            value="0 Months" readonly/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Financial Details/Calculations -->
-            <div class="space-y-4 p-6 bg-indigo-50/70 rounded-xl border border-indigo-200 shadow-inner h-fit">
-                <h3 class="text-xl font-bold text-indigo-700 border-b border-indigo-300 pb-2 mb-4">Financial Breakdown</h3>
-                
-                <!-- Detail Items -->
-                
-                <div class="flex justify-between items-center py-2 border-b border-indigo-100">
-                    <span class="text-gray-700 font-medium">Amortization</span>
-                    <div class="flex items-center text-lg">
-                        <span name="amortization" id="amortization"
-                            class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36 pr-1">0.00</span>
-                        <span id="displayValue" class="text-indigo-600 font-bold"> / Daily</span>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center py-2 border-b border-indigo-100">
-                    <span class="text-gray-700 font-medium">Total Payable</span>
-                    <span name="totalPayable" id="totalPayable" 
-                        class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36">
-                        0.00
-                </span>
-                </div>
-
-                <div class="flex justify-between items-center py-2 border-b border-indigo-100">
-                    <span class="text-gray-700 text-sm">Service Charge (-)</span>
-                    <span name="serviceCharge" id="serviceCharge" 
-                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
-                        0.00
-                </span>
-                </div>
-
-                <div class="flex justify-between items-center py-2 border-b border-indigo-100">
-                    <span class="text-gray-700 text-sm">CBU Deduction (-)</span>
-                    <span name="cbu" id="cbu" 
-                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
-                        0.00
-                    </span>
-                </div>
-
-                <div class="flex justify-between items-center py-2 border-b border-indigo-100">
-                    <span class="text-gray-700 text-sm">Insurance Fee (-)</span>
-                    <span name="insurance" id="insurance" 
-                        class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
-                        0.00
-                </span>
-                </div>
-
-                <!-- Release Amount (Highlighted) -->
-                <div class="flex justify-between items-center pt-4 border-t border-indigo-300">
-                    <span class="text-indigo-800 font-bold text-lg">Net Release Amount</span>
-                    <span name="releaseAmount" id="releaseAmount" 
-                        class="text-indigo-900 font-extrabold text-2xl text-right tabular-nums bg-transparent outline-none w-44">
-                        0.00
-                    </span>
-                </div>
-            </div>
+        <!-- Loan Type -->
+        <div class="form-group">
+          <label for="loanType" class="block text-sm font-medium text-gray-700 mb-1">Loan Type</label>
+          <select required id="loanType" name="loanType"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 appearance-none bg-white">
+            <option value="" selected hidden>-- Choose Loan Type --</option>
+            <option>Personal Loan</option>
+            <option>Business Loan</option>
+            <option>Emergency Loan</option>
+          </select>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-4 mt-10 pt-4 border-t border-t-gray-200">
-            <button id="cancel" onclick="closePopUp(event)" 
-                class="text-gray-700 font-semibold border border-gray-300 px-8 py-3 rounded-xl hover:bg-gray-100 transition duration-200 shadow-sm">
-                Cancel
-            </button>
-            <button type="submit" 
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                Submit Application
-            </button>
+        <!-- Amount -->
+        <div class="form-group">
+          <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Loan Amount (₱)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">₱</span>
+            <input name="loanAmount" id="amount" type="text" required
+              class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 text-right"
+              placeholder="0.00" />
+          </div>
+          <div id="amountError" class="hidden text-xs text-red-500 mt-1">
+            *Maximum loan amount is limited to your total savings.
+          </div>
         </div>
-    </form>
+
+        <!-- Term Slider -->
+        <div class="form-group pt-4">
+          <label for="loan-term" class="block text-sm font-medium text-gray-700 mb-4">
+            Term in Months
+          </label>
+          <div class="slider-container relative mb-4">
+            <input type="range" id="loan-term"
+              class="w-full accent-indigo-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" min="0"
+              max="21" step="1" value="0" oninput="updateValue(this.value)" required />
+
+            <!-- Value Display integrated below the slider -->
+            <div class="flex justify-between text-xs text-gray-500 mt-2">
+              <span>100 Days</span>
+              <span>2 Years</span>
+            </div>
+          </div>
+          <!-- Central Display for current term -->
+          <div class="flex justify-center -mt-2">
+            <input type="text" id="term-value" name="loanTerm"
+              class="text-indigo-700 font-bold text-lg text-center bg-indigo-50 border border-indigo-300 py-1 rounded-full shadow-inner w-fit outline-none"
+              value="0 Months" readonly />
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Financial Details/Calculations -->
+      <div class="space-y-4 p-6 bg-indigo-50/70 rounded-xl border border-indigo-200 shadow-inner h-fit">
+        <h3 class="text-xl font-bold text-indigo-700 border-b border-indigo-300 pb-2 mb-4">Financial Breakdown</h3>
+
+        <!-- Detail Items -->
+
+        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+          <span class="text-gray-700 font-medium">Amortization</span>
+          <div class="flex items-center text-lg">
+            <span name="amortization" id="amortization"
+              class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36 pr-1">0.00</span>
+            <span id="displayValue" class="text-indigo-600 font-bold"> / Daily</span>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+          <span class="text-gray-700 font-medium">Total Payable</span>
+          <span name="totalPayable" id="totalPayable"
+            class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36">
+            0.00
+          </span>
+        </div>
+
+        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+          <span class="text-gray-700 text-sm">Service Charge (-)</span>
+          <span name="serviceCharge" id="serviceCharge"
+            class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
+            0.00
+          </span>
+        </div>
+
+        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+          <span class="text-gray-700 text-sm">CBU Deduction (-)</span>
+          <span name="cbu" id="cbu"
+            class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
+            0.00
+          </span>
+        </div>
+
+        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+          <span class="text-gray-700 text-sm">Insurance Fee (-)</span>
+          <span name="insurance" id="insurance"
+            class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
+            0.00
+          </span>
+        </div>
+
+        <!-- Release Amount (Highlighted) -->
+        <div class="flex justify-between items-center pt-4 border-t border-indigo-300">
+          <span class="text-indigo-800 font-bold text-lg">Net Release Amount</span>
+          <span name="releaseAmount" id="releaseAmount"
+            class="text-indigo-900 font-extrabold text-2xl text-right tabular-nums bg-transparent outline-none w-44">
+            0.00
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-4 mt-10 pt-4 border-t border-t-gray-200">
+      <button id="cancel" type="button" onclick="closePopUp()"
+        class="text-gray-700 font-semibold border border-gray-300 px-8 py-3 rounded-xl hover:bg-gray-100 transition duration-200 shadow-sm">
+        Cancel
+      </button>
+      <button id="submitLoanApplication" type="submit"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        Submit Application
+      </button>
+    </div>
+  </form>
 </div>
 <!-- Toast -->
-<div
-  id="toast-container"
+<div id="toast-container"
   class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
   role="status"></div>
 <script>
@@ -177,13 +167,24 @@
     '2 years'
   ];
 
-  document.getElementById("loanApplicationForm").addEventListener("submit", async function(e) {
+  document.getElementById("loanApplicationForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
     const currentUrlName = "{{ request.resolver_match.url_name }}";
-    this.disable = true;
-    e.preventDefault()
+    const submitButton = document.getElementById("submitLoanApplication");
+    submitButton.disabled = true;
+
     try {
-      const form = e.target;
-      const formData = new FormData(form);
+      // Validate loan amount first
+      const amountInput = document.getElementById('amount');
+      const invalid = await loanAmountAvailability(amountInput);
+      if (invalid) {
+        submitButton.disabled = false;
+        return;
+      }
+
+      // Submit form data
+      const formData = new FormData(this);
       const response = await fetch("{% url 'apply_loan' %}", {
         method: "POST",
         headers: {
@@ -197,17 +198,24 @@
       if (data.success) {
         showAlert(data.message, "success");
         closePopUp();
-        if (currentUrlName == "loan_applications") {
+
+        if (currentUrlName === "loan_applications") {
+          document.getElementById('table-body').innerHTML = data.loans;
+          attachActionListeners();
+        }
+        else {
           document.getElementById('table-body').innerHTML = data.loans;
         }
-      }else {
+      } else {
         showAlert(data.message, "error");
       }
-    } catch (Error) {
-      console.error("Error", Error);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      submitButton.disabled = false;
     }
-    this.disable = false;
-  })
+  });
+
 
   function openPopUp() {
     document.getElementById('popupApplication').classList.remove('hidden');
@@ -235,7 +243,7 @@
   }
 
   // 3. Call the function on page load to set the initial value.
-  window.onload = function() {
+  window.onload = function () {
     updateValue(termSlider.value);
   };
 
@@ -265,39 +273,84 @@
     setTimeout(() => toast.classList.add("hidden"), 4000);
   }
 
-document.getElementById('amount').addEventListener('input', e => {
-  const value = e.target.value;
-  if (!/^\d*\.?\d*$/.test(value)) {
-    e.target.value = value.slice(0, -1);
-  }
-  clearTimeout(timeout);
-  timeout = setTimeout(updateLoanDetails, 500);
-});
-async function updateLoanDetails() {
-  const loanAmount = parseFloat(document.getElementById('amount').value) || 0;
-  const loanTerm = document.getElementById('term-value').value;
+  async function updateLoanDetails() {
+    const loanAmount = parseFloat(document.getElementById('amount').value) || 0;
+    const loanTerm = document.getElementById('term-value').value;
 
-  if (!loanAmount) return;
+    if (!loanAmount) return;
 
-  try {
-    const response = await fetch(`{% url 'compute_loan_details' %}?loanAmount=${loanAmount}&loanTerm=${encodeURIComponent(loanTerm)}`);
-    const result = await response.json();
+    try {
+      const response = await fetch(`{% url 'compute_loan_details' %}?loanAmount=${loanAmount}&loanTerm=${encodeURIComponent(loanTerm)}`);
+      const result = await response.json();
 
-    if (result.success) {
-      const data = result.data;
+      if (result.success) {
+        const data = result.data;
 
-      document.getElementById('totalPayable').textContent = data.totalPayable;
-      document.getElementById('serviceCharge').textContent = data.serviceCharge;
-      document.getElementById('cbu').textContent = data.cbu;
-      document.getElementById('insurance').textContent = data.insurance;
-      document.getElementById('releaseAmount').textContent = data.releaseAmount;
-      document.getElementById('amortization').textContent = data.amortization;
-      document.getElementById('displayValue').textContent = " / " + data.displayValue;
-    } else {
-      console.error(result.message);
+        document.getElementById('totalPayable').textContent = data.totalPayable;
+        document.getElementById('serviceCharge').textContent = data.serviceCharge;
+        document.getElementById('cbu').textContent = data.cbu;
+        document.getElementById('insurance').textContent = data.insurance;
+        document.getElementById('releaseAmount').textContent = data.releaseAmount;
+        document.getElementById('amortization').textContent = data.amortization;
+        document.getElementById('displayValue').textContent = " / " + data.displayValue;
+      } else {
+        console.error(result.message);
+      }
+    } catch (err) {
+      console.error("Error computing loan details:", err);
     }
-  } catch (err) {
-    console.error("Error computing loan details:", err);
+  }
+
+  async function memberSavings() {
+    const accountInput = document.getElementById('accountNumber');
+    const accountNumber = accountInput ? accountInput.value.trim() : null;
+
+    try {
+      const url = accountNumber
+        ? `{% url 'get_member_savings' %}?accountNumber=${encodeURIComponent(accountNumber)}`
+        : `{% url 'get_member_savings' %}`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (result.success) {
+        return result.member_savings || 0;
+      } else {
+        console.warn('No savings data found');
+        return 0;
+      }
+    } catch (err) {
+      console.error("Error fetching member savings:", err);
+      return 0;
+    }
+  }
+
+
+  async function loanAmountAvailability(inputElement) {
+  const savings = await memberSavings();
+  const loanAmount = parseFloat(inputElement.value) || 0;
+  const errorText = document.getElementById('amountError');
+
+  if (loanAmount > savings && savings > 0) {
+    errorText.classList.remove('hidden');
+    return true;
+  } else {
+    errorText.classList.add('hidden');
+    return false;
   }
 }
+
+  document.getElementById('amount').addEventListener('input', e => {
+    const value = e.target.value;
+    if (!/^\d*\.?\d*$/.test(value)) {
+      e.target.value = value.slice(0, -1);
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(function () {
+      loanAmountAvailability(e.target);
+      updateLoanDetails();
+    }, 500);
+
+
+  });
 </script>

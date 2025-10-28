@@ -17,6 +17,17 @@ from notifications.models import Notification
 from django.core.paginator import Paginator 
 from django.utils.dateformat import DateFormat
 
+
+def member_details(request, member_id):
+    member = Member.objects.select_related('person_id').get(member_id=member_id)
+    transactions = Transactions.objects.filter(member_id=member)
+    context = {
+        'member': member,
+        'transactions': transactions
+    }
+    return render(request, 'transactions/member_ledger.html', context)
+
+
 @transaction.atomic
 def transactions(request):
     try:
@@ -127,6 +138,15 @@ def transactions(request):
 
                 transaction_id = Transactions.objects.create(
                     member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    program_id=program
+                )
+            elif transaction_type == 'Expense':
+                transaction_id = Transactions.objects.create(
                     cashier_id=cashier_id,
                     amount=amount,
                     amount_received=amount_received,
@@ -366,7 +386,7 @@ def balance(request):
         balance = loan.remaining_balance
     else:
         return JsonResponse({"exists": True, "member_name": member_name})
-    return JsonResponse({"exists": True, "member_name": member_name, "balance": balance})
+    return JsonResponse({"exists": True, "member_name": member_name, "balance": Decimal(balance)})
 
 def passbook_print(request):
     return render(request, 'transactions/partials/passbook.html')
