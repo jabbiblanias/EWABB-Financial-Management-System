@@ -13,4 +13,5 @@ urlpatterns = [
     path('dividendPdf/<int:report_id>/', views.dividend_pdf_report_export, name ='dividend_pdf'),
     path("monthly/csv/<int:report_id>/", views.monthly_report_csv, name="monthly_csv"),
     path("dividend/csv/<int:report_id>/", views.dividend_report_csv, name="dividend_csv"),
+    path("check-last-dividend-date/", views.check_last_dividend_date, name="check_last_dividend_date"),
 ]

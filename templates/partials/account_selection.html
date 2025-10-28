@@ -42,6 +42,12 @@
                 accountNumber.value = account;
                 nameSuggestions.classList.add('hidden');
 
+                // --- 🔑 KEY FIX BELOW ---
+                // 1. Manually call the memberSavings function to load data for the new account.
+                if (typeof memberSavings === 'function') {
+                    memberSavings(); 
+                }
+
                 // Only trigger getMemberData if it exists (for pages that need it)
                 if (typeof getMemberData === 'function') {
                     getMemberData();

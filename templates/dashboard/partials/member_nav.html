@@ -61,16 +61,6 @@
     </button>
       {% include 'partials/popup_notification.html' %}
     </div>
-    <button id="openChatBtn" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4">
-        <path fill="#0000FF" fill-rule="evenodd"
-          d="M2 6a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7.333L4 21.5c-.824.618-2 .03-2-1z"
-          class="duoicon-secondary-layer" opacity=".3" />
-        <path fill="#0000FF" fill-rule="evenodd"
-          d="M8 12a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2zM7 9a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1"
-          class="duoicon-primary-layer" />
-      </svg>
-    </button>
     <div class="flex items-center space-x-2 ">
       {% include 'partials/header_profile.html' %}
       <div class="dropdown dropdown-end">
@@ -127,14 +117,7 @@
   </div>
 </div>
 {% include 'partials/notification_message.html' %}
-<div id="chatContainer" class="fixed bottom-5 right-5 w-fit shadow-lg rounded-xl overflow-hidden hidden z-50">
-  <!-- Chat Header -->
-  <div class="bg-blue-600 text-white px-4 py-2 flex justify-end">
-    <button id="closeChat" class="text-white font-bold text-xl">&times;</button>
-    
-  </div>
-  <div id='tawk_686f9b30157752190d5f3d8c'></div>
-</div>
+
 <script>
   // Sidebar toggle
   const burger = document.getElementById("burger");
@@ -154,27 +137,3 @@
   });
 </script>
 
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); Tawk_API.embedded='tawk_686f9b30157752190d5f3d8c';
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/686f9b30157752190d5f3d8c/1j54a8v2v';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);})();
-  const chatContainer = document.getElementById("chatContainer");
-  const openBtn = document.getElementById("openChatBtn");
-  const closeBtn = document.getElementById("closeChat");
-
-  // Open chat
-  openBtn.addEventListener("click", () => {
-    chatContainer.classList.remove("hidden");
-  });
-
-  // Close chat
-  closeBtn.addEventListener("click", () => {
-    chatContainer.classList.add("hidden");
-  });
-</script>

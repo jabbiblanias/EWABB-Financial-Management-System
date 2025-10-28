@@ -9,7 +9,7 @@
     <!-- Main Content Grid -->
     <div class="grid md:grid-cols-2 gap-8">
       <!-- LEFT COLUMN: Input Fields -->
-      <div class="space-y-6">
+      <div class="space-y-5">
         {% if request.user.groups.all.0.name == "Bookkeeper" %}
         <div class="form-group relative">
           <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
@@ -23,6 +23,13 @@
           {% include 'partials/account_selection.html' %}
         </div>
         {% endif %}
+
+        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+          <span class="text-sm font-medium text-gray-700">Your Current Savings:</span>
+          <span id="currentSavingsDisplay" class="text-lg font-extrabold text-indigo-600 tabular-nums">
+            ₱ 0.00
+          </span>
+        </div>
 
         <!-- Loan Type -->
         <div class="form-group">
@@ -51,8 +58,8 @@
         </div>
 
         <!-- Term Slider -->
-        <div class="form-group pt-4">
-          <label for="loan-term" class="block text-sm font-medium text-gray-700 mb-4">
+        <div class="form-group">
+          <label for="loan-term" class="block text-sm font-medium text-gray-700 mb-2">
             Term in Months
           </label>
           <div class="slider-container relative mb-4">
@@ -151,9 +158,12 @@
   class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
   role="status"></div>
 <script>
+  // ADD: Define savingsDisplay constant
   const termSlider = document.getElementById('loan-term');
   const termValueDisplay = document.getElementById('term-value');
+  const savingsDisplay = document.getElementById('currentSavingsDisplay');
   let timeout;
+
   // 1. Define the custom loan terms in an array.
   const loanTerms = [
     '100 days',
@@ -170,69 +180,103 @@
   document.getElementById("loanApplicationForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const currentUrlName = "{{ request.resolver_match.url_name }}";
-    const submitButton = document.getElementById("submitLoanApplication");
-    submitButton.disabled = true;
+    if (checkActiveLoans()) {
+      showAlert("Cannot apply for a new loan until existing loans are settled.", "error");
+      return;
+    } else {
+      // Proceed with submission
+      const currentUrlName = "{{ request.resolver_match.url_name }}";
+      const submitButton = document.getElementById("submitLoanApplication");
+      submitButton.disabled = true;
 
-    try {
-      // Validate loan amount first
-      const amountInput = document.getElementById('amount');
-      const invalid = await loanAmountAvailability(amountInput);
-      if (invalid) {
+      try {
+        // Validate loan amount first
+        const amountInput = document.getElementById('amount');
+        // NOTE: loanAmountAvailability now calls memberSavings internally, which updates the display.
+        const invalid = await loanAmountAvailability(amountInput);
+        if (invalid) {
+          submitButton.disabled = false;
+          return;
+        }
+
+        // Submit form data (rest of the logic remains the same)
+        const formData = new FormData(this);
+        const response = await fetch("{% url 'apply_loan' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert(data.message, "success");
+          closePopUp();
+
+          if (currentUrlName === "loan_applications") {
+            document.getElementById('table-body').innerHTML = data.loans;
+            attachActionListeners();
+          }
+          else {
+            document.getElementById('table-body').innerHTML = data.loans;
+          }
+        } else {
+          showAlert(data.message, "error");
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      } finally {
         submitButton.disabled = false;
-        return;
       }
-
-      // Submit form data
-      const formData = new FormData(this);
-      const response = await fetch("{% url 'apply_loan' %}", {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: formData
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        showAlert(data.message, "success");
-        closePopUp();
-
-        if (currentUrlName === "loan_applications") {
-          document.getElementById('table-body').innerHTML = data.loans;
-          attachActionListeners();
-        }
-        else {
-          document.getElementById('table-body').innerHTML = data.loans;
-        }
-      } else {
-        showAlert(data.message, "error");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    } finally {
-      submitButton.disabled = false;
     }
   });
 
-
-  function openPopUp() {
-    document.getElementById('popupApplication').classList.remove('hidden');
+  // NEW: Function to format and update the savings display
+  function updateSavingsDisplay(savings) {
+    const formattedSavings = new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      minimumFractionDigits: 2,
+    }).format(savings);
+    savingsDisplay.textContent = formattedSavings;
   }
+
+  // UPDATED: Open pop-up function to fetch savings immediately if not a Bookkeeper
+  function openPopUp() {
+
+    // Check if the account number field is NOT visible (implies it's the member)
+    const isBookkeeper = document.getElementById('accountNumber') !== null;
+
+    // If not a bookkeeper (i.e., the member), fetch and display their savings immediately.
+    if (!isBookkeeper) {
+      memberSavings();
+      if (checkActiveLoans()) {
+        showAlert("You have active loans. You cannot apply for a new loan until existing loans are settled.", "error");
+      }
+    } else {
+      document.getElementById('popupApplication').classList.remove('hidden');
+    }
+
+  }
+
+  // UPDATED: closePopUp function to reset the savings display
   function closePopUp() {
     document.getElementById('popupApplication').classList.add('hidden');
     document.getElementById('accountNumber').value = ''
     document.getElementById('loanType').value = '';
-    document.getElementById('totalPayable').textContent = '0';
+    document.getElementById('totalPayable').textContent = '0.00';
     document.getElementById('amount').value = '';
-    document.getElementById('serviceCharge').textContent = '0';
-    document.getElementById('amortization').textContent = '0';
-    document.getElementById('cbu').textContent = '0';
-    document.getElementById('insurance').textContent = '0';
-    document.getElementById('releaseAmount').textContent = '0';
+    document.getElementById('serviceCharge').textContent = '0.00';
+    document.getElementById('amortization').textContent = '0.00';
+    document.getElementById('cbu').textContent = '0.00';
+    document.getElementById('insurance').textContent = '0.00';
+    document.getElementById('releaseAmount').textContent = '0.00';
     document.getElementById('loan-term').value = 0;
     updateValue(0);
+    // Reset savings display
+    updateSavingsDisplay(0);
   }
 
   // 2. The function now uses the slider's value as an index for the array.
@@ -247,7 +291,7 @@
     updateValue(termSlider.value);
   };
 
-  // Toast notification function
+  // Toast notification function (... no changes ...)
   function showAlert(message, type) {
     const toast = document.getElementById("toast-container");
 
@@ -301,6 +345,7 @@
     }
   }
 
+  // UPDATED: memberSavings now updates the display directly
   async function memberSavings() {
     const accountInput = document.getElementById('accountNumber');
     const accountNumber = accountInput ? accountInput.value.trim() : null;
@@ -314,31 +359,35 @@
       const result = await response.json();
 
       if (result.success) {
-        return result.member_savings || 0;
+        const savings = result.member_savings || 0;
+        updateSavingsDisplay(savings); // <--- Key change: Update the display
+        return savings;
       } else {
         console.warn('No savings data found');
+        updateSavingsDisplay(0); // <--- Key change: Update the display to 0 on error
         return 0;
       }
     } catch (err) {
       console.error("Error fetching member savings:", err);
+      updateSavingsDisplay(0); // <--- Key change: Update the display to 0 on error
       return 0;
     }
   }
 
 
   async function loanAmountAvailability(inputElement) {
-  const savings = await memberSavings();
-  const loanAmount = parseFloat(inputElement.value) || 0;
-  const errorText = document.getElementById('amountError');
+    const savings = await memberSavings(); // memberSavings now updates the display itself
+    const loanAmount = parseFloat(inputElement.value) || 0;
+    const errorText = document.getElementById('amountError');
 
-  if (loanAmount > savings && savings > 0) {
-    errorText.classList.remove('hidden');
-    return true;
-  } else {
-    errorText.classList.add('hidden');
-    return false;
+    if (loanAmount > savings && savings > 0) {
+      errorText.classList.remove('hidden');
+      return true;
+    } else {
+      errorText.classList.add('hidden');
+      return false;
+    }
   }
-}
 
   document.getElementById('amount').addEventListener('input', e => {
     const value = e.target.value;
@@ -350,7 +399,37 @@
       loanAmountAvailability(e.target);
       updateLoanDetails();
     }, 500);
-
-
   });
+
+  // UPDATED: Simplified event listener for accountNumber
+  const accountNumberInput = document.getElementById('accountNumber');
+  if (accountNumberInput) {
+    accountNumberInput.addEventListener('input', e => {
+      clearTimeout(timeout);
+      timeout = setTimeout(async function () {
+        // Calling memberSavings() here will fetch the data AND update the display
+        await memberSavings();
+        loanAmountAvailability(document.getElementById('amount'));
+      }, 500);
+    });
+  }
+
+  async function checkActiveLoans() {
+    const accountInput = document.getElementById('accountNumber');
+    const accountNumber = accountInput ? accountInput.value.trim() : null;
+
+    try {
+      const url = accountNumber
+        ? `{% url 'check_active_loan' %}?accountNumber=${encodeURIComponent(accountNumber)}`
+        : `{% url 'check_active_loan' %}`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      return result.active_loan_exists;
+    } catch (err) {
+      console.error("Error checking active loans:", err);
+      return false; // Assume no active loans on error
+    }
+  }
 </script>
