@@ -1,36 +1,53 @@
 {% load static tailwind_tags %}
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EWABB Registration</title>
   {% tailwind_css %}
+  <style>
+    /* Extra spacing control for small screens */
+    @media (max-width: 640px) {
+      .progress-label {
+        display: none;
+      }
+    }
+    @media (min-width: 641px) {
+      .progress-label {
+        display: inline;
+      }
+    }
+  </style>
 </head>
-<body class="font-sans">
+<body class="font-sans bg-gray-50 min-h-screen flex flex-col">
 
   <!-- Navbar -->
-  <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
+
+  <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center shadow-md">
     <h1 class="text-white font-bold text-xl">EWABB</h1>
-   <div class="space-x-4">
-    <a href="{% url 'login' %}"class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block">Login</a>
-  </div>
-</nav>
+    <div>
+      <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded transition">Login</a>
+    </div>
+  </nav>
 
   <!-- Step Indicator -->
+
   <div class="w-full py-4">
-    <div class="flex justify-center space-x-10">
+    <div class="flex flex-wrap justify-center gap-6 md:space-x-10 text-center transition-all duration-300">
       <div class="flex items-center space-x-2 text-gray-400">
         <div class="w-8 h-8 rounded-full border border-gray-400 text-gray-400 flex items-center justify-center font-bold">1</div>
-        <span class="font-medium">Member Personal Information</span>
+        <span class="progress-label font-medium">Member Personal Information</span>
       </div>
-        <div class="flex items-center space-x-2 text-gray-400">
+      <div class="flex items-center space-x-2 text-gray-400">
         <div class="w-8 h-8 rounded-full border border-gray-400 text-gray-400 flex items-center justify-center font-bold">2</div>
-        <span class="font-medium">Family Background</span>
+        <span class="progress-label font-medium">Family Background</span>
       </div>
-    <div class="flex items-center space-x-2 text-black">
+      <div class="flex items-center space-x-2 text-black">
         <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">3</div>
-        <span class="font-medium text-yellow-400">Create Account</span>
+        <span class="progress-label font-medium text-yellow-400">Create Account</span>
       </div>
     </div>
   </div>
@@ -42,138 +59,119 @@
           {% csrf_token %}
           <h2 class="text-center text-3xl font-bold mb-8">Create an Account</h2>
 
-          <!-- Email -->
-          <div class="relative">
-            <label class="text-sm font-medium">Email Address</label>
-            <input id="email" name="email" type="email" placeholder="Enter your email address" class="input validator w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" required/>
-            <!--<button type="button" id="toggle" class="absolute right-3 top-10 text-xs text-blue-600 font-semibold">Send OTP</button>-->
-            <div class="validator-hint hidden">Enter valid email address</div>
-            <p id="emailMessage" class="hidden text-xs mt-2 text-error"></p>
-          </div>
-
-          <!-- Password -->
-          <div class="relative">
-            <label class="text-sm font-medium">Password</label>
-            <input id="password" name="password" type="password" 
-                  placeholder="Enter your password" minlength="8"
-                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
-                  title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
-                  class="input validator w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  required />
-            
-            <!-- Toggle button -->
-            <button type="button" onclick="togglePassword('password','eye1','eyeOff1')" 
-                    class="absolute right-3 top-9 text-gray-500 z-10">
-              <svg id="eye1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-              <svg id="eyeOff1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 3l18 18"/>
-              </svg>
-            </button>
-            <p class="validator-hint hidden">
-            Must be more than 8 characters, including
-            <br/>At least one number
-            <br/>At least one lowercase letter
-            <br/>At least one uppercase letter
-          </p>
-          </div>
-
-          <!-- Confirm Password -->
-          <div class="relative">
-            <label class="text-sm font-medium">Confirm Password</label>
-            <input id="confirm_password" name="confirm_password" type="password" 
-                  placeholder="Enter your password again"
-                  class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                  required onkeyup="checkPasswordMatch()"/>
-            
-            <!-- Toggle button -->
-            <button type="button" onclick="togglePassword('confirm_password','eye2','eyeOff2')" 
-                    class="absolute right-3 top-9 text-gray-500">
-              <svg id="eye2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-              <svg id="eyeOff2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 3l18 18"/>
-              </svg>
-            </button>
-            <!-- Password Match Message -->
-          <p id="matchMessage"></p>
-          </div>
-
-          <!-- Buttons -->
-          <div class="flex justify-center space-x-6 pt-6">
-            <button id="go-back" type="button" class="border px-10 py-2 rounded-md hover:bg-gray-100">Back</button>
-            <button type="submit" class="bg-blue-600 text-white px-10 py-2 rounded-md hover:bg-blue-700">Submit</button>
-          </div>
-        </form>
-      </div>
+    <!-- Email -->
+    <div>
+      <label class="text-sm font-medium">Email Address</label>
+      <input id="email" name="email" type="email" placeholder="Enter your email address"
+        class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        required />
+      <p id="emailMessage" class="hidden text-xs mt-2 text-red-500"></p>
     </div>
-<script>
-  let timeout;
 
-  document.getElementById("go-back").addEventListener("click", () => {
-    history.back();
-  });
-  
-function togglePassword(inputId, eyeId, eyeOffId) {
-  const input = document.getElementById(inputId);
-  const eyeIcon = document.getElementById(eyeId);
-  const eyeOffIcon = document.getElementById(eyeOffId);
+    <!-- Password -->
+    <div class="relative">
+      <label class="text-sm font-medium">Password</label>
+      <input id="password" name="password" type="password" placeholder="Enter your password"
+        minlength="8"
+        pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+        title="Must be more than 8 characters, including a number, lowercase, and uppercase letter"
+        class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        required />
+      <!-- Toggle -->
+      <button type="button" onclick="togglePassword('password','eye1','eyeOff1')"
+        class="absolute right-3 top-9 text-gray-500">
+        <svg id="eye1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        </svg>
+        <svg id="eyeOff1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 3l18 18"/>
+        </svg>
+      </button>
+    </div>
 
-  const isPassword = input.type === "password";
-  input.type = isPassword ? "text" : "password";
+    <!-- Confirm Password -->
+    <div class="relative">
+      <label class="text-sm font-medium">Confirm Password</label>
+      <input id="confirm_password" name="confirm_password" type="password"
+        placeholder="Enter your password again"
+        class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        required onkeyup="checkPasswordMatch()" />
+      <button type="button" onclick="togglePassword('confirm_password','eye2','eyeOff2')"
+        class="absolute right-3 top-9 text-gray-500">
+        <svg id="eye2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        </svg>
+        <svg id="eyeOff2" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 3l18 18"/>
+        </svg>
+      </button>
+      <p id="matchMessage" class="text-xs mt-2"></p>
+    </div>
 
-  eyeIcon.classList.toggle("hidden", !isPassword);
-  eyeOffIcon.classList.toggle("hidden", isPassword);
-}
+    <!-- Buttons -->
+    <div class="flex justify-center space-x-6 pt-4">
+      <button id="go-back" type="button" class="border px-10 py-2 rounded-md hover:bg-gray-100">Back</button>
+      <button type="submit" class="bg-blue-600 text-white px-10 py-2 rounded-md hover:bg-blue-700">Submit</button>
+    </div>
+  </form>
+</div>
 
-function checkPasswordMatch() {
-  const password = document.getElementById("password").value;
-  const confirm = document.getElementById("confirm_password").value;
-  const message = document.getElementById("matchMessage");
+  </div>
 
-  if (confirm === "") {
-    message.textContent = "";
-    return false;
-  }
+  <script>
+    document.getElementById("go-back").addEventListener("click", () => history.back());
 
-  if (password === confirm) {
-    message.textContent = "✓ Passwords match";
-    message.className = "text-success text-xs mt-2";
-    return true;
-  } else {
-    message.textContent = "✗ Passwords do not match";
-    message.className = "text-error text-xs mt-2";
-    return false;
-  }
-}
+    function togglePassword(inputId, eyeId, eyeOffId) {
+      const input = document.getElementById(inputId);
+      const eyeIcon = document.getElementById(eyeId);
+      const eyeOffIcon = document.getElementById(eyeOffId);
+      const isPassword = input.type === "password";
+      input.type = isPassword ? "text" : "password";
+      eyeIcon.classList.toggle("hidden", !isPassword);
+      eyeOffIcon.classList.toggle("hidden", isPassword);
+    }
 
-document.getElementById('email').addEventListener("input", function () {
-  clearTimeout(timeout);
-  timeout = setTimeout(checkMail, 500);
-});
+    function checkPasswordMatch() {
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm_password").value;
+      const message = document.getElementById("matchMessage");
 
-async function checkMail() {
-  const email = document.getElementById("email").value.trim();
-  const emailMessage = document.getElementById("emailMessage");
+      if (!confirm) { message.textContent = ""; return false; }
 
-  if (!email) {
-    emailMessage.textContent = "";
-    return false;
- }
+      if (password === confirm) {
+        message.textContent = "✓ Passwords match";
+        message.className = "text-green-600 text-xs mt-2";
+        return true;
+      } else {
+        message.textContent = "✗ Passwords do not match";
+        message.className = "text-red-500 text-xs mt-2";
+        return false;
+      }
+    }
+
+    let emailTimeout, usernameTimeout;
+
+    document.getElementById('email').addEventListener("input", function () {
+      clearTimeout(emailTimeout);
+      emailTimeout = setTimeout(checkMail, 500);
+    });
+
+    async function checkMail() {
+      const email = document.getElementById("email").value.trim();
+      const emailMessage = document.getElementById("emailMessage");
+      if (!email) { emailMessage.textContent = ""; emailMessage.classList.add("hidden"); return false; }
 
   try {
     // AJAX to check email uniqueness
@@ -181,7 +179,8 @@ async function checkMail() {
     
   const data = await response.json();
   if (data.exists) {
-    emailMessage.classList.remove("hidden")
+    emailMessage.classList.g
+       remove("hidden")
     emailMessage.textContent = "Email is already registered";
     return false
   } else {

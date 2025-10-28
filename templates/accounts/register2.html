@@ -1,19 +1,124 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
+<!-- Mobile-first tweaks:
+  - Ensure login button stays visible on small screens
+  - Hide progress labels on small screens
+  - Compact form and larger touch targets for mobile
+-->
+<style>
+  @media (max-width: 767px) {
+    nav .hidden.md\:flex {
+      display: flex !important;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    nav button[aria-label="Toggle menu"] {
+      display: none !important;
+    }
+
+    nav + div.md\:hidden {
+      display: none !important;
+    }
+
+    nav a[href*="login"] {
+      display: inline-block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      padding: 0.5rem 0.75rem !important;
+    }
+
+    .w-full.py-4 .flex.justify-center span.font-medium {
+      display: none;
+    }
+    .w-full.py-4 .flex.justify-center {
+      gap: 0.75rem;
+    }
+
+    form {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+      border-radius: 0.75rem !important;
+      margin: 0.5rem !important;
+    }
+
+    form input,
+    form button,
+    form a {
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.75rem !important;
+      font-size: 1rem !important;
+    }
+  }
+
+  @media (min-width: 768px) {
+    nav .hidden.md\:flex {
+      display: flex !important;
+      align-items: center;
+    }
+    nav .space-x-4 {
+      display: flex !important;
+      align-items: center;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const nav = document.querySelector("nav");
+  if (!nav) return;
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "md:hidden text-white focus:outline-none ml-2";
+  btn.setAttribute("aria-label", "Toggle menu");
+  btn.innerHTML =
+    '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
+  const right = nav.querySelector("div.space-x-4");
+  const desktopContainer = document.createElement("div");
+  desktopContainer.className = "hidden md:flex md:items-center";
+  const mobileMenu = document.createElement("div");
+  mobileMenu.className = "w-full md:hidden hidden bg-blue-800";
+
+  if (right) {
+    while (right.firstChild) {
+      const child = right.firstChild;
+      desktopContainer.appendChild(child.cloneNode(true));
+      mobileMenu.appendChild(child);
+    }
+    right.replaceWith(desktopContainer);
+  } else {
+    nav.appendChild(desktopContainer);
+  }
+
+  mobileMenu.classList.add("px-4", "py-2");
+  Array.from(mobileMenu.querySelectorAll("a, button")).forEach((el) => {
+    el.classList.add("block", "py-2", "text-white");
+  });
+
+  nav.appendChild(btn);
+  nav.after(mobileMenu);
+  btn.addEventListener("click", () => mobileMenu.classList.toggle("hidden"));
+});
+</script>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EWABB Registration</title>
     {% tailwind_css %}
-    
   </head>
+
   <body class="bg-gray-100 leading-normal">
     <!-- Navbar -->
     <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
       <h1 class="text-white font-bold text-xl">EWABB</h1>
       <div class="space-x-4">
-        <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block"> Login</a>
+        <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block">Login</a>
       </div>
     </nav>
 
@@ -21,7 +126,7 @@
     <div class="w-full py-4">
       <div class="flex justify-center space-x-10">
         <div class="flex items-center space-x-2 text-gray-400">
-          <div class="w-8 h-8 rounded-full border border-gray-400 text-gray-400 flex items-center justify-center font-bold">1</div>
+          <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">1</div>
           <span class="font-medium">Member Personal Information</span>
         </div>
         <div class="flex items-center space-x-2 text-black">
@@ -29,201 +134,138 @@
           <span class="font-medium text-yellow-400">Family Background</span>
         </div>
         <div class="flex items-center space-x-2 text-gray-400">
-          <div class="w-8 h-8 rounded-full border border-gray-400 text-gray-400 flex items-center justify-center font-bold">3</div>
+          <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">3</div>
           <span class="font-medium">Create Account</span>
         </div>
       </div>
     </div>
 
-    <!-- Main Container -->
-    <form class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" 
-          method="POST" action="{% url 'register2' %}">
+    <!-- Main Form -->
+    <form class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" method="POST" action="{% url 'register2' %}">
       {% csrf_token %}
       <h2 class="text-3xl font-bold text-center mb-2">Family Background</h2>
       <p class="text-center text-sm mb-10">• Please leave it blank if you do not have spouse and children</p>
 
-      <!-- SPOUSE Section -->
-      <div class="grid grid-cols-1 md:grid-cols-2 md:gap-8 mb-12">
-        <div class="ml-3">
+      <!-- Spouse Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 md:gap-8 mb-12 ml-3">
+        <div>
           <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
-          <input name="spouseSurname" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <input name="spouseSurname" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" />
           <span id="spouseSurnameError" class="text-red-500 text-xs hidden">Surname must not contain numbers</span>
 
-          <label class="block text-sm font-medium mb-1">First Name</label>
-          <input name="spouseFirstName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          <span id="spouseFirstNameError" class="text-red-500 text-xs hidden">Surname must not contain numbers</span>
+          <label class="block text-sm font-medium mb-1 mt-3">First Name</label>
+          <input name="spouseFirstName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" />
+          <span id="spouseFirstNameError" class="text-red-500 text-xs hidden">First name must not contain numbers</span>
 
-          <label class="block text-sm font-medium mb-1">Middle Name</label>
-          <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          <span id="spouseMiddleNameError" class="text-red-500 text-xs hidden">Middle must not contain numbers</span>
+          <label class="block text-sm font-medium mb-1 mt-3">Middle Name</label>
+          <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" />
+          <span id="spouseMiddleNameError" class="text-red-500 text-xs hidden">Middle name must not contain numbers</span>
 
-          <label class="block text-sm font-medium mb-1">Occupation</label>
-          <input name="occupation" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <label class="block text-sm font-medium mb-1 mt-3">Occupation</label>
+          <input name="occupation" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" />
           <span id="occupationError" class="text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
         </div>
-        <div class="ml-3">
-          <label class="block text-sm font-medium mb-1">Employer/ Business Name</label>
-          <input name="employerBusinessName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
 
-          <label class="block text-sm font-medium mb-1">Business Address</label>
-          <input name="businessAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+        <div>
+          <label class="block text-sm font-medium mb-1">Employer / Business Name</label>
+          <input name="employerBusinessName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" />
 
-          <label class="block text-sm font-medium mb-1">Telephone No.</label>
-          <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <label class="block text-sm font-medium mb-1 mt-3">Business Address</label>
+          <input name="businessAddress" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" />
+
+          <label class="block text-sm font-medium mb-1 mt-3">Telephone No.</label>
+          <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" />
           <span id="businessTelephoneNoError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
         </div>
       </div>
 
-      <!-- CHILDREN Section -->
-      <div id="children-container"class="mb-12 ml-3">
+      <!-- Children Section -->
+      <div id="children-container" class="mb-12 ml-3">
         <div class="flex justify-between items-center mb-4">
           <label class="font-semibold text-lg">Children</label>
-          <button type="button" onclick=addChild() class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-lg font-semibold text-black">+</button>
+          <button type="button" onclick="addChild()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-lg font-semibold">+</button>
         </div>
         <div class="child-entry">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-2">
               <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-              <input name="childName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <input name="childName" type="text" class="child-name w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" />
               <span id="childNameError" class="text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
             </div>
-            <div class="md:col-span-1">
+            <div>
               <label class="block text-sm font-medium mb-1">Date of Birth</label>
-              <input name="childDateOfBirth" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+              <input name="childDateOfBirth" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" />
             </div>
           </div>
         </div>
-        
       </div>
 
-      <!-- EMERGENCY CONTACT Section -->
+      <!-- Emergency Contact -->
       <div class="mb-12 ml-3">
         <h3 class="font-semibold text-lg mb-4">Emergency Person to Contact</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="col-span-2">
-            <div class="mb-4">
-              <label class="block text-sm font-medium mb-1">Name (Full Name) <span class="text-red-500">*</span></label>
-              <input name="emergencyContactName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-              <span id="emergencyContactNameError" class="text-red-500 text-xs hidden">must not contain numbers or symbols</span>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Address <span class="text-red-500">*</span></label>
-              <input name="emergencyContactAddress" type="text" placeholder="Enter the address" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" required/>
-            </div>
+            <label class="block text-sm font-medium mb-1">Name (Full Name) <span class="text-red-500">*</span></label>
+            <input name="emergencyContactName" type="text" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" required />
+            <span id="emergencyContactNameError" class="text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
+
+            <label class="block text-sm font-medium mb-1 mt-3">Address <span class="text-red-500">*</span></label>
+            <input name="emergencyContactAddress" type="text" placeholder="Enter address" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" required />
           </div>
         </div>
       </div>
 
-      <!-- BUTTONS -->
+      <!-- Buttons -->
       <div class="flex justify-center gap-4">
-        <a id="go-back" class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium">Back</a>
-        <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">Next</button>
+        <a id="go-back" class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium cursor-pointer">Back</a>
+        <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 text-white font-medium">Next</button>
       </div>
     </form>
+
     <!-- Toast -->
-    <div
-      id="toast"
-      class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600"
-      role="status">Some fields contain invalid information.</div>
+    <div id="toast" class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600" role="status">
+      Some fields contain invalid information.
+    </div>
+
 <script>
+  // add/remove child logic + validation
   function addChild() {
     const container = document.getElementById('children-container');
     const newChild = document.createElement('div');
-    newChild.classList.add('child-entry');
+    newChild.classList.add('child-entry', 'mt-4');
     newChild.innerHTML = `
-      <div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-            <input name="childName" type="text" 
-              class="child-name w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-            <span class="childNameError text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
-          </div>
-          <div class="md:col-span-1">
-            <label class="block text-sm font-medium mb-1">Date of Birth</label>
-            <input name="childDateOfBirth" type="date" 
-              class="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
+          <input name="childName" type="text" class="child-name w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" />
+          <span class="childNameError text-red-500 text-xs hidden">Must not contain numbers or symbols</span>
         </div>
-        <button type="button" onclick="this.parentElement.remove()" 
-          class="text-red-500 hover:text-red-700 text-sm font-medium m-1 flex justify-self-end-safe">
-          Remove
-        </button>
+        <div>
+          <label class="block text-sm font-medium mb-1">Date of Birth</label>
+          <input name="childDateOfBirth" type="date" class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400" />
+        </div>
       </div>
+      <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium mt-2">Remove</button>
     `;
     container.appendChild(newChild);
-
-    // Attach validation to the newly added input
-    attachChildValidation(newChild.querySelector('.child-name'));
   }
 
-  // Function to attach validation behavior
-  function attachChildValidation(input) {
-    const regex = /^[A-Za-z\s]+$/;
-    const errorSpan = input.nextElementSibling;
-
-    input.addEventListener('input', function () {
-      if (input.value === '' || regex.test(input.value)) {
-        errorSpan.classList.add('hidden');
-      } else {
-        errorSpan.classList.remove('hidden');
-      }
-    });
-
-    input.addEventListener('blur', function () {
-      if (input.value && !regex.test(input.value)) {
-        errorSpan.classList.remove('hidden');
-      }
-    });
-  }
-
-  document.getElementById("go-back").addEventListener("click", () => {
-    history.back();
-  });
-
-  // Apply validation for initial child input on page load
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll('.child-name').forEach(attachChildValidation);
-  });
+  document.getElementById("go-back").addEventListener("click", () => history.back());
 </script>
-
+  </body>
+</html>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  // Validation rules
+  // Validation rules for fields
   const rules = {
-    spouseSurname: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "spouseSurnameError" 
-    },
-    spouseFirstName: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "spouseFirstNameError" 
-    },
-    spouseMiddleName: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "spouseMiddleNameError" 
-    },
-    occupation: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "occupationError" 
-    },
-    businessTelephoneNo: { 
-      regex: /^\d{11,12}\d+$$/, 
-      errorId: "businessTelephoneNoError" 
-    },
-
-    // Children
-    childName: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "childNameError" 
-    },
-
-    // Emergency contact
-    emergencyContactName: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "emergencyContactNameError" 
-    },
+    spouseSurname: { regex: /^[A-Za-z\s'.-]+$/, errorId: 'spouseSurnameError' },
+    spouseFirstName: { regex: /^[A-Za-z\s'.-]+$/, errorId: 'spouseFirstNameError' },
+    spouseMiddleName: { regex: /^[A-Za-z\s'.-]+$/, errorId: 'spouseMiddleNameError' },
+    occupation: { regex: /^[A-Za-z\s'.-]+$/, errorId: 'occupationError' },
+    businessTelephoneNo: { regex: /^\d{11,12}$/, errorId: 'businessTelephoneNoError' },
+    childName: { regex: /^[A-Za-z\s'.-]+$/, errorId: 'childNameError' },
+    emergencyContactName: { regex: /^[A-Za-z\s'.-]+$/, errorId: 'emergencyContactNameError' },
   };
 
   // Prevent submit if invalid
