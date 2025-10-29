@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db import transaction
 from dateutil.relativedelta import relativedelta # 👈 Requires python-dateutil
+from financial_reporting.models import Funds, Revenue
 from loans.models import LoanRepaymentSchedule, LoanPenalty, Loan
 from transactions.models import Transactions
 from members.models import Savings
@@ -117,6 +118,16 @@ class Command(BaseCommand):
                             )
                         )
 
+                        Revenue.objects.create(
+                            source='Savings Penalty Deduction',
+                            amount=penalty_amount,
+                            penalty_id=penalty
+                        )
+
+                        Funds.objects.filter(fund_name='Revenue').update(
+                            balance=F('balance') + penalty_amount
+                        )
+
                         Transactions.objects.create(
                             member_id=member,
                             cashier_id=None, # System transaction, no physical cashier
@@ -157,6 +168,16 @@ class Command(BaseCommand):
                         # Use F() to safely add the penalty_amount to the OutstandingBalance field in the database
                         Loan.objects.filter(pk=loan_pk).update(
                             remaining_balance=F('remaining_balance') + penalty_amount
+                        )
+
+                        Revenue.objects.create(
+                            source='Amount Due Penalty',
+                            amount=penalty_amount,
+                            penalty_id=penalty
+                        )
+
+                        Funds.objects.filter(fund_name='Revenue').update(
+                            balance=F('balance') + penalty_amount
                         )
 
                         Transactions.objects.create(

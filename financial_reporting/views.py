@@ -72,9 +72,10 @@ def monthly_report_details(request, report_id):
         return render(request, 'financial_reporting/members_report.html', context)
 
 def dividend_report_details(request, report_id):
-    report = Financialreports.objects.filter(report_id=report_id).values("title", "status").first()
+    report = Financialreports.objects.select_related('dividend_id').filter(report_id=report_id).first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
-    context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_id': report_id}
+    rate_percentage = (report.dividend_id.rate * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    context = {'financial_report': financial_report, 'title': report.title, 'status': report.status, 'report_id': report_id, "date": report.dividend_id.date_declared, "rate": rate_percentage}
     if request.user.groups.filter(name='Bookkeeper').exists() or request.user.groups.filter(name='Admin').exists():
         return render(request, 'financial_reporting/dividend_report.html', context)
 
@@ -240,76 +241,10 @@ def dividend_report(request):
         return render(request, 'financial_reporting/dividend_report.html')
     elif request.user.groups.filter(name='Admin').exists():
         return render(request, 'financial_reporting/dividend_report.html', context)
-    
-def compute_and_distribute_dividend():
-    """Compute dividend for the next unprocessed period."""
-    
-    # 1️⃣ Find the last dividend date range
-    last_dividend = Dividend.objects.order_by('-period_end').first()
-
-    if last_dividend:
-        period_start = last_dividend.period_end + timedelta(days=1)
-    else:
-        # First ever dividend → start from start of the year
-        period_start = date(date.today().year, 1, 1)
-
-    # 2️⃣ Define the new period end (up to today)
-    period_end = date.today()
-
-    total_savings = Savings.objects.aggregate(Sum('balance'))['balance__sum'] or Decimal('0.00')
-    if total_savings <= 0:
-        return {'success': False, 'message': 'No savings in the system — dividend not computed.'}
-
-    # 3️⃣ Get revenues & expenses within this new period
-    total_income = Funds.objects.filter(fund_name='Revenue').aggregate(Sum('balance'))['balance__sum'] or Decimal('0.00')
-    total_expenses = Funds.objects.filter(fund_name='Expense').aggregate(Sum('balance'))['balance__sum'] or Decimal('0.00')
-
-    net_surplus = total_income + total_expenses
-    if net_surplus <= 0:
-        return {'success': False, 'message': 'No surplus in this period — dividend not computed.'}
-    
-    rate = net_surplus / total_savings
-
-    # 5️⃣ Create new dividend record
-    dividend = Dividend.objects.create(
-        title=f"Dividend ({period_start:%b %d, %Y} - {period_end:%b %d, %Y})",
-        period_start=period_start,
-        period_end=period_end,
-        total_surplus=net_surplus,
-        rate=rate,
-    )
-
-    # 6️⃣ Distribute to members
-    members = Member.objects.all()
-    total_distributed = Decimal('0.00')
-
-    for member in members:
-        share_capital = getattr(member, 'share_capital', Decimal('0.00'))
-        if share_capital <= 0:
-            continue
-
-        dividend_amount = share_capital * dividend.rate
-        total_distributed += dividend_amount
-
-        # Credit to member savings
-        if hasattr(member, 'savings_balance'):
-            member.savings_balance += dividend_amount
-            member.save()
-
-    dividend.save()
-
-    return {
-        'success': True,
-        'message': f"Dividend from {period_start:%b %d, %Y} to {period_end:%b %d, %Y} computed successfully.",
-        'total_distributed': total_distributed,
-        'period_start': period_start,
-        'period_end': period_end,
-    }
 
 def submit_monthly_report(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    print(request.body)
     try:
         data = json.loads(request.body)
         title = data.get("title")
@@ -406,14 +341,11 @@ def submit_monthly_report(request):
 def submit_dividend_report(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    print(request.body)
     try:
         data = json.loads(request.body)
         title = data.get("title")
         period_start = data.get("period_start")
-        print(period_start)
         period_end = data.get("period_end")
-        print(period_end)
         rate = Decimal(data.get("rate"))
         net_surplus = Decimal(data.get("net_surplus"))
         members_data = data.get("members", {})

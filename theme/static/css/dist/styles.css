@@ -1008,11 +1008,6 @@
   .collapse:is(details) summary {
     outline: none;
   }
-  .validator-hint {
-    visibility: hidden;
-    margin-top: calc(0.25rem * 2);
-    font-size: 0.75rem;
-  }
   .validator:user-valid, .validator:user-valid:focus, .validator:user-valid:checked, .validator:user-valid[aria-checked="true"], .validator:user-valid:focus-within, .validator:has(:user-valid), .validator:has(:user-valid):focus, .validator:has(:user-valid):checked, .validator:has(:user-valid)[aria-checked="true"], .validator:has(:user-valid):focus-within {
     --input-color: var(--color-success);
   }
@@ -2077,9 +2072,6 @@
   .top-9 {
     top: calc(var(--spacing) * 9);
   }
-  .top-10 {
-    top: calc(var(--spacing) * 10);
-  }
   .top-full {
     top: 100%;
   }
@@ -2088,12 +2080,6 @@
   }
   .right-3 {
     right: calc(var(--spacing) * 3);
-  }
-  .right-5 {
-    right: calc(var(--spacing) * 5);
-  }
-  .bottom-5 {
-    bottom: calc(var(--spacing) * 5);
   }
   .left-0 {
     left: calc(var(--spacing) * 0);
@@ -2401,9 +2387,6 @@
   .z-1 {
     z-index: 1;
   }
-  .z-10 {
-    z-index: 10;
-  }
   .z-30 {
     z-index: 30;
   }
@@ -2458,9 +2441,6 @@
   }
   .m-0 {
     margin: calc(var(--spacing) * 0);
-  }
-  .m-1 {
-    margin: calc(var(--spacing) * 1);
   }
   .m-6 {
     margin: calc(var(--spacing) * 6);
@@ -2737,6 +2717,13 @@
       box-shadow: 0 2px 3px -1px color-mix(in oklab, currentColor calc(var(--depth) * 100%), #0000);
     }
   }
+  .navbar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 0.5rem;
+    min-height: 4rem;
+  }
   .footer {
     display: grid;
     width: 100%;
@@ -2906,12 +2893,6 @@
     --join-es: var(--radius-field);
     --join-ee: var(--radius-field);
   }
-  .chat {
-    display: grid;
-    column-gap: calc(0.25rem * 3);
-    padding-block: calc(0.25rem * 1);
-    --mask-chat: url("data:image/svg+xml,%3csvg width='13' height='13' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill='black' d='M0 11.5004C0 13.0004 2 13.0004 2 13.0004H12H13V0.00036329L12.5 0C12.5 0 11.977 2.09572 11.8581 2.50033C11.6075 3.35237 10.9149 4.22374 9 5.50036C6 7.50036 0 10.0004 0 11.5004Z'/%3e%3c/svg%3e");
-  }
   .line-clamp-1 {
     overflow: hidden;
     display: -webkit-box;
@@ -3004,9 +2985,6 @@
   }
   .h-screen {
     height: 100vh;
-  }
-  .max-h-56 {
-    max-height: calc(var(--spacing) * 56);
   }
   .max-h-64 {
     max-height: calc(var(--spacing) * 64);
@@ -3187,6 +3165,9 @@
   .cursor-pointer {
     cursor: pointer;
   }
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
   .resize {
     resize: both;
   }
@@ -3328,9 +3309,6 @@
   }
   :where(.divide-gray-200 > :not(:last-child)) {
     border-color: var(--color-gray-200);
-  }
-  .justify-self-end-safe {
-    justify-self: safe flex-end;
   }
   .truncate {
     overflow: hidden;
@@ -3660,9 +3638,6 @@
   .p-10 {
     padding: calc(var(--spacing) * 10);
   }
-  .px-1 {
-    padding-inline: calc(var(--spacing) * 1);
-  }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
@@ -3964,9 +3939,6 @@
   }
   .text-red-800 {
     color: var(--color-red-800);
-  }
-  .text-success {
-    color: var(--color-success);
   }
   .text-white {
     color: var(--color-white);
@@ -4404,26 +4376,6 @@
     }
   }
   @media (width >= 40rem) {
-    .sm\:flex-row {
-      flex-direction: row;
-    }
-  }
-  @media (width >= 40rem) {
-    .sm\:items-center {
-      align-items: center;
-    }
-  }
-  @media (width >= 40rem) {
-    .sm\:gap-3 {
-      gap: calc(var(--spacing) * 3);
-    }
-  }
-  @media (width >= 40rem) {
-    .sm\:gap-4 {
-      gap: calc(var(--spacing) * 4);
-    }
-  }
-  @media (width >= 40rem) {
     .sm\:gap-6 {
       gap: calc(var(--spacing) * 6);
     }
@@ -4441,11 +4393,6 @@
   @media (width >= 40rem) {
     .sm\:px-0 {
       padding-inline: calc(var(--spacing) * 0);
-    }
-  }
-  @media (width >= 40rem) {
-    .sm\:px-2 {
-      padding-inline: calc(var(--spacing) * 2);
     }
   }
   @media (width >= 40rem) {
@@ -4474,11 +4421,6 @@
     }
   }
   @media (width >= 40rem) {
-    .sm\:py-4 {
-      padding-block: calc(var(--spacing) * 4);
-    }
-  }
-  @media (width >= 40rem) {
     .sm\:py-6 {
       padding-block: calc(var(--spacing) * 6);
     }
@@ -4493,12 +4435,6 @@
     .sm\:text-3xl {
       font-size: var(--text-3xl);
       line-height: var(--tw-leading, var(--text-3xl--line-height));
-    }
-  }
-  @media (width >= 40rem) {
-    .sm\:text-base {
-      font-size: var(--text-base);
-      line-height: var(--tw-leading, var(--text-base--line-height));
     }
   }
   @media (width >= 40rem) {
@@ -4601,6 +4537,13 @@
   @media (width >= 48rem) {
     .md\:gap-8 {
       gap: calc(var(--spacing) * 8);
+    }
+  }
+  @media (width >= 48rem) {
+    :where(.md\:space-x-10 > :not(:last-child)) {
+      --tw-space-x-reverse: 0;
+      margin-inline-start: calc(calc(var(--spacing) * 10) * var(--tw-space-x-reverse));
+      margin-inline-end: calc(calc(var(--spacing) * 10) * calc(1 - var(--tw-space-x-reverse)));
     }
   }
   @media (width >= 48rem) {

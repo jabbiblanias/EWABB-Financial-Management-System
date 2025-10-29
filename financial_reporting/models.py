@@ -1,7 +1,7 @@
 from django.db import models
 from members.models import Member
 from programs.models import BusinessProgram
-from loans.models import Loan
+from loans.models import Loan, LoanPenalty
 from django.contrib.auth.models import User
 
 
@@ -67,6 +67,7 @@ class Revenue(models.Model):
     date_collected = models.DateTimeField(auto_now_add=True)
     program_id = models.ForeignKey(BusinessProgram, models.DO_NOTHING, null=True, blank=True, db_column='program_id')
     loan_id = models.ForeignKey(Loan, models.DO_NOTHING, null=True, blank=True, db_column='loan_id')  # Assuming loan_id is an integer
+    penalty_id = models.ForeignKey(LoanPenalty, models.DO_NOTHING, null=True, blank=True, db_column='penalty_id')
 
     class Meta:
         managed = False

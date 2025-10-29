@@ -18,6 +18,9 @@ from django.core.paginator import Paginator
 from django.utils.dateformat import DateFormat
 from itertools import chain
 from decimal import Decimal, InvalidOperation # Import Decimal and related tools
+from financial_reporting.models import Revenue, Funds
+from django.db.models import F
+
 
 def member_details(request, member_id):
     # Fetch member
@@ -88,13 +91,14 @@ def transactions(request):
     try:
         if request.method == 'POST':
             cashier_id = request.user
-            account_number = request.POST.get('accountNumber')
+            account_number = request.POST.get('accountNumber') or None
             amount = Decimal(request.POST.get('amount'))
             amount_received = Decimal(request.POST.get('amountReceived') or 0)
             transaction_type = request.POST.get('transactionType')
             program_id = request.POST.get('programType') or None
+            description = request.POST.get('description') or None
 
-            member = Member.objects.get(account_number=account_number)
+            member = Member.objects.filter(account_number=account_number).first()
 
             #Change computation
             change = amount_received - amount
@@ -146,7 +150,19 @@ def transactions(request):
                 amount_received = None
                 change = None
                 savings = Savings.objects.get(member_id=member)
-                if savings.balance >= amount:
+
+                current_loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
+
+                # If the member has a loan, must maintain savings >= loan balance
+                maintained_balance = current_loan.remaining_balance if current_loan else 0
+
+                available_balance_to_withdraw = savings.balance - maintained_balance
+
+                if available_balance_to_withdraw <= 0:
+                    toast_message = f"Cannot proceed with withdrawal due to insufficient maintained balance."
+                    return JsonResponse({"success": False, "message": toast_message})
+
+                if available_balance_to_withdraw >= amount:
                     savings.balance -= amount
                     savings.save()
                     toast_message = f"Withdrawal of ₱{amount} from Account #{member.account_number} processed successfully."
@@ -176,31 +192,24 @@ def transactions(request):
 
                     return JsonResponse({"success": False, "message": toast_message})
             elif transaction_type == 'Program Deposit':
-                program = BusinessProgram.objects.get(program_id=program_id)
+                program = BusinessProgram.objects.filter(program_id=program_id).first()
+                if not program:
+                    return JsonResponse({"success": False, "message": "Invalid program selected."})
+
+                # Update program total profit
                 program.total_profit += amount
                 program.save()
-                toast_message = f"Program '{program.program_name}' deposit of ₱{amount} from Account #{member.account_number} completed successfully."
 
-                # 🔔 Member notification (different wording)
-                Notification.objects.create(
-                    user_id=member.user_id,
-                    title="Program Deposit",
-                    message=(
-                        f"You deposited ₱{amount:,} into {program.program_name} on "
-                        f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}."
-                    )
-                )
-
-                transaction_id = Transactions.objects.create(
-                    member_id=member,
-                    cashier_id=cashier_id,
+                # Record as revenue
+                Revenue.objects.create(
+                    source='Program Deposit',
                     amount=amount,
-                    amount_received=amount_received,
-                    change=change,
-                    transaction_type=transaction_type,
                     program_id=program
                 )
-            elif transaction_type == 'Expense':
+
+                # Update fund balance
+                Funds.objects.filter(fund_name='Revenue').update(balance=F('balance') + amount)
+
                 transaction_id = Transactions.objects.create(
                     cashier_id=cashier_id,
                     amount=amount,
@@ -209,22 +218,47 @@ def transactions(request):
                     transaction_type=transaction_type,
                     program_id=program
                 )
-            person_id = member.person_id
+
+                toast_message = f"Program deposit of ₱{amount:,.2f} added to {program.program_name} successfully."
+
+            # --- Expense ---
+            elif transaction_type == 'Operating Expenses':
+                amount_received = None
+                change = None
+
+                Funds.objects.filter(fund_name='Expenses').update(balance=F('balance') - amount)
+
+                transaction_id = Transactions.objects.create(
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    description=description
+                )
+                toast_message = f"Operating expense of ₱{amount:,.2f} recorded successfully."
+
+            # --- Final Response Handling ---
             transaction = {
                 "transaction_id": transaction_id.transaction_id,
                 "transaction_type": transaction_id.transaction_type,
-                "account_number": transaction_id.member_id.account_number,
-                "member_name": f"{person_id.first_name} {person_id.surname}",
+                "account_number": member.account_number if member else "N/A",
+                "member_name": (
+                    f"{member.person_id.first_name} {member.person_id.surname}"
+                    if member and member.person_id else "N/A"
+                ),
                 "transaction_date": DateFormat(transaction_id.transaction_date).format("Y-m-d"),
                 "amount_received": f"{transaction_id.amount_received or 0:.2f}",
                 "amount": f"{transaction_id.amount or 0:.2f}",
                 "change": f"{transaction_id.change or 0:.2f}",
             }
-            print(transaction)
-            context = transaction_data(request, ajax=True, transaction=transaction, toast_message=toast_message)
-            return context
-    except IntegrityError as e:
+
+            return transaction_data(request, ajax=True, transaction=transaction, toast_message=toast_message)
+
+    except IntegrityError:
         return JsonResponse({"success": False, "message": "Transaction failed. Please try again."})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"An unexpected error occurred: {str(e)}"})
 
 @transaction.atomic
 def record_payment(member_id, loan, payment_amount):
@@ -340,7 +374,8 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
             "transaction_type", 
             "member_id__account_number", 
             "transaction_date", 
-            "amount"
+            "amount",
+            "description"
         )
         .order_by("-transaction_date")
     )
