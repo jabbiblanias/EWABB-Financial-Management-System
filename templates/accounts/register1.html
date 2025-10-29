@@ -1,5 +1,17 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
+<style>
+/* Prevent layout shift*/
+span[id$="Error"],
+span[id$="Error"].hidden {
+  display: block !important;
+  min-height: 1rem;
+  visibility: hidden !important;
+}
+span[id$="Error"]:not(.hidden) {
+  visibility: visible !important;
+}
+</style>
 <!-- Mobile-first tweaks:
   - Ensure the login link stays visible on small screens
   - Hide progress labels on small screens so only the step numbers show
@@ -247,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <label
                 for="middleName"
                 class="block text-sm font-medium text-gray-700 mb-1"
-                >Middle Name <span class="text-red-500">*</span></label
+                >Middle Name</label
               >
               <input
                 id="middleName"

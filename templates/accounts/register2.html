@@ -1,5 +1,17 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
+<style>
+/* Prevent layout shift*/
+span[id$="Error"],
+span[id$="Error"].hidden {
+  display: block !important;
+  min-height: 1rem;
+  visibility: hidden !important;
+}
+span[id$="Error"]:not(.hidden) {
+  visibility: visible !important;
+}
+</style>
 <!-- Mobile-first tweaks:
   - Ensure login button stays visible on small screens
   - Hide progress labels on small screens
