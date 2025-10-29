@@ -84,6 +84,8 @@
     {% elif request.resolver_match.url_name == 'loan_applications' or request.resolver_match.url_name == 'loanApplicationDetails' %} Loans
     {% elif request.resolver_match.url_name == 'active_loans' or request.resolver_match.url_name == 'loanDetails' %} Loans
     {% elif request.resolver_match.url_name == 'profile' %} Profile
+    {% elif request.resolver_match.url_name == 'financial_report' %} Financial Report
+    {% elif request.resolver_match.url_name == 'programs' or request.resolver_match.url_name == 'programDetails' %} Programs
     {% endif %}
   </h2>
 

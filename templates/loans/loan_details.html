@@ -58,7 +58,6 @@
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th class="px-6 py-3 text-left font-medium text-gray-600">Schedule ID</th>
-                            <th class="px-6 py-3 text-left font-medium text-gray-600">Installment</th>
                             <th class="px-6 py-3 text-left font-medium text-gray-600">Due Date</th>
                             <th class="px-6 py-3 text-left font-medium text-gray-600">Amount Due</th>
                             <th class="px-6 py-3 text-left font-medium text-gray-600">Paid Amount</th>
@@ -71,7 +70,6 @@
                         {% for schedule in schedules %}
                         <tr id="row-{{ loanApplication.loan_application_id }}" class="border-b border-gray-200">
                             <td class="px-6 py-3">{{ schedule.schedule_id }}</td>
-                            <td class="px-6 py-3">{{ schedule.loan_id__loan_application_id__amortization }}</td>
                             <td class="px-6 py-3">{{ schedule.due_date|date:"Y-m-d" }}</td>
                             <td class="px-6 py-3">{{ schedule.amount_due }}</td>
                             <td class="px-6 py-3">{{ schedule.paid_amount }}</td>

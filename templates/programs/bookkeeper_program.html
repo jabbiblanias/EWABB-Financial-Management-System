@@ -21,10 +21,15 @@
     <!-- Main Content -->
     <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
 
+      {% if request.user.groups.all.0.name == "Bookkeeper" %}
+        {% include 'dashboard/partials/bookkeeper_nav.html' %}
       <!-- Action buttons -->
       <div class="flex justify-end">
         <button onclick="document.getElementById('popup-form').classList.remove('hidden')" class="rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700">Add new</button>
       </div>
+      {% elif request.user.groups.all.0.name == "Admin" %}
+        {% include 'dashboard/partials/admin_nav.html' %}
+      {% endif %}
 
       <!-- Table -->
       <div class="py-4">

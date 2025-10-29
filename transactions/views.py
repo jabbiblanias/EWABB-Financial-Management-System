@@ -16,17 +16,72 @@ from django.utils import timezone
 from notifications.models import Notification
 from django.core.paginator import Paginator 
 from django.utils.dateformat import DateFormat
-
+from itertools import chain
+from decimal import Decimal, InvalidOperation # Import Decimal and related tools
 
 def member_details(request, member_id):
+    # Fetch member
     member = Member.objects.select_related('person_id').get(member_id=member_id)
-    transactions = Transactions.objects.filter(member_id=member)
+
+    # 1. Fetch Data (ordered ascending for calculation)
+    # Note: Use 'pk' or 'id' as a secondary sort key for transactions on the same date.
+    savings_transactions = Transactions.objects.filter(
+        member_id=member,
+        transaction_type__in=['Savings Deposit', 'Withdrawal', 'Dividend Credit']
+    ).order_by('transaction_date', 'pk')
+
+    loan_transactions = Transactions.objects.filter(
+        member_id=member,
+        transaction_type__in=['Loan Payment', 'Loan Release']
+    ).select_related('loan_id__loan_application_id').order_by('transaction_date', 'pk')
+
+    # 2. Initialize Starting Balances
+    current_savings_balance = Decimal('0.00')
+    current_loan_balance = Decimal('0.00')
+
+    # 3. Calculate Running Savings Balance (CBU)
+    for t in savings_transactions:
+        try:
+            # Ensure amount is a Decimal
+            amount = t.amount if t.amount is not None else Decimal('0.00')
+        except InvalidOperation:
+            amount = Decimal('0.00') 
+
+        if t.transaction_type in ['Savings Deposit', 'Dividend Credit']:
+            current_savings_balance += amount
+        elif t.transaction_type == 'Withdrawal':
+            current_savings_balance -= amount
+            
+        t.savings_balance = current_savings_balance
+
+    # 4. Calculate Running Loan Balance
+    for t in loan_transactions:
+        try:
+            # Ensure amount is a Decimal
+            amount = t.amount if t.amount is not None else Decimal('0.00')
+        except InvalidOperation:
+            amount = Decimal('0.00')
+        
+        if t.transaction_type == 'Loan Release':
+            current_loan_balance += t.loan_id.loan_application_id.total_payable
+        elif t.transaction_type == 'Loan Payment':
+            current_loan_balance -= amount
+            
+        t.loan_balance = current_loan_balance
+
+    # 5. Combine and Prepare for Template
+    all_transactions = list(chain(savings_transactions, loan_transactions))
+    
+    # *** FIX FOR ASCENDING ORDER (OLDEST AT TOP) ***
+    # By removing reverse=True, the transactions are sorted oldest-to-newest.
+    all_transactions.sort(key=lambda t: t.transaction_date) 
+
     context = {
         'member': member,
-        'transactions': transactions
+        'transactions': all_transactions,
     }
+    
     return render(request, 'transactions/member_ledger.html', context)
-
 
 @transaction.atomic
 def transactions(request):
