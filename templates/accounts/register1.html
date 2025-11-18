@@ -731,24 +731,78 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
   // Validation rules
   const rules = {
-    firstName: { regex: /^[A-Za-z\s]+$/, errorId: "firstNameError" },
-    surname: { regex: /^[A-Za-z\s]+$/, errorId: "surnameError" },
-    middleName: { regex: /^[A-Za-z\s]+$/, errorId: "middleNameError" },
-    email: { regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, errorId: "emailError" },
-    height: { regex: /^\d+$/, errorId: "heightError" },
-    weight: { regex: /^\d+$/, errorId: "weightError" },
-    citizenship: { regex: /^[A-Za-z\s]+$/, errorId: "citizenshipError" },
-    cellphoneNo: { regex: /^(?:\+639\d{9}|09\d{9})$/, errorId: "cellphoneError" },
-    resAddress: { regex: /^[A-Za-z0-9\s,.-]+$/, errorId: "resAddressError" },
-    residentialAddressZipCode: { regex: /^\d{4}$/, errorId: "ReszipCodeError" },
-    permanentAddressZipCode: { regex: /^\d{4}$/, errorId: "PerzipCodeError" },
-    residentialAddressTelephoneNo: { regex: /^\d{11,12}$/, errorId: "residentialAddressTelephoneNoError" },
-    permanentAddressTelephoneNo: { regex: /^\d{11,12}$/, errorId: "permanentAddressTelephoneNoError" },
-    gsisIdNo: { regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/, errorId: "gsisIdError" },
-    pagibigIdNo: { regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/, errorId: "pagibigIdError" },
-    philhealthIdNo: { regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/, errorId: "philhealthIdError" },
-    sssNo: { regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/, errorId: "sssIdError" },
-    tinNo: { regex: /^(\d{9}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/, errorId: "tinIdError" }
+    firstName: {
+      regex: /^[A-Za-z\s]+$/,
+      errorId: "firstNameError"
+    },
+    surname: {
+      regex: /^[A-Za-z\s]+$/,
+      errorId: "surnameError"
+    },
+    middleName: {
+      regex: /^[A-Za-z\s]+$/,
+      errorId: "middleNameError"
+    },
+    email: {
+      regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      errorId: "emailError"
+    },
+    height: {
+      regex: /^\d+$/,
+      errorId: "heightError"
+    },
+    weight: {
+      regex: /^\d+$/,
+      errorId: "weightError"
+    },
+    citizenship: { 
+      regex: /^[A-Za-z\s]+$/, 
+      errorId: "citizenshipError" 
+    },
+    cellphoneNo: {
+       regex: /^(?:\+639\d{9}|09\d{9})$/, 
+       errorId: "cellphoneError"
+  },
+
+    resAddress: { 
+      regex: /^[A-Za-z0-9\s,.-]+$/, 
+      errorId: "resAddressError" 
+    },
+    residentialAddressZipCode: { 
+      regex: /^\d{4}$/, 
+      errorId: "ReszipCodeError" 
+    },
+    permanentAddressZipCode: { 
+      regex: /^\d{4}$/, 
+      errorId: "PerzipCodeError" 
+    },
+    residentialAddressTelephoneNo: {
+       regex: /^\d{11,12}\d+$$/, 
+       errorId: "residentialAddressTelephoneNoError" 
+      },
+    permanentAddressTelephoneNo: {
+       regex: /^\d{11,12}\d+$$/, 
+       errorId: "permanentAddressTelephoneNoError" 
+      },
+    gsisIdNo: { 
+      regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/, 
+      errorId: "gsisIdError" 
+    },
+    pagibigIdNo: { 
+      regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/, 
+      errorId: "pagibigIdError" 
+    },
+    philhealthIdNo: { 
+      regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/, 
+      errorId: "philhealthIdError" 
+    },
+    sssNo: { 
+      regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/, 
+      errorId: "sssIdError" },
+    tinNo: { 
+      regex: /^(\d{9}|\d{14}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/, 
+      errorId: "tinIdError" 
+    }
   };
 
   // Real-time validation
