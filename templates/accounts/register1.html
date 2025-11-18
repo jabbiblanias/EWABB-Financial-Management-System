@@ -720,11 +720,11 @@ document.addEventListener("DOMContentLoaded", function () {
       errorId: "PerzipCodeError" 
     },
     residentialAddressTelephoneNo: {
-       regex: /^\d{11,12}\d+$$/, 
+       regex: /^(09\d{9}|\+639\d{9})$/, 
        errorId: "residentialAddressTelephoneNoError" 
       },
     permanentAddressTelephoneNo: {
-       regex: /^\d{11,12}\d+$$/, 
+       regex: /^(09\d{9}|\+639\d{9})$/, 
        errorId: "permanentAddressTelephoneNoError" 
       },
     gsisIdNo: { 
