@@ -80,6 +80,49 @@
    grid-column: 1 / -1 !important;
   }
 }
+
+/* Fix for cellphone number input to prevent stretching */
+.cellphone-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.cellphone-input {
+  max-width: 300px; /* Fixed width for the cellphone input */
+  width: 100%;
+}
+
+/* Ensure the cellphone input doesn't stretch on mobile */
+@media (max-width: 767px) {
+  .cellphone-input {
+    max-width: 100%;
+  }
+}
+
+/* Contact Information Layout */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .contact-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  /* Make specific fields span multiple columns */
+  .contact-grid > div:nth-child(3),
+  .contact-grid > div:nth-child(5) {
+    grid-column: span 2;
+  }
+  
+  .contact-grid > div:nth-child(4),
+  .contact-grid > div:nth-child(6) {
+    grid-column: span 1;
+  }
+}
 </style>
 <!-- Mobile-first tweaks:
   - Ensure the login link stays visible on small screens
@@ -484,230 +527,109 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5 ml-3">
-          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] md:col-span-2">
-          Contact Information
-        </h3>
-          <div>
-            <label
-              for="cellphoneNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Cellphone No.<span class="text-red-500">*</span></label
-            >
-          
-           <input
-            id="cellphoneNo"
-            name="cellphoneNo"
-            type="tel"
-            placeholder="e.g., +639171234567 or 09171234567"
-            pattern="^(?:\+639\d{9}|09\d{9})$"
-           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        <!-- Contact Information Section -->
+        <div class="mt-8 ml-3">
+          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mb-4">
+            Contact Information
+          </h3>
+          <div class="contact-grid">
+            <div class="cellphone-container">
+              <label
+                for="cellphoneNo"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Cellphone No.<span class="text-red-500">*</span></label
+              >
+              <input
+                id="cellphoneNo"
+                name="cellphoneNo"
+                type="tel"
+                placeholder="e.g., +639171234567 or 09171234567"
+                pattern="^(?:\+639\d{9}|09\d{9})$"
+                class="cellphone-input border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
               />
-
-            <span id="cellphoneError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
-          </div>
-          <div>
-            <label
-              for="email"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Email Address <span class="text-red-500">*</span></label
-            >
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="e.g., juan.delacruz@email.com"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="emailError" class="text-red-500 text-xs hidden">Enter a valid email address</span>
-          </div>
-          <div>
-            <label
-              for="residentialAddress"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Residential Address <span class="text-red-500">*</span></label
-            >
-            <input
-              id="residentialAddress"
-              name="residentialAddress"
-              type="text"
-              placeholder="House No., Street, Brgy., City"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-            <span id="resAddressError" class="text-red-500 text-xs hidden">Enter a valid residential address</span>
-          </div>
-          <div>
-            <label
-              for="residentialAddressZipCode"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Residential Zip Code <span class="text-red-500">*</span></label
-            >
-            <input
-              id="residentialAddressZipCode"
-              name="residentialAddressZipCode"
-              type="text"
-              placeholder="e.g., 1234"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-            <span id="ReszipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
-          </div>
-          <div>
-            <label
-              for="permanentAddress"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Permanent Address <span class="text-red-500">*</span></label
-            >
-            <input
-              id="permanentAddress"
-              name="permanentAddress"
-              type="text"
-              placeholder="House No., Street, Brgy., City"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label
-              for="permanentAddressZipCode"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Permanent Zip Code <span class="text-red-500">*</span></label
-            >
-            <input
-              id="permanentAddressZipCode"
-              name="permanentAddressZipCode"
-              type="text"
-              placeholder="e.g., 1234"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-            <span id="PerzipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
-          </div>
-          <div>
-            <label
-              for="residentialAddressTelephoneNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Residential Telephone No.</label
-            >
-            <input
-              id="residentialAddressTelephoneNo"
-              name="residentialAddressTelephoneNo"
-              type="tel"
-              pattern="^(09\d{9}|\+639\d{9})$"
-              placeholder="e.g., 099171234567"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="residentialAddressTelephoneNoError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
-          </div>
-          <div>
-            <label
-              for="permanentAddressTelephoneNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Permanent Telephone No. </label
-            >
-            <input
-              id="permanentAddressTelephoneNo"
-              name="permanentAddressTelephoneNo"
-              type="tel"
-              pattern="^(09\d{9}|\+639\d{9})$"
-              placeholder="e.g., 099171234567"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="permanentAddressTelephoneNoError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
+              <span id="cellphoneError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
+            </div>
+            <div>
+              <label
+                for="email"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Email Address <span class="text-red-500">*</span></label
+              >
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="e.g., juan.delacruz@email.com"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+              <span id="emailError" class="text-red-500 text-xs hidden">Enter a valid email address</span>
+            </div>
+            <div>
+              <label
+                for="residentialAddress"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Residential Address <span class="text-red-500">*</span></label
+              >
+              <input
+                id="residentialAddress"
+                name="residentialAddress"
+                type="text"
+                placeholder="House No., Street, Brgy., City"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+              <span id="resAddressError" class="text-red-500 text-xs hidden">Enter a valid residential address</span>
+            </div>
+            <div>
+              <label
+                for="residentialAddressZipCode"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Residential Zip Code <span class="text-red-500">*</span></label
+              >
+              <input
+                id="residentialAddressZipCode"
+                name="residentialAddressZipCode"
+                type="text"
+                placeholder="e.g., 1234"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+              <span id="ReszipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
+            </div>
+            <div>
+              <label
+                for="permanentAddress"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Permanent Address <span class="text-red-500">*</span></label
+              >
+              <input
+                id="permanentAddress"
+                name="permanentAddress"
+                type="text"
+                placeholder="House No., Street, Brgy., City"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label
+                for="permanentAddressZipCode"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Permanent Zip Code <span class="text-red-500">*</span></label
+              >
+              <input
+                id="permanentAddressZipCode"
+                name="permanentAddressZipCode"
+                type="text"
+                placeholder="e.g., 1234"
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+              <span id="PerzipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
+            </div>
           </div>
         </div>
-
-      <div class="">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 ml-3">
-  <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mt-5 md:col-span-2">
-    Government IDs
-  </h3>
-
-  <!-- GSIS -->
-  <div>
-    <label for="gsisIdNo" class="block text-sm font-medium text-gray-700 mb-1">GSIS ID NO.</label>
-    <input
-      id="gsisIdNo"
-      name="gsisIdNo"
-      type="text"
-      pattern="^(\d{12}|\d{4}-\d{7}-\d{1})$"
-      placeholder="e.g., 123456789012 or 1234-1234567-1"
-      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-    />
-    <span id="gsisIdError" class="text-red-500 text-xs hidden">GSIS ID must be 12 digits or formatted like 1234-1234567-1</span>
-  </div>
-
-  <!-- PAG-IBIG -->
-  <div>
-    <label for="pagibigIdNo" class="block text-sm font-medium text-gray-700 mb-1">PAG-IBIG NO.</label>
-    <input
-      id="pagibigIdNo"
-      name="pagibigIdNo"
-      type="text"
-      pattern="^(\d{12}|\d{4}-\d{4}-\d{4})$"
-      placeholder="e.g., 123456789012 or 1234-5678-9012"
-      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-    />
-    <span id="pagibigIdError" class="text-red-500 text-xs hidden">PAG-IBIG No. must be 12 digits or in 1234-5678-9012 format</span>
-  </div>
-
-  <!-- PHILHEALTH -->
-  <div>
-    <label for="philhealthIdNo" class="block text-sm font-medium text-gray-700 mb-1">PHILHEALTH NO.</label>
-    <input
-      id="philhealthIdNo"
-      name="philhealthIdNo"
-      type="text"
-      pattern="^(\d{12}|\d{2}-\d{9}-\d{1})$"
-      placeholder="e.g., 123456789012 or 12-345678901-2"
-      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-    />
-    <span id="philhealthIdError" class="text-red-500 text-xs hidden">PhilHealth No. must be 12 digits or 12-345678901-2 format</span>
-  </div>
-
-  <!-- SSS -->
-  <div>
-    <label for="sssNo" class="block text-sm font-medium text-gray-700 mb-1">SSS NO.</label>
-    <input
-      id="sssNo"
-      name="sssNo"
-      type="text"
-      pattern="^(\d{10}|\d{2}-\d{7}-\d{1})$"
-      placeholder="e.g., 1234567890 or 12-3456789-0"
-      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-    />
-    <span id="sssIdError" class="text-red-500 text-xs hidden">SSS No. must be 10 digits or 12-3456789-0 format</span>
-  </div>
-
-  <!-- Agency Employee -->
-  <div class="space-y-4">
-    <label for="agencyEmployeeNo" class="block text-sm font-medium text-gray-700 mb-1">Agency Employee No.</label>
-    <input
-      id="agencyEmployeeNo"
-      name="agencyEmployeeNo"
-      type="text"
-      pattern="^[A-Za-z0-9\-]+$"
-      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-    />
-  </div>
-
-  <!-- TIN -->
-  <div>
-    <label for="tinNo" class="block text-sm font-medium text-gray-700 mb-1">TIN Number</label>
-    <input
-      id="tinNo"
-      name="tinNo"
-      type="text"
-      pattern="^(\d{9}|\d{3}-\d{3}-\d{3}(-\d{5})?)$"
-      placeholder="e.g., 123456789 or 123-123-123 or 123-123-123-00000"
-      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-    />
-    <span id="tinIdError" class="text-red-500 text-xs hidden">TIN must be 9 or 14 digits (e.g., 123456789 or 123-123-123-00000)</span>
-  </div>
-</div>
-
 
       <!-- BUTTONS -->
       <div class="flex justify-center mt-10">
@@ -776,33 +698,6 @@ document.addEventListener("DOMContentLoaded", function () {
       regex: /^\d{4}$/, 
       errorId: "PerzipCodeError" 
     },
-    residentialAddressTelephoneNo: {
-       regex: /^\d{11,12}\d+$$/, 
-       errorId: "residentialAddressTelephoneNoError" 
-      },
-    permanentAddressTelephoneNo: {
-       regex: /^\d{11,12}\d+$$/, 
-       errorId: "permanentAddressTelephoneNoError" 
-      },
-    gsisIdNo: { 
-      regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/, 
-      errorId: "gsisIdError" 
-    },
-    pagibigIdNo: { 
-      regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/, 
-      errorId: "pagibigIdError" 
-    },
-    philhealthIdNo: { 
-      regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/, 
-      errorId: "philhealthIdError" 
-    },
-    sssNo: { 
-      regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/, 
-      errorId: "sssIdError" },
-    tinNo: { 
-      regex: /^(\d{9}|\d{14}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/, 
-      errorId: "tinIdError" 
-    }
   };
 
   // Real-time validation
