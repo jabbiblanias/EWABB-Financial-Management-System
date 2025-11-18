@@ -1,17 +1,5 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<style>
-/* Prevent layout shift*/
-span[id$="Error"],
-span[id$="Error"].hidden {
-  display: block !important;
-  min-height: 1rem;
-  visibility: hidden !important;
-}
-span[id$="Error"]:not(.hidden) {
-  visibility: visible !important;
-}
-</style>
 <!-- Mobile-first tweaks:
   - Ensure the login link stays visible on small screens
   - Hide progress labels on small screens so only the step numbers show
@@ -526,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
               name="residentialAddressTelephoneNo"
               type="tel"
               pattern="^(09\d{9}|\+639\d{9})$"
-              placeholder="e.g., +639171234567"
+              placeholder="e.g., 099171234567"
               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
             <span id="residentialAddressTelephoneNoError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
@@ -542,7 +530,7 @@ document.addEventListener("DOMContentLoaded", function () {
               name="permanentAddressTelephoneNo"
               type="tel"
               pattern="^(09\d{9}|\+639\d{9})$"
-              placeholder="e.g., +639171234567"
+              placeholder="e.g., 099171234567"
               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
             <span id="permanentAddressTelephoneNoError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
@@ -552,105 +540,93 @@ document.addEventListener("DOMContentLoaded", function () {
       <div class="">
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 ml-3">
-          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mt-5 md:col-span-2">
-          Government IDs
-        </h3>
-          <div>
-            <label
-              for="gsisIdNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >GSIS ID NO.</label
-            >
-            <input
-              id="gsisIdNo"
-              name="gsisIdNo"
-              type="text"
-              pattern="^\d{11}$"
-              placeholder="e.g., 12345678910 or 0123-1234123-8"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="gsisIdError" class="text-red-500 text-xs hidden">GSIS ID must be 12 digits</span>
-          </div>
-          <div>
-            <label
-              for="pagibigIdNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >PAG-IBIG NO.</label
-            >
-            <input
-              id="pagibigIdNo"
-              name="pagibigIdNo"
-              type="text"
-              pattern="^(\d{12}|\d{4}-\d{4}-\d{4})$"
-              placeholder="e.g., 123456789012 or 1234-5678-9012"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="pagibigIdError" class="text-red-500 text-xs hidden">PAG-IBIG No. must be 12 digits</span>
-          </div>
-          <div>
-            <label
-              for="philhealthIdNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >PHILHEALTH NO.</label
-            >
-            <input
-              id="philhealthIdNo"
-              name="philhealthIdNo"
-              type="text"
-              pattern="^(\d{12}|\d{4}-\d{4}-\d{4})$"
-              placeholder="e.g., 123456789012 or 12-345678901-2"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="philhealthIdError" class="text-red-500 text-xs hidden">PhilHealth No. must be 12 digits</span>
-          </div>
-          <div>
-            <label
-              for="sssNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >SSS NO. </label
-            >
-            <input
-              id="sssNo"
-              name="sssNo"
-              type="text"
-              pattern="^(\d{10}|\d{2}-\d{7}-\d{1})$"
-              placeholder="e.g., 1234567890 or 12-3456789-0"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="sssIdError" class="text-red-500 text-xs hidden">SSS No. must be 10 digits</span>
-          </div>
-          <div class="space-y-4">
-            <label
-              for="agencyEmployeeNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Agency Employee No.</label
-            >
-            <input
-              id="agencyEmployeeNo"
-              name="agencyEmployeeNo"
-              type="text"
-              pattern="[A-Za-z0-9\-]+"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label
-              for="tinNo"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >TIN Number</label
-            >
-            <input
-              id="tinNo"
-              name="tinNo"
-              type="text"
-              pattern="^\d{9}(\d{3})?$"
-              placeholder="e.g., 123456789 or 123-123-123-00000"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            <span id="tinIdError" class="text-red-500 text-xs hidden">TIN must be 9 or 14 digits</span>
-          </div>
-        </div>
-      </div>
+  <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mt-5 md:col-span-2">
+    Government IDs
+  </h3>
+
+  <!-- GSIS -->
+  <div>
+    <label for="gsisIdNo" class="block text-sm font-medium text-gray-700 mb-1">GSIS ID NO.</label>
+    <input
+      id="gsisIdNo"
+      name="gsisIdNo"
+      type="text"
+      pattern="^(\d{12}|\d{4}-\d{7}-\d{1})$"
+      placeholder="e.g., 123456789012 or 1234-1234567-1"
+      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    />
+    <span id="gsisIdError" class="text-red-500 text-xs hidden">GSIS ID must be 12 digits or formatted like 1234-1234567-1</span>
+  </div>
+
+  <!-- PAG-IBIG -->
+  <div>
+    <label for="pagibigIdNo" class="block text-sm font-medium text-gray-700 mb-1">PAG-IBIG NO.</label>
+    <input
+      id="pagibigIdNo"
+      name="pagibigIdNo"
+      type="text"
+      pattern="^(\d{12}|\d{4}-\d{4}-\d{4})$"
+      placeholder="e.g., 123456789012 or 1234-5678-9012"
+      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    />
+    <span id="pagibigIdError" class="text-red-500 text-xs hidden">PAG-IBIG No. must be 12 digits or in 1234-5678-9012 format</span>
+  </div>
+
+  <!-- PHILHEALTH -->
+  <div>
+    <label for="philhealthIdNo" class="block text-sm font-medium text-gray-700 mb-1">PHILHEALTH NO.</label>
+    <input
+      id="philhealthIdNo"
+      name="philhealthIdNo"
+      type="text"
+      pattern="^(\d{12}|\d{2}-\d{9}-\d{1})$"
+      placeholder="e.g., 123456789012 or 12-345678901-2"
+      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    />
+    <span id="philhealthIdError" class="text-red-500 text-xs hidden">PhilHealth No. must be 12 digits or 12-345678901-2 format</span>
+  </div>
+
+  <!-- SSS -->
+  <div>
+    <label for="sssNo" class="block text-sm font-medium text-gray-700 mb-1">SSS NO.</label>
+    <input
+      id="sssNo"
+      name="sssNo"
+      type="text"
+      pattern="^(\d{10}|\d{2}-\d{7}-\d{1})$"
+      placeholder="e.g., 1234567890 or 12-3456789-0"
+      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    />
+    <span id="sssIdError" class="text-red-500 text-xs hidden">SSS No. must be 10 digits or 12-3456789-0 format</span>
+  </div>
+
+  <!-- Agency Employee -->
+  <div class="space-y-4">
+    <label for="agencyEmployeeNo" class="block text-sm font-medium text-gray-700 mb-1">Agency Employee No.</label>
+    <input
+      id="agencyEmployeeNo"
+      name="agencyEmployeeNo"
+      type="text"
+      pattern="^[A-Za-z0-9\-]+$"
+      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    />
+  </div>
+
+  <!-- TIN -->
+  <div>
+    <label for="tinNo" class="block text-sm font-medium text-gray-700 mb-1">TIN Number</label>
+    <input
+      id="tinNo"
+      name="tinNo"
+      type="text"
+      pattern="^(\d{9}|\d{3}-\d{3}-\d{3}(-\d{5})?)$"
+      placeholder="e.g., 123456789 or 123-123-123 or 123-123-123-00000"
+      class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+    />
+    <span id="tinIdError" class="text-red-500 text-xs hidden">TIN must be 9 or 14 digits (e.g., 123456789 or 123-123-123-00000)</span>
+  </div>
+</div>
+
 
       <!-- BUTTONS -->
       <div class="flex justify-center mt-10">
@@ -720,11 +696,11 @@ document.addEventListener("DOMContentLoaded", function () {
       errorId: "PerzipCodeError" 
     },
     residentialAddressTelephoneNo: {
-       regex: /^(09\d{9}|\+639\d{9})$/, 
+       regex: /^\d{11,12}\d+$$/, 
        errorId: "residentialAddressTelephoneNoError" 
       },
     permanentAddressTelephoneNo: {
-       regex: /^(09\d{9}|\+639\d{9})$/, 
+       regex: /^\d{11,12}\d+$$/, 
        errorId: "permanentAddressTelephoneNoError" 
       },
     gsisIdNo: { 
@@ -748,7 +724,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-   // Real-time validation
+  // Real-time validation
   Object.keys(rules).forEach((field) => {
     const input = document.getElementById(field);
     const error = document.getElementById(rules[field].errorId);
@@ -765,28 +741,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Prevent submit if invalid
   const form = document.getElementById("register1Form");
-  form.addEventListener("submit", function (e) {
-    let isValid = true;
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      let isValid = true;
 
-    Object.keys(rules).forEach((field) => {s
-      const input = document.getElementById(field);
-      const error = document.getElementById(rules[field].errorId);
-      if (!input) return;
+      Object.keys(rules).forEach((field) => {
+        const input = document.getElementById(field);
+        const error = document.getElementById(rules[field].errorId);
+        if (!input) return;
 
-      if (input.value && !rules[field].regex.test(input.value)) {
-        error.classList.remove("hidden");
-        isValid = false;
+        if (input.value && !rules[field].regex.test(input.value)) {
+          error.classList.remove("hidden");
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+        const toast = document.getElementById("toast");
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 4000);
       }
     });
-
-    if (!isValid) {
-      e.preventDefault(); // Stop going next
-      const toast = document.getElementById("toast");
-      toast.classList.remove("hidden");
-
-      // Hide after 4s
-      setTimeout(() => toast.classList.add("hidden"), 4000);
-    }
-  });
+  }
 });
 </script>
