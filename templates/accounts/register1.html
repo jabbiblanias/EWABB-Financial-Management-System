@@ -1,5 +1,86 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
+<style>
+/* Force md:grid-cols-2 to become a 3-column layout and reduce whitespace */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: dense !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Make elements that used to span 2 columns span all 3, so headings/sections take full width */
+  .md\:col-span-2 {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Tighter vertical spacing inside stacked groups */
+  .space-y-4 > * + * { margin-top: 0.5rem !important; }
+  .grid.gap-6, .grid.gap-8 { gap: 0.75rem !important; }
+
+  /* Reduce left margins used for visual spacing */
+  .ml-3 { margin-left: 0.5rem !important; }
+
+  /* Make the form wider and reduce its outer paddings */
+  #register1Form {
+    max-width: 1200px;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  /* Ensure inputs occupy available column space */
+  #register1Form input,
+  #register1Form select,
+  #register1Form textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* --- PERSONAL DETAILS: ensure fields flow into 3 columns on md+ --- */
+  /* Flatten the wrapper divs so each field div becomes a grid item in the 3-column parent.
+     display:contents lets the child field blocks become direct grid items (modern browsers). */
+  #register1Form .grid.grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+  #register1Form .grid.grid-cols-1.md\:grid-cols-2 > .space-y-4 {
+    display: contents !important;
+  }
+
+  /* Ensure each field block aligns nicely when flattened */
+  #register1Form .grid.grid-cols-1.md\:grid-cols-2 > div > div {
+    margin-top: 0 !important;
+  }
+
+  /* Keep headings full-width */
+  #register1Form h3.md\:col-span-2,
+  #register1Form h3.md\:col-span-2 + * {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* Mobile tweaks to keep spacing compact */
+@media (max-width: 767px) {
+  #register1Form { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .space-y-4 > * + * { margin-top: 0.5rem !important; }
+}
+</style>
+<style>
+/* Make Tailwind md:grid-cols-2 behave as 3 columns on md+ screens,
+  and make md:col-span-2 span all three columns */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+   display: grid !important;
+   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .md\:col-span-2 {
+   grid-column: 1 / -1 !important;
+  }
+}
+</style>
 <!-- Mobile-first tweaks:
   - Ensure the login link stays visible on small screens
   - Hide progress labels on small screens so only the step numbers show
