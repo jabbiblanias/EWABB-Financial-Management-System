@@ -204,9 +204,56 @@ function updatePassword() {
                 <option value="Widowed">Widowed</option>
               </select>
             </li>
-            </ul>
+            <li><span class="font-medium block">Date of Birth:</span>
+              <span id="dobInputDisplay" class="display-field ml-1">January 1, 1990</span>
+              <input id="dobInput" name="date_of_birth" type="date" value="1990-01-01" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Place of Birth:</span>
+              <span id="pobInputDisplay" class="display-field ml-1">Manila, Philippines</span>
+              <input id="pobInput" name="place_of_birth" type="text" value="Manila, Philippines" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Gender:</span>
+              <span id="genderInputDisplay" class="display-field ml-1">Male</span>
+              <select id="genderInput" name="gender" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <option value="Male" selected>Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </li>
+            <li><span class="font-medium block">Nationality:</span>
+              <span id="nationalityInputDisplay" class="display-field ml-1">Filipino</span>
+              <input id="nationalityInput" name="nationality" type="text" value="Filipino" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Blood Type:</span>
+              <span id="bloodTypeInputDisplay" class="display-field ml-1">O+</span>
+              <select id="bloodTypeInput" name="blood_type" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </li>
+            <li><span class="font-medium block">Height:</span>
+              <span id="heightInputDisplay" class="display-field ml-1">150</span>
+              <input id="heightInput" name="height" type="text" value="150" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Weight:</span>
+              <span id="weightInputDisplay" class="display-field ml-1">40</span>
+              <input id="weightInput" name="weight" type="text" value="40" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+          </ul>
         </form>
-
         <form id="contactForm" onsubmit="event.preventDefault(); saveSectionChanges('contactForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Contact Information</h3>
@@ -237,6 +284,31 @@ function updatePassword() {
               <input id="residentialInput" name="res_address" type="text" value="123 St., Brgy. Sampaloc, Manila" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
             </li>
+            <li><span class="font-medium block">Permanent Address:</span> 
+              <span id="permanentInputDisplay" class="display-field ml-1">456 Ave., Brgy. Makati, Manila</span>
+              <input id="permanentInput" name="perm_address" type="text" value="456 Ave., Brgy. Makati, Manila" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Telephone number:</span> 
+              <span id="TelephoneNum" class="display-field ml-1">02098765</span>
+              <input id="TelephoneNumInput" name="telephone_number" type="text" value="02098765" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Residendial Zip code:</span> 
+              <span id="residentialZipInputDisplay" class="display-field ml-1">450</span>
+              <input id="residentialZipInput" name="residential_zip" type="text" value="450" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Permanent Zip code:</span> 
+              <span id="permanentZipInputDisplay" class="display-field ml-1">123</span>
+              <input id="permanentZipInput" name="permanent_zip" type="text" value="123" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Agency Employee number:</span> 
+              <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">12345</span>
+              <input id="agencyEmployeeNumberInput" name="agency_employee_number" type="text" value="12345" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
           </ul>
         </form>
 
@@ -259,6 +331,44 @@ function updatePassword() {
             </li>
           </ul>
         </div>
+
+        <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Emergency Contact</h3>
+            <div class="flex space-x-3 absolute top-6 right-6">
+              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('govtIdForm')">
+                ✏️ Edit
+              </button>
+              <div class="save-cancel-container hidden flex space-x-3">
+                <button type="button" onclick="toggleInlineEdit('govtIdForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
+            <div>
+              <span class="font-medium block">Name (Full Name):</span> 
+              <span id="emergencyContactName" class="display-field"> Anya Forger</span>
+              <input id="emergencyContactNameInput" name="emergencyContactName" type="text" value="" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </div>
+            <div>
+              <span class="font-medium block">Cellphone No.:</span> 
+              <span id="emergencyContactCellphone" class="display-field">098773526476</span>
+              <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text" value="" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+              </div>
+            <div>
+              <span class="font-medium block">Address:</span>
+              <span id="emergencyContactAddress" class="display-field">123 Main St, Springfield</span>
+              <input id="emergencyContactAddressInput" name="emergencyContactAddress" type="text" value="" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </div>
+          </div>
+        </form>      
+
+
 
         <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
           <div class="flex justify-between items-center">
@@ -285,6 +395,24 @@ function updatePassword() {
               <span class="font-medium block">PAG-IBIG:</span> 
               <span id="pagibigInputDisplay" class="display-field">1234-5678-9012</span>
               <input id="pagibigInput" name="pagibig" type="text" value="1234-5678-9012" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </div>
+            <div>
+              <span class="font-medium block">PHILHEALTH:</span> 
+              <span id="philhealthInputDisplay" class="display-field">12-345678901-2</span>
+              <input id="philhealthInput" name="philhealth" type="text" value="12-345678901-2" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                </div>
+            <div>
+              <span class="font-medium block">SSS:</span> 
+              <span id="sssInputDisplay" class="display-field">34-5678901-2</span>
+              <input id="sssInput" name="sss" type="text" value="34-5678901-2" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                </div>
+                <div>
+              <span class="font-medium block">TIN:</span> 
+              <span id="tinInputDisplay" class="display-field">1234-5678-9012</span>
+              <input id="tinInput" name="tin" type="text" value="1234-5678-9012" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
             </div>
             </div>
