@@ -49,7 +49,7 @@
           class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p class="text-sm text-gray-500">Loan</p>
-            <h2 class="text-xl sm:text-2xl font-bold text-red-600">₱15,000</h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-red-600">₱{{ loan_balance }}</h2>
             <p class="text-xs text-gray-400 mt-1">Outstanding Balance</p>
           </div>
           <div class="p-3 bg-red-100 text-red-600 rounded-full text-xl sm:text-2xl">
@@ -58,26 +58,21 @@
         </div>
 
         <!-- Next Due -->
-        <div
-          class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
-          <div>
-            <p class="text-sm text-gray-500">Next Due</p>
-            <h2 class="text-xl sm:text-3xl font-bold text-green-600 mt-1">₱{{ member.next_due_amount|default:"2,000" }}</h2>
-            <p class="text-xs text-gray-400 mt-1">Due {{ member.next_due_date|default:"Oct 25, 2025" }}</p>
-          </div>
-          <div class="p-3 bg-green-100 text-green-600 rounded-full text-xl sm:text-2xl">📅</div>
-        </div>
-
-        <!-- Next Due -->
-        <div
-          class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
-          <div>
-            <p class="text-sm text-gray-500">Next Due</p>
-            <h2 class="text-xl sm:text-3xl font-bold text-green-600 mt-1">₱{{ member.next_due_amount|default:"2,000" }}</h2>
-            <p class="text-xs text-gray-400 mt-1">Due {{ member.next_due_date|default:"Oct 25, 2025" }}</p>
-          </div>
-          <div class="p-3 bg-green-100 text-green-600 rounded-full text-xl sm:text-2xl">📅</div>
-        </div>
+<div
+  class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition">
+  <div>
+    <p class="text-sm text-gray-500">Next Due</p>
+    {% if due_amount %}
+      <h2 class="text-xl sm:text-3xl font-bold text-green-600 mt-1">₱{{ due_amount|floatformat:2 }}</h2>
+      <p class="text-xs text-gray-400 mt-1">Due {{ next_due|date:"M d, Y" }}</p>
+    {% else %}
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-400 mt-1">No active loan</h2>
+      <p class="text-xs text-gray-400 mt-1">—</p>
+    {% endif %}
+  </div>
+  <div class="p-3 bg-green-100 text-green-600 rounded-full text-xl sm:text-2xl">📅</div>
+</div>
+        
       </div>
 
       <!-- Savings Growth Chart -->

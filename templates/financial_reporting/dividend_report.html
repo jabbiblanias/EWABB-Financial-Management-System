@@ -180,13 +180,15 @@
             members: membersData
           })
         });
-        if (response.ok) {
-          showAlert("Dividend has been distributed successfully", "success")
-          showAlert("Dividend report has successfully been submitted", "success")
-          window.location.href = "{% url 'financial_report' %}";
-        } else {
-          showAlert("Error while submitting", "error");
-        }
+        const data = await response.json();
+        if (data.success) {
+            showAlert(data.message, "success");
+            setTimeout(() => {
+              window.location.href = "{% url 'financial_report' %}";
+            }, 1500);
+          } else {
+            showAlert(data.message || data.error || "Error submitting report.", "error");
+          }
       });
     });
     // Toast notification function
