@@ -38,33 +38,59 @@
 
         <!-- 💵 Today Collections -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Today’s Collections</p>
-            <p class="text-3xl font-bold text-green-600 mt-1">₱{{ total_collection }}</p>
-            <p class="text-xs text-gray-400 mt-1">Payments, deposits, dues</p>
-          </div>
-          <div class="p-4 bg-green-100 text-green-600 rounded-full text-2xl">💰</div>
-        </div>
+  <div>
+    <p class="text-sm text-gray-500">Today’s Collections</p>
+    <p class="text-3xl font-bold text-green-600 mt-1">₱{{ total_collection }}</p>
+    <p class="text-xs text-gray-400 mt-1">Payments, deposits, dues</p>
+  </div>
 
-        <!-- 📤 Today Payouts -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Today’s Payouts</p>
-            <p class="text-3xl font-bold text-red-600 mt-1">₱{{ total_payouts }}</p>
-            <p class="text-xs text-gray-400 mt-1">Withdrawals, loans, refunds</p>
-          </div>
-          <div class="p-4 bg-red-100 text-red-600 rounded-full text-2xl">📤</div>
-        </div>
+  <div class="p-4 bg-green-100 text-green-600 rounded-full">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#dbc748">
+      <g fill="#dbc748">
+        <path d="M3.172 7.172c.843-.844 2.058-1.08 4.08-1.146l1.5-.024C9.143 6 9.56 6 10 6h4c.441 0 .857 0 1.248.002l1.5.024c2.022.066 3.237.302 4.08 1.146C22 8.343 22 10.229 22 14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14c0-3.771 0-5.657 1.172-6.828Z" opacity=".5"/>
+        <path d="M12.75 10a.75.75 0 0 0-1.5 0v.01c-1.089.274-2 1.133-2 2.323c0 1.457 1.365 2.417 2.75 2.417c.824 0 1.25.533 1.25.917s-.426.916-1.25.916c-.824 0-1.25-.532-1.25-.916a.75.75 0 0 0-1.5 0c0 1.19.911 2.048 2 2.323V18a.75.75 0 0 0 1.5 0v-.01c1.089-.274 2-1.133 2-2.323c0-1.457-1.365-2.417-2.75-2.417c-.824 0-1.25-.533-1.25-.917s.426-.916 1.25-.916c.824 0 1.25.532 1.25.916a.75.75 0 0 0 1.5 0c0-1.19-.911-2.049-2-2.323V10Zm-.698-8.75h-.104c-.898 0-1.648 0-2.242.08c-.628.084-1.195.27-1.65.725c-.456.456-.642 1.023-.726 1.65c-.057.427-.073 1.446-.078 2.32l1.5-.023c.005-.847.02-1.758.065-2.097c.062-.461.169-.659.3-.789c.13-.13.327-.237.789-.3c.483-.064 1.13-.066 2.094-.066s1.612.002 2.095.067c.461.062.659.169.789.3c.13.13.238.327.3.788c.045.34.06 1.25.064 2.097l1.5.024c-.004-.875-.02-1.894-.078-2.32c-.084-.628-.27-1.195-.725-1.65c-.456-.456-1.023-.642-1.65-.726c-.595-.08-1.344-.08-2.243-.08Z"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+
+       <!-- 📤 Today Payouts -->
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+  <div>
+    <p class="text-sm text-gray-500">Today’s Payouts</p>
+    <p class="text-3xl font-bold text-red-600 mt-1">₱{{ total_payouts }}</p>
+    <p class="text-xs text-gray-400 mt-1">Withdrawals, loans, refunds</p>
+  </div>
+
+  <div class="p-4 bg-red-100 text-red-600 rounded-full">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 14 14">
+      <g fill="none">
+        <path fill="#8fbffa" d="M1.5 0A1.5 1.5 0 0 0 0 1.5v6A1.5 1.5 0 0 0 1.5 9h11A1.5 1.5 0 0 0 14 7.5v-6A1.5 1.5 0 0 0 12.5 0z"/>
+        <path fill="#2859c5" fill-rule="evenodd" d="M7 .83c.345 0 .625.279.625.624v.415a1.64 1.64 0 0 1 1.26 1.069a.625.625 0 0 1-1.178.417a.39.39 0 0 0-.369-.26h-.785a.281.281 0 0 0-.06.555l1.196.262a1.64 1.64 0 0 1-.064 3.219v.415a.625.625 0 1 1-1.25 0V7.13a1.64 1.64 0 0 1-1.26-1.069a.625.625 0 0 1 1.178-.417c.054.153.2.26.369.26h.676a.39.39 0 0 0 .084-.772l-1.197-.261a1.531 1.531 0 0 1 .15-3.017v-.4c0-.346.28-.626.625-.626ZM3.5 4.5a.75.75 0 1 0-1.5 0a.75.75 0 0 0 1.5 0m8.5 0a.75.75 0 1 0-1.5 0a.75.75 0 0 0 1.5 0M4.5 9.875c.345 0 .625.28.625.625v2a.625.625 0 1 1-1.25 0v-2c0-.345.28-.625.625-.625m5.625.625a.625.625 0 1 0-1.25 0v2a.625.625 0 1 0 1.25 0zm-2.5.75a.625.625 0 1 0-1.25 0v2a.625.625 0 1 0 1.25 0z" clip-rule="evenodd"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
 
         <!-- 🧾 Total Transactions -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Total Transactions</p>
-            <p class="text-3xl font-bold text-blue-600 mt-1">56</p>
-            <p class="text-xs text-gray-400 mt-1">Completed today</p>
-          </div>
-          <div class="p-4 bg-blue-100 text-blue-600 rounded-full text-2xl">🧾</div>
-        </div>
+      <!-- 🧾 Total Transactions -->
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+  <div>
+    <p class="text-sm text-gray-500">Total Transactions</p>
+    <p class="text-3xl font-bold text-blue-600 mt-1">56</p>
+    <p class="text-xs text-gray-400 mt-1">Completed today</p>
+  </div>
+
+  <div class="p-4 bg-blue-100 text-blue-600 rounded-full">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path d="M19 10.5V10c0-3.771 0-5.657-1.172-6.828S14.771 2 11 2S5.343 2 4.172 3.172S3 6.229 3 10v4.5c0 3.287 0 4.931.908 6.038q.25.304.554.554C5.57 22 7.212 22 10.5 22M7 7h8m-8 4h4"/>
+      <path d="m18 18.5l-1.5-.55V15.5m-4.5 2a4.5 4.5 0 1 0 9 0a4.5 4.5 0 0 0-9 0"/>
+    </svg>
+  </div>
+</div>
+
 
         <!-- 🏦 Pending Loan Releases -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">

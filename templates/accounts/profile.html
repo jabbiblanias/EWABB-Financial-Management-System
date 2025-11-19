@@ -1,5 +1,47 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
+<script>
+(function(){
+  // Only inject mobile-specific overrides when viewport is small.
+  function injectMobileOverrides() {
+    if (window.innerWidth > 640 || document.getElementById('mobile-overrides')) return;
+
+    var css = `
+      /* Mobile-only layout tweaks (won't affect desktop thanks to media query) */
+      @media (max-width: 640px) {
+        /* Remove desktop left offset used for the sidebar */
+        main { margin-left: 0 !important; margin-right: 0 !important; padding: 1rem !important; margin-top: 56px !important; }
+
+        /* Make centered containers full width with inner padding */
+        .mx-auto { max-width: 100% !important; padding-left: 1rem !important; padding-right: 1rem !important; }
+
+        /* Force grid to single column on small screens */
+        .grid { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+
+        /* Make modal width responsive */
+        .w-96 { width: calc(100% - 2rem) !important; max-width: 420px !important; }
+
+        /* Ensure large headers and elements wrap nicely */
+        .-mt-[72px], .mt-[-72px] { margin-top: 0 !important; } /* best-effort for bracketed classes */
+      }
+    `;
+
+    var style = document.createElement('style');
+    style.id = 'mobile-overrides';
+    style.appendChild(document.createTextNode(css));
+
+    if (document.head) {
+      document.head.appendChild(style);
+    } else {
+      document.addEventListener('DOMContentLoaded', function(){ document.head.appendChild(style); });
+    }
+  }
+
+  // Run on load and add a resize listener to handle orientation changes or resizing.
+  injectMobileOverrides();
+  window.addEventListener('resize', injectMobileOverrides);
+})();
+</script>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
