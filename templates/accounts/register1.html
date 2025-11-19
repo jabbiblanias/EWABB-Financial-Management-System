@@ -1,577 +1,355 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <style>
-/* Force md:grid-cols-2 to become a 3-column layout and reduce whitespace */
-@media (min-width: 768px) {
-  .md\:grid-cols-2 {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    grid-auto-flow: dense !important;
-    gap: 0.75rem !important;
+  /* Fix for cellphone number input to prevent stretching - KEPT, as this targets a specific input's max-width, which is not easily done with a standard utility. */
+  .cellphone-container {
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Make elements that used to span 2 columns span all 3, so headings/sections take full width */
-  .md\:col-span-2 {
-    grid-column: 1 / -1 !important;
-  }
-
-  /* Tighter vertical spacing inside stacked groups */
-  .space-y-4 > * + * { margin-top: 0.5rem !important; }
-  .grid.gap-6, .grid.gap-8 { gap: 0.75rem !important; }
-
-  /* Reduce left margins used for visual spacing */
-  .ml-3 { margin-left: 0.5rem !important; }
-
-  /* Make the form wider and reduce its outer paddings */
-  #register1Form {
-    max-width: 1200px;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    padding-top: 1.5rem !important;
-    padding-bottom: 1.5rem !important;
-  }
-
-  /* Ensure inputs occupy available column space */
-  #register1Form input,
-  #register1Form select,
-  #register1Form textarea {
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  /* --- PERSONAL DETAILS: ensure fields flow into 3 columns on md+ --- */
-  /* Flatten the wrapper divs so each field div becomes a grid item in the 3-column parent.
-     display:contents lets the child field blocks become direct grid items (modern browsers). */
-  #register1Form .grid.grid-cols-1.md\:grid-cols-2 {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 0.75rem !important;
-  }
-  #register1Form .grid.grid-cols-1.md\:grid-cols-2 > .space-y-4 {
-    display: contents !important;
-  }
-
-  /* Ensure each field block aligns nicely when flattened */
-  #register1Form .grid.grid-cols-1.md\:grid-cols-2 > div > div {
-    margin-top: 0 !important;
-  }
-
-  /* Keep headings full-width */
-  #register1Form h3.md\:col-span-2,
-  #register1Form h3.md\:col-span-2 + * {
-    grid-column: 1 / -1 !important;
-  }
-}
-
-/* Mobile tweaks to keep spacing compact */
-@media (max-width: 767px) {
-  #register1Form { padding-left: 1rem !important; padding-right: 1rem !important; }
-  .space-y-4 > * + * { margin-top: 0.5rem !important; }
-}
-</style>
-<style>
-/* Make Tailwind md:grid-cols-2 behave as 3 columns on md+ screens,
-  and make md:col-span-2 span all three columns */
-@media (min-width: 768px) {
-  .md\:grid-cols-2 {
-   display: grid !important;
-   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-  .md\:col-span-2 {
-   grid-column: 1 / -1 !important;
-  }
-}
-
-/* Fix for cellphone number input to prevent stretching */
-.cellphone-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.cellphone-input {
-  max-width: 300px; /* Fixed width for the cellphone input */
-  width: 100%;
-}
-
-/* Ensure the cellphone input doesn't stretch on mobile */
-@media (max-width: 767px) {
   .cellphone-input {
-    max-width: 100%;
+    max-width: 300px;
+    /* Fixed width for the cellphone input */
+    width: 100%;
   }
-}
 
-/* Contact Information Layout */
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .contact-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-  
-  /* Make specific fields span multiple columns */
-  .contact-grid > div:nth-child(3),
-  .contact-grid > div:nth-child(5) {
-    grid-column: span 2;
-  }
-  
-  .contact-grid > div:nth-child(4),
-  .contact-grid > div:nth-child(6) {
-    grid-column: span 1;
-  }
-}
-</style>
-<!-- Mobile-first tweaks:
-  - Ensure the login link stays visible on small screens
-  - Hide progress labels on small screens so only the step numbers show
-  - Tighter form padding & larger touch targets for mobile
--->
-<style>
+  /* Ensure the cellphone input doesn't stretch on mobile */
   @media (max-width: 767px) {
-    /* Ensure the desktop container (where the login link is cloned) stays visible on small screens
-       so the Login button is always visible (no hamburger required). */
-    nav .hidden.md\:flex {
-      display: flex !important;
-      align-items: center;
-      gap: 0.5rem;
+    .cellphone-input {
+      max-width: 100%;
     }
-
-    /* Hide the injected hamburger toggle (we don't need it) */
-    nav button[aria-label="Toggle menu"] {
-      display: none !important;
-    }
-
-    /* If a separate mobile menu was added after the nav, keep it hidden to avoid duplicate links */
-    nav + div.md\:hidden {
-      display: none !important;
-    }
-
-    /* Ensure the login link is visible and tappable on mobile */
-    nav a[href*="login"] {
-      display: inline-block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      padding: 0.5rem 0.75rem !important;
-    }
-
-    /* Progress bar: hide descriptive labels on small screens (only numbers remain) */
-    .w-full.py-4 .flex.justify-center span.font-medium { display: none; }
-    .w-full.py-4 .flex.justify-center { gap: 0.75rem; }
-
-    /* Make the main form use smaller side padding and larger touch areas */
+    
+    /* Mobile-only form padding/margin kept here as it's an important specific tweak */
     #register1Form {
       padding-left: 1rem !important;
       padding-right: 1rem !important;
       padding-top: 2rem !important;
       padding-bottom: 2rem !important;
-      border-radius: 0.75rem !important;
       margin: 0.5rem !important;
     }
+    .space-y-4>*+* {
+      margin-top: 0.5rem !important;
+    }
 
-    /* Increase touch targets for inputs and buttons on mobile */
-    #register1Form input,
-    #register1Form select,
-    #register1Form button,
-    #register1Form a {
-      padding-top: 0.75rem !important;
-      padding-bottom: 0.75rem !important;
-      font-size: 1rem !important;
+    /* Progress bar: hide descriptive labels on small screens (only numbers remain) */
+    .w-full.py-4 .flex.justify-center span.font-medium {
+      display: none;
+    }
+
+    .w-full.py-4 .flex.justify-center {
+      gap: 0.75rem;
     }
   }
 
-  @media (min-width: 768px) {
-    /* Ensure the desktop container (created by JS) is visible on md+ and the login button is present */
-    nav .hidden.md\:flex {
-      display: flex !important;
-      align-items: center;
-    }
-    nav .hidden.md\:flex > * {
-      display: inline-block !important;
-      margin-left: 0.25rem;
-      margin-right: 0.25rem;
-    }
+  /* Contact Information Checkbox Tweak - KEPT, as it's a specific internal spacing fix */
+  #sameAsResidential {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+    margin-right: 0.4rem;
+  }
 
-    /* If the original .space-x-4 exists, keep it visible on desktop */
-    nav .space-x-4 { display: flex !important; align-items: center; }
-
-    /* Ensure login link is visible on desktop */
-    nav a[href*="login"] {
-      display: inline-block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
+  label[for="sameAsResidential"] {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    font-size: 0.875rem;
   }
 </style>
-<!-- Mobile-first enhancements: add a simple hamburger toggle for the navbar and small-screen tweaks -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const nav = document.querySelector("nav");
-  if (!nav) return;
+  // ... (The JavaScript for the navigation and mobile tweaks remains largely the same, but the 
+  // 'applyMobileTweaks' function that removed 'px-10' is less critical since we use mobile-first 'px-4' now) ...
+  document.addEventListener("DOMContentLoaded", function () {
+    const nav = document.querySelector("nav");
+    if (!nav) return;
 
-  // create hamburger button (visible on small screens)
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "md:hidden text-white focus:outline-none ml-2";
-  btn.setAttribute("aria-label", "Toggle menu");
-  btn.innerHTML =
-    '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>';
+    // create hamburger button (visible on small screens)
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "md:hidden text-white focus:outline-none ml-2";
+    btn.setAttribute("aria-label", "Toggle menu");
+    btn.innerHTML =
+      '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>';
 
-  // find the right-side container (existing .space-x-4) and convert for responsive behavior
-  const right = nav.querySelector("div.space-x-4");
-  const desktopContainer = document.createElement("div");
-  desktopContainer.className = "hidden md:flex md:items-center";
-  const mobileMenu = document.createElement("div");
-  mobileMenu.className = "w-full md:hidden hidden bg-blue-800";
+    // find the right-side container (existing .space-x-4) and convert for responsive behavior
+    const right = nav.querySelector("div.space-x-4");
+    const desktopContainer = document.createElement("div");
+    desktopContainer.className = "hidden md:flex md:items-center";
+    const mobileMenu = document.createElement("div");
+    mobileMenu.className = "w-full md:hidden hidden bg-blue-800";
 
-  if (right) {
-    // move children to desktop container for md+ and also clone for mobile menu
-    while (right.firstChild) {
-      const child = right.firstChild;
-      desktopContainer.appendChild(child.cloneNode(true));
-      mobileMenu.appendChild(child);
+    if (right) {
+      // move children to desktop container for md+ and also clone for mobile menu
+      while (right.firstChild) {
+        const child = right.firstChild;
+        desktopContainer.appendChild(child.cloneNode(true));
+        mobileMenu.appendChild(child);
+      }
+      right.replaceWith(desktopContainer);
+    } else {
+      nav.appendChild(desktopContainer);
     }
-    right.replaceWith(desktopContainer);
-  } else {
-    nav.appendChild(desktopContainer);
-  }
 
-  // ensure mobile menu links are stacked and tappable
-  mobileMenu.classList.add("px-4", "py-2");
-  Array.from(mobileMenu.querySelectorAll("a, button")).forEach((el) => {
-    el.classList.add("block", "py-2", "text-white");
-  });
+    // ensure mobile menu links are stacked and tappable
+    mobileMenu.classList.add("px-4", "py-2");
+    Array.from(mobileMenu.querySelectorAll("a, button")).forEach((el) => {
+      el.classList.add("block", "py-2", "text-white");
+    });
 
-  // append button and mobileMenu
-  nav.appendChild(btn);
-  nav.after(mobileMenu);
+    // append button and mobileMenu
+    nav.appendChild(btn);
+    nav.after(mobileMenu);
 
-  btn.addEventListener("click", function () {
-    mobileMenu.classList.toggle("hidden");
-  });
+    btn.addEventListener("click", function () {
+      mobileMenu.classList.toggle("hidden");
+    });
 
-  // small-screen tweak: reduce form horizontal padding and increase tap targets
-  function applyMobileTweaks() {
-    const form = document.getElementById("register1Form");
-    if (!form) return;
-    if (window.innerWidth < 768) {
-      form.classList.remove("px-10");
-      form.classList.add("px-4", "py-8");
-      // make inputs full-width and larger touch areas (Tailwind classes already mostly present)
-      document.querySelectorAll("input, select, button, a").forEach((el) => {
-        el.classList.add("touch-manipulation");
-        // increase clickable area for links/buttons if not already tall
-        if (el.tagName === "A" || el.tagName === "BUTTON") {
-          el.classList.add("py-3");
-        }
-      });
+    // small-screen tweak: reduce form horizontal padding and increase tap targets
+    function applyMobileTweaks() {
+      const form = document.getElementById("register1Form");
+      if (!form) return;
+      if (window.innerWidth < 768) {
+        // NOTE: The classes 'px-10' are removed from the HTML directly and replaced with mobile-first 'px-4'
+        // in the HTML structure below, so this part of the original JS is adjusted to focus on tap targets.
+        // We'll keep the class additions for inputs/buttons for tap targets, as they were present in the original JS.
+        document.querySelectorAll("#register1Form input, #register1Form select, #register1Form button, #register1Form a").forEach((el) => {
+          el.classList.add("touch-manipulation");
+          // increase clickable area for links/buttons if not already tall
+          if (el.tagName === "A" || el.tagName === "BUTTON") {
+            el.classList.add("py-3");
+          }
+        });
+      }
     }
-  }
 
-  applyMobileTweaks();
-  window.addEventListener("resize", applyMobileTweaks);
-});
+    applyMobileTweaks();
+    window.addEventListener("resize", applyMobileTweaks);
+  });
 </script>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EWABB Registration</title>
-    {% tailwind_css %}
-  </head>
-  <body class="bg-gray-100 font-sans">
-    <!-- Navbar -->
-    <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
-      <h1 class="text-white font-bold text-xl">EWABB</h1>
-     <div class="space-x-4">
-        <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block"> Login</a>
-      </div>
-    </nav>
 
-    <!-- Progress Bar -->
-    <div class="w-full py-4">
-      <div class="flex justify-center space-x-10">
-        <div class="flex items-center space-x-2">
-          <div
-            class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold"
-          >
-            1
-          </div>
-          <span class="font-medium text-yellow-400"
-            >Member Personal Information</span
-          >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Registration</title>
+  {% tailwind_css %}
+</head>
+
+<body class="bg-gray-100 font-sans">
+  <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
+    <h1 class="text-white font-bold text-xl">EWABB</h1>
+    <div class="space-x-4">
+      <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block">
+        Login</a>
+    </div>
+  </nav>
+
+  <div class="w-full py-4">
+    <div class="flex justify-center space-x-10">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">
+          1
         </div>
-        <div class="flex items-center space-x-2 text-gray-400">
-          <div
-            class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold"
-          >
-            2
-          </div>
-          <span class="font-medium">Family Background</span>
+        <span class="font-medium text-yellow-400">Member Personal Information</span>
+      </div>
+      <div class="flex items-center space-x-2 text-gray-400">
+        <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">
+          2
         </div>
-        <div class="flex items-center space-x-2 text-gray-400">
-          <div
-            class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold"
-          >
-            3
-          </div>
-          <span class="font-medium">Create Account</span>
+        <span class="font-medium">Family Background</span>
+      </div>
+      <div class="flex items-center space-x-2 text-gray-400">
+        <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">
+          3
+        </div>
+        <span class="font-medium">Create Account</span>
+      </div>
+    </div>
+  </div>
+
+  <form id="register1Form"
+    class="max-w-4xl lg:max-w-6xl mx-auto bg-white rounded-2xl shadow-lg px-4 md:px-6 py-6 md:py-8 mb-12 border border-gray-200"
+    method="POST" action="{% url 'register1' %}">
+    {% csrf_token %}
+    <div class="text-center">
+      <h2 class="text-3xl font-bold mb-2">Personal Information</h2>
+      <p class="mb-6">• Please fill out the form with accurate information</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] ml-2 md:col-span-3">
+        Personal Details
+      </h3>
+
+      <div class="space-y-3 ml-2 md:ml-0">
+        <div>
+          <label for="surname" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span
+              class="text-red-500">*</span> </label>
+          <input id="surname" name="surname" type="text" placeholder="e.g., Dela Cruz"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="surnameError" class="text-red-500 text-xs hidden">Last name must not contain numbers or
+            symbol</span>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name <span
+              class="text-red-500">*</span></label>
+          <input id="firstName" name="firstName" type="text" placeholder="e.g., Juan"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="firstNameError" class="text-red-500 text-xs hidden">First name must not contain numbers or symbol
+          </span>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="middleName" class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+          <input id="middleName" name="middleName" type="text" placeholder="e.g., Magsaysay"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="middleNameError" class="text-red-500 text-xs hidden">Middle name must not contain numbers or
+            symbol</span>
+        </div>
+      </div>
+       <div>
+          <label for="extensionName" class="block text-sm font-medium text-gray-700 mb-1">Extension Name</label>
+          <input id="extensionName" name="extensionName" type="text" placeholder="e.g., Magsaysay"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="extensionNameError" class="text-red-500 text-xs hidden">Extension name must not contain numbers or
+            symbol</span>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth <span
+              class="text-red-500">*</span></label>
+          <input id="dateOfBirth" name="dateOfBirth" type="date"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <script>
+            document.getElementById("dateOfBirth").max = new Date().toISOString().split("T")[0];
+          </script>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="placeOfBirth" class="block text-sm font-medium text-gray-700 mb-1">Place of Birth <span
+              class="text-red-500">*</span></label>
+          <input id="placeOfBirth" name="placeOfBirth" type="text" placeholder="e.g., Manila, Philippines"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender <span
+              class="text-red-500">*</span></label>
+          <select id="gender" name="gender"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required>
+            <option value="" disabled selected>Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="civilStatus" class="block text-sm font-medium text-gray-700 mb-1">Civil Status <span
+              class="text-red-500">*</span></label>
+          <select id="civilStatus" name="civilStatus"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required>
+            <option value="" disabled selected>Select...</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Widowed">Widowed</option>
+            <option value="Separated">Separated</option>
+          </select>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="citizenship" class="block text-sm font-medium text-gray-700 mb-1">Citizenship <span
+              class="text-red-500">*</span></label>
+          <input id="citizenship" name="citizenship" type="text" placeholder="e.g., Filipino"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="citizenshipError" class="text-red-500 text-xs hidden">Enter a valid citizenship (letters
+            only)</span>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="bloodType" class="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
+          <select id="bloodType" name="bloodType"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required>
+            <option value="" disabled selected>Select...</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+          </select>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="height" class="block text-sm font-medium text-gray-700 mb-1">Height(cm)<span
+              class="text-red-500">*</span></label>
+          <input id="height" name="height" type="text" placeholder="e.g., 170 cm"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="heightError" class="text-red-500 text-xs hidden">Height must be numbers only</span>
+        </div>
+      </div>
+      <div class="space-y-4 ml-2 md:ml-0">
+        <div>
+          <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">Weight(kg)<span
+              class="text-red-500">*</span></label>
+          <input id="weight" name="weight" type="text" placeholder="e.g., 65 kg"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="weightError" class="text-red-500 text-xs hidden">Weight must be numbers only</span>
         </div>
       </div>
     </div>
 
-    <!-- Form Section -->
-    <form id="register1Form" class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" 
-          method="POST" action="{% url 'register1' %}">
-      {% csrf_token %}
-      <div class="text-center">
-        <h2 class="text-3xl font-bold mb-2">Personal Information</h2>
-        <p class="mb-6">• Please fill out the form with accurate information</p>
-      </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] ml-3 md:col-span-2">
-          Personal Details
-        </h3>
-          <div class="space-y-4 ml-3">
-            <div>
-              <label
-                for="surname"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Last Name <span class="text-red-500">*</span> </label
-              >
-              <input
-                id="surname"
-                name="surname"
-                type="text"
-                placeholder="e.g., Dela Cruz"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="surnameError" class="text-red-500 text-xs hidden">Last name must not contain numbers or symbol</span>
-            </div>
-            <div>
-              <label
-                for="firstName"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >First Name <span class="text-red-500">*</span></label
-              >
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                placeholder="e.g., Juan"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="firstNameError" class="text-red-500 text-xs hidden">First name must not contain numbers or symbol </span>
-            </div>
-            <div>
-              <label
-                for="middleName"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Middle Name</label
-              >
-              <input
-                id="middleName"
-                name="middleName"
-                type="text"
-                placeholder="e.g., Magsaysay"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
-              <span id="middleNameError" class="text-red-500 text-xs hidden">Last name must not contain numbers or symbol</span>
-            </div>
-            <div>
-              <label
-                for="dateOfBirth"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Date of Birth <span class="text-red-500">*</span></label
-              >
-             <input
-                id="dateOfBirth"
-                name="dateOfBirth"
-               type="date"
-              class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-             required
-                />
-          <script>
-            document.getElementById("dateOfBirth").max = new Date().toISOString().split("T")[0];
-            </script>
+    <div class="mt-8 ml-2">
+      <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mb-4">
+        Contact Information
+      </h3>
 
-            </div>
-            <div>
-              <label
-                for="placeOfBirth"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Place of Birth <span class="text-red-500">*</span></label
-              >
-              <input
-                id="placeOfBirth"
-                name="placeOfBirth"
-                type="text"
-                placeholder="e.g., Manila, Philippines"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-            </div>
-            <div>
-              <label
-                for="gender"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Gender <span class="text-red-500">*</span></label
-              >
-              <select
-                id="gender"
-                name="gender"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              >
-                <option value="" disabled selected>Select...</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-          </div>
-          <div class="space-y-4 ml-3">
-            <div>
-              <label
-                for="civilStatus"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Civil Status <span class="text-red-500">*</span></label
-              >
-              <select
-                id="civilStatus"
-                name="civilStatus"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              >
-                <option value="" disabled selected>Select...</option>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Widowed">Widowed</option>
-                <option value="Separated">Separated</option>
-              </select>
-            </div>
-            <div>
-              <label
-                for="citizenship"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Citizenship <span class="text-red-500">*</span></label
-              >
-              <input
-                id="citizenship"
-                name="citizenship"
-                type="text"
-                placeholder="e.g., Filipino"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="citizenshipError" class="text-red-500 text-xs hidden">Enter a valid citizenship (letters only)</span>
-            </div>
-            <div>
-              <label
-                for="bloodType"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Blood Type</label
-              >
-              <select
-                id="bloodType"
-                name="bloodType"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-                >
-              <option value="" disabled selected>Select...</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-              </select>
-            </div>
-            <div>
-              <label
-                for="height"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Height(cm)<span class="text-red-500">*</span></label
-              >
-              <input
-                id="height"
-                name="height"
-                type="text"
-                placeholder="e.g., 170 cm"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="heightError" class="text-red-500 text-xs hidden">Height must be numbers only</span>
-            </div>
-            <div>
-              <label
-                for="weight"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Weight(kg)<span class="text-red-500">*</span></label
-              >
-              <input
-                id="weight"
-                name="weight"
-                type="text"
-                placeholder="e.g., 65 kg"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="weightError" class="text-red-500 text-xs hidden">Weight must be numbers only</span>
-            </div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="cellphone-container">
+          <label for="cellphoneNo" class="block text-sm font-medium text-gray-700 mb-1">Cellphone No.<span
+              class="text-red-500">*</span></label>
+          <input id="cellphoneNo" name="cellphoneNo" type="tel" placeholder="e.g., +639171234567 or 09171234567"
+            pattern="^(?:\+639\d{9}|09\d{9})$"
+            class="cellphone-input border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="cellphoneError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
         </div>
-        
-        <!-- Contact Information Section -->
-        <div class="mt-8 ml-3">
-          <h3 class="text-xl font-bold border-b border-b-gray-300 pb-2 text-[#003366] mb-4">
-            Contact Information
-          </h3>
-          <div class="contact-grid">
-            <div class="cellphone-container">
-              <label
-                for="cellphoneNo"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Cellphone No.<span class="text-red-500">*</span></label
-              >
-              <input
-                id="cellphoneNo"
-                name="cellphoneNo"
-                type="tel"
-                placeholder="e.g., +639171234567 or 09171234567"
-                pattern="^(?:\+639\d{9}|09\d{9})$"
-                class="cellphone-input border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="cellphoneError" class="text-red-500 text-xs hidden">Must be 11–12 digits, numbers only</span>
-            </div>
-            <div>
-              <label
-                for="email"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Email Address <span class="text-red-500">*</span></label
-              >
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="e.g., juan.delacruz@email.com"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
-              <span id="emailError" class="text-red-500 text-xs hidden">Enter a valid email address</span>
-            </div>
-            <div>
-              <label
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span
+              class="text-red-500">*</span></label>
+          <input id="email" name="email" type="email" placeholder="e.g., juan.delacruz@email.com"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+          <span id="emailError" class="text-red-500 text-xs hidden">Enter a valid email address</span>
+        </div>
+
+        <div class="md:col-span-2">
+          <label
                 for="residentialAddress"
                 class="block text-sm font-medium text-gray-700 mb-1"
                 >Residential Address <span class="text-red-500">*</span></label
               >
-              <input
+          <input
                 id="residentialAddress"
                 name="residentialAddress"
                 type="text"
@@ -580,165 +358,202 @@ document.addEventListener("DOMContentLoaded", function () {
                 required
               />
               <span id="resAddressError" class="text-red-500 text-xs hidden">Enter a valid residential address</span>
-            </div>
-            <div>
-              <label
-                for="residentialAddressZipCode"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Residential Zip Code <span class="text-red-500">*</span></label
-              >
-              <input
-                id="residentialAddressZipCode"
-                name="residentialAddressZipCode"
-                type="text"
-                placeholder="e.g., 1234"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="ReszipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
-            </div>
-            <div>
-              <label
-                for="permanentAddress"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Permanent Address <span class="text-red-500">*</span></label
-              >
-              <input
-                id="permanentAddress"
-                name="permanentAddress"
-                type="text"
-                placeholder="House No., Street, Brgy., City"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-            </div>
-            <div>
-              <label
-                for="permanentAddressZipCode"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Permanent Zip Code <span class="text-red-500">*</span></label
-              >
-              <input
-                id="permanentAddressZipCode"
-                name="permanentAddressZipCode"
-                type="text"
-                placeholder="e.g., 1234"
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-              <span id="PerzipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
-            </div>
-          </div>
         </div>
 
-      <!-- BUTTONS -->
-      <div class="flex justify-center mt-10">
-        <button
-          type="submit"
-          class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white"
-        >
-          Next
-        </button>
+        <div class="md:col-span-1">
+          <label for="residentialAddressZipCode" class="block text-sm font-medium text-gray-700 mb-1">Residential Zip
+            Code <span class="text-red-500">*</span></label>
+          <input id="residentialAddressZipCode" name="residentialAddressZipCode" type="text" placeholder="e.g., 1234"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="ReszipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
+        </div>
+
+        <div class="flex items-center mb-4 md:col-span-2">
+          <input id="sameAsResidential" type="checkbox" value=""
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+          <label for="sameAsResidential" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+            Check if the permanent address is the same as the residential address
+          </label>
+        </div>
+
+
+        <div class="md:col-span-2">
+          <label for="permanentAddress" class="block text-sm font-medium text-gray-700 mb-1">Permanent Address <span
+              class="text-red-500">*</span></label>
+          <input id="permanentAddress" name="permanentAddress" type="text" placeholder="House No., Street, Brgy., City"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+        </div>
+
+        <div class="md:col-span-1">
+          <label for="permanentAddressZipCode" class="block text-sm font-medium text-gray-700 mb-1">Permanent Zip Code
+            <span class="text-red-500">*</span></label>
+          <input id="permanentAddressZipCode" name="permanentAddressZipCode" type="text" placeholder="e.g., 1234"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            required />
+          <span id="PerzipCodeError" class="text-red-500 text-xs hidden">ZIP code must be 4 digits</span>
+        </div>
       </div>
-    </form>
-    <!-- Toast -->
-    <div
-      id="toast"
-      class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600"
-      role="status">Some fields contain invalid information.</div>
-  </body>
+    </div>
+
+    <div class="flex justify-center mt-10">
+      <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 font-medium text-white">
+        Next
+      </button>
+    </div>
+  </form>
+  <div id="toast"
+    class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600"
+    role="status">Some fields contain invalid information.</div>
+</body>
+
 </html>
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  // Validation rules
-  const rules = {
-    firstName: {
-      regex: /^[A-Za-z\s]+$/,
-      errorId: "firstNameError"
-    },
-    surname: {
-      regex: /^[A-Za-z\s]+$/,
-      errorId: "surnameError"
-    },
-    middleName: {
-      regex: /^[A-Za-z\s]+$/,
-      errorId: "middleNameError"
-    },
-    email: {
-      regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      errorId: "emailError"
-    },
-    height: {
-      regex: /^\d+$/,
-      errorId: "heightError"
-    },
-    weight: {
-      regex: /^\d+$/,
-      errorId: "weightError"
-    },
-    citizenship: { 
-      regex: /^[A-Za-z\s]+$/, 
-      errorId: "citizenshipError" 
-    },
-    cellphoneNo: {
-       regex: /^(?:\+639\d{9}|09\d{9})$/, 
-       errorId: "cellphoneError"
-  },
+  document.addEventListener("DOMContentLoaded", function () {
+    // Same as Residential Address functionality
+    const sameAsResidentialCheckbox = document.getElementById("sameAsResidential");
+    const residentialAddress = document.getElementById("residentialAddress");
+    const residentialZipCode = document.getElementById("residentialAddressZipCode");
+    const permanentAddress = document.getElementById("permanentAddress");
+    const permanentZipCode = document.getElementById("permanentAddressZipCode");
 
-    resAddress: { 
+    // Function to update permanent address fields
+    function updatePermanentAddress() {
+      if (sameAsResidentialCheckbox.checked) {
+        // Copy values from residential to permanent
+        permanentAddress.value = residentialAddress.value;
+        permanentZipCode.value = residentialZipCode.value;
+
+        // Disable permanent address fields
+        permanentAddress.disabled = true;
+        permanentZipCode.disabled = true;
+
+        // Add visual styling for disabled state
+        permanentAddress.classList.add("bg-gray-100", "text-gray-500");
+        permanentZipCode.classList.add("bg-gray-100", "text-gray-500");
+      } else {
+        // Enable permanent address fields
+        permanentAddress.disabled = false;
+        permanentZipCode.disabled = false;
+
+        // Remove visual styling
+        permanentAddress.classList.remove("bg-gray-100", "text-gray-500");
+        permanentZipCode.classList.remove("bg-gray-100", "text-gray-500");
+      }
+    }
+
+    // Add event listener to checkbox
+    if (sameAsResidentialCheckbox) {
+      sameAsResidentialCheckbox.addEventListener("change", updatePermanentAddress);
+    }
+
+
+    // Also update when residential address changes (if checkbox is checked)
+    if (residentialAddress) {
+      residentialAddress.addEventListener("input", function () {
+        if (sameAsResidentialCheckbox.checked) {
+          permanentAddress.value = residentialAddress.value;
+        }
+      });
+    }
+
+    if (residentialZipCode) {
+      residentialZipCode.addEventListener("input", function () {
+        if (sameAsResidentialCheckbox.checked) {
+          permanentZipCode.value = residentialZipCode.value;
+        }
+      });
+    }
+
+    // Validation rules
+    const rules = {
+      firstName: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "firstNameError"
+      },
+      surname: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "surnameError"
+      },
+      middleName: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "middleNameError"
+      },
+      email: {
+        regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        errorId: "emailError"
+      },
+      height: {
+        regex: /^\d+$/,
+        errorId: "heightError"
+      },
+      weight: {
+        regex: /^\d+$/,
+        errorId: "weightError"
+      },
+      citizenship: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "citizenshipError"
+      },
+      cellphoneNo: {
+        regex: /^(?:\+639\d{9}|09\d{9})$/,
+        errorId: "cellphoneError"
+      },
+
+     resAddress: { 
       regex: /^[A-Za-z0-9\s,.-]+$/, 
       errorId: "resAddressError" 
     },
-    residentialAddressZipCode: { 
-      regex: /^\d{4}$/, 
-      errorId: "ReszipCodeError" 
-    },
-    permanentAddressZipCode: { 
-      regex: /^\d{4}$/, 
-      errorId: "PerzipCodeError" 
-    },
-  };
+      residentialAddressZipCode: {
+        regex: /^\d{4}$/,
+        errorId: "ReszipCodeError"
+      },
+      permanentAddressZipCode: {
+        regex: /^\d{4}$/,
+        errorId: "PerzipCodeError"
+      },
+    };
 
-  // Real-time validation
-  Object.keys(rules).forEach((field) => {
-    const input = document.getElementById(field);
-    const error = document.getElementById(rules[field].errorId);
-    if (!input) return;
+    // Real-time validation
+    Object.keys(rules).forEach((field) => {
+      const input = document.getElementById(field);
+      const error = document.getElementById(rules[field].errorId);
+      if (!input) return;
 
-    input.addEventListener("input", function () {
-      if (input.value === "" || rules[field].regex.test(input.value)) {
-        error.classList.add("hidden");
-      } else {
-        error.classList.remove("hidden");
-      }
-    });
-  });
-
-  // Prevent submit if invalid
-  const form = document.getElementById("register1Form");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      let isValid = true;
-
-      Object.keys(rules).forEach((field) => {
-        const input = document.getElementById(field);
-        const error = document.getElementById(rules[field].errorId);
-        if (!input) return;
-
-        if (input.value && !rules[field].regex.test(input.value)) {
+      input.addEventListener("input", function () {
+        if (input.value === "" || rules[field].regex.test(input.value)) {
+          error.classList.add("hidden");
+        } else {
           error.classList.remove("hidden");
-          isValid = false;
         }
       });
-
-      if (!isValid) {
-        e.preventDefault();
-        const toast = document.getElementById("toast");
-        toast.classList.remove("hidden");
-        setTimeout(() => toast.classList.add("hidden"), 4000);
-      }
     });
-  }
-});
+
+    // Prevent submit if invalid
+    const form = document.getElementById("register1Form");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        let isValid = true;
+
+        Object.keys(rules).forEach((field) => {
+          const input = document.getElementById(field);
+          const error = document.getElementById(rules[field].errorId);
+          if (!input) return;
+
+          if (input.value && !rules[field].regex.test(input.value)) {
+            error.classList.remove("hidden");
+            isValid = false;
+          }
+        });
+
+        if (!isValid) {
+          e.preventDefault();
+          const toast = document.getElementById("toast");
+          toast.classList.remove("hidden");
+          setTimeout(() => toast.classList.add("hidden"), 4000);
+        }
+      });
+    }
+  });
 </script>
