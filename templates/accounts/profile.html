@@ -2,65 +2,149 @@
 <!DOCTYPE html>
 <script>
 (function(){
-  // Only inject mobile-specific overrides when viewport is small.
+  // Existing mobile overrides script
   function injectMobileOverrides() {
     if (window.innerWidth > 640 || document.getElementById('mobile-overrides')) return;
-
     var css = `
-      /* Mobile-only layout tweaks (won't affect desktop thanks to media query) */
       @media (max-width: 640px) {
-        /* Remove desktop left offset used for the sidebar */
         main { margin-left: 0 !important; margin-right: 0 !important; padding: 1rem !important; margin-top: 56px !important; }
-
-        /* Make centered containers full width with inner padding */
         .mx-auto { max-width: 100% !important; padding-left: 1rem !important; padding-right: 1rem !important; }
-
-        /* Force grid to single column on small screens */
         .grid { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
-
-        /* Make modal width responsive */
         .w-96 { width: calc(100% - 2rem) !important; max-width: 420px !important; }
-
-        /* Ensure large headers and elements wrap nicely */
-        .-mt-[72px], .mt-[-72px] { margin-top: 0 !important; } /* best-effort for bracketed classes */
+        .-mt-[72px], .mt-[-72px] { margin-top: 0 !important; }
       }
     `;
-
     var style = document.createElement('style');
     style.id = 'mobile-overrides';
     style.appendChild(document.createTextNode(css));
-
     if (document.head) {
       document.head.appendChild(style);
     } else {
       document.addEventListener('DOMContentLoaded', function(){ document.head.appendChild(style); });
     }
   }
-
-  // Run on load and add a resize listener to handle orientation changes or resizing.
   injectMobileOverrides();
   window.addEventListener('resize', injectMobileOverrides);
 })();
+
+// --- MODAL & INLINE EDIT FUNCTIONS ---
+
+/**
+ * Toggles inline edit mode for a specific section (card).
+ * @param {string} sectionId - The ID of the form section (e.g., 'personalForm').
+ */
+function toggleInlineEdit(sectionId, isCancel = false) {
+    const form = document.getElementById(sectionId);
+    const editableInputs = form.querySelectorAll('.editable-input');
+    const displayFields = form.querySelectorAll('.display-field');
+    const editBtn = form.querySelector('.edit-btn');
+    const saveCancelContainer = form.querySelector('.save-cancel-container');
+
+    const isDisplayMode = editableInputs[0].disabled;
+
+    if (isCancel) {
+      // Revert values here if needed (requires storing original values)
+      // For this example, we just switch back to display mode
+    }
+
+    editableInputs.forEach(input => {
+      // Toggle disabled state
+      input.disabled = !isDisplayMode;
+      // Toggle visibility: Hide inputs in display mode, show in edit mode
+      input.classList.toggle('hidden', isDisplayMode);
+    });
+
+    displayFields.forEach(span => {
+      // Toggle visibility: Show display spans in display mode, hide in edit mode
+      span.classList.toggle('hidden', !isDisplayMode);
+    });
+
+    // Toggle button visibility
+    editBtn.classList.toggle('hidden', !isDisplayMode);
+    saveCancelContainer.classList.toggle('hidden', isDisplayMode);
+}
+
+/**
+ * Handles the submission for a specific form section.
+ * @param {string} sectionId - The ID of the form section.
+ */
+function saveSectionChanges(sectionId) {
+    const form = document.getElementById(sectionId);
+    // 1. Collect data from form inputs (form.elements)
+    
+    console.log(`Saving changes for section: ${sectionId}`);
+    
+    // 2. Perform AJAX request to backend (Django view)
+
+    // 3. On success, update the display spans with the new values
+    const editableInputs = form.querySelectorAll('.editable-input');
+    const displayFields = form.querySelectorAll('.display-field');
+    
+    editableInputs.forEach(input => {
+        // Find corresponding display span and update its text
+        const displaySpan = document.getElementById(`${input.id}Display`);
+        if (displaySpan) {
+            // Handle select fields (show selected option text)
+            if (input.tagName === 'SELECT') {
+                displaySpan.textContent = input.options[input.selectedIndex].text;
+            } else {
+                displaySpan.textContent = input.value;
+            }
+        }
+    });
+
+    // 4. Switch back to display mode
+    toggleInlineEdit(sectionId, false);
+}
+
+
+// --- MODAL FUNCTIONS FOR SECURITY ---
+
+const usernameModal = document.getElementById('usernameModal');
+const passwordModal = document.getElementById('passwordModal');
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function updateUsername() {
+    const newUsername = document.getElementById('newUsernameInput').value;
+    // In a real app, send AJAX request to update username
+    console.log(`Updating username to: ${newUsername}`);
+    closeModal('usernameModal');
+    alert(`Username updated to: ${newUsername}`);
+}
+
+function updatePassword() {
+    const currentPassword = document.getElementById('currentPasswordInput').value;
+    const newPassword = document.getElementById('newPasswordInput').value;
+    const confirmPassword = document.getElementById('confirmPasswordInput').value;
+    
+    if (newPassword !== confirmPassword) {
+        alert('New password and confirmation do not match.');
+        return;
+    }
+    // In a real app, send AJAX request to update password (with current password verification)
+    console.log('Updating password...');
+    closeModal('passwordModal');
+    alert('Password successfully changed.');
+}
 </script>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EWABB Member Profile</title>
     {% tailwind_css %}
     <script src="https://cdn.jsdelivr.net/npm/@heroicons/vue@1.0.6/outline/index.min.js"></script>
-    <script>
-      function toggleEditMode() {
-        const inputs = document.querySelectorAll('.editable');
-        const editBtn = document.getElementById('editBtn');
-        const saveCancel = document.getElementById('saveCancel');
-        const isDisabled = inputs[0].disabled;
-
-        inputs.forEach(input => input.disabled = !isDisabled);
-        editBtn.classList.toggle('hidden');
-        saveCancel.classList.toggle('hidden');
-      }
-    </script>
   </head>
 
   <body class="bg-gray-100 font-sans">
@@ -74,257 +158,182 @@
     {% elif request.user.groups.all.0.name == "Admin" %}
       {% include 'dashboard/partials/admin_nav.html' %}
     {% endif %}
+    
     <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
-      <!-- Profile Header -->
-    <div class="mx-auto mt-5">
-      <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-900 to-blue-600 h-40"></div>
-        <div class="px-6 -mt-16 flex items-end space-x-6">
-          <div class="pb-4">
-            <h2 class="text-3xl font-bold text-white">{{ member.person_id.first_name }} {{ member.person_id.surname }}</h2>
-            <p class="text-white">Account No.: <span class="font-semibold">#{{ member.account_number }}</span></p>
+      <div class="mx-auto mt-5">
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-900 to-blue-600 h-40"></div>
+          <div class="px-6 -mt-16 flex items-end space-x-6">
+            <div class="pb-4">
+              <h2 class="text-3xl font-bold text-white">{{ member.person_id.first_name }} {{ member.person_id.surname }}</h2>
+              <p class="text-white">Account No.: <span class="font-semibold">#{{ member.account_number }}</span></p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Profile Details -->
-    <div class="mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <!-- Personal Information -->
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative w-full">
-    <div class="flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Personal Information</h3>
-      <button id="editBtn" onclick="openEditModal()" class="text-blue-700 hover:text-blue-900 font-semibold">
-        ✏️ Edit
-      </button>
-    </div>
+        <form id="personalForm" onsubmit="event.preventDefault(); saveSectionChanges('personalForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative w-full">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Personal Information</h3>
+            <div class="flex space-x-3 absolute top-6 right-6">
+              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('personalForm')">
+                ✏️ Edit
+              </button>
+              <div class="save-cancel-container hidden flex space-x-3">
+                <button type="button" onclick="toggleInlineEdit('personalForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+              </div>
+            </div>
+          </div>
 
-    <ul class="space-y-3 text-gray-700">
-      <li><span class="font-medium">Full Name:</span>
-        <span id="fullNameDisplay" class="ml-1">Juan M. Dela Cruz</span>
-      </li>
-      <li><span class="font-medium">Date of Birth:</span>
-        <span class="ml-1">January 15, 1990</span>
-      </li>
-      <li><span class="font-medium">Place of Birth:</span>
-        <span class="ml-1">Manila, Philippines</span>
-      </li>
-      <li><span class="font-medium">Gender:</span>
-        <span class="ml-1">Male</span>
-      </li>
-      <li><span class="font-medium">Civil Status:</span>
-        <span id="civilStatusDisplay" class="ml-1">Single</span>
-      </li>
-      <li><span class="font-medium">Citizenship:</span>
-        <span class="ml-1">Filipino</span>
-      </li>
-      <li><span class="font-medium">Blood Type:</span>
-        <span class="ml-1">O+</span>
-      </li>
-    </ul>
-  </div>
+          <ul class="space-y-3 text-gray-700 mt-4">
+            <li><span class="font-medium block">Full Name:</span>
+              <span id="fullNameInputDisplay" class="display-field ml-1">Juan M. Dela Cruz</span>
+              <input id="fullNameInput" name="full_name" type="text" value="Juan M. Dela Cruz" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Civil Status:</span>
+              <span id="civilStatusInputDisplay" class="display-field ml-1">Single</span>
+              <select id="civilStatusInput" name="civil_status" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <option value="Single" selected>Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </li>
+            </ul>
+        </form>
 
-  <!-- MODAL BACKDROP -->
-  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-    <!-- MODAL BOX -->
-    <div class="bg-white rounded-xl shadow-lg p-6 w-96">
-      <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Edit Information</h2>
+        <form id="contactForm" onsubmit="event.preventDefault(); saveSectionChanges('contactForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Contact Information</h3>
+            <div class="flex space-x-3 absolute top-6 right-6">
+              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('contactForm')">
+                ✏️ Edit
+              </button>
+              <div class="save-cancel-container hidden flex space-x-3">
+                <button type="button" onclick="toggleInlineEdit('contactForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+              </div>
+            </div>
+          </div>
 
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Full Name</label>
-          <input id="fullNameInput" type="text" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          <ul class="space-y-3 text-gray-700 mt-4">
+            <li><span class="font-medium block">Cellphone:</span> 
+              <span id="cellInputDisplay" class="display-field ml-1">+639171234567</span>
+              <input id="cellInput" name="cellphone" type="text" value="+639171234567" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Current Email:</span> 
+              <span id="emailInputDisplay" class="display-field ml-1">juan.delacruz@email.com</span>
+              <input id="emailInput" name="email" type="email" value="juan.delacruz@email.com" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+            <li><span class="font-medium block">Residential Address:</span> 
+              <span id="residentialInputDisplay" class="display-field ml-1">123 St., Brgy. Sampaloc, Manila</span>
+              <input id="residentialInput" name="res_address" type="text" value="123 St., Brgy. Sampaloc, Manila" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </li>
+          </ul>
+        </form>
+
+        <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
+          <h3 class="text-lg font-semibold text-red-700 border-b pb-2 mb-4 w-full">Account Security</h3>
+          <ul class="space-y-3 text-gray-700 mt-4">
+            <li class="flex justify-between items-center">
+                <div>
+                    <span class="font-medium block">Username:</span> 
+                    <span class="ml-1 font-semibold text-gray-900">juan.dela.cruz</span>
+                </div>
+                <button type="button" onclick="openModal('usernameModal')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm py-1 px-3 rounded-md border border-blue-600 hover:bg-blue-50">Change Username</button>
+            </li>
+            <li class="flex justify-between items-center">
+                <div>
+                    <span class="font-medium block">Password:</span> 
+                    <span class="ml-1">********</span>
+                </div>
+                <button type="button" onclick="openModal('passwordModal')" class="text-red-600 hover:text-red-800 font-semibold text-sm py-1 px-3 rounded-md border border-red-600 hover:bg-red-50">Change Password</button>
+            </li>
+          </ul>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Civil Status</label>
-          <select id="civilStatusInput" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <option>Single</option>
-            <option>Married</option>
-            <option>Divorced</option>
-            <option>Widowed</option>
-          </select>
+        <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Government IDs</h3>
+            <div class="flex space-x-3 absolute top-6 right-6">
+              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('govtIdForm')">
+                ✏️ Edit
+              </button>
+              <div class="save-cancel-container hidden flex space-x-3">
+                <button type="button" onclick="toggleInlineEdit('govtIdForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
+            <div>
+              <span class="font-medium block">GSIS:</span> 
+              <span id="gsisInputDisplay" class="display-field">12345678910</span>
+              <input id="gsisInput" name="gsis" type="text" value="12345678910" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </div>
+            <div>
+              <span class="font-medium block">PAG-IBIG:</span> 
+              <span id="pagibigInputDisplay" class="display-field">1234-5678-9012</span>
+              <input id="pagibigInput" name="pagibig" type="text" value="1234-5678-9012" disabled
+                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            </div>
+            </div>
+        </form>
+      </div>
+
+      <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-96">
+          <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Change Username</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">New Username</label>
+              <input id="newUsernameInput" type="text" placeholder="Enter new username"
+                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="closeModal('usernameModal')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+            <button type="button" onclick="updateUsername()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md">Update Username</button>
+          </div>
         </div>
       </div>
 
-      <!-- BUTTONS -->
-      <div class="mt-6 flex justify-end space-x-3">
-        <button onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Discard</button>
-        <button onclick="updateInfo()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md">Update</button>
-      </div>
-    </div>
-  </div>
-
-      <!-- Contact Information -->
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
-    <div class="flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Contact Information</h3>
-      <button onclick="openContactModal()" class="text-blue-700 hover:text-blue-900 font-semibold">
-        ✏️ Edit
-      </button>
-    </div>
-
-    <ul class="space-y-3 text-gray-700">
-      <li><span class="font-medium">Cellphone:</span> 
-        <span id="cellDisplay" class="ml-1">+639171234567</span>
-      </li>
-
-      <li><span class="font-medium">Current Email:</span> 
-        <span id="emailDisplay" class="ml-1">juan.delacruz@email.com</span>
-      </li>
-
-      <li><span class="font-medium">Password:</span> 
-        <span id="passwordDisplay">********</span>
-      </li>
-
-      <li><span class="font-medium">Residential Address:</span> 
-        <span id="residentialDisplay" class="ml-1">123 St., Brgy. Sampaloc, Manila</span>
-      </li>
-
-      <li><span class="font-medium">Permanent Address:</span> 
-        <span id="permanentDisplay" class="ml-1">456 St., Brgy. Sta. Mesa, Manila</span>
-      </li>
-    </ul>
-  </div>
-
-  <!-- MODAL BACKDROP -->
-  <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-    <!-- MODAL BOX -->
-    <div class="bg-white rounded-xl shadow-lg p-6 w-96">
-      <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Edit Contact Information</h2>
-
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Cellphone</label>
-          <input id="cellInput" type="text" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input id="emailInput" type="email" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Password</label>
-          <input id="passwordInput" type="password" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter new password or leave blank" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Residential Address</label>
-          <input id="residentialInput" type="text" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Permanent Address</label>
-          <input id="permanentInput" type="text" class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+      <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-96">
+          <h2 class="text-lg font-semibold text-red-700 mb-4 border-b pb-2">Change Password</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Current Password</label>
+              <input id="currentPasswordInput" type="password" placeholder="Enter current password"
+                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">New Password</label>
+              <input id="newPasswordInput" type="password" placeholder="Enter new password"
+                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+              <input id="confirmPasswordInput" type="password" placeholder="Confirm new password"
+                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none" />
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="closeModal('passwordModal')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+            <button type="button" onclick="updatePassword()" class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-md">Update Password</button>
+          </div>
         </div>
       </div>
-
-      <!-- BUTTONS -->
-      <div class="mt-6 flex justify-end space-x-3">
-        <button onclick="closeContactModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Discard</button>
-        <button onclick="updateContactInfo()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md">Update</button>
-      </div>
-    </div>
-  </div>
-
-      <!-- Government IDs -->
-      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2">
-        <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4">Government IDs</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-          <p><span class="font-medium">GSIS:</span> 
-            <input type="text" class="editable border-none bg-transparent focus:ring-0" value="12345678910" disabled>
-          </p>
-          <p><span class="font-medium">PAG-IBIG:</span> 
-            <input type="text" class="editable border-none bg-transparent focus:ring-0" value="1234-5678-9012" disabled>
-          </p>
-          <p><span class="font-medium">PhilHealth:</span> 
-            <input type="text" class="editable border-none bg-transparent focus:ring-0" value="12-345678901-2" disabled>
-          </p>
-          <p><span class="font-medium">SSS:</span> 
-            <input type="text" class="editable border-none bg-transparent focus:ring-0" value="12-3456789-0" disabled>
-          </p>
-          <p><span class="font-medium">TIN:</span> 
-            <input type="text" class="editable border-none bg-transparent focus:ring-0" value="123-123-123" disabled>
-          </p>
-        </div>
-      </div>
-    </div>
     </main>
-
-    <script>
-    const modal = document.getElementById('editModal');
-    const fullNameDisplay = document.getElementById('fullNameDisplay');
-    const civilStatusDisplay = document.getElementById('civilStatusDisplay');
-    const fullNameInput = document.getElementById('fullNameInput');
-    const civilStatusInput = document.getElementById('civilStatusInput');
-
-    function openEditModal() {
-      fullNameInput.value = fullNameDisplay.textContent;
-      civilStatusInput.value = civilStatusDisplay.textContent;
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeEditModal() {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function updateInfo() {
-      fullNameDisplay.textContent = fullNameInput.value;
-      civilStatusDisplay.textContent = civilStatusInput.value;
-      closeEditModal();
-    }
-
-    // DOM ELEMENTS
-    const contactModal = document.getElementById('contactModal');
-    const cellDisplay = document.getElementById('cellDisplay');
-    const emailDisplay = document.getElementById('emailDisplay');
-    const passwordDisplay = document.getElementById('passwordDisplay');
-    const residentialDisplay = document.getElementById('residentialDisplay');
-    const permanentDisplay = document.getElementById('permanentDisplay');
-
-    const cellInput = document.getElementById('cellInput');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const residentialInput = document.getElementById('residentialInput');
-    const permanentInput = document.getElementById('permanentInput');
-
-    // OPEN MODAL
-    function openContactModal() {
-      cellInput.value = cellDisplay.textContent;
-      emailInput.value = emailDisplay.textContent;
-      passwordInput.value = '';
-      residentialInput.value = residentialDisplay.textContent;
-      permanentInput.value = permanentDisplay.textContent;
-
-      contactModal.classList.remove('hidden');
-      contactModal.classList.add('flex');
-    }
-
-    // CLOSE MODAL
-    function closeContactModal() {
-      contactModal.classList.add('hidden');
-      contactModal.classList.remove('flex');
-    }
-
-    // UPDATE INFO
-    function updateContactInfo() {
-      cellDisplay.textContent = cellInput.value;
-      emailDisplay.textContent = emailInput.value;
-
-      // Only update password if user entered something
-      if (passwordInput.value.trim() !== '') {
-        passwordDisplay.textContent = '********';
-      }
-
-      residentialDisplay.textContent = residentialInput.value;
-      permanentDisplay.textContent = permanentInput.value;
-
-      closeContactModal();
-    }
-  </script>
   </body>
 </html>
