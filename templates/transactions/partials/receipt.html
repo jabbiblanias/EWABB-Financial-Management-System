@@ -43,34 +43,30 @@
         </button>
 
         <!-- Print button -->
-        <button onclick="openPrintPage()" 
-                class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          Print
+        <button id="printBtn" onclick="openPrintPage()" 
+                class="hidden bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Open Passbook
         </button>
       </div>
     </div>
   </div>
-  <script>
+ <script>
+  function showReceiptModal() {
+  // Fill modal fields...
+  const transaction_type = document.getElementById("transaction_type").textContent.trim();
+if (transaction_type === "Loan Payment" || transaction_type === "Savings Deposit" || transaction_type === "Withdrawal") {
+  document.getElementById("printBtn").classList.remove("hidden");
+} else {
+  document.getElementById("printBtn").classList.add("hidden");
+}
+
+  document.getElementById("receiptModal").classList.remove("hidden");
+}
   function openPrintPage() {
-    // Get values from modal
-    const transaction_id = document.getElementById("transaction_id").textContent.trim();
     const accountNo = document.getElementById("accountNo").textContent.trim();
-    const memberName = document.getElementById("memberName").textContent.trim();
-    const transaction_type = document.getElementById("transaction_type").textContent.trim();
-    const dateTime = document.getElementById("dateTime").textContent.trim();
-    const amount = document.getElementById("amount").textContent.trim();
 
-    // Build query string
-    const params = new URLSearchParams({
-      transaction_id,
-      accountNo,
-      memberName,
-      transaction_type,
-      dateTime,
-      amount
-    });
-
-    // ✅ Open print layout in new tab with all parameters
-    window.open(`{% url 'print_passbook' %}?${params.toString()}`, "_blank");
+    // Django only provides the base path, JS appends the account number
+    const url = `/transactions/passbook/${accountNo}/`;
+    window.open(url, '_blank');
   }
-  </script>
+</script>

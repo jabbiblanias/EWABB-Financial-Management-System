@@ -98,16 +98,38 @@ def transactions(request):
             program_id = request.POST.get('programType') or None
             description = request.POST.get('description') or None
 
-            member = Member.objects.filter(account_number=account_number).first()
+            member = Member.objects.select_for_update().filter(account_number=account_number).first()
+            if not member:
+                return JsonResponse({'success': False, 'message': 'Invalid account number.'})
 
             #Change computation
             change = amount_received - amount
 
+            # 🧠 Check for recent duplicate transaction (same type, member, and amount)
+            recent_time_limit = timezone.now() - timedelta(seconds=5)
+            if Transactions.objects.filter(
+                member_id=member,
+                transaction_type=transaction_type,
+                amount=amount,
+                transaction_date__gte=recent_time_limit
+            ).exists():
+                return JsonResponse({'success': False, 'message': 'Duplicate transaction detected. Please wait a moment and try again.'})
+            
+            # --- SAVINGS DEPOSIT ---
             if transaction_type == 'Savings Deposit':
-                savings = Savings.objects.get(member_id=member)
+                savings = Savings.objects.select_for_update().get(member_id=member)
                 savings.balance += amount
                 savings.save()
-                toast_message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
+
+                transaction_id = Transactions.objects.create(
+                    member_id=member,
+                    cashier_id=cashier_id,
+                    amount=amount,
+                    amount_received=amount_received,
+                    change=change,
+                    transaction_type=transaction_type,
+                    savings_id=savings
+                )
 
                 # 🔔 Member notification (different wording)
                 Notification.objects.create(
@@ -119,19 +141,14 @@ def transactions(request):
                         f"Your new balance is ₱{savings.balance:,}."
                     )
                 )
-                transaction_id = Transactions.objects.create(
-                    member_id=member,
-                    cashier_id=cashier_id,
-                    amount=amount,
-                    amount_received=amount_received,
-                    change=change,
-                    transaction_type=transaction_type,
-                    savings_id=savings
-                )
+                
+                toast_message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
+
+            # --- LOAN PAYMENT ---
             elif transaction_type == 'Loan Payment':
-                loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
+                loan = Loan.objects.select_for_update().filter(member_id=member, loan_status="Active").first()
                 if not loan:
-                    return JsonResponse({"success": False, "message": "This account number doesn't have active loan."})
+                    return JsonResponse({'success': False, 'message': 'No active loan for this member.'})
                 
                 toast_message, excess = record_payment(member, loan, amount)
                 if excess != 0:
@@ -146,16 +163,14 @@ def transactions(request):
                     transaction_type=transaction_type,
                     loan_id=loan
                 )
+            
+            # --- WITHDRAWAL ---
             elif transaction_type == 'Withdrawal':
                 amount_received = None
                 change = None
-                savings = Savings.objects.get(member_id=member)
-
+                savings = Savings.objects.select_for_update().get(member_id=member)
                 current_loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
-
-                # If the member has a loan, must maintain savings >= loan balance
                 maintained_balance = current_loan.remaining_balance if current_loan else 0
-
                 available_balance_to_withdraw = savings.balance - maintained_balance
 
                 if available_balance_to_withdraw <= 0:
@@ -263,6 +278,8 @@ def transactions(request):
 @transaction.atomic
 def record_payment(member_id, loan, payment_amount):
 
+    has_overdue = LoanRepaymentSchedule.objects.select_related('loan_id').filter(loan_id=loan, status="Overdue").exists()
+
     repayment = LoanRepaymentSchedule.objects.filter(
         loan_id=loan
     ).exclude(status='Paid').order_by('due_date').first()
@@ -281,6 +298,22 @@ def record_payment(member_id, loan, payment_amount):
         repayment.last_updated = timezone.now()
         repayment.status = 'Paid'
         repayment.save()
+
+        applicable_rebates = Loan.objects.select_related('loan_application_id').filter(loan_application_id__loan_type__in=['Motorcycle Loan', 'Appliances Loan', 'Gadget Loan', ]).exists()
+
+        if not has_overdue and applicable_rebates:
+            savings = Savings.objects.filter(member_id=member_id).update(balance=F('balance') + loan.rebates)
+            Notification.objects.create(
+                user_id=member_id.user_id,
+                title="Loan Rebate Credited",
+                message=f"A rebate of ₱{loan.rebates:,} has been credited to your savings account for timely loan payments."
+            )
+            Transactions.objects.create(
+                member_id=member_id,
+                amount=loan.rebates,
+                transaction_type="Loan Rebate Credit",
+                savings_id=savings
+            )
 
         # update loan totals
         loan.total_paid = loan.total_paid + repayment.paid_amount if loan.total_paid else repayment.paid_amount
@@ -449,34 +482,119 @@ def balance(request):
     account_number = request.GET.get("accountNumber")
     transaction_type = request.GET.get("transactionType")
 
+    # 🟢 CASE 1: Operating Expenses — no member lookup needed
+    if transaction_type == "Operating Expenses":
+        fund = Funds.objects.filter(fund_name__iexact='Expenses').first()
+        if not fund:
+            return JsonResponse({
+                "exists": True,
+                "member_name": "Operating Account",
+                "balance": 0
+            })
+        return JsonResponse({
+            "exists": True,
+            "member_name": "Operating Account",
+            "balance": float(fund.balance)
+        })
 
-    # Check if member exists
+    # 🟡 CASE 2: Member-related transactions
     member = Member.objects.select_related("person_id").filter(account_number=account_number).first()
     if not member:
         return JsonResponse({"exists": False, "balance": None})
-    
-    first_name = member.person_id.first_name
-    middle_name = member.person_id.middle_name
-    name_extension = member.person_id.name_extension
-    last_name = member.person_id.surname
+
+    # Build full name
+    person = member.person_id
     member_name = ", ".join(
-        part for part in [last_name, first_name, middle_name, name_extension] if part
+        part for part in [person.surname, person.first_name, person.middle_name, person.name_extension] if part
     )
 
-    if transaction_type == "Savings Deposit" or transaction_type == "Withdrawal":
+    # 🟠 CASE 2A: Savings
+    if transaction_type in ["Savings Deposit", "Withdrawal"]:
         savings = Savings.objects.filter(member_id=member).first()
-        if not savings:
-            return JsonResponse({"exists": True, "member_name": member_name})
-        balance = savings.balance
-    elif transaction_type == "Loan Payment":
-        # Get loan for this member
-        loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
-        if not loan:
-            return JsonResponse({"exists": True, "member_name": member_name})
-        balance = loan.remaining_balance
-    else:
-        return JsonResponse({"exists": True, "member_name": member_name})
-    return JsonResponse({"exists": True, "member_name": member_name, "balance": Decimal(balance)})
+        balance = savings.balance if savings else 0
 
-def passbook_print(request):
-    return render(request, 'transactions/partials/passbook.html')
+    # 🔵 CASE 2B: Loan
+    elif transaction_type == "Loan Payment":
+        loan = Loan.objects.filter(member_id=member, loan_status="Active").first()
+        balance = loan.remaining_balance if loan else 0
+
+    # 🔴 Default
+    else:
+        balance = 0
+
+    return JsonResponse({
+        "exists": True,
+        "member_name": member_name,
+        "balance": float(balance)
+    })
+
+def passbook_print(request, account_number):
+    # Fetch member
+    member = Member.objects.select_related('person_id').get(account_number=account_number)
+
+    # 1. Fetch Data (ordered ascending for calculation)
+    # Note: Use 'pk' or 'id' as a secondary sort key for transactions on the same date.
+    savings_transactions = Transactions.objects.filter(
+        member_id=member,
+        transaction_type__in=['Savings Deposit', 'Withdrawal', 'Dividend Credit']
+    ).order_by('transaction_date', 'pk')
+
+    loan_transactions = Transactions.objects.filter(
+        member_id=member,
+        transaction_type__in=['Loan Payment', 'Loan Release']
+    ).select_related('loan_id__loan_application_id').order_by('transaction_date', 'pk')
+
+    # 2. Initialize Starting Balances
+    current_savings_balance = Decimal('0.00')
+    current_loan_balance = Decimal('0.00')
+
+    # 3. Calculate Running Savings Balance (CBU)
+    for t in savings_transactions:
+        try:
+            # Ensure amount is a Decimal
+            amount = t.amount if t.amount is not None else Decimal('0.00')
+        except InvalidOperation:
+            amount = Decimal('0.00') 
+
+        if t.transaction_type in ['Savings Deposit', 'Dividend Credit']:
+            current_savings_balance += amount
+        elif t.transaction_type == 'Withdrawal':
+            current_savings_balance -= amount
+            
+        t.savings_balance = current_savings_balance
+
+    # 4. Calculate Running Loan Balance
+    for t in loan_transactions:
+        try:
+            # Ensure amount is a Decimal
+            amount = t.amount if t.amount is not None else Decimal('0.00')
+        except InvalidOperation:
+            amount = Decimal('0.00')
+        
+        if t.transaction_type == 'Loan Release':
+            current_loan_balance += t.loan_id.loan_application_id.total_payable
+        elif t.transaction_type == 'Loan Payment':
+            current_loan_balance -= amount
+            
+        t.loan_balance = current_loan_balance
+
+    # 5. Combine and Prepare for Template
+    all_transactions = list(chain(savings_transactions, loan_transactions))
+    
+    # *** FIX FOR ASCENDING ORDER (OLDEST AT TOP) ***
+    # By removing reverse=True, the transactions are sorted oldest-to-newest.
+    all_transactions.sort(key=lambda t: t.transaction_date) 
+
+    paginator = Paginator(all_transactions, 8)
+
+    last_page_number = paginator.num_pages
+
+    # Get the last page object
+    last_page = paginator.page(last_page_number)
+
+    context = {
+        'member': member,
+        'page': last_page,
+    }
+
+    return render(request, 'transactions/partials/passbook.html', context)

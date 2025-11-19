@@ -227,6 +227,7 @@
         receiver.classList.add("hidden");
 
         document.getElementById("labelAmount").textContent = "Operating Expenses Amount"
+        balance_type.textContent = "Operating Fund Balance";
 
         descriptionGroup.classList.remove("hidden");
         description.setAttribute("required", "required");
@@ -288,7 +289,7 @@
           document.getElementById('amount_received').textContent = t.amount_received;
           document.getElementById('amountDue').textContent = t.amount;
           document.getElementById('change').textContent = t.change;
-          document.getElementById("receiptModal").classList.remove("hidden")
+          showReceiptModal();
           document.getElementById("table-body").innerHTML = data.table_body_html;
           document.getElementById("pagination-controls").innerHTML = data.pagination_html;
           document.getElementById("transactionForm").reset();
@@ -339,26 +340,27 @@
     })
 
     async function getMemberData() {
-      const transaction_type = document.getElementById("transactionType").value;
-      const balance = document.getElementById("balance");
+  const transaction_type = document.getElementById("transactionType").value;
+  const account_number = document.getElementById("accountNumber").value.trim();
+  const balance = document.getElementById("balance");
 
-      const account_number = document.getElementById("accountNumber").value.trim();
-      const response = await fetch(`{% url 'balance' %}?accountNumber=${encodeURIComponent(account_number)}&transactionType=${encodeURIComponent(transaction_type)}`);
-
+  // Skip fetching member balance for program or operating expenses
+  if (transaction_type === "Program Deposit" || transaction_type === "Operating Expenses") {
+    if (transaction_type === "Operating Expenses") {
+      const response = await fetch(`{% url 'balance' %}?transactionType=${encodeURIComponent(transaction_type)}`);
       const data = await response.json();
-
-      if (data.member_name == null) {
-        document.getElementById("memberName").textContent = "--"
-      } else {
-        document.getElementById("memberName").textContent = data.member_name
-      }
-
-      if (data.balance == null) {
-        balance.textContent = 0
-      } else {
-        balance.textContent = data.balance
-      }
+      document.getElementById("memberName").textContent = data.member_name;
+      balance.textContent = data.balance ?? 0;
     }
+    return;
+  }
+
+  const response = await fetch(`{% url 'balance' %}?accountNumber=${encodeURIComponent(account_number)}&transactionType=${encodeURIComponent(transaction_type)}`);
+  const data = await response.json();
+
+  document.getElementById("memberName").textContent = data.member_name ?? "--";
+  balance.textContent = data.balance ?? 0;
+}
 
     document.getElementById("transactionForm").addEventListener("reset", function () {
       document.getElementById("memberName").textContent = "--"

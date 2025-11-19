@@ -40,7 +40,7 @@
             <option>Personal Loan</option>
             <option>Business Loan</option>
             <option>Motorcycle Loan</option>
-            <option>Application Loan</option>
+            <option>Appliances Loan</option>
             <option>Gadget Loan</option>
             <option>Emergency Loan</option>
           </select>
@@ -183,7 +183,9 @@
   document.getElementById("loanApplicationForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    if (checkActiveLoans()) {
+    const hasActiveLoans = await checkActiveLoans();
+
+    if (hasActiveLoans) {
       showAlert("Cannot apply for a new loan until existing loans are settled.", "error");
       return;
     } else {
@@ -247,21 +249,24 @@
   }
 
   // UPDATED: Open pop-up function to fetch savings immediately if not a Bookkeeper
-  function openPopUp() {
+  async function openPopUp() {
 
     // Check if the account number field is NOT visible (implies it's the member)
     const isBookkeeper = document.getElementById('accountNumber') !== null;
 
     // If not a bookkeeper (i.e., the member), fetch and display their savings immediately.
     if (!isBookkeeper) {
-      memberSavings();
-      if (checkActiveLoans()) {
-        showAlert("You have active loans. You cannot apply for a new loan until existing loans are settled.", "error");
-      }
-    } else {
-      document.getElementById('popupApplication').classList.remove('hidden');
-    }
+      await memberSavings();
 
+    // ⬇ FIXED: await here
+    const hasActiveLoans = await checkActiveLoans();
+
+    if (hasActiveLoans) {
+      showAlert("You have active loans. You cannot apply for a new loan until existing loans are settled.", "error");
+      return;
+    }
+    }
+      document.getElementById('popupApplication').classList.remove('hidden');
   }
 
   // UPDATED: closePopUp function to reset the savings display

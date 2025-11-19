@@ -44,11 +44,13 @@ class Loan(models.Model):
     ]
 
     loan_id = models.AutoField(primary_key=True, db_column='loanid')
+    
     loan_application_id = models.ForeignKey(LoanApplication, models.DO_NOTHING, db_column='loanapplicationid')
     member_id = models.ForeignKey(Member, models.DO_NOTHING, db_column='memberid')
     remaining_balance = models.DecimalField(max_digits=12, decimal_places=2, db_column='remainingbalance')
     total_paid = models.DecimalField(max_digits=12, decimal_places=2, db_column='totalpaid')
     loan_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active', db_column='loanstatus')
+    rebates = models.BooleanField(default=False, db_column='rebates')
     released_by_id = models.ForeignKey(User, models.DO_NOTHING, db_column='releasedbyid')
     released_date = models.DateTimeField(auto_now_add=True, db_column='releaseddate')
     

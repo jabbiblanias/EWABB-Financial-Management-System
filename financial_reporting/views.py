@@ -21,6 +21,7 @@ import csv
 from datetime import date, timedelta
 from django.db.models import Sum, Max
 from django.db.models.functions import Round
+from notifications.models import Notification
 
 
 def member_loan_report(request):
@@ -241,6 +242,71 @@ def dividend_report(request):
         return render(request, 'financial_reporting/dividend_report.html')
     elif request.user.groups.filter(name='Admin').exists():
         return render(request, 'financial_reporting/dividend_report.html', context)
+    
+def compute_and_distribute_dividend():
+    """Compute dividend for the next unprocessed period."""
+    
+    # 1️⃣ Find the last dividend date range
+    last_dividend = Dividend.objects.order_by('-period_end').first()
+
+    if last_dividend:
+        period_start = last_dividend.period_end + timedelta(days=1)
+    else:
+        # First ever dividend → start from start of the year
+        period_start = date(date.today().year, 1, 1)
+
+    # 2️⃣ Define the new period end (up to today)
+    period_end = date.today()
+
+    total_savings = Savings.objects.aggregate(Sum('balance'))['balance__sum'] or Decimal('0.00')
+    if total_savings <= 0:
+        return {'success': False, 'message': 'No savings in the system — dividend not computed.'}
+
+    # 3️⃣ Get revenues & expenses within this new period
+    total_income = Funds.objects.filter(fund_name='Revenue').aggregate(Sum('balance'))['balance__sum'] or Decimal('0.00')
+    total_expenses = Funds.objects.filter(fund_name='Expense').aggregate(Sum('balance'))['balance__sum'] or Decimal('0.00')
+
+    net_surplus = total_income + total_expenses
+    if net_surplus <= 0:
+        return {'success': False, 'message': 'No surplus in this period — dividend not computed.'}
+    
+    rate = net_surplus / total_savings
+
+    # 5️⃣ Create new dividend record
+    dividend = Dividend.objects.create(
+        title=f"Dividend ({period_start:%b %d, %Y} - {period_end:%b %d, %Y})",
+        period_start=period_start,
+        period_end=period_end,
+        total_surplus=net_surplus,
+        rate=rate,
+    )
+
+    # 6️⃣ Distribute to members
+    members = Member.objects.all()
+    total_distributed = Decimal('0.00')
+
+    for member in members:
+        share_capital = getattr(member, 'share_capital', Decimal('0.00'))
+        if share_capital <= 0:
+            continue
+
+        dividend_amount = share_capital * dividend.rate
+        total_distributed += dividend_amount
+
+        # Credit to member savings
+        if hasattr(member, 'savings_balance'):
+            member.savings_balance += dividend_amount
+            member.save()
+
+    dividend.save()
+
+    return {
+        'success': True,
+        'message': f"Dividend from {period_start:%b %d, %Y} to {period_end:%b %d, %Y} computed successfully.",
+        'total_distributed': total_distributed,
+        'period_start': period_start,
+        'period_end': period_end,
+    }
 
 def submit_monthly_report(request):
     if request.method != "POST":
@@ -361,7 +427,7 @@ def submit_dividend_report(request):
         current_year = timezone.localdate().year
         current_year_dividend = Dividend.objects.filter(period_end__year=current_year).exists()
         if current_year_dividend:
-            return JsonResponse({"message": "Dividend for the current year has already been processed."})
+            return JsonResponse({"success": False, "message": "Dividend for the current year has already been processed."})
         
         dividend = Dividend.objects.create(
             period_start=period_start,
@@ -372,7 +438,7 @@ def submit_dividend_report(request):
 
         # 6️⃣ Distribute to members
         members = Member.objects.all()
-        #total_distributed = Decimal('0.00')
+        total_distributed = Decimal('0.00')
 
         for member in members:
             savings = Savings.objects.filter(member_id=member).first()
@@ -381,10 +447,10 @@ def submit_dividend_report(request):
 
             # Compute dividend
             dividend_amount = (savings.balance * Decimal(rate)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-            #total_distributed += dividend_amount
 
             # 3️⃣ Credit dividend to member’s savings
             Savings.objects.filter(pk=savings.pk).update(balance=F('balance') + dividend_amount)
+            total_distributed += dividend_amount
 
             # 4️⃣ Record a transaction entry for transparency
             Transactions.objects.create(
@@ -395,16 +461,25 @@ def submit_dividend_report(request):
                 savings_id=savings
             )
 
+            Notification.objects.create(
+                member=member,
+                title="Dividend Credit",
+                message=f"You received ₱{dividend_amount:.2f} as your dividend for the Fiscal Year "
+                        f"{current_year}.",
+            )
+
         # Deduct total from Revenue fund once (after all members)
         revenue = Funds.objects.filter(fund_name='Revenue').first()
         if revenue:
             revenue.balance = Decimal('0.00')
             revenue.save(update_fields=['balance'])
 
+        remains_from_net_surplus = net_surplus - total_distributed
+
         # If you want to clear Expenses fund (optional)
         expenses = Funds.objects.filter(fund_name='Expenses').first()
         if expenses:
-            expenses.balance = Decimal('0.00')  # or handle differently
+            expenses.balance = remains_from_net_surplus  # or handle differently
             expenses.save(update_fields=['balance'])
 
         report = Financialreports.objects.create(title=title, status='Submitted', report_type="dividend", dividend_id=dividend)
@@ -475,7 +550,7 @@ def submit_dividend_report(request):
             fields_to_update = ['remarks']
             Memberfinancialdata.objects.bulk_update(to_update, fields_to_update)
     
-    return JsonResponse({"status": "success"}, status=200)
+    return JsonResponse({"success": True, "message": "Dividend report submitted successfully."})
 
 def monthly_pdf_report_export(request, report_id):
     report = Financialreports.objects.filter(report_id=report_id).values("title", "status", "created_at").first()

@@ -17,20 +17,21 @@ from django.db.models.functions import Concat
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
+        identifier = request.POST.get('emailUsername', '').strip()
         password = request.POST.get('password')
 
         # 🔍 Find user by email
         try:
-            user_obj = User.objects.get(email=email)
+            user_obj = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
             user = authenticate(request, username=user_obj.username, password=password)
         except User.DoesNotExist:
             user = None
 
         if user:
+            email = user.email
             # ✅ Check membership status
             if Membershipapplication.objects.filter(user_id=user, status="Pending").exists(): 
-                request.session["email"] = email
+                request.session["identifier"] = identifier
                 messages.warning(request, "Your application is still pending.")
                 return redirect("login")
             
@@ -40,13 +41,16 @@ def login_view(request):
             request.session["email"] = email
             request.session["user_id"] = user.id
 
-            member = Member.objects.select_related('person_id').get(user_id=user)
-            first_name = member.person_id.first_name
+            if user.groups.filter(name="Member").exists():
+                member = Member.objects.select_related('person_id').get(user_id=user)
+                first_name = member.person_id.first_name
+            else:
+                first_name = user.first_name
             otp(first_name, email)
             return redirect('login_verification')
 
         # ❌ Invalid login
-        request.session["email"] = email
+        request.session["identifier"] = identifier
         messages.error(request, "Invalid email or password.")
         return redirect("login")
 
@@ -290,7 +294,6 @@ def register_step3(request):
     error = None
     print("In register3:", request.session.get('register_data'))
     if request.method == 'POST':
-        username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
@@ -309,7 +312,6 @@ def register_step3(request):
             first_name = data.get('firstName')
 
             data.update({
-                'username': username,
                 'email': email,
                 'password': make_password(password),
             })
@@ -329,7 +331,6 @@ def registration_otp_verification_view(request):
         input_code = request.POST.get('code')
 
         email = data.get('email')
-        username = data.get('username')
         password = data.get('password')
 
         try:
@@ -346,8 +347,8 @@ def registration_otp_verification_view(request):
                     with transaction.atomic():
 
                         user = User.objects.create_user(
-                            username=username,
-                            email=email,
+                            username="John",
+                            email=email
                         )
                         user.password = password  # assign directly, already hashed
                         user.save()

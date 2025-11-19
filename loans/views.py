@@ -454,27 +454,49 @@ def approving_loan(request):
         except Member.DoesNotExist:
             return JsonResponse({'success': False})
 
-
 @login_required
 @transaction.atomic
 def releasing(request):
     data = json.loads(request.body)
     loan_application_id = data.get('loan_application_id')
     user = request.user
+
     try:
-        loan_application = LoanApplication.objects.get(loan_application_id=loan_application_id, status='Approved')
+        # Lock the loan application to prevent race conditions
+        loan_application = (
+            LoanApplication.objects
+            .select_for_update()
+            .get(loan_application_id=loan_application_id)
+        )
+
+        # 🔒 Prevent double releasing
+        if loan_application.status != 'Approved':
+            return JsonResponse({
+                'success': False,
+                'message': f"Loan has already been {loan_application.status.lower()}."
+            })
+
         member = loan_application.member_id
+
+        # Double-check that the loan doesn’t already exist (extra safety)
+        if Loan.objects.filter(loan_application_id=loan_application).exists():
+            return JsonResponse({
+                'success': False,
+                'message': 'This loan has already been released.'
+            })
+
+        # ✅ Proceed with loan creation
         loan = Loan.objects.create(
             member_id=member,
             loan_application_id=loan_application,
             remaining_balance=loan_application.total_payable,
-            released_by_id=request.user
+            released_by_id=user
         )
 
         loan_days = loan_application.loan_term_days
         loan_years = loan_application.loan_term_years
         loan_months = loan_application.loan_term_months
-        amortization = float(loan_application.amortization)
+        amortization = Decimal(loan_application.amortization)
         released_date = date.today()
 
         if loan_days == 100 and loan_months == 0 and loan_years == 0:
@@ -487,12 +509,9 @@ def releasing(request):
             total_months = (loan_years * 12) + loan_months
             payment_date = released_date
 
-            # Adjust last amortization to fix rounding issues (e.g., ₱0.02 difference)
             base_amortization = (loan_application.total_payable / total_months).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             total_rounded = base_amortization * total_months
             difference = (loan_application.total_payable - total_rounded).quantize(Decimal('0.01'))
-
-            # Adjust last amortization to fix rounding error (e.g., ₱0.02)
             last_amortization = (base_amortization + difference).quantize(Decimal('0.01'))
 
             for i in range(total_months):
@@ -503,9 +522,12 @@ def releasing(request):
                     due_date=payment_date,
                     amount_due=amount_due,
                 )
+
+        # Update loan application status
         loan_application.status = "Released"
         loan_application.save()
 
+        # Update financials
         Member.objects.filter(member_id=member.member_id).update(
             insurance=F('insurance') + loan_application.insurance
         )
@@ -517,14 +539,14 @@ def releasing(request):
         Revenue.objects.create(
             source='Service Charge',
             member_id=member,
-            amount=loan_application.service_charge/Decimal('2'),
+            amount=loan_application.service_charge / Decimal('2'),
             loan_id=loan
         )
 
         Expense.objects.create(
             source='Service Charge',
             member_id=member,
-            amount=loan_application.service_charge/Decimal('2'),
+            amount=loan_application.service_charge / Decimal('2'),
             loan_id=loan
         )
 
@@ -535,11 +557,12 @@ def releasing(request):
         Funds.objects.filter(fund_name='Revenue').update(
             balance=F('balance') + (Decimal(loan_application.service_charge) / Decimal('2'))
         )
+
         Transactions.objects.create(
             member_id=member,
             cashier_id=user,
             amount=loan_application.net_proceeds,
-            transaction_type='Loan Release', # 👈 Use 'Penalty Accrual'
+            transaction_type='Loan Release',
             loan_id=loan
         )
 
@@ -551,13 +574,19 @@ def releasing(request):
             message=(
                 f"Your approved loan (ID: {loan.loan_id}) has been successfully released. "
                 f"Amount Released: ₱{loan_application.net_proceeds:,.2f}. "
-                f"Start date of repayment: {DateFormat(schedules['due_date']).format('M d, Y')}"
+                f"Start date of repayment: {DateFormat(schedules['due_date']).format('M d, Y')}."
             )
         )
+
+        # Return updated UI content
         context = cashier_approved_loans(request, ajax=True)
         return context
-    except (LoanApplication.DoesNotExist, Member.DoesNotExist):
-        return JsonResponse({'success': False})
+
+    except LoanApplication.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Loan application not found.'})
+    except Member.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Member not found.'})
+
 
 
 def run_repayment_status_update(request):
@@ -670,6 +699,7 @@ def check_active_loan(request):
             member = Member.objects.get(user_id=user)
         
         active_loan_exists = Loan.objects.filter(member_id=member, loan_status='Active').exists()
+        print(active_loan_exists)
         return JsonResponse({"success": True, "active_loan_exists": active_loan_exists})
     except Member.DoesNotExist:
         return JsonResponse({"success": False, "message": "Account number not found."})

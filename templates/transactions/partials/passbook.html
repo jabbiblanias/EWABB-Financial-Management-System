@@ -1,80 +1,167 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Passbook Print</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>Passbook</title>
+  {% tailwind_css %}
+  <script src="{% static 'partials/table-utils.js' %}"></script>
+  <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+
   <style>
-  body {
-    font-family: "Courier New", monospace;
-    font-size: 12px;
-    width: 8in;
-    height: 5in;
-    margin: 0 auto;
-    padding: 0.3in;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  td {
-    padding: 3px 5px;
-    text-align: left;
-    height: 20px;
-  }
-
-  @media print {
-    @page {
-      size: 8in 5in landscape;
-      margin: 5mm;
-    }
-
     body {
-      width: 8in;
-      height: 5in;
-      margin: 0;
-      padding: 0.2in;
-      overflow: hidden;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      color: #000;
+      margin: 40px;
     }
 
-    button {
-      display: none !important;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
     }
 
     table {
-      font-size: 11px;
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #000;
     }
-  }
-</style>
 
+    th, td {
+      border: 1px solid #000;
+      padding: 4px 6px;
+      text-align: center;
+    }
+
+    th {
+      font-weight: bold;
+      background-color: #fdfdfd;
+    }
+
+    td {
+      height: 22px;
+    }
+
+    th:nth-child(1), td:nth-child(1) {
+      width: 13%;
+      text-align: left;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+      width: 30%;
+      text-align: left;
+    }
+
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(6), td:nth-child(6) {
+      width: 14%;
+    }
+
+    /* Hide the button during printing */
+    @media print {
+      body {
+        margin: 10mm;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Optional styling for the button */
+    .print-btn {
+      background-color: #2563eb;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .print-btn:hover {
+      background-color: #1e40af;
+    }
+  </style>
 </head>
-<body class="text-[12px] text-black m-0 print:m-0">
+<body>
 
-  <table class="w-full border-collapse">
-    <tbody id="passbookEntries">
-      <tr class="h-[22px]">
-        <td id="entryDate" class="px-2 py-1 text-left"></td>
-        <td id="entryDescription" class="px-2 py-1 text-left"></td>
-        <td class="px-2 py-1"></td>
-        <td class="px-2 py-1"></td>
-        <td id="entryPayment" class="px-2 py-1"></td>
-        <td class="px-2 py-1"></td>
+  <!-- Print Button -->
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print Passbook</button>
+
+  <!-- Header with depositor info -->
+  <div class="header">
+    <span id="depositorName">DEPOSITORS</span>
+    <span>ACCOUNT NUMBER <br> <span id="accountNumber" class="ml-4"></span></span>
+  </div>
+
+  <!-- Passbook Table -->
+  <table id="myTable">
+    <thead>
+      <tr>
+        <th>DATE</th>
+        <th>DESCRIPTION</th>
+        <th colspan="2">LOAN</th>
+        <th colspan="2">CBU</th>
       </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>PAYMENT</th>
+        <th>BALANCE</th>
+        <th>PAYMENT</th>
+        <th>BALANCE</th>
+      </tr>
+    </thead>
+    <tbody id="passbookEntries">
+      {% for transaction in page.object_list %}
+      <tr>
+        <td>{{ transaction.transaction_date|date:"m/d/Y" }}</td>
+        <td class="text-left pl-2">
+          **{{ transaction.transaction_type }}**
+          {% if transaction.transaction_type == "Loan Release" or transaction.transaction_type == "Withdrawal" %}
+            <span class="text-sm">(₱{{ transaction.amount|default:0|floatformat:2 }})</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if transaction.transaction_type == "Loan Payment" %}
+            ₱{{ transaction.amount|floatformat:2 }}
+          {% endif %}
+        </td>
+        <td>
+          {% if transaction.loan_balance and transaction.loan_balance != 0 %}
+            ₱{{ transaction.loan_balance|floatformat:2 }}
+          {% endif %}
+        </td>
+        <td>
+          {% if transaction.transaction_type == "Savings Deposit" or transaction.transaction_type == "Dividend Credit" %}
+            ₱{{ transaction.amount|floatformat:2 }}
+          {% elif transaction.transaction_type == "Withdrawal" %}
+            (-) ₱{{ transaction.amount|floatformat:2 }}
+          {% endif %}
+        </td>
+        <td>
+          {% if transaction.savings_balance and transaction.savings_balance != 0 %}
+            ₱{{ transaction.savings_balance|floatformat:2 }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
     </tbody>
   </table>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    document.getElementById("entryDate").textContent = urlParams.get('dateTime') || "";
-    document.getElementById("entryDescription").textContent = urlParams.get('transaction_type') || "";
-    document.getElementById("entryPayment").textContent = urlParams.get('amount') || "";
-    window.onload = () => window.print();
+    document.addEventListener("DOMContentLoaded", function () {
+      // Fill rows after table loads
+      fillTableRows('myTable', 10);
+    });
   </script>
 </body>
 </html>

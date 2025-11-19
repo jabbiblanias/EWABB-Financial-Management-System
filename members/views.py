@@ -61,8 +61,22 @@ def approval(request):
         action = data.get('action')
 
         try:
+            # Lock the row for this transaction
+            membership_application = (
+                Membershipapplication.objects
+                .select_for_update()
+                .get(application_id=application_id)
+            )
+
+            # Prevent double approval/rejection
+            if membership_application.status != 'Pending':
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Application already {membership_application.status.lower()}."
+                })
+
             account_number = None
-            membership_application = Membershipapplication.objects.get(application_id=application_id) 
+
             if action == 'approve':
                 member = Member.objects.create(
                     user_id=membership_application.user_id,
@@ -72,33 +86,28 @@ def approval(request):
                 membership_application.verifier_id = approver
                 membership_application.save()
 
-                # Automatically assign user to 'Member' group
+                # Assign to 'Member' group
                 member_group = Group.objects.get(name='Member')
                 membership_application.user_id.groups.add(member_group)
 
                 Savings.objects.create(member_id=member)
-
                 account_number = member.account_number
 
+                # Notify
                 personal_info = membership_application.person_id
                 user = membership_application.user_id
-                first_name = personal_info.first_name
-                email = user.email
+                email_approved(personal_info.first_name, user.email)
 
-                email_approved(first_name, email)
-            else:
+            elif action == 'reject':
                 membership_application.status = 'Rejected'
                 membership_application.verifier_id = approver
                 membership_application.save()
 
                 personal_info = membership_application.person_id
                 user = membership_application.user_id
-                first_name = personal_info.first_name
-                email = user.email
+                email_rejected(personal_info.first_name, user.email)
 
-                email_rejected(first_name, email)
-
-            # Re-fetch and re-render the table body
+            # Refresh table
             membership_applications = (
                 Membershipapplication.objects
                 .select_related('person_id')
@@ -114,10 +123,14 @@ def approval(request):
                     'person_id__civil_status'
                 )
             )
-            html = render_to_string('members/partials/membership_table_body.html', {'membershipApplications': membership_applications})
+            html = render_to_string(
+                'members/partials/membership_table_body.html',
+                {'membershipApplications': membership_applications}
+            )
             return JsonResponse({'success': True, 'html': html, 'account_number': account_number})
+
         except Membershipapplication.DoesNotExist:
-            return JsonResponse({'success': False})
+            return JsonResponse({'success': False, 'message': 'Application not found.'})
         
 
 def membership_application_details(request, application_id):

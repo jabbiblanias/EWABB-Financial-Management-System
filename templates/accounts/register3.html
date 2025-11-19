@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -58,6 +58,17 @@
         <form id="registerForm" class="space-y-4 bg-white rounded-2xl shadow-lg px-10 py-10 mb-12 border border-gray-200" method="POST" action="{% url 'register3' %}">
           {% csrf_token %}
           <h2 class="text-center text-3xl font-bold mb-8">Create an Account</h2>
+          <!-- Username -->
+          <div>
+            <label class="text-sm font-medium">Username</label>
+            <input id="username" name="username" type="text" placeholder="Enter your username" class="input validator w-full mt-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" 
+            pattern="[A-Za-z][A-Za-z0-9\-]*" minlength="3" maxlength="30" title="Only letters, numbers or dash" required/>
+            <p class="validator-hint hidden">
+              Must be 3 to 30 characters
+              <br/>containing only letters, numbers or dash
+            </p>
+            <p id="usernameMessage" class="hidden text-xs mt-2 text-error"></p>
+          </div>
 
     <!-- Email -->
     <div>
@@ -180,8 +191,7 @@
     
   const data = await response.json();
   if (data.exists) {
-    emailMessage.classList.g
-       remove("hidden")
+    emailMessage.classList.remove("hidden")
     emailMessage.textContent = "Email is already registered";
     return false
   } else {
@@ -194,10 +204,43 @@
     };
 }
 
+document.getElementById('username').addEventListener("input", function () {
+  clearTimeout(timeout);
+  timeout = setTimeout(checkUsername, 500);
+});
+
+async function checkUsername() {
+  const username = document.getElementById("username").value.trim();
+  const usernameMessage = document.getElementById("usernameMessage");
+
+  if (!username) {
+    usernameMessage.textContent = "";
+    return false;
+ }
+
+  try {
+    // AJAX to check email uniqueness
+  const response = await fetch(`{% url 'check_username' %}?username=${encodeURIComponent(username)}`);
+    
+  const data = await response.json();
+  if (data.exists) {
+    usernameMessage.classList.remove("hidden")
+    usernameMessage.textContent = "Username already exist";
+    return false;
+  } else {
+    usernameMessage.classList.add("hidden")
+    return true;
+  }
+  }catch {
+      usernameMessage.textContent = "Error checking username";
+      return false;
+    };
+}
+
 document.getElementById('registerForm').addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const valid = await checkMail() && checkPasswordMatch()
+  const valid = await checkMail() && await checkUsername() && checkPasswordMatch()
   if (!valid) {
     console.log("Form not submitted — email already exists.");
     return; // stop submit
