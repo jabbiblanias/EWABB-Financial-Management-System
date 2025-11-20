@@ -61,6 +61,7 @@ class EmergencyContact(models.Model):
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
     emergency_contact_name = models.CharField(max_length=100, db_column='emergency_contact_name')
     emergency_contact_address = models.TextField(db_column='emergency_contact_address')
+    emergency_contact_number = models.TextField(db_column='emergency_contact_number')
 
     class Meta:
         managed = False
