@@ -124,7 +124,8 @@ function updatePassword() {
           <span class="font-medium block">Full Name:</span>
           <span id="fullNameDisplay" class="display-field ml-1">{{ member.person_id.first_name }} {{ member.person_id.surname }}</span>
           <input id="fullNameInput" name="full_name" type="text" value="{{ member.person_id.first_name }} {{ member.person_id.surname }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-        </li>
+              <span id="Name Error" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
+          </li>
         <!-- Civil Status -->
         <li>
           <span class="font-medium block">Civil Status:</span>
@@ -159,10 +160,11 @@ function updatePassword() {
         </li>
             <!-- Nationality -->
         <li>
-          <span class="font-medium block">Nationality:</span>
-          <span id="nationalityDisplay" class="display-field ml-1">{{ member.person_id.citizenship }}</span>
-          <input id="nationalityInput" name="nationality" type="text" value="{{ member.person_id.citizenship }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-        </li>
+          <span class="font-medium block">citizenship:</span>
+          <span id="citizenshipDisplay" class="display-field ml-1">{{ member.person_id.citizenship }}</span>
+          <input id="citizenshipInput" name="citizenship" type="text" value="{{ member.person_id.citizenship }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+              <span id="citizenshipError" class="text-red-500 text-xs hidden">Enter a valid citizenship (letters only)</span>
+          </li>
         <!-- Blood Type -->
         <li>
           <span class="font-medium block">Blood Type:</span>
@@ -182,11 +184,13 @@ function updatePassword() {
               <span id="heightInputDisplay" class="display-field ml-1">150</span>
               <input id="heightInput" name="height" type="text" value="150" disabled
                 class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+                <span id="heightError" class="text-red-500 text-xs hidden">Height must be numbers only</span>
             </li>
             <li><span class="font-medium block">Weight:</span>
               <span id="weightInputDisplay" class="display-field ml-1">40</span>
               <input id="weightInput" name="weight" type="text" value="40" disabled
                 class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+                <span id="weightError" class="text-red-500 text-xs hidden">Weight must be numbers only</span>
             </li>
           </ul>
         </form>
@@ -216,6 +220,7 @@ function updatePassword() {
           <span class="font-medium block">Email:</span>
           <span id="emailDisplay" class="display-field ml-1">{{ member.person_id.contact_email_address }}</span>
           <input id="emailInput" name="email" type="email" value="{{ member.person_id.contact_email_address|default:'' }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+                <span id="cellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
         </li>
         <!-- Residential Address -->
         <li>
@@ -295,6 +300,7 @@ function updatePassword() {
       <input id="emergencyContactNameInput" name="emergencyContactName" type="text"
         value="{{ emergency_contact.emergency_contact_name }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="emergencyContactNameError" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
     </div>
 
     <div>
@@ -304,6 +310,7 @@ function updatePassword() {
       <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text"
         value="{{ emergency_contact.emergency_contact_number }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="emergencyContactCellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
     </div>
 
     <div>
@@ -345,6 +352,7 @@ function updatePassword() {
 
       <input id="gsisInput" name="gsis" type="text" value="{{ member.person_id.gsis_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="gsisError" class="text-red-500 text-xs hidden">Enter a valid GSIS number</span>
     </div>
 
     <div>
@@ -353,6 +361,7 @@ function updatePassword() {
 
       <input id="pagibigInput" name="pagibig" type="text" value="{{ member.person_id.pagibig_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="pagibigError" class="text-red-500 text-xs hidden">Enter a valid PAG-IBIG number</span>
     </div>
 
     <div>
@@ -361,6 +370,7 @@ function updatePassword() {
 
       <input id="philhealthInput" name="philhealth" type="text" value="{{ member.person_id.philhealth_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="philhealthError" class="text-red-500 text-xs hidden">Enter a valid PHILHEALTH number</span>
     </div>
 
     <div>
@@ -369,6 +379,7 @@ function updatePassword() {
 
       <input id="sssInput" name="sss" type="text" value="{{ member.person_id.sss_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="sssError" class="text-red-500 text-xs hidden">Enter a valid SSS number</span>
     </div>
 
     <div>
@@ -377,6 +388,7 @@ function updatePassword() {
 
       <input id="tinInput" name="tin" type="text" value="{{ member.person_id.tin_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+                <span id="tinError" class="text-red-500 text-xs hidden">Enter a valid TIN number</span>
     </div>
   </div>
 </form>
