@@ -193,7 +193,8 @@ function updatePassword() {
               <span id="fullNameInputDisplay" class="display-field ml-1">Juan M. Dela Cruz</span>
               <input id="fullNameInput" name="full_name" type="text" value="Juan M. Dela Cruz" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
+              <span id="Name Error" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
+              </li>
             <li><span class="font-medium block">Civil Status:</span>
               <span id="civilStatusInputDisplay" class="display-field ml-1">Single</span>
               <select id="civilStatusInput" name="civil_status" disabled
@@ -223,11 +224,12 @@ function updatePassword() {
                 <option value="Other">Other</option>
               </select>
             </li>
-            <li><span class="font-medium block">Nationality:</span>
-              <span id="nationalityInputDisplay" class="display-field ml-1">Filipino</span>
-              <input id="nationalityInput" name="nationality" type="text" value="Filipino" disabled
+            <li><span class="font-medium block">citizenship:</span>
+              <span id="citizenshipInputDisplay" class="display-field ml-1">Filipino</span>
+              <input id="citizenshipInput" name="citizenship" type="text" value="Filipino" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
+              <span id="citizenshipError" class="text-red-500 text-xs hidden">Enter a valid citizenship (letters only)</span>
+              </li>
             <li><span class="font-medium block">Blood Type:</span>
               <span id="bloodTypeInputDisplay" class="display-field ml-1">O+</span>
               <select id="bloodTypeInput" name="blood_type" disabled
@@ -246,11 +248,13 @@ function updatePassword() {
               <span id="heightInputDisplay" class="display-field ml-1">150</span>
               <input id="heightInput" name="height" type="text" value="150" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="heightError" class="text-red-500 text-xs hidden">Height must be numbers only</span>
             </li>
             <li><span class="font-medium block">Weight:</span>
               <span id="weightInputDisplay" class="display-field ml-1">40</span>
               <input id="weightInput" name="weight" type="text" value="40" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="weightError" class="text-red-500 text-xs hidden">Weight must be numbers only</span>
             </li>
           </ul>
         </form>
@@ -273,6 +277,7 @@ function updatePassword() {
               <span id="cellInputDisplay" class="display-field ml-1">+639171234567</span>
               <input id="cellInput" name="cellphone" type="text" value="+639171234567" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="cellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
             </li>
             <li><span class="font-medium block">Current Email:</span> 
               <span id="emailInputDisplay" class="display-field ml-1">juan.delacruz@email.com</span>
@@ -293,16 +298,19 @@ function updatePassword() {
               <span id="TelephoneNum" class="display-field ml-1">02098765</span>
               <input id="TelephoneNumInput" name="telephone_number" type="text" value="02098765" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="telephoneError" class="text-red-500 text-xs hidden">Enter a valid telephone number</span>
             </li>
             <li><span class="font-medium block">Residendial Zip code:</span> 
               <span id="residentialZipInputDisplay" class="display-field ml-1">450</span>
               <input id="residentialZipInput" name="residential_zip" type="text" value="450" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="residentialZipError" class="text-red-500 text-xs hidden">Enter a valid residential zip code</span>
             </li>
             <li><span class="font-medium block">Permanent Zip code:</span> 
               <span id="permanentZipInputDisplay" class="display-field ml-1">123</span>
               <input id="permanentZipInput" name="permanent_zip" type="text" value="123" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="permanentZipError" class="text-red-500 text-xs hidden">Enter a valid permanent zip code</span>
             </li>
             <li><span class="font-medium block">Agency Employee number:</span> 
               <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">12345</span>
@@ -352,12 +360,14 @@ function updatePassword() {
               <span id="emergencyContactName" class="display-field"> Anya Forger</span>
               <input id="emergencyContactNameInput" name="emergencyContactName" type="text" value="" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="emergencyContactNameError" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
             </div>
             <div>
               <span class="font-medium block">Cellphone No.:</span> 
               <span id="emergencyContactCellphone" class="display-field">098773526476</span>
               <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text" value="" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="emergencyContactCellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
               </div>
             <div>
               <span class="font-medium block">Address:</span>
@@ -390,30 +400,35 @@ function updatePassword() {
               <span id="gsisInputDisplay" class="display-field">12345678910</span>
               <input id="gsisInput" name="gsis" type="text" value="12345678910" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="gsisError" class="text-red-500 text-xs hidden">Enter a valid GSIS number</span>
             </div>
             <div>
               <span class="font-medium block">PAG-IBIG:</span> 
               <span id="pagibigInputDisplay" class="display-field">1234-5678-9012</span>
               <input id="pagibigInput" name="pagibig" type="text" value="1234-5678-9012" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="pagibigError" class="text-red-500 text-xs hidden">Enter a valid PAG-IBIG number</span>
             </div>
             <div>
               <span class="font-medium block">PHILHEALTH:</span> 
               <span id="philhealthInputDisplay" class="display-field">12-345678901-2</span>
               <input id="philhealthInput" name="philhealth" type="text" value="12-345678901-2" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="philhealthError" class="text-red-500 text-xs hidden">Enter a valid PHILHEALTH number</span>
                 </div>
             <div>
               <span class="font-medium block">SSS:</span> 
               <span id="sssInputDisplay" class="display-field">34-5678901-2</span>
               <input id="sssInput" name="sss" type="text" value="34-5678901-2" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="sssError" class="text-red-500 text-xs hidden">Enter a valid SSS number</span>
                 </div>
                 <div>
               <span class="font-medium block">TIN:</span> 
               <span id="tinInputDisplay" class="display-field">1234-5678-9012</span>
               <input id="tinInput" name="tin" type="text" value="1234-5678-9012" disabled
                 class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                <span id="tinError" class="text-red-500 text-xs hidden">Enter a valid TIN number</span>
             </div>
             </div>
         </form>
