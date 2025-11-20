@@ -27,76 +27,6 @@
   window.addEventListener('resize', injectMobileOverrides);
 })();
 
-// --- MODAL & INLINE EDIT FUNCTIONS ---
-
-/**
- * Toggles inline edit mode for a specific section (card).
- * @param {string} sectionId - The ID of the form section (e.g., 'personalForm').
- */
-function toggleInlineEdit(sectionId, isCancel = false) {
-    const form = document.getElementById(sectionId);
-    const editableInputs = form.querySelectorAll('.editable-input');
-    const displayFields = form.querySelectorAll('.display-field');
-    const editBtn = form.querySelector('.edit-btn');
-    const saveCancelContainer = form.querySelector('.save-cancel-container');
-
-    const isDisplayMode = editableInputs[0].disabled;
-
-    if (isCancel) {
-      // Revert values here if needed (requires storing original values)
-      // For this example, we just switch back to display mode
-    }
-
-    editableInputs.forEach(input => {
-      // Toggle disabled state
-      input.disabled = !isDisplayMode;
-      // Toggle visibility: Hide inputs in display mode, show in edit mode
-      input.classList.toggle('hidden', isDisplayMode);
-    });
-
-    displayFields.forEach(span => {
-      // Toggle visibility: Show display spans in display mode, hide in edit mode
-      span.classList.toggle('hidden', !isDisplayMode);
-    });
-
-    // Toggle button visibility
-    editBtn.classList.toggle('hidden', !isDisplayMode);
-    saveCancelContainer.classList.toggle('hidden', isDisplayMode);
-}
-
-/**
- * Handles the submission for a specific form section.
- * @param {string} sectionId - The ID of the form section.
- */
-function saveSectionChanges(sectionId) {
-    const form = document.getElementById(sectionId);
-    // 1. Collect data from form inputs (form.elements)
-    
-    console.log(`Saving changes for section: ${sectionId}`);
-    
-    // 2. Perform AJAX request to backend (Django view)
-
-    // 3. On success, update the display spans with the new values
-    const editableInputs = form.querySelectorAll('.editable-input');
-    const displayFields = form.querySelectorAll('.display-field');
-    
-    editableInputs.forEach(input => {
-        // Find corresponding display span and update its text
-        const displaySpan = document.getElementById(`${input.id}Display`);
-        if (displaySpan) {
-            // Handle select fields (show selected option text)
-            if (input.tagName === 'SELECT') {
-                displaySpan.textContent = input.options[input.selectedIndex].text;
-            } else {
-                displaySpan.textContent = input.value;
-            }
-        }
-    });
-
-    // 4. Switch back to display mode
-    toggleInlineEdit(sectionId, false);
-}
-
 
 // --- MODAL FUNCTIONS FOR SECURITY ---
 
@@ -189,68 +119,74 @@ function updatePassword() {
           </div>
 
           <ul class="space-y-3 text-gray-700 mt-4">
-            <li><span class="font-medium block">Full Name:</span>
-              <span id="fullNameInputDisplay" class="display-field ml-1">Juan M. Dela Cruz</span>
-              <input id="fullNameInput" name="full_name" type="text" value="Juan M. Dela Cruz" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
-            <li><span class="font-medium block">Civil Status:</span>
-              <span id="civilStatusInputDisplay" class="display-field ml-1">Single</span>
-              <select id="civilStatusInput" name="civil_status" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-                <option value="Single" selected>Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Widowed">Widowed</option>
-              </select>
-            </li>
-            <li><span class="font-medium block">Date of Birth:</span>
-              <span id="dobInputDisplay" class="display-field ml-1">January 1, 1990</span>
-              <input id="dobInput" name="date_of_birth" type="date" value="1990-01-01" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
+            <!-- Full Name -->
+        <li>
+          <span class="font-medium block">Full Name:</span>
+          <span id="fullNameDisplay" class="display-field ml-1">{{ member.person_id.first_name }} {{ member.person_id.surname }}</span>
+          <input id="fullNameInput" name="full_name" type="text" value="{{ member.person_id.first_name }} {{ member.person_id.surname }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
+        <!-- Civil Status -->
+        <li>
+          <span class="font-medium block">Civil Status:</span>
+          <span id="civilStatusDisplay" class="display-field ml-1">{{ member.person_id.civil_status }}</span>
+          <select id="civilStatusInput" name="civil_status" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <option value="Single" {% if member.person_id.civil_status == "Single" %}selected{% endif %}>Single</option>
+            <option value="Married" {% if member.person_id.civil_status == "Married" %}selected{% endif %}>Married</option>
+            <option value="Divorced" {% if member.person_id.civil_status == "Divorced" %}selected{% endif %}>Divorced</option>
+            <option value="Widowed" {% if member.person_id.civil_status == "Widowed" %}selected{% endif %}>Widowed</option>
+          </select>
+        </li>
+            <!-- Date of Birth -->
+        <li>
+          <span class="font-medium block">Date of Birth:</span>
+          <span id="dobDisplay" class="display-field ml-1">{{ member.person_id.date_of_birth|date:"F j, Y" }}</span>
+          <input id="dobInput" name="date_of_birth" type="date" value="{{ member.person_id.date_of_birth|date:'Y-m-d' }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
             <li><span class="font-medium block">Place of Birth:</span>
               <span id="pobInputDisplay" class="display-field ml-1">Manila, Philippines</span>
               <input id="pobInput" name="place_of_birth" type="text" value="Manila, Philippines" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
             </li>
-            <li><span class="font-medium block">Gender:</span>
-              <span id="genderInputDisplay" class="display-field ml-1">Male</span>
-              <select id="genderInput" name="gender" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-                <option value="Male" selected>Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </li>
-            <li><span class="font-medium block">Nationality:</span>
-              <span id="nationalityInputDisplay" class="display-field ml-1">Filipino</span>
-              <input id="nationalityInput" name="nationality" type="text" value="Filipino" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
-            <li><span class="font-medium block">Blood Type:</span>
-              <span id="bloodTypeInputDisplay" class="display-field ml-1">O+</span>
-              <select id="bloodTypeInput" name="blood_type" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-              </select>
-            </li>
+            <!-- Gender -->
+        <li>
+          <span class="font-medium block">Gender:</span>
+          <span id="genderDisplay" class="display-field ml-1">{{ member.person_id.gender }}</span>
+          <select id="genderInput" name="gender" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <option value="Male" {% if member.person_id.gender == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if member.person_id.gender == "Female" %}selected{% endif %}>Female</option>
+            <option value="Other" {% if member.person_id.gender == "Other" %}selected{% endif %}>Other</option>
+          </select>
+        </li>
+            <!-- Nationality -->
+        <li>
+          <span class="font-medium block">Nationality:</span>
+          <span id="nationalityDisplay" class="display-field ml-1">{{ member.person_id.citizenship }}</span>
+          <input id="nationalityInput" name="nationality" type="text" value="{{ member.person_id.citizenship }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
+        <!-- Blood Type -->
+        <li>
+          <span class="font-medium block">Blood Type:</span>
+          <span id="bloodTypeDisplay" class="display-field ml-1">{{ member.person_id.blood_type }}</span>
+          <select id="bloodTypeInput" name="blood_type" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <option value="A+" {% if member.person_id.blood_type == "A+" %}selected{% endif %}>A+</option>
+            <option value="A-" {% if member.person_id.blood_type == "A-" %}selected{% endif %}>A-</option>
+            <option value="B+" {% if member.person_id.blood_type == "B+" %}selected{% endif %}>B+</option>
+            <option value="B-" {% if member.person_id.blood_type == "B-" %}selected{% endif %}>B-</option>
+            <option value="O+" {% if member.person_id.blood_type == "O+" %}selected{% endif %}>O+</option>
+            <option value="O-" {% if member.person_id.blood_type == "O-" %}selected{% endif %}>O-</option>
+            <option value="AB+" {% if member.person_id.blood_type == "AB+" %}selected{% endif %}>AB+</option>
+            <option value="AB-" {% if member.person_id.blood_type == "AB-" %}selected{% endif %}>AB-</option>
+          </select>
+        </li>
             <li><span class="font-medium block">Height:</span>
               <span id="heightInputDisplay" class="display-field ml-1">150</span>
               <input id="heightInput" name="height" type="text" value="150" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
             </li>
             <li><span class="font-medium block">Weight:</span>
               <span id="weightInputDisplay" class="display-field ml-1">40</span>
               <input id="weightInput" name="weight" type="text" value="40" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
             </li>
           </ul>
         </form>
@@ -269,45 +205,44 @@ function updatePassword() {
           </div>
 
           <ul class="space-y-3 text-gray-700 mt-4">
-            <li><span class="font-medium block">Cellphone:</span> 
-              <span id="cellInputDisplay" class="display-field ml-1">+639171234567</span>
-              <input id="cellInput" name="cellphone" type="text" value="+639171234567" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
-            <li><span class="font-medium block">Current Email:</span> 
-              <span id="emailInputDisplay" class="display-field ml-1">juan.delacruz@email.com</span>
-              <input id="emailInput" name="email" type="email" value="juan.delacruz@email.com" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
-            <li><span class="font-medium block">Residential Address:</span> 
-              <span id="residentialInputDisplay" class="display-field ml-1">123 St., Brgy. Sampaloc, Manila</span>
-              <input id="residentialInput" name="res_address" type="text" value="123 St., Brgy. Sampaloc, Manila" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
+            <!-- Cellphone -->
+        <li>
+          <span class="font-medium block">Cellphone:</span>
+          <span id="cellDisplay" class="display-field ml-1">{{ member.person_id.cellphone_no }}</span>
+          <input id="cellInput" name="cellphone" type="text" value="{{ member.person_id.cellphone_no }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
+        <!-- Email -->
+        <li>
+          <span class="font-medium block">Email:</span>
+          <span id="emailDisplay" class="display-field ml-1">{{ member.person_id.contact_email_address }}</span>
+          <input id="emailInput" name="email" type="email" value="{{ member.person_id.contact_email_address|default:'' }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
+        <!-- Residential Address -->
+        <li>
+          <span class="font-medium block">Residential Address:</span>
+          <span id="resAddressDisplay" class="display-field ml-1">{{ member.person_id.residential_address }}</span>
+          <input id="resAddressInput" name="residential_address" type="text" value="{{ member.person_id.residential_address }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
+        <!-- ZIP Code -->
+        <li>
+          <span class="font-medium block">Residential ZIP Code:</span>
+          <span id="resZipDisplay" class="display-field ml-1">{{ member.person_id.residential_address_zip_code }}</span>
+          <input id="resZipInput" name="residential_zip" type="text" value="{{ member.person_id.residential_zip_code }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+        </li>
             <li><span class="font-medium block">Permanent Address:</span> 
-              <span id="permanentInputDisplay" class="display-field ml-1">456 Ave., Brgy. Makati, Manila</span>
-              <input id="permanentInput" name="perm_address" type="text" value="456 Ave., Brgy. Makati, Manila" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+              <span id="permanentInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address }}</span>
+              <input id="permanentInput" name="perm_address" type="text" value="{{ member.person_id.permanent_address }}" disabled
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
             </li>
-            <li><span class="font-medium block">Telephone number:</span> 
-              <span id="TelephoneNum" class="display-field ml-1">02098765</span>
-              <input id="TelephoneNumInput" name="telephone_number" type="text" value="02098765" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
-            <li><span class="font-medium block">Residendial Zip code:</span> 
-              <span id="residentialZipInputDisplay" class="display-field ml-1">450</span>
-              <input id="residentialZipInput" name="residential_zip" type="text" value="450" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </li>
-            <li><span class="font-medium block">Permanent Zip code:</span> 
-              <span id="permanentZipInputDisplay" class="display-field ml-1">123</span>
-              <input id="permanentZipInput" name="permanent_zip" type="text" value="123" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+            <li><span class="font-medium block">Permanent ZIP Code:</span> 
+              <span id="permanentZipInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address_zip_code }}</span>
+              <input id="permanentZipInput" name="permanent_zip" type="text" value="{{ member.person_id.permanent_address_zip_code }}" disabled
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
             </li>
             <li><span class="font-medium block">Agency Employee number:</span> 
-              <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">12345</span>
-              <input id="agencyEmployeeNumberInput" name="agency_employee_number" type="text" value="12345" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
+              <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">{{ member.person_id.agency_employee_no }}</span>
+              <input id="agencyEmployeeNumberInput" name="agency_employee_number" type="text" value="{{ member.person_id.agency_employee_no }}" disabled
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
             </li>
           </ul>
         </form>
@@ -318,7 +253,7 @@ function updatePassword() {
             <li class="flex justify-between items-center">
                 <div>
                     <span class="font-medium block">Username:</span> 
-                    <span class="ml-1 font-semibold text-gray-900">juan.dela.cruz</span>
+                    <span class="ml-1 font-semibold text-gray-900">{{ member.user_id.username }}</span>
                 </div>
                 <button type="button" onclick="openModal('usernameModal')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm py-1 px-3 rounded-md border border-blue-600 hover:bg-blue-50">Change Username</button>
             </li>
@@ -332,91 +267,120 @@ function updatePassword() {
           </ul>
         </div>
 
-        <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Emergency Contact</h3>
-            <div class="flex space-x-3 absolute top-6 right-6">
-              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('govtIdForm')">
-                ✏️ Edit
-              </button>
-              <div class="save-cancel-container hidden flex space-x-3">
-                <button type="button" onclick="toggleInlineEdit('govtIdForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
-                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
-            <div>
-              <span class="font-medium block">Name (Full Name):</span> 
-              <span id="emergencyContactName" class="display-field"> Anya Forger</span>
-              <input id="emergencyContactNameInput" name="emergencyContactName" type="text" value="" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </div>
-            <div>
-              <span class="font-medium block">Cellphone No.:</span> 
-              <span id="emergencyContactCellphone" class="display-field">098773526476</span>
-              <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text" value="" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-              </div>
-            <div>
-              <span class="font-medium block">Address:</span>
-              <span id="emergencyContactAddress" class="display-field">123 Main St, Springfield</span>
-              <input id="emergencyContactAddressInput" name="emergencyContactAddress" type="text" value="" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </div>
-          </div>
-        </form>      
+        <form id="emergencyForm" onsubmit="event.preventDefault(); saveSectionChanges('emergencyForm')"
+  class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
+
+  <div class="flex justify-between items-center">
+    <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Emergency Contact</h3>
+
+    <div class="flex space-x-3 absolute top-6 right-6">
+      <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
+        onclick="toggleInlineEdit('emergencyForm')">✏️ Edit</button>
+
+      <div class="save-cancel-container hidden flex space-x-3">
+        <button type="button" onclick="toggleInlineEdit('emergencyForm', true)"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+
+        <button type="submit"
+          class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
+    <div>
+      <span class="font-medium block">Name (Full Name):</span>
+      <span id="emergencyContactNameDisplay" class="display-field">{{ emergency_contact.emergency_contact_name }}</span>
+
+      <input id="emergencyContactNameInput" name="emergencyContactName" type="text"
+        value="{{ emergency_contact.emergency_contact_name }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+
+    <div>
+      <span class="font-medium block">Cellphone No.:</span>
+      <span id="emergencyContactCellphoneDisplay" class="display-field">{{ emergency_contact.emergency_contact_number }}</span>
+
+      <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text"
+        value="{{ emergency_contact.emergency_contact_number }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+
+    <div>
+      <span class="font-medium block">Address:</span>
+      <span id="emergencyContactAddressDisplay" class="display-field">{{ emergency_contact.emergency_contact_address }}</span>
+
+      <input id="emergencyContactAddressInput" name="emergencyContactAddress" type="text"
+        value="{{ emergency_contact.emergency_contact_address }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+  </div>
+</form>
 
 
+        <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')"
+  class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
 
-        <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Government IDs</h3>
-            <div class="flex space-x-3 absolute top-6 right-6">
-              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('govtIdForm')">
-                ✏️ Edit
-              </button>
-              <div class="save-cancel-container hidden flex space-x-3">
-                <button type="button" onclick="toggleInlineEdit('govtIdForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
-                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
-            <div>
-              <span class="font-medium block">GSIS:</span> 
-              <span id="gsisInputDisplay" class="display-field">12345678910</span>
-              <input id="gsisInput" name="gsis" type="text" value="12345678910" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </div>
-            <div>
-              <span class="font-medium block">PAG-IBIG:</span> 
-              <span id="pagibigInputDisplay" class="display-field">1234-5678-9012</span>
-              <input id="pagibigInput" name="pagibig" type="text" value="1234-5678-9012" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </div>
-            <div>
-              <span class="font-medium block">PHILHEALTH:</span> 
-              <span id="philhealthInputDisplay" class="display-field">12-345678901-2</span>
-              <input id="philhealthInput" name="philhealth" type="text" value="12-345678901-2" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-                </div>
-            <div>
-              <span class="font-medium block">SSS:</span> 
-              <span id="sssInputDisplay" class="display-field">34-5678901-2</span>
-              <input id="sssInput" name="sss" type="text" value="34-5678901-2" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-                </div>
-                <div>
-              <span class="font-medium block">TIN:</span> 
-              <span id="tinInputDisplay" class="display-field">1234-5678-9012</span>
-              <input id="tinInput" name="tin" type="text" value="1234-5678-9012" disabled
-                class="editable-input w-full border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 p-1 rounded-md transition duration-150 ease-in-out hidden disabled:border-none disabled:bg-transparent disabled:p-0">
-            </div>
-            </div>
-        </form>
+  <div class="flex justify-between items-center">
+    <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Government IDs</h3>
+
+    <div class="flex space-x-3 absolute top-6 right-6">
+      <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
+        onclick="toggleInlineEdit('govtIdForm')">✏️ Edit</button>
+
+      <div class="save-cancel-container hidden flex space-x-3">
+        <button type="button" onclick="toggleInlineEdit('govtIdForm', true)"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+
+        <button type="submit"
+          class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
+<div>
+      <span class="font-medium block">GSIS:</span>
+      <span id="gsisDisplay" class="display-field">{{ member.person_id.gsis_id_no }}</span>
+
+      <input id="gsisInput" name="gsis" type="text" value="{{ member.person_id.gsis_id_no }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+
+    <div>
+      <span class="font-medium block">PAG-IBIG:</span>
+      <span id="pagibigDisplay" class="display-field">{{ member.person_id.pagibig_id_no }}</span>
+
+      <input id="pagibigInput" name="pagibig" type="text" value="{{ member.person_id.pagibig_id_no }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+
+    <div>
+      <span class="font-medium block">PhilHealth:</span>
+      <span id="philhealthDisplay" class="display-field">{{ member.person_id.philhealth_id_no }}</span>
+
+      <input id="philhealthInput" name="philhealth" type="text" value="{{ member.person_id.philhealth_id_no }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+
+    <div>
+      <span class="font-medium block">SSS:</span>
+      <span id="sssDisplay" class="display-field">{{ member.person_id.sss_id_no }}</span>
+
+      <input id="sssInput" name="sss" type="text" value="{{ member.person_id.sss_id_no }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+
+    <div>
+      <span class="font-medium block">TIN:</span>
+      <span id="tinDisplay" class="display-field">{{ member.person_id.tin_no }}</span>
+
+      <input id="tinInput" name="tin" type="text" value="{{ member.person_id.tin_no }}" disabled
+        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+    </div>
+  </div>
+</form>
+
       </div>
 
       <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
@@ -463,5 +427,60 @@ function updatePassword() {
         </div>
       </div>
     </main>
+    <script>
+// Toggle Edit/View mode
+function toggleInlineEdit(sectionId, isCancel=false){
+  const form = document.getElementById(sectionId);
+  const inputs = form.querySelectorAll(".editable-input");
+  const displays = form.querySelectorAll(".display-field");
+  const editBtn = form.querySelector(".edit-btn");
+  const saveCancel = form.querySelector(".save-cancel-container");
+
+  inputs.forEach(input=>{
+    if(isCancel){
+      // If cancelling, revert the input value to the stored original value
+      // This value was set when entering edit mode, or saved after a successful save.
+      if(input.dataset.original !== undefined) {
+        input.value = input.dataset.original;
+      }
+    } else if(input.disabled){ 
+      // Entering Edit Mode: Store the current value before it can be changed
+      input.dataset.original = input.value;
+    }
+    // Toggle the disabled state and visibility for all inputs
+    input.disabled = !input.disabled;
+    input.classList.toggle("hidden");
+  });
+
+  displays.forEach(span=>{
+    span.classList.toggle("hidden");
+  });
+
+  editBtn.classList.toggle("hidden");
+  saveCancel.classList.toggle("hidden");
+}
+
+// Placeholder save function
+function saveSectionChanges(sectionId){
+  const form = document.getElementById(sectionId);
+  const inputs = form.querySelectorAll(".editable-input");
+  const displays = form.querySelectorAll(".display-field");
+
+  inputs.forEach(input=>{
+    const displayId = input.id.replace("Input","Display");
+    document.getElementById(displayId).textContent = input.value;
+    input.dataset.original = input.value;
+    input.disabled = true;
+    input.classList.add("hidden");
+  });
+
+  displays.forEach(span=>{
+    span.classList.remove("hidden");
+  });
+
+  form.querySelector(".edit-btn").classList.remove("hidden");
+  form.querySelector(".save-cancel-container").classList.add("hidden");
+}
+</script>
   </body>
 </html>

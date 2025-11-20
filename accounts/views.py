@@ -129,7 +129,8 @@ def profile_information(request):
 
     # MEMBER
     if user.groups.filter(name="Member").exists():
-        member = Member.objects.select_related('person_id').get(user_id=user)
+        member = Member.objects.select_related('person_id','user_id').get(user_id=user)
+        
         # Handle spouse safely
         try:
             spouse = Spouse.objects.get(person_id=member.person_id)
@@ -137,8 +138,9 @@ def profile_information(request):
             spouse = None
 
         # Handle children safely
-        children = Children.objects.filter(person_id=member.person_id)  # returns queryset (empty if none)
+        children = Children.objects.filter(person_id=member.person_id)
 
+        # Handle emergency contact safely
         try:
             emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
         except EmergencyContact.DoesNotExist:
@@ -150,6 +152,7 @@ def profile_information(request):
             'children': children,
             'emergency_contact': emergency_contact
         }
+
     # BOOKKEEPER, CASHIER, ADMIN
     elif (
         user.groups.filter(name="Bookkeeper").exists() or
@@ -158,13 +161,22 @@ def profile_information(request):
     ):
         full_name = user.get_full_name() or user.username
 
+        context = {
+            'full_name': full_name,
+            'role': 'Staff'
+        }
+
+    # OTHER USERS
     else:
         full_name = user.username
 
+        context = {
+            'full_name': full_name,
+            'role': 'User'
+        }
+
     return render(request, 'accounts/profile.html', context)
 
-from django.http import JsonResponse
-from django.db.models import Q
 
 def search_member(request):
     query = request.GET.get('q', '')
@@ -201,20 +213,20 @@ def register_step1(request):
         height = request.POST.get('height')
         weight = request.POST.get('weight')
         blood_type = request.POST.get('bloodType')
-        gsis_id_no = request.POST.get('gsisIdNo')
-        pagibig_id_no = request.POST.get('pagibigIdNo')
-        philhealth_id_no = request.POST.get('philhealthIdNo')
-        sss_id_no = request.POST.get('sssNo')
+        #gsis_id_no = request.POST.get('gsisIdNo')
+        #pagibig_id_no = request.POST.get('pagibigIdNo')
+        #philhealth_id_no = request.POST.get('philhealthIdNo')
+        #sss_id_no = request.POST.get('sssNo')
         residential_address = request.POST.get('residentialAddress')
         residential_address_zip_code = request.POST.get('residentialAddressZipCode')
-        residential_address_telephone_no = request.POST.get('residentialAddressTelephoneNo')
+        #residential_address_telephone_no = request.POST.get('residentialAddressTelephoneNo')
         permanent_address = request.POST.get('permanentAddress')
         permanent_address_zip_code = request.POST.get('permanentAddressZipCode')
-        permanent_address_telephone_no = request.POST.get('permanentAddressTelephoneNo')
+        #permanent_address_telephone_no = request.POST.get('permanentAddressTelephoneNo')
         contact_email_address = request.POST.get('contactEmailAddress')
         cellphone_no = request.POST.get('cellphoneNo')
-        agency_employee_no = request.POST.get('agencyEmployeeNo')
-        tin_no = request.POST.get('tinNo')
+        #agency_employee_no = request.POST.get('agencyEmployeeNo')
+        #tin_no = request.POST.get('tinNo')
 
         # Save to session
         request.session['register_data'] = {
@@ -230,20 +242,20 @@ def register_step1(request):
             'height': height,
             'weight': weight,
             'bloodType': blood_type,
-            'gsisIdNo': gsis_id_no,
-            'pagibigIdNo': pagibig_id_no,
-            'philhealthIdNo': philhealth_id_no,
-            'sssNo': sss_id_no,
+            #'gsisIdNo': gsis_id_no,
+            #'pagibigIdNo': pagibig_id_no,
+            #'philhealthIdNo': philhealth_id_no,
+            #'sssNo': sss_id_no,
             'residentialAddress': residential_address,
             'residentialAddressZipCode': residential_address_zip_code,
-            'residentialAddressTelephoneNo': residential_address_telephone_no,
+            #'residentialAddressTelephoneNo': residential_address_telephone_no,
             'permanentAddress': permanent_address,
             'permanentAddressZipCode': permanent_address_zip_code,
-            'permanentAddressTelephoneNo': permanent_address_telephone_no,
+            #'permanentAddressTelephoneNo': permanent_address_telephone_no,
             'contactEmailAddress': contact_email_address,
             'cellphoneNo': cellphone_no,
-            'agencyEmployeeNo': agency_employee_no,
-            'tinNo': tin_no
+            #'agencyEmployeeNo': agency_employee_no,
+            #'tinNo': tin_no
         }
         return redirect('register2')
 
@@ -267,6 +279,7 @@ def register_step2(request):
 
         emergency_contact_name = request.POST.get('emergencyContactName')
         emergency_contact_address = request.POST.get('emergencyContactAddress')
+        emergency_contact_number = request.POST.get('emergencyContactNumber')
         
         data = request.session.get('register_data', {})
 
@@ -280,7 +293,8 @@ def register_step2(request):
             'businessTelephoneNo': telephone_no,
             'children': children,
             'emergencyContactName': emergency_contact_name,
-            'emergencyContactAddress': emergency_contact_address
+            'emergencyContactAddress': emergency_contact_address,
+            'emergencyContactNumber': emergency_contact_number
         })
 
         request.session['register_data'] = data
@@ -294,6 +308,7 @@ def register_step3(request):
     error = None
     print("In register3:", request.session.get('register_data'))
     if request.method == 'POST':
+        username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
@@ -312,6 +327,7 @@ def register_step3(request):
             first_name = data.get('firstName')
 
             data.update({
+                'username': username,
                 'email': email,
                 'password': make_password(password),
             })
@@ -329,7 +345,7 @@ def registration_otp_verification_view(request):
     if request.method == "POST":
         data = request.session.get('register_data', {})
         input_code = request.POST.get('code')
-
+        username = data.get('username')
         email = data.get('email')
         password = data.get('password')
 
@@ -347,7 +363,7 @@ def registration_otp_verification_view(request):
                     with transaction.atomic():
 
                         user = User.objects.create_user(
-                            username="John",
+                            username=username,
                             email=email
                         )
                         user.password = password  # assign directly, already hashed
@@ -366,20 +382,20 @@ def registration_otp_verification_view(request):
                             height=data.get('height'),
                             weight=data.get('weight'),
                             blood_type=data.get('bloodType'),
-                            gsis_id_no=data.get('gsisIdNo'),
-                            pagibig_id_no=data.get('pagibigIdNo'),
-                            philhealth_id_no=data.get('philhealthIdNo'),
-                            sss_id_no=data.get('sssNo'),
+                            #gsis_id_no=data.get('gsisIdNo'),
+                            #pagibig_id_no=data.get('pagibigIdNo'),
+                            #philhealth_id_no=data.get('philhealthIdNo'),
+                            #sss_id_no=data.get('sssNo'),
                             residential_address=data.get('residentialAddress'),
                             residential_address_zip_code=data.get('residentialAddressZipCode'),
-                            residential_address_telephone_no=data.get('residentialAddressTelephoneNo'),
+                            #residential_address_telephone_no=data.get('residentialAddressTelephoneNo'),
                             permanent_address=data.get('permanentAddress'),
                             permanent_address_zip_code=data.get('permanentAddressZipCode'),
-                            permanent_address_telephone_no=data.get('permanentAddressTelephoneNo'),
+                            #permanent_address_telephone_no=data.get('permanentAddressTelephoneNo'),
                             contact_email_address=data.get('contactEmailAddress'),
                             cellphone_no=data.get('cellphoneNo'),
-                            agency_employee_no=data.get('agencyEmployeeNo'),
-                            tin_no=data.get('tinNo')
+                            #agency_employee_no=data.get('agencyEmployeeNo'),
+                            #tin_no=data.get('tinNo')
                         )
 
                         if data.get('spouseSurname') and data.get('spouseFirstName'):
@@ -405,7 +421,8 @@ def registration_otp_verification_view(request):
                         EmergencyContact.objects.create(
                             person_id=personid,
                             emergency_contact_name=data.get('emergencyContactName'),
-                            emergency_contact_address=data.get('emergencyContactAddress')
+                            emergency_contact_address=data.get('emergencyContactAddress'),
+                            emergency_contact_number=data.get('emergencyContactNumber'),
                         )
 
                         Membershipapplication.objects.create(
@@ -419,7 +436,9 @@ def registration_otp_verification_view(request):
 
                 except IntegrityError as e:
                     # Everything rolled back, but we know where it failed
-                    messages.error(request, "Registration failed. Please try again.")
+                    messages.error(request, f"Registration failed: {str(e)}")
+                    print(e)
+                    
                     return redirect('register3')
 
         except EmailOTP.DoesNotExist:
@@ -434,6 +453,10 @@ def check_email(request):
     exists = User.objects.filter(email=email).exists()
     return JsonResponse({"exists": exists})
 
+def check_username(request):
+    username = request.GET.get("username")
+    exists = User.objects.filter(username=username).exists()
+    return JsonResponse({"exists": exists})
 
 def update_timer(request):
     email = None
@@ -486,3 +509,21 @@ def resend_otp(request):
 
 def success_view(request):
     return render(request, 'accounts/success.html')
+
+def update_personal_info(request):
+    print()
+
+def update_contact_information(request):
+    print()
+
+def update_emergency_contact(request):
+    print()
+
+def update_government_id(request):
+    print()
+
+def update_username(request):
+    print()
+
+def update_password(request):
+    print()

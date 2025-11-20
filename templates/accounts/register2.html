@@ -5,182 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>EWABB Registration</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        // Defines custom colors and other theme extensions here if needed
+      }
+    },
+    plugins: [
+      function ({ addUtilities, addComponents }) {
+        // Custom component classes for common elements
+        addComponents({
+          '.form-input': {
+            '@apply w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 text-base md:text-sm': {},
+            '@apply min-h-[44px]': {} // Increase touch target on mobile/desktop
+          },
+        });
+
+        // Utilities to replace custom validation CSS
+        addUtilities({
+          '.error-input': {
+            '@apply border-red-500 ring-4 ring-red-100': {},
+          },
+          '.error-message': {
+            '@apply block min-h-[1rem] invisible opacity-0 transition-opacity duration-300': {},
+          },
+          '.error-message.show': {
+            '@apply visible opacity-100': {},
+          },
+        });
+      },
+    ],
+  };
+</script>
 
 <style>
-span[id$="Error"] {
+/* For the custom JS validation style, we rely on the utility classes defined in tailwind.config.plugins */
+/* However, we must ensure the children entry is initially visible. */
+.child-entry {
   display: block;
-  min-height: 1rem;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-span[id$="Error"].show {
-  visibility: visible;
-  opacity: 1;
-}
-input.error {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-/* Force md:grid-cols-2 to become a 3-column layout and reduce whitespace */
-@media (min-width: 768px) {
-  .md\:grid-cols-2 {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    grid-auto-flow: dense !important;
-    gap: 0.75rem !important;
-  }
-
-  /* Make elements that used to span 2 columns span all 3, so headings/sections take full width */
-  .md\:col-span-2 {
-    grid-column: 1 / -1 !important;
-  }
-
-  /* Tighter vertical spacing inside stacked groups */
-  .space-y-4 > * + * { margin-top: 0.5rem !important; }
-  .grid.gap-6, .grid.gap-8 { gap: 0.75rem !important; }
-
-  /* Reduce left margins used for visual spacing */
-  .ml-3 { margin-left: 0.5rem !important; }
-
-  /* Make the form wider and reduce its outer paddings */
-  .registration-form {
-    max-width: 1200px;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    padding-top: 1.5rem !important;
-    padding-bottom: 1.5rem !important;
-  }
-
-  /* Ensure inputs occupy available column space */
-  .registration-form input,
-  .registration-form select,
-  .registration-form textarea {
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  /* --- PERSONAL DETAILS: ensure fields flow into 3 columns on md+ --- */
-  /* Flatten the wrapper divs so each field div becomes a grid item in the 3-column parent.
-     display:contents lets the child field blocks become direct grid items (modern browsers). */
-  .registration-form .grid.grid-cols-1.md\:grid-cols-2 {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 0.75rem !important;
-  }
-  .registration-form .grid.grid-cols-1.md\:grid-cols-2 > .space-y-4 {
-    display: contents !important;
-  }
-
-  /* Ensure each field block aligns nicely when flattened */
-  .registration-form .grid.grid-cols-1.md\:grid-cols-2 > div > div {
-    margin-top: 0 !important;
-  }
-
-  /* Keep headings full-width */
-  .registration-form h3.md\:col-span-2,
-  .registration-form h3.md\:col-span-2 + * {
-    grid-column: 1 / -1 !important;
-  }
-}
-
-/* Mobile tweaks to keep spacing compact */
+/* Mobile-first tweaks to match original layout expectations */
 @media (max-width: 767px) {
-  .registration-form { padding-left: 1rem !important; padding-right: 1rem !important; }
-  .space-y-4 > * + * { margin-top: 0.5rem !important; }
-}
-
-/* Make Tailwind md:grid-cols-2 behave as 3 columns on md+ screens,
-  and make md:col-span-2 span all three columns */
-@media (min-width: 768px) {
-  .md\:grid-cols-2 {
-   display: grid !important;
-   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-  .md\:col-span-2 {
-   grid-column: 1 / -1 !important;
-  }
-}
-
-/* Fix for cellphone number input to prevent stretching */
-.cellphone-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.cellphone-input {
-  max-width: 300px; /* Fixed width for the cellphone input */
-  width: 100%;
-}
-
-/* Ensure the cellphone input doesn't stretch on mobile */
-@media (max-width: 767px) {
-  .cellphone-input {
-    max-width: 100%;
-  }
-}
-
-/* Contact Information Layout */
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .contact-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-  
-  /* Make specific fields span multiple columns */
-  .contact-grid > div:nth-child(3),
-  .contact-grid > div:nth-child(5) {
-    grid-column: span 2;
-  }
-  
-  .contact-grid > div:nth-child(4),
-  .contact-grid > div:nth-child(6) {
-    grid-column: span 1;
-  }
-}
-
-/* Mobile-first tweaks:
-  - Ensure the login link stays visible on small screens
-  - Hide progress labels on small screens so only the step numbers show
-  - Tighter form padding & larger touch targets for mobile
-*/
-@media (max-width: 767px) {
-  /* Ensure the desktop container (where the login link is cloned) stays visible on small screens
-     so the Login button is always visible (no hamburger required). */
-  nav .hidden.md\:flex {
-    display: flex !important;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  /* Hide the injected hamburger toggle (we don't need it) */
-  nav button[aria-label="Toggle menu"] {
-    display: none !important;
-  }
-
-  /* If a separate mobile menu was added after the nav, keep it hidden to avoid duplicate links */
-  nav + div.md\:hidden {
-    display: none !important;
-  }
-
-  /* Ensure the login link is visible and tappable on mobile */
-  nav a[href*="login"] {
-    display: inline-block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    padding: 0.5rem 0.75rem !important;
-  }
-
-  /* Progress bar: hide descriptive labels on small screens (only numbers remain) */
-  .w-full.py-4 .flex.justify-center span.font-medium { display: none; }
-  .w-full.py-4 .flex.justify-center { gap: 0.75rem; }
-
+  /* Hide descriptive labels on small screens (only numbers remain) */
+  .progress-bar-label { display: none; }
   /* Make the main form use smaller side padding and larger touch areas */
   .registration-form {
     padding-left: 1rem !important;
@@ -190,196 +59,151 @@ input.error {
     border-radius: 0.75rem !important;
     margin: 0.5rem !important;
   }
-
-  /* Increase touch targets for inputs and buttons on mobile */
-  .registration-form input,
-  .registration-form select,
-  .registration-form button,
-  .registration-form a {
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
-    font-size: 1rem !important;
-  }
-}
-
-@media (min-width: 768px) {
-  /* Ensure the desktop container (created by JS) is visible on md+ and the login button is present */
-  nav .hidden.md\:flex {
-    display: flex !important;
-    align-items: center;
-  }
-  nav .hidden.md\:flex > * {
-    display: inline-block !important;
-    margin-left: 0.25rem;
-    margin-right: 0.25rem;
-  }
-
-  /* If the original .space-x-4 exists, keep it visible on desktop */
-  nav .space-x-4 { display: flex !important; align-items: center; }
-
-  /* Ensure login link is visible on desktop */
-  nav a[href*="login"] {
-    display: inline-block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
 }
 </style>
 
 <body class="bg-gray-100 leading-normal">
 
-<!-- Navbar -->
 <nav class="bg-blue-900 px-6 py-4 flex justify-between items-center">
   <h1 class="text-white font-bold text-xl">EWABB</h1>
   <div class="space-x-4">
-    <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block">Login</a>
+    <a href="{% url 'login' %}" class="bg-[#ffd369] hover:bg-[#e6bc50] text-black px-4 py-2 rounded inline-block font-medium text-sm">Login</a>
   </div>
 </nav>
 
-<!-- Progress Bar -->
 <div class="w-full py-4">
-  <div class="flex justify-center space-x-10">
+  <div class="flex justify-center gap-3 md:gap-10">
     <div class="flex items-center space-x-2 text-gray-400">
-      <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">1</div>
-      <span class="font-medium">Member Personal Information</span>
+      <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold text-sm">1</div>
+      <span class="font-medium progress-bar-label text-sm">Member Personal Information</span>
     </div>
     <div class="flex items-center space-x-2 text-black">
-      <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">2</div>
-      <span class="font-medium text-yellow-400">Family Background</span>
+      <div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold text-sm">2</div>
+      <span class="font-medium text-yellow-400 progress-bar-label text-sm">Family Background</span>
     </div>
     <div class="flex items-center space-x-2 text-gray-400">
-      <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold">3</div>
-      <span class="font-medium">Create Account</span>
+      <div class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center font-bold text-sm">3</div>
+      <span class="font-medium progress-bar-label text-sm">Create Account</span>
     </div>
   </div>
 </div>
 
-<!-- Main Form -->
-<form class="registration-form max-w-4xl mx-auto bg-white rounded-2xl shadow-lg px-8 py-8 mb-10 border border-gray-200" method="POST" action="{% url 'register2' %}" id="familyBackgroundForm">
+<form class="registration-form max-w-4xl lg:max-w-[1200px] mx-auto bg-white rounded-xl md:rounded-2xl shadow-lg p-6 md:p-8 mb-10 border border-gray-200"
+      method="POST" action="{% url 'register2' %}" id="familyBackgroundForm">
   {% csrf_token %}
-  <h2 class="text-3xl font-bold text-center mb-2">Family Background</h2>
-  <p class="text-center text-sm mb-8">• Please leave it blank if you do not have spouse and children</p>
+  <h2 class="text-2xl md:text-3xl font-bold text-center mb-2">Family Background</h2>
+  <p class="text-center text-xs md:text-sm mb-6 md:mb-8 text-gray-600">• Please leave it blank if you do not have spouse and children</p>
 
-  <!-- Spouse Section - 3 Columns -->
-  <div class="grid grid-cols-1 md:grid-cols-3 md:gap-6 mb-8">
-    <div class="space-y-3">
-      <div>
-        <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
-        <input name="spouseSurname" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-               onblur="validateName(this, 'spouseSurnameError')" />
-        <span id="spouseSurnameError" class="text-red-500 text-xs">Surname must contain only letters, spaces, hyphens, and apostrophes</span>
-      </div>
-      
-      <div>
-        <label class="block text-sm font-medium mb-1">First Name</label>
-        <input name="spouseFirstName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-               onblur="validateName(this, 'spouseFirstNameError')" />
-        <span id="spouseFirstNameError" class="text-red-500 text-xs">First name must contain only letters, spaces, hyphens, and apostrophes</span>
-      </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 md:mb-8">
+    
+    <div class="space-y-1">
+      <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
+      <input name="spouseSurname" type="text" class="form-input"
+             onblur="validateName(this, 'spouseSurnameError')" />
+      <span id="spouseSurnameError" class="text-red-500 text-xs error-message">Surname must contain only letters, spaces, hyphens, and apostrophes</span>
     </div>
 
-    <div class="space-y-3">
-      <div>
-        <label class="block text-sm font-medium mb-1">Middle Name</label>
-        <input name="spouseMiddleName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-               onblur="validateName(this, 'spouseMiddleNameError')" />
-        <span id="spouseMiddleNameError" class="text-red-500 text-xs">Middle name must contain only letters, spaces, hyphens, and apostrophes</span>
-      </div>
-      
-      <div>
-        <label class="block text-sm font-medium mb-1">Occupation</label>
-        <input name="occupation" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-               onblur="validateOccupation(this, 'occupationError')" />
-        <span id="occupationError" class="text-red-500 text-xs">Occupation must contain only letters, spaces, and common punctuation</span>
-      </div>
+    <div class="space-y-1">
+      <label class="block text-sm font-medium mb-1">First Name</label>
+      <input name="spouseFirstName" type="text" class="form-input"
+             onblur="validateName(this, 'spouseFirstNameError')" />
+      <span id="spouseFirstNameError" class="text-red-500 text-xs error-message">First name must contain only letters, spaces, hyphens, and apostrophes</span>
     </div>
 
-    <div class="space-y-3">
-      <div>
-        <label class="block text-sm font-medium mb-1">Employer / Business Name</label>
-        <input name="employerBusinessName" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-               onblur="validateBusinessName(this, 'employerBusinessNameError')" />
-        <span id="employerBusinessNameError" class="text-red-500 text-xs">Business name can contain letters, numbers, spaces, and common punctuation</span>
-      </div>
-      
-      <div>
-        <label class="block text-sm font-medium mb-1">Telephone No.</label>
-        <input name="businessTelephoneNo" type="text" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-               onblur="validatePhone(this, 'businessTelephoneNoError')" />
-        <span id="businessTelephoneNoError" class="text-red-500 text-xs">Must be a valid phone number (7-15 digits, may include +, -, spaces, parentheses)</span>
-      </div>
+    <div class="space-y-1">
+      <label class="block text-sm font-medium mb-1">Middle Name</label>
+      <input name="spouseMiddleName" type="text" class="form-input"
+             onblur="validateName(this, 'spouseMiddleNameError')" />
+      <span id="spouseMiddleNameError" class="text-red-500 text-xs error-message">Middle name must contain only letters, spaces, hyphens, and apostrophes</span>
+    </div>
+
+    <div class="space-y-1">
+      <label class="block text-sm font-medium mb-1">Occupation</label>
+      <input name="occupation" type="text" class="form-input"
+             onblur="validateOccupation(this, 'occupationError')" />
+      <span id="occupationError" class="text-red-500 text-xs error-message">Occupation must contain only letters, spaces, and common punctuation</span>
+    </div>
+
+    <div class="space-y-1">
+      <label class="block text-sm font-medium mb-1">Employer / Business Name</label>
+      <input name="employerBusinessName" type="text" class="form-input"
+             onblur="validateBusinessName(this, 'employerBusinessNameError')" />
+      <span id="employerBusinessNameError" class="text-red-500 text-xs error-message">Business name can contain letters, numbers, spaces, and common punctuation</span>
+    </div>
+
+    <div class="space-y-1">
+      <label class="block text-sm font-medium mb-1">Telephone No.</label>
+      <input name="businessTelephoneNo" type="text" class="form-input"
+             onblur="validatePhone(this, 'businessTelephoneNoError')" />
+      <span id="businessTelephoneNoError" class="text-red-500 text-xs error-message">Must be a valid phone number (7-15 digits, may include +, -, spaces, parentheses)</span>
     </div>
   </div>
 
-  <!-- Children Section -->
-  <div id="children-container" class="mb-8">
+  <div id="children-container" class="mb-6 md:mb-8">
     <div class="flex justify-between items-center mb-3">
       <label class="font-semibold text-lg">Children</label>
-      <button type="button" onclick="addChild()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-lg font-semibold">+</button>
+      <button type="button" onclick="addChild()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md text-lg font-semibold">+</button>
     </div>
 
     <div class="child-entry">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="md:col-span-2">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="md:col-span-2 space-y-1">
           <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-          <input name="childName" type="text" class="child-name w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
+          <input name="childName" type="text" class="child-name form-input"
                  onblur="validateChildName(this, 'childNameError')" />
-          <span id="childNameError" class="text-red-500 text-xs">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
+          <span id="childNameError" class="text-red-500 text-xs error-message">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
         </div>
-        <div>
+        <div class="space-y-1">
           <label class="block text-sm font-medium mb-1">Date of Birth</label>
-          <input name="childDateOfBirth" type="date" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
-                 onblur="validateDateOfBirth(this, 'childDateOfBirthError')" max="<?php echo date('Y-m-d'); ?>" />
-          <span id="childDateOfBirthError" class="text-red-500 text-xs">Date of birth cannot be in the future</span>
+          <input name="childDateOfBirth" type="date" class="form-input"
+                 onblur="validateDateOfBirth(this, 'childDateOfBirthError')" max="{% now 'Y-m-d' %}" />
+          <span id="childDateOfBirthError" class="text-red-500 text-xs error-message">Date of birth cannot be in the future</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Emergency Contact - Now in 3 columns -->
-  <div class="mb-8">
+  <div class="mb-6 md:mb-8">
     <h3 class="font-semibold text-lg mb-3">Emergency Person to Contact</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="space-y-1">
         <label class="block text-sm font-medium mb-1">Name (Full Name) <span class="text-red-500">*</span></label>
-        <input name="emergencyContactName" type="text"placeholder="Enter Name"  class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" required 
+        <input name="emergencyContactName" type="text" placeholder="Enter Name"
+               class="form-input" required
                onblur="validateRequiredName(this, 'emergencyContactNameError')" />
-        <span id="emergencyContactNameError" class="text-red-500 text-xs">Full name is required and must contain only letters, spaces, hyphens, and apostrophes</span>
+        <span id="emergencyContactNameError" class="text-red-500 text-xs error-message">Full name is required and must contain only letters, spaces, hyphens, and apostrophes</span>
       </div>
-      
-      <div>
+
+      <div class="space-y-1">
         <label class="block text-sm font-medium mb-1">Cellphone No.<span class="text-red-500">*</span></label>
-        <input id="cellphoneNo" name="cellphoneNo" type="tel" placeholder="e.g.+639171234567/09171234567" 
-               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" required 
+        <input id="emergencyContactNumber" name="emergencyContactNumber" type="tel" placeholder="e.g.+639171234567/09171234567"
+               class="form-input" required
                onblur="validateRequiredPhone(this, 'cellphoneError')" />
-        <span id="cellphoneError" class="text-red-500 text-xs">Valid phone number is required (11-12 digits, starting with +63 or 09)</span>
+        <span id="cellphoneError" class="text-red-500 text-xs error-message">Valid phone number is required (11-12 digits, starting with +63 or 09)</span>
       </div>
-      
-      <div>
+
+      <div class="space-y-1">
         <label class="block text-sm font-medium mb-1">Address <span class="text-red-500">*</span></label>
-        <input name="emergencyContactAddress" type="text" placeholder="Enter address" 
-               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" required 
+        <input name="emergencyContactAddress" type="text" placeholder="Enter address"
+               class="form-input" required
                onblur="validateRequiredAddress(this, 'emergencyContactAddressError')" />
-        <span id="emergencyContactAddressError" class="text-red-500 text-xs">Address is required</span>
+        <span id="emergencyContactAddressError" class="text-red-500 text-xs error-message">Address is required</span>
       </div>
     </div>
   </div>
 
-  <!-- Buttons -->
-  <div class="flex justify-center gap-4">
-    <a id="go-back" class="px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium cursor-pointer">Back</a>
-    <button type="submit" class="px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 text-white font-medium">Next</button>
+  <div class="flex justify-center gap-4 mt-6 md:mt-8">
+    <a id="go-back" class="px-8 md:px-10 py-2 border border-gray-400 rounded-md hover:bg-gray-100 font-medium cursor-pointer text-base">Back</a>
+    <button type="submit" class="px-8 md:px-10 py-2 bg-blue-700 rounded-md hover:bg-blue-800 text-white font-medium text-base">Next</button>
   </div>
 </form>
 
-<!-- Toast -->
-<div id="toast" class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600" role="status">
+<div id="toast" class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600 text-sm md:text-base" role="status">
   Some fields contain invalid information. Please fix the errors before proceeding.
 </div>
 
 <script>
-// Track validation state
-let formIsValid = false;
+// --- JS Functions updated to use Tailwind classes: error-input and error-message.show ---
 
 // Validation functions
 function validateName(input, errorId) {
@@ -388,11 +212,11 @@ function validateName(input, errorId) {
   
   if (input.value && !nameRegex.test(input.value)) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -403,11 +227,11 @@ function validateRequiredName(input, errorId) {
   
   if (!input.value || !nameRegex.test(input.value)) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -418,11 +242,11 @@ function validateOccupation(input, errorId) {
   
   if (input.value && !occupationRegex.test(input.value)) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -433,11 +257,11 @@ function validateBusinessName(input, errorId) {
   
   if (input.value && !businessRegex.test(input.value)) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -448,26 +272,27 @@ function validatePhone(input, errorId) {
   
   if (input.value && !phoneRegex.test(input.value)) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
 
 function validateRequiredPhone(input, errorId) {
   const error = document.getElementById(errorId);
-  const phoneRegex = /^(?:\+639\d{9}|09\d{9})$/;
+  // Updated regex to be more explicit for Philippine numbers based on original comment
+  const phoneRegex = /^(?:\+639\d{9}|09\d{9})$/; 
   
   if (!input.value || !phoneRegex.test(input.value)) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -477,12 +302,15 @@ function validateChildName(input, errorId) {
   const nameRegex = /^[A-Za-z\s\-']+$/;
   
   if (input.value && !nameRegex.test(input.value)) {
-    error.classList.add('show');
-    input.classList.add('error');
+    // Note: Since child entries are dynamic, we use parentNode.querySelector to find the specific error span
+    input.parentNode.querySelector('.childNameError').classList.add('show');
+    input.classList.add('error-input');
     return false;
   } else {
-    error.classList.remove('show');
-    input.classList.remove('error');
+    if(input.parentNode.querySelector('.childNameError')) {
+      input.parentNode.querySelector('.childNameError').classList.remove('show');
+    }
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -493,12 +321,15 @@ function validateDateOfBirth(input, errorId) {
   const selectedDate = new Date(input.value);
   
   if (input.value && selectedDate > today) {
-    error.classList.add('show');
-    input.classList.add('error');
+    // Note: Since child entries are dynamic, we use parentNode.querySelector to find the specific error span
+    input.parentNode.querySelector('.childDateOfBirthError').classList.add('show');
+    input.classList.add('error-input');
     return false;
   } else {
-    error.classList.remove('show');
-    input.classList.remove('error');
+    if(input.parentNode.querySelector('.childDateOfBirthError')) {
+      input.parentNode.querySelector('.childDateOfBirthError').classList.remove('show');
+    }
+    input.classList.remove('error-input');
     return true;
   }
 }
@@ -508,38 +339,41 @@ function validateRequiredAddress(input, errorId) {
   
   if (!input.value) {
     error.classList.add('show');
-    input.classList.add('error');
+    input.classList.add('error-input');
     return false;
   } else {
     error.classList.remove('show');
-    input.classList.remove('error');
+    input.classList.remove('error-input');
     return true;
   }
 }
 
 function addChild() {
   const container = document.getElementById('children-container');
+  const childCount = container.querySelectorAll('.child-entry').length + 1;
   const newChild = document.createElement('div');
-  newChild.classList.add('child-entry', 'mt-3');
+  newChild.classList.add('child-entry', 'mt-3', 'border-t', 'border-gray-100', 'pt-3');
   newChild.innerHTML = `
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="md:col-span-2">
-      <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
-      <input name="childName" type="text" class="child-name w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div class="md:col-span-2 space-y-1">
+      <label class="block text-sm font-medium mb-1">Child Name (Full Name) #${childCount}</label>
+      <input name="childName" type="text" class="child-name form-input"
              onblur="validateChildName(this, 'childNameError')" />
-      <span class="childNameError text-red-500 text-xs">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
+      <span class="childNameError text-red-500 text-xs error-message">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
     </div>
-    <div>
+    <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">Date of Birth</label>
-      <input name="childDateOfBirth" type="date" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400" 
+      <input name="childDateOfBirth" type="date" class="form-input"
              onblur="validateDateOfBirth(this, 'childDateOfBirthError')" max="${new Date().toISOString().split('T')[0]}" />
-      <span class="childDateOfBirthError text-red-500 text-xs">Date of birth cannot be in the future</span>
+      <span class="childDateOfBirthError text-red-500 text-xs error-message">Date of birth cannot be in the future</span>
     </div>
   </div>
-  <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-sm font-medium mt-1">Remove</button>
+  <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-xs font-medium mt-1 inline-block px-1">Remove</button>
   `;
   container.appendChild(newChild);
+  // Update the labels of existing children to keep numbering correct if needed, but not critical for function
 }
+
 
 // Comprehensive form validation
 function validateForm() {
@@ -548,7 +382,7 @@ function validateForm() {
   // Validate required fields
   const requiredFields = [
     { input: document.querySelector('input[name="emergencyContactName"]'), validator: validateRequiredName, errorId: 'emergencyContactNameError' },
-    { input: document.querySelector('input[name="cellphoneNo"]'), validator: validateRequiredPhone, errorId: 'cellphoneError' },
+    { input: document.querySelector('input[name="emergencyContactNumber"]'), validator: validateRequiredPhone, errorId: 'cellphoneError' },
     { input: document.querySelector('input[name="emergencyContactAddress"]'), validator: validateRequiredAddress, errorId: 'emergencyContactAddressError' }
   ];
   
@@ -569,26 +403,28 @@ function validateForm() {
   ];
   
   optionalFields.forEach(field => {
+    // Only validate if input exists and has a value
     if (field.input && field.input.value && !field.validator(field.input, field.errorId)) {
       isValid = false;
     }
   });
   
-  // Validate child fields
-  const childNames = document.querySelectorAll('input[name="childName"]');
-  childNames.forEach((input, index) => {
-    if (input.value && !validateChildName(input, 'childNameError')) {
+  // Validate child fields (using querySelectorAll on the container to get all entries)
+  const childEntries = document.querySelectorAll('#children-container .child-entry');
+
+  childEntries.forEach(entry => {
+    const nameInput = entry.querySelector('input[name="childName"]');
+    const dateInput = entry.querySelector('input[name="childDateOfBirth"]');
+
+    // Only validate if input has a value
+    if (nameInput && nameInput.value && !validateChildName(nameInput, 'childNameError')) {
+      isValid = false;
+    }
+    if (dateInput && dateInput.value && !validateDateOfBirth(dateInput, 'childDateOfBirthError')) {
       isValid = false;
     }
   });
-  
-  const childDates = document.querySelectorAll('input[name="childDateOfBirth"]');
-  childDates.forEach((input, index) => {
-    if (input.value && !validateDateOfBirth(input, 'childDateOfBirthError')) {
-      isValid = false;
-    }
-  });
-  
+
   return isValid;
 }
 
@@ -598,18 +434,22 @@ document.getElementById("familyBackgroundForm").addEventListener("submit", funct
   e.preventDefault();
   
   // Validate the entire form
-  formIsValid = validateForm();
+  const formIsValid = validateForm(); // Re-assigning to local variable is fine
   
   if (!formIsValid) {
     // Show error toast
     const toast = document.getElementById('toast');
     toast.classList.remove('hidden');
+    // Ensure visibility of the toast by removing any pointer-events class temporarily if needed
+    toast.classList.remove('pointer-events-none'); 
+
     setTimeout(() => {
       toast.classList.add('hidden');
+      toast.classList.add('pointer-events-none'); // Re-add after timeout
     }, 5000);
     
     // Scroll to first error
-    const firstError = document.querySelector('.error');
+    const firstError = document.querySelector('.error-input');
     if (firstError) {
       firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -624,6 +464,7 @@ document.getElementById("familyBackgroundForm").addEventListener("submit", funct
 // Real-time validation for better UX
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('blur', function() {
+    // Re-run the validation for the entire form on blur to update all error states
     validateForm();
   });
 });

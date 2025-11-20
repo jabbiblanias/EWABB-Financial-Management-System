@@ -35,7 +35,7 @@ class Personalinfo(models.Model):
     permanent_address_telephone_no = models.CharField(max_length=15, blank=True, null=True,db_column='permanentaddresstelno')
     contact_email_address = models.CharField(max_length=100, blank=True, null=True,db_column='contactemailaddress')
     cellphone_no = models.CharField(max_length=15, blank=True, null=True,db_column='cellphoneno')
-    agency_employee_no = models.CharField(max_length=50,db_column='agencyemployeeno')
+    agency_employee_no = models.CharField(max_length=50, blank=True, null=True, db_column='agencyemployeeno')
     tin_no = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
@@ -61,7 +61,7 @@ class EmergencyContact(models.Model):
     person_id = models.ForeignKey(Personalinfo, models.DO_NOTHING, db_column='personid')
     emergency_contact_name = models.CharField(max_length=100, db_column='emergency_contact_name')
     emergency_contact_address = models.TextField(db_column='emergency_contact_address')
-    emergency_contact_number = models.TextField(db_column='emergency_contact_number')
+    emergency_contact_number = models.CharField(max_length=15, db_column='emergency_contact_number')
 
     class Meta:
         managed = False
