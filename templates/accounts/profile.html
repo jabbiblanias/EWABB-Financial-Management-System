@@ -232,7 +232,8 @@ function updatePassword() {
         <li>
           <span class="font-medium block">Residential ZIP Code:</span>
           <span id="resZipDisplay" class="display-field ml-1">{{ member.person_id.residential_address_zip_code }}</span>
-          <input id="resZipInput" name="residential_zip" type="text" value="{{ member.person_id.residential_zip_code }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          <input id="resZipInput" name="residential_zip" type="text" value="{{ member.person_id.residential_address_zip_code }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          <span id="residentialZipError" class="text-red-500 text-xs hidden">Enter a valid residential zip code</span>
         </li>
             <li><span class="font-medium block">Permanent Address:</span> 
               <span id="permanentInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address }}</span>
@@ -243,6 +244,7 @@ function updatePassword() {
               <span id="permanentZipInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address_zip_code }}</span>
               <input id="permanentZipInput" name="permanent_zip" type="text" value="{{ member.person_id.permanent_address_zip_code }}" disabled
                 class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+                <span id="permanentZipError" class="text-red-500 text-xs hidden">Enter a valid permanent zip code</span>
             </li>
             <li><span class="font-medium block">Agency Employee number:</span> 
               <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">{{ member.person_id.agency_employee_no }}</span>
