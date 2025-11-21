@@ -124,7 +124,7 @@ function updatePassword() {
           <span class="font-medium block">Full Name:</span>
           <span id="fullNameDisplay" class="display-field ml-1">{{ member.person_id.first_name }} {{ member.person_id.surname }}</span>
           <input id="fullNameInput" name="full_name" type="text" value="{{ member.person_id.first_name }} {{ member.person_id.surname }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-              <span id="Name Error" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
+              <span id="fullNameError" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
           </li>
         <!-- Civil Status -->
         <li>
@@ -214,19 +214,20 @@ function updatePassword() {
           <span class="font-medium block">Cellphone:</span>
           <span id="cellDisplay" class="display-field ml-1">{{ member.person_id.cellphone_no }}</span>
           <input id="cellInput" name="cellphone" type="text" value="{{ member.person_id.cellphone_no }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          <span id="cellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
         </li>
         <!-- Email -->
         <li>
           <span class="font-medium block">Email:</span>
           <span id="emailDisplay" class="display-field ml-1">{{ member.person_id.contact_email_address }}</span>
           <input id="emailInput" name="email" type="email" value="{{ member.person_id.contact_email_address|default:'' }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-                <span id="cellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
-        </li>
+          </li>
         <!-- Residential Address -->
         <li>
           <span class="font-medium block">Residential Address:</span>
           <span id="resAddressDisplay" class="display-field ml-1">{{ member.person_id.residential_address }}</span>
           <input id="resAddressInput" name="residential_address" type="text" value="{{ member.person_id.residential_address }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          <span id="resAddressError" class="text-red-500 text-xs hidden">Enter a valid residential address</span>
         </li>
         <!-- ZIP Code -->
         <li>
@@ -245,6 +246,12 @@ function updatePassword() {
               <input id="permanentZipInput" name="permanent_zip" type="text" value="{{ member.person_id.permanent_address_zip_code }}" disabled
                 class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
                 <span id="permanentZipError" class="text-red-500 text-xs hidden">Enter a valid permanent zip code</span>
+            </li>
+            <li><span class="font-medium block">Permanent Telephone No.:</span> 
+              <span id="telephoneInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address_telephone_no }}</span>
+              <input id="telephoneInput" name="telephone_no" type="text" value="{{ member.person_id.permanent_address_telephone_no }}" disabled
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+                <span id="permanentAddressTelephoneNoError" class="text-red-500 text-xs hidden">Enter a valid telephone number</span>
             </li>
             <li><span class="font-medium block">Agency Employee number:</span> 
               <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">{{ member.person_id.agency_employee_no }}</span>
@@ -312,16 +319,16 @@ function updatePassword() {
       <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text"
         value="{{ emergency_contact.emergency_contact_number }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="emergencyContactCellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
+        <span id="emergencyContactCellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
     </div>
 
     <div>
       <span class="font-medium block">Address:</span>
       <span id="emergencyContactAddressDisplay" class="display-field">{{ emergency_contact.emergency_contact_address }}</span>
-
       <input id="emergencyContactAddressInput" name="emergencyContactAddress" type="text"
         value="{{ emergency_contact.emergency_contact_address }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+        <span id="emergencyContactAddressError" class="text-red-500 text-xs hidden">Enter a valid address</span>
     </div>
   </div>
 </form>
@@ -354,7 +361,7 @@ function updatePassword() {
 
       <input id="gsisInput" name="gsis" type="text" value="{{ member.person_id.gsis_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="gsisError" class="text-red-500 text-xs hidden">Enter a valid GSIS number</span>
+        <span id="gsisError" class="text-red-500 text-xs hidden">Enter a valid GSIS number</span>
     </div>
 
     <div>
@@ -363,7 +370,7 @@ function updatePassword() {
 
       <input id="pagibigInput" name="pagibig" type="text" value="{{ member.person_id.pagibig_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="pagibigError" class="text-red-500 text-xs hidden">Enter a valid PAG-IBIG number</span>
+        <span id="pagibigError" class="text-red-500 text-xs hidden">Enter a valid PAG-IBIG number</span>
     </div>
 
     <div>
@@ -372,7 +379,7 @@ function updatePassword() {
 
       <input id="philhealthInput" name="philhealth" type="text" value="{{ member.person_id.philhealth_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="philhealthError" class="text-red-500 text-xs hidden">Enter a valid PHILHEALTH number</span>
+        <span id="philhealthError" class="text-red-500 text-xs hidden">Enter a valid PHILHEALTH number</span>
     </div>
 
     <div>
@@ -382,18 +389,16 @@ function updatePassword() {
       <input id="sssInput" name="sss" type="text" value="{{ member.person_id.sss_id_no }}" disabled
         class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
                 <span id="sssError" class="text-red-500 text-xs hidden">Enter a valid SSS number</span>
-    </div>
-
-    <div>
-      <span class="font-medium block">TIN:</span>
-      <span id="tinDisplay" class="display-field">{{ member.person_id.tin_no }}</span>
-
-      <input id="tinInput" name="tin" type="text" value="{{ member.person_id.tin_no }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+              </div>
+              <div>
+                <span class="font-medium block">TIN:</span>
+                <span id="tinDisplay" class="display-field">{{ member.person_id.tin_no }}</span>
+                <input id="tinInput" name="tin" type="text" value="{{ member.person_id.tin_no }}" disabled
+                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
                 <span id="tinError" class="text-red-500 text-xs hidden">Enter a valid TIN number</span>
-    </div>
-  </div>
-</form>
+              </div>
+            </div>
+          </form>
 
       </div>
 
@@ -498,3 +503,124 @@ function saveSectionChanges(sectionId){
 </script>
   </body>
 </html>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Validation rules
+  const rules = {
+    fullNameInput: {
+      regex: /^[A-Za-z\s]+$/,
+      errorId: "fullNameError"
+    },
+    citizenshipInput: {
+      regex: /^[A-Za-z\s]+$/,
+      errorId: "citizenshipError"
+    },
+    heightInput: {
+      regex: /^\d+$/,
+      errorId: "heightError"
+    },
+    weightInput: {
+      regex: /^\d+$/,
+      errorId: "weightError"
+    },
+    cellInput: {
+      regex: /^(?:\+639\d{9}|09\d{9})$/,
+      errorId: "cellphoneError"
+    },
+    resZipInput: {
+      regex: /^\d{4}$/,
+      errorId: "residentialZipError"
+    },
+    permanentZipInput:{
+      regex: /^\d{4}$/,
+      errorId: "permanentZipError"
+    },
+    telephoneInput: {
+      regex: /^\d{11,12}$/,
+      errorId: "permanentAddressTelephoneNoError"
+    },
+    emergencyContactNameInput: {
+      regex: /^[A-Za-z\s]+$/,
+      errorId: "emergencyContactNameError"
+    },
+    emergencyContactCellphoneInput: {
+      regex: /^(?:\+639\d{9}|09\d{9})$/,
+      errorId: "emergencyContactCellphoneError"
+    },
+    emergencyContactAddressInput: {
+      regex: /^[A-Za-z0-9\s,.-]+$/,
+      errorId: "emergencyContactAddressError"
+    },
+    residentialAddressTelephoneNo: {
+      regex: /^\d{11,12}$/,
+      errorId: "residentialAddressTelephoneNoError"
+    },
+    gsisInput: {
+      regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/,
+      errorId: "gsisError"
+    },
+    pagibigInput: {
+      regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/,
+      errorId: "pagibigError"
+    },
+    philhealthInput: {
+      regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/,
+      errorId: "philhealthError"
+    },
+    sssInput: {
+      regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/,
+      errorId: "sssError"
+    },
+    tinInput: {
+      regex: /^(\d{9}|\d{14}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/,
+      errorId: "tinError"
+    }
+  };
+
+  // Real-time validation
+  Object.keys(rules).forEach((field) => {
+    const input = document.getElementById(field);
+    const error = document.getElementById(rules[field].errorId);
+    if (!input || !error) return;
+
+    input.addEventListener("input", function () {
+      if (input.value === "" || rules[field].regex.test(input.value)) {
+        error.classList.add("hidden");
+      } else {
+        error.classList.remove("hidden");
+      }
+    });
+  });
+
+  // Prevent submit if invalid
+  const form = document.getElementById("register1Form");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      let isValid = true;
+
+      Object.keys(rules).forEach((field) => {
+        const input = document.getElementById(field);
+        const error = document.getElementById(rules[field].errorId);
+        if (!input || !error) return;
+
+        if (input.value && !rules[field].regex.test(input.value)) {
+          error.classList.remove("hidden");
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault(); // Stop form submission
+        const toast = document.getElementById("toast");
+        if (toast) {
+          toast.classList.remove("hidden");
+
+          // Hide after 4s
+          setTimeout(() => toast.classList.add("hidden"), 4000);
+        }
+      }
+    });
+  }
+});
+</script>
