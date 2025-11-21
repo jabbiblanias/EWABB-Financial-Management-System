@@ -64,7 +64,7 @@ def login_verification(request):
         otp = EmailOTP.objects.filter(email=email).latest('created_at')
         if not otp.is_valid():
             messages.error(request, "OTP expired")
-            return redirect('register_verify')
+            return redirect('login_verification')
         elif otp.otp_code != input_code:
             messages.error(request, "Invalid OTP")
         else:
@@ -527,3 +527,84 @@ def update_username(request):
 
 def update_password(request):
     print()
+
+def forgot_password_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+
+        # Try to find the actual user by email
+        try:
+            user = User.objects.get(email=email)
+
+            request.session["email"] = email
+            request.session["user_id"] = user.id
+        except User.DoesNotExist:
+            messages.error(request, "Email not found.")
+            return redirect('forgot_password')
+
+        # Check group
+        if user.groups.filter(name="Member").exists():
+            member = Member.objects.select_related('person_id').get(user_id=user)
+            first_name = member.person_id.first_name
+        else:
+            first_name = user.first_name or user.username
+
+        # Send OTP
+        otp(first_name, email)
+        return redirect('password_reset_verification')
+
+    return render(request, 'accounts/forgot_password.html')
+
+
+def password_reset_verification(request):
+    if request.method == "POST":
+        email = request.session["email"]
+        input_code = request.POST.get('code')
+        otp = EmailOTP.objects.filter(email=email).latest('created_at')
+        if not otp.is_valid():
+            messages.error(request, "OTP expired")
+            return redirect('password_reset_verification')
+        elif otp.otp_code != input_code:
+            messages.error(request, "Invalid OTP")
+        else:
+            return redirect('password_reset')
+
+    return render(request, 'accounts/verification.html', {'form_action': 'password_reset_verification'})
+
+def password_reset(request):
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        if not user_id:
+            messages.error(request, "Session expired. Please try again.")
+            return redirect('forgot_password')
+
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        user = User.objects.get(pk=user_id)
+
+        # 🔒 1. Check if current password is correct
+        if not check_password(current_password, user.password):
+            messages.error(request, "Current password is incorrect.")
+            return redirect('password_reset')
+
+        # ❌ 2. Prevent using same password
+        if check_password(new_password, user.password):
+            messages.error(request, "New password cannot be the same as the old password.")
+            return redirect('password_reset')
+
+        # ❗ 3. Confirm new passwords match
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect('password_reset')
+
+        # ✅ 4. Save the new password
+        user.password = make_password(new_password)
+        user.save()
+
+        messages.success(request, "Password has been reset successfully.")
+        return redirect('login')
+
+    return render(request, 'accounts/password_reset.html')
+

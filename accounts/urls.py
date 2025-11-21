@@ -18,4 +18,7 @@ urlpatterns = [
     path('register/complete/', views.success_view, name='complete_registration'),
     path('fetch-profile/', views.fetch_profile, name='fetch_profile'),
     path('search-member/', views.search_member, name='search-member'),
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('forgot-password/verification', views.password_reset_verification, name='password_reset_verification'),
+    path('password-reset/', views.password_reset, name='password_reset'),
 ]

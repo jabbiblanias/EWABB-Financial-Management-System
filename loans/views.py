@@ -125,37 +125,81 @@ def member_loan_home(request):
         return render(request, 'loans/member_loan.html', context)
     
 
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+
 def member_loan_data(request, user, ajax=False):
     member = Member.objects.get(user_id=user)
-    loans = (
-        LoanApplication.objects
-        .filter(member_id=member)
-        .values(
-            'loan_type',
-            'loan_amount',
-            'loan_term_years',
-            'loan_term_months',
-            'loan_term_days',
-            'net_proceeds',
-            'amortization',
-            'status'
-        )
+
+    # Loans for this member
+    loans = Loan.objects.filter(member_id=member).select_related("loan_application_id")
+    loan_app_ids = loans.values_list('loan_application_id__loan_application_id', flat=True)
+
+    # Loan Applications excluding ones that already have a loan
+    loan_applications = LoanApplication.objects.filter(member_id=member).exclude(
+        loan_application_id__in=loan_app_ids
     )
 
-    paginator = Paginator(loans, 10)
+    combined = []
 
-    page_num = request.GET.get('page')
+    # Normalize Loan Applications
+    for app in loan_applications:
+        # Map status for sorting
+        if app.status in ['Approved', 'Verified', 'Pending']:
+            display_status = app.status
+        else:
+            display_status = 'Other'
+        combined.append({
+            "loan_application_id": app.loan_application_id,
+            "loan_amount": app.loan_amount,
+            "loan_term_years": app.loan_term_years,
+            "loan_term_months": app.loan_term_months,
+            "loan_term_days": app.loan_term_days,
+            "loan_type": app.loan_type,
+            "net_proceeds": app.net_proceeds,
+            "amortization": app.amortization,
+            "status": app.status,
+            "display_status": display_status,
+        })
 
-    page = paginator.get_page(page_num)
+    # Normalize Loans
+    for loan in loans:
+        app = loan.loan_application_id
+        # Map loan status for display
+        display_status = 'Active' if loan.loan_status == 'Active' else 'Completed'
+        combined.append({
+            "loan_application_id": app.loan_application_id,
+            "loan_amount": app.loan_amount,
+            "loan_term_years": app.loan_term_years,
+            "loan_term_months": app.loan_term_months,
+            "loan_term_days": app.loan_term_days,
+            "loan_type": app.loan_type,
+            "net_proceeds": loan.loan_application_id.net_proceeds,
+            "amortization": app.amortization,
+            "status": loan.loan_status,
+            "display_status": display_status,
+        })
 
-    context = {'loans': loans, 'page': page}
+    # Sort combined list by custom order
+    status_order = {'Approved': 1, 'Verified': 2, 'Pending': 3, 'Released': 4, 'Active': 5, 'Completed': 6, 'Other': 7}
+    combined.sort(key=lambda x: status_order.get(x['display_status'], 99))
+
+    # Pagination
+    paginator = Paginator(combined, 10)
+    page = paginator.get_page(request.GET.get("page"))
+
+    context = {"page": page}
 
     if ajax:
         html = render_to_string("loans/partials/member_loan_table_body.html", {"page": page})
         pagination = render_to_string("partials/pagination.html", {"page": page})
         return JsonResponse({"table_body_html": html, "pagination_html": pagination})
-    
+
     return context
+
+
+
 
 
 @login_required
@@ -522,6 +566,15 @@ def releasing(request):
                     due_date=payment_date,
                     amount_due=amount_due,
                 )
+            
+            applicable_rebates = loan.loan_application_id.loan_type in [
+                'Motorcycle Loan',
+                'Appliances Loan',
+                'Gadget Loan'
+            ]
+
+            if applicable_rebates:
+                loan.rebates = loan.loan_application_id.cbu / total_months
 
         # Update loan application status
         loan_application.status = "Released"

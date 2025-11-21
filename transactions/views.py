@@ -299,7 +299,11 @@ def record_payment(member_id, loan, payment_amount):
         repayment.status = 'Paid'
         repayment.save()
 
-        applicable_rebates = Loan.objects.select_related('loan_application_id').filter(loan_application_id__loan_type__in=['Motorcycle Loan', 'Appliances Loan', 'Gadget Loan', ]).exists()
+        applicable_rebates = loan.loan_application_id.loan_type in [
+            'Motorcycle Loan',
+            'Appliances Loan',
+            'Gadget Loan'
+        ]
 
         if not has_overdue and applicable_rebates:
             savings = Savings.objects.filter(member_id=member_id).update(balance=F('balance') + loan.rebates)
