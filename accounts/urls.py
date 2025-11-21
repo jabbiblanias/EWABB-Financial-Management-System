@@ -21,4 +21,11 @@ urlpatterns = [
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     path('forgot-password/verification', views.password_reset_verification, name='password_reset_verification'),
     path('password-reset/', views.password_reset, name='password_reset'),
+    path('profile/update-personal-info/', views.update_personal_information, name='update_personal_info'),
+    path('profile/update-contact-info/', views.update_contact_information, name='update_contact_info'),
+    path('profile/update-emergency-contact/', views.update_emergency_contact, name='update_emergency_contact'),
+    path('profile/update-government-id/', views.update_government_id, name='update_government_id'),
+    path('profile/update-username/', views.update_username, name='update_username'),
+    path('profile/update-email/', views.update_email, name='update_email'),
+    path('profile/update-password/', views.update_password, name='update_password'),
 ]

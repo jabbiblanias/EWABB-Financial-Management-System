@@ -13,6 +13,7 @@ from django.contrib.auth.hashers import make_password, check_password
 import json
 from django.utils import timezone
 from django.db.models.functions import Concat
+from django.contrib.auth.decorators import login_required
 
 
 def login_view(request):
@@ -124,56 +125,47 @@ def fetch_profile(request):
         "first_letter": first_letter
     })
 
+@login_required
 def profile_information(request):
     user = request.user
+    context = {'user_obj': user} # Always pass the user object for email/username
 
+    # Determine if the user is a staff role (Admin, Bookkeeper, Cashier)
+    is_staff = user.groups.filter(name__in=["Admin", "Bookkeeper", "Cashier"]).exists()
+
+    if is_staff:
+        # Staff/Admin users only see Account Security.
+        context['is_staff_user'] = True
+        context['full_name'] = user.get_full_name() or user.username
+        # Note: We don't fetch Member data for staff.
+    
     # MEMBER
-    if user.groups.filter(name="Member").exists():
-        member = Member.objects.select_related('person_id','user_id').get(user_id=user)
+    elif user.groups.filter(name="Member").exists():
+        try:
+            member = Member.objects.select_related('person_id','user_id').get(user_id=user)
+        except Member.DoesNotExist:
+            member = None # Handle case where user is a member but no Member object exists
+
+        if member:
+            # Fetch all related member data
+            try:
+                emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
+            except EmergencyContact.DoesNotExist:
+                emergency_contact = None
+            
+            # Since the HTML uses these variables, we must include them in the context
+            context['member'] = member
+            context['emergency_contact'] = emergency_contact
+            context['spouse'] = None # Placeholder, implement fetching if necessary
+            context['children'] = [] # Placeholder, implement fetching if necessary
         
-        # Handle spouse safely
-        try:
-            spouse = Spouse.objects.get(person_id=member.person_id)
-        except Spouse.DoesNotExist:
-            spouse = None
+        context['is_staff_user'] = False
 
-        # Handle children safely
-        children = Children.objects.filter(person_id=member.person_id)
-
-        # Handle emergency contact safely
-        try:
-            emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
-        except EmergencyContact.DoesNotExist:
-            emergency_contact = None
-
-        context = {
-            'member': member,
-            'spouse': spouse,
-            'children': children,
-            'emergency_contact': emergency_contact
-        }
-
-    # BOOKKEEPER, CASHIER, ADMIN
-    elif (
-        user.groups.filter(name="Bookkeeper").exists() or
-        user.groups.filter(name="Cashier").exists() or
-        user.groups.filter(name="Admin").exists()
-    ):
-        full_name = user.get_full_name() or user.username
-
-        context = {
-            'full_name': full_name,
-            'role': 'Staff'
-        }
-
-    # OTHER USERS
+    # OTHER USERS (Not staff, not member - shouldn't happen if roles are set, but safe)
     else:
-        full_name = user.username
+        context['is_staff_user'] = True # Treat as staff for minimal view
+        context['full_name'] = user.username
 
-        context = {
-            'full_name': full_name,
-            'role': 'User'
-        }
 
     return render(request, 'accounts/profile.html', context)
 
@@ -510,23 +502,131 @@ def resend_otp(request):
 def success_view(request):
     return render(request, 'accounts/success.html')
 
-def update_personal_info(request):
-    print()
+@login_required
+def update_personal_information(request):
+    if request.method == "POST":
+        member = Member.objects.get(user_id=request.user)
+        data = request.POST
+        # Example updates
+        member.person_id.first_name = data.get("first_name", member.person_id.first_name)
+        member.person_id.surname = data.get("surname", member.person_id.surname)
+        member.person_id.civil_status = data.get("civil_status", member.person_id.civil_status)
+        member.person_id.date_of_birth = data.get("date_of_birth", member.person_id.date_of_birth)
+        member.person_id.place_of_birth = data.get("place_of_birth", member.person_id.place_of_birth)
+        member.person_id.gender = data.get("gender", member.person_id.gender)
+        member.person_id.citizenship = data.get("citizenship", member.person_id.citizenship)
+        member.person_id.blood_type = data.get("blood_type", member.person_id.blood_type)
+        member.person_id.height = data.get("height", member.person_id.height)
+        member.person_id.weight = data.get("weight", member.person_id.weight)
+        member.person_id.save()
+        return JsonResponse({"status": "success", "message": "Personal info updated."})
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
 
+
+@login_required
 def update_contact_information(request):
-    print()
+    if request.method == "POST":
+        member = Member.objects.get(user_id=request.user)
+        data = request.POST
+        member.person_id.cellphone_no = data.get("cellphone", member.person_id.cellphone_no)
+        member.person_id.contact_email_address = data.get("email", member.person_id.contact_email_address)
+        member.person_id.residential_address = data.get("residential_address", member.person_id.residential_address)
+        member.person_id.residential_address_zip_code = data.get("residential_zip", member.person_id.residential_address_zip_code)
+        member.person_id.permanent_address = data.get("perm_address", member.person_id.permanent_address)
+        member.person_id.permanent_address_zip_code = data.get("permanent_zip", member.person_id.permanent_address_zip_code)
+        member.person_id.permanent_address_telephone_no = data.get("telephone_no", member.person_id.permanent_address_telephone_no)
+        member.person_id.agency_employee_no = data.get("agency_employee_number", member.person_id.agency_employee_no)
+        member.person_id.save()
+        return JsonResponse({"status": "success", "message": "Contact info updated."})
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
 
+
+@login_required
 def update_emergency_contact(request):
-    print()
+    if request.method == "POST":
+        member = Member.objects.get(user_id=request.user)
+        data = request.POST
+        emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
+        emergency_contact.emergency_contact_name = data.get("emergencyContactName", emergency_contact.emergency_contact_name)
+        emergency_contact.emergency_contact_number = data.get("emergencyContactCellphone", emergency_contact.emergency_contact_number)
+        emergency_contact.emergency_contact_address = data.get("emergencyContactAddress", emergency_contact.emergency_contact_address)
+        emergency_contact.save()
+        return JsonResponse({"status": "success", "message": "Emergency contact updated."})
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
 
+
+@login_required
 def update_government_id(request):
-    print()
+    if request.method == "POST":
+        member = Member.objects.get(user_id=request.user)
+        data = request.POST
+        member.person_id.gsis_id_no = data.get("gsis", member.person_id.gsis_id_no)
+        member.person_id.pagibig_id_no = data.get("pagibig", member.person_id.pagibig_id_no)
+        member.person_id.philhealth_id_no = data.get("philhealth", member.person_id.philhealth_id_no)
+        member.person_id.sss_id_no = data.get("sss", member.person_id.sss_id_no)
+        member.person_id.tin_no = data.get("tin", member.person_id.tin_no)
+        member.person_id.save()
+        return JsonResponse({"status": "success", "message": "Government IDs updated."})
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
 
+
+@login_required
 def update_username(request):
-    print()
+    if request.method == "POST":
+        new_username = request.POST.get("new_username")
+        if new_username:
+            request.user.username = new_username
+            request.user.save()
+            return JsonResponse({"status": "success", "message": "Username updated."})
+        return JsonResponse({"status": "error", "message": "Username cannot be empty."})
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
 
+@login_required
+def update_email(request):
+    if request.method == "POST":
+        new_email = request.POST.get("email")
+        if not new_email:
+            return JsonResponse({"status": "error", "message": "Email cannot be empty."})
+        
+        # Optionally, validate email format here
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        try:
+            validate_email(new_email)
+        except ValidationError:
+            return JsonResponse({"status": "error", "message": "Invalid email format."})
+
+        # Update both User model and Member's Personalinfo if needed
+        request.user.email = new_email
+        request.user.save()
+        
+        member = Member.objects.get(user_id=request.user)
+        member.person_id.contact_email_address = new_email
+        member.person_id.save()
+        
+        return JsonResponse({"status": "success", "message": "Email updated successfully."})
+    
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
+
+
+@login_required
 def update_password(request):
-    print()
+    if request.method == "POST":
+        current_password = request.POST.get("current_password")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+        
+        if not request.user.check_password(current_password):
+            return JsonResponse({"status": "error", "message": "Current password is incorrect."})
+        if new_password != confirm_password:
+            return JsonResponse({"status": "error", "message": "New password and confirmation do not match."})
+        
+        request.user.set_password(new_password)
+        request.user.save()
+        return JsonResponse({"status": "success", "message": "Password updated. Please log in again."})
+    
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
+
 
 def forgot_password_view(request):
     if request.method == 'POST':

@@ -1,11 +1,11 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <script>
-(function(){
-  // Existing mobile overrides script
-  function injectMobileOverrides() {
-    if (window.innerWidth > 640 || document.getElementById('mobile-overrides')) return;
-    var css = `
+  (function () {
+    // Existing mobile overrides script
+    function injectMobileOverrides() {
+      if (window.innerWidth > 640 || document.getElementById('mobile-overrides')) return;
+      var css = `
       @media (max-width: 640px) {
         main { margin-left: 0 !important; margin-right: 0 !important; padding: 1rem !important; margin-top: 56px !important; }
         .mx-auto { max-width: 100% !important; padding-left: 1rem !important; padding-right: 1rem !important; }
@@ -14,613 +14,1053 @@
         .-mt-[72px], .mt-[-72px] { margin-top: 0 !important; }
       }
     `;
-    var style = document.createElement('style');
-    style.id = 'mobile-overrides';
-    style.appendChild(document.createTextNode(css));
-    if (document.head) {
-      document.head.appendChild(style);
+      var style = document.createElement('style');
+      style.id = 'mobile-overrides';
+      style.appendChild(document.createTextNode(css));
+      if (document.head) {
+        document.head.appendChild(style);
+      } else {
+        document.addEventListener('DOMContentLoaded', function () { document.head.appendChild(style); });
+      }
+    }
+    injectMobileOverrides();
+    window.addEventListener('resize', injectMobileOverrides);
+  })();
+
+  // --- TOAST NOTIFICATION FUNCTION ---
+  function showAlert(message, type) {
+    const toast = document.getElementById("toast");
+
+    // Remove old color classes before adding new one
+    toast.classList.remove("bg-emerald-600", "bg-red-600", "bg-yellow-600");
+
+    // Style by type
+    if (type === "approve" || type === "success") {
+      toast.classList.add("bg-emerald-600"); // green
+    } else if (type === "reject" || type === "error") {
+      toast.classList.add("bg-red-600"); // red
     } else {
-      document.addEventListener('DOMContentLoaded', function(){ document.head.appendChild(style); });
+      toast.classList.add("bg-yellow-600"); // yellow default
+    }
+
+    // Set message
+    toast.textContent = message;
+
+    // Show toast
+    toast.classList.remove("hidden");
+
+    // Hide after 4s
+    setTimeout(() => toast.classList.add("hidden"), 4000);
+  }
+
+
+  // Centralized AJAX fetch function
+  async function postData(url, formData) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{csrf_token}}',
+        },
+        body: formData,
+      });
+      // Ensure we handle non-200 responses if they return JSON
+      if (!response.ok) {
+        // Fix: Read response body even if status is not ok (e.g., 400 Bad Request from Django)
+        const errorData = await response.json(); 
+        return { status: 'error', message: errorData.message || errorData.detail || 'Server error occurred.' };
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('AJAX Error:', error);
+      // Show network/fetch error
+      showAlert('Network error or server unavailable.', 'error');
+      return { status: 'error', message: 'Network error or server unavailable.' };
     }
   }
-  injectMobileOverrides();
-  window.addEventListener('resize', injectMobileOverrides);
-})();
+  function togglePassword(inputId, eyeId, eyeOffId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon = document.getElementById(eyeId);
+    const eyeOffIcon = document.getElementById(eyeOffId);
+
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+
+    eyeIcon.classList.toggle("hidden", !isPassword);
+    eyeOffIcon.classList.toggle("hidden", isPassword);
+  }
+
+  // FIXED: Consolidated function to check match AND enable button
+  function checkPasswordMatch() {
+    const passwordInput = document.getElementById("password");
+    const confirmInput = document.getElementById("confirm_password");
+    const message = document.getElementById("matchMessage");
+    const updateButton = document.querySelector('#passwordModal button[onclick="updatePassword()"]');
+    
+    const password = passwordInput ? passwordInput.value : '';
+    const confirm = confirmInput ? confirmInput.value : '';
+
+    if (!confirm || !password) {
+      if (message) message.textContent = "";
+      if (updateButton) {
+        updateButton.disabled = true;
+        updateButton.classList.add('opacity-50', 'cursor-not-allowed');
+        updateButton.classList.remove('hover:bg-blue-800');
+      }
+      return;
+    }
+
+    const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    const isPasswordValid = passwordPattern.test(password);
+    const isMatch = password === confirm;
+    
+    // Check if the HTML pattern validation failed (in case oninput fires before HTML check)
+    if (!isPasswordValid) {
+        if (message) {
+            message.textContent = "✗ Password must be at least 8 characters, and contain a number, lowercase, and uppercase letter.";
+            message.className = "text-red-500 text-xs mt-2";
+        }
+        if (updateButton) {
+            updateButton.disabled = true;
+            updateButton.classList.add('opacity-50', 'cursor-not-allowed');
+            updateButton.classList.remove('hover:bg-blue-800');
+        }
+        return;
+    }
+
+    if (isMatch) {
+      if (message) {
+        message.textContent = "✓ Passwords match";
+        message.className = "text-green-600 text-xs mt-2";
+      }
+      if (updateButton) {
+        updateButton.disabled = false;
+        updateButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        updateButton.classList.add('hover:bg-blue-800');
+      }
+    } else {
+      if (message) {
+        message.textContent = "✗ Passwords do not match";
+        message.className = "text-red-500 text-xs mt-2";
+      }
+      if (updateButton) {
+        updateButton.disabled = true;
+        updateButton.classList.add('opacity-50', 'cursor-not-allowed');
+        updateButton.classList.remove('hover:bg-blue-800');
+      }
+    }
+  }
 
 
-// --- MODAL FUNCTIONS FOR SECURITY ---
+  // --- MODAL FUNCTIONS (for security) ---
 
-const usernameModal = document.getElementById('usernameModal');
-const passwordModal = document.getElementById('passwordModal');
-
-function openModal(modalId) {
+  function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-}
+    
+    // Reset password button state when opening the password modal
+    if (modalId === 'passwordModal') {
+        const updateButton = document.querySelector('#passwordModal button[onclick="updatePassword()"]');
+        updateButton.disabled = true;
+        updateButton.classList.add('opacity-50', 'cursor-not-allowed');
+        updateButton.classList.remove('hover:bg-blue-800');
+        const matchMessage = document.getElementById("matchMessage");
+        if (matchMessage) matchMessage.textContent = "";
+    }
+  }
 
-function closeModal(modalId) {
+  function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.add('hidden');
     modal.classList.remove('flex');
-}
+  }
 
-function updateUsername() {
+  async function updateUsername() {
     const newUsername = document.getElementById('newUsernameInput').value;
-    // In a real app, send AJAX request to update username
-    console.log(`Updating username to: ${newUsername}`);
-    closeModal('usernameModal');
-    alert(`Username updated to: ${newUsername}`);
-}
+    if (!newUsername.trim()) { showAlert('Username cannot be empty.', 'error'); return; }
 
-function updatePassword() {
-    const currentPassword = document.getElementById('currentPasswordInput').value;
-    const newPassword = document.getElementById('newPasswordInput').value;
-    const confirmPassword = document.getElementById('confirmPasswordInput').value;
-    
+    const formData = new FormData();
+    formData.append('new_username', newUsername);
+
+    const result = await postData("{% url 'update_username' %}", formData);
+
+    if (result.status === 'success') {
+      closeModal('usernameModal');
+      document.querySelector('li:nth-child(1) .text-gray-900').textContent = newUsername; // Update displayed username
+      showAlert(result.message, 'success');
+    } else {
+      showAlert(`Failed to update username: ${result.message}`, 'error');
+    }
+  }
+
+  async function updateEmail() {
+    const newEmail = document.getElementById('newEmailInput').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+      showAlert('Please enter a valid email address.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('email', newEmail);
+
+    const result = await postData("{% url 'update_email' %}", formData);
+
+    if (result.status === 'success') {
+      closeModal('emailModal');
+      document.querySelector('li:nth-child(2) .text-gray-900').textContent = newEmail;
+      showAlert(result.message, 'success');
+    } else {
+      showAlert(`Failed to update email: ${result.message}`, 'error');
+    }
+  }
+
+  async function updatePassword() {
+    const currentPassword = document.getElementById('current_password').value;
+    const newPassword = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const updateButton = document.querySelector('#passwordModal button[onclick="updatePassword()"]');
+
+
     if (newPassword !== confirmPassword) {
-        alert('New password and confirmation do not match.');
+      showAlert('New password and confirmation do not match.', 'error');
+      return;
+    }
+
+    const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    if (!passwordPattern.test(newPassword)) {
+      showAlert('New password must be at least 8 characters long and contain at least one number, one lowercase, and one uppercase letter.', 'error');
+      return;
+    }
+
+    // FIXED: Removed the faulty check and replaced it with a simple disabled check
+    if (updateButton.disabled) {
+        showAlert('Please fix password errors (mismatch/pattern) before saving.', 'error');
         return;
     }
-    // In a real app, send AJAX request to update password (with current password verification)
-    console.log('Updating password...');
-    closeModal('passwordModal');
-    alert('Password successfully changed.');
-}
-</script>
-<html lang="en" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EWABB Member Profile</title>
-    {% tailwind_css %}
-    <script src="https://cdn.jsdelivr.net/npm/@heroicons/vue@1.0.6/outline/index.min.js"></script>
-  </head>
 
-  <body class="bg-gray-100 font-sans">
-    {# --- Dynamic Navigation --- #}
-    {% if request.user.groups.all.0.name == "Member" %}
-      {% include 'dashboard/partials/member_nav.html' %}
-    {% elif request.user.groups.all.0.name == "Bookkeeper" %}
-      {% include 'dashboard/partials/bookkeeper_nav.html' %}
-    {% elif request.user.groups.all.0.name == "Cashier" %}
-      {% include 'dashboard/partials/cashier_nav.html' %}
-    {% elif request.user.groups.all.0.name == "Admin" %}
-      {% include 'dashboard/partials/admin_nav.html' %}
-    {% endif %}
-    
-    <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
-      <div class="mx-auto mt-5">
-        <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-900 to-blue-600 h-40"></div>
-          <div class="px-6 -mt-16 flex items-end space-x-6">
-            <div class="pb-4">
-              <h2 class="text-3xl font-bold text-white">{{ member.person_id.first_name }} {{ member.person_id.surname }}</h2>
-              <p class="text-white">Account No.: <span class="font-semibold">#{{ member.account_number }}</span></p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        <form id="personalForm" onsubmit="event.preventDefault(); saveSectionChanges('personalForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative w-full">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Personal Information</h3>
-            <div class="flex space-x-3 absolute top-6 right-6">
-              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('personalForm')">
-                ✏️ Edit
-              </button>
-              <div class="save-cancel-container hidden flex space-x-3">
-                <button type="button" onclick="toggleInlineEdit('personalForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
-                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
-              </div>
-            </div>
-          </div>
-
-          <ul class="space-y-3 text-gray-700 mt-4">
-            <!-- Full Name -->
-        <li>
-          <span class="font-medium block">Full Name:</span>
-          <span id="fullNameDisplay" class="display-field ml-1">{{ member.person_id.first_name }} {{ member.person_id.surname }}</span>
-          <input id="fullNameInput" name="full_name" type="text" value="{{ member.person_id.first_name }} {{ member.person_id.surname }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-              <span id="fullNameError" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
-          </li>
-        <!-- Civil Status -->
-        <li>
-          <span class="font-medium block">Civil Status:</span>
-          <span id="civilStatusDisplay" class="display-field ml-1">{{ member.person_id.civil_status }}</span>
-          <select id="civilStatusInput" name="civil_status" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-            <option value="Single" {% if member.person_id.civil_status == "Single" %}selected{% endif %}>Single</option>
-            <option value="Married" {% if member.person_id.civil_status == "Married" %}selected{% endif %}>Married</option>
-            <option value="Divorced" {% if member.person_id.civil_status == "Divorced" %}selected{% endif %}>Divorced</option>
-            <option value="Widowed" {% if member.person_id.civil_status == "Widowed" %}selected{% endif %}>Widowed</option>
-          </select>
-        </li>
-            <!-- Date of Birth -->
-        <li>
-          <span class="font-medium block">Date of Birth:</span>
-          <span id="dobDisplay" class="display-field ml-1">{{ member.person_id.date_of_birth|date:"F j, Y" }}</span>
-          <input id="dobInput" name="date_of_birth" type="date" value="{{ member.person_id.date_of_birth|date:'Y-m-d' }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-        </li>
-            <li><span class="font-medium block">Place of Birth:</span>
-              <span id="pobInputDisplay" class="display-field ml-1">Manila, Philippines</span>
-              <input id="pobInput" name="place_of_birth" type="text" value="Manila, Philippines" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-            </li>
-            <!-- Gender -->
-        <li>
-          <span class="font-medium block">Gender:</span>
-          <span id="genderDisplay" class="display-field ml-1">{{ member.person_id.gender }}</span>
-          <select id="genderInput" name="gender" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-            <option value="Male" {% if member.person_id.gender == "Male" %}selected{% endif %}>Male</option>
-            <option value="Female" {% if member.person_id.gender == "Female" %}selected{% endif %}>Female</option>
-            <option value="Other" {% if member.person_id.gender == "Other" %}selected{% endif %}>Other</option>
-          </select>
-        </li>
-            <!-- Nationality -->
-        <li>
-          <span class="font-medium block">citizenship:</span>
-          <span id="citizenshipDisplay" class="display-field ml-1">{{ member.person_id.citizenship }}</span>
-          <input id="citizenshipInput" name="citizenship" type="text" value="{{ member.person_id.citizenship }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-              <span id="citizenshipError" class="text-red-500 text-xs hidden">Enter a valid citizenship (letters only)</span>
-          </li>
-        <!-- Blood Type -->
-        <li>
-          <span class="font-medium block">Blood Type:</span>
-          <span id="bloodTypeDisplay" class="display-field ml-1">{{ member.person_id.blood_type }}</span>
-          <select id="bloodTypeInput" name="blood_type" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-            <option value="A+" {% if member.person_id.blood_type == "A+" %}selected{% endif %}>A+</option>
-            <option value="A-" {% if member.person_id.blood_type == "A-" %}selected{% endif %}>A-</option>
-            <option value="B+" {% if member.person_id.blood_type == "B+" %}selected{% endif %}>B+</option>
-            <option value="B-" {% if member.person_id.blood_type == "B-" %}selected{% endif %}>B-</option>
-            <option value="O+" {% if member.person_id.blood_type == "O+" %}selected{% endif %}>O+</option>
-            <option value="O-" {% if member.person_id.blood_type == "O-" %}selected{% endif %}>O-</option>
-            <option value="AB+" {% if member.person_id.blood_type == "AB+" %}selected{% endif %}>AB+</option>
-            <option value="AB-" {% if member.person_id.blood_type == "AB-" %}selected{% endif %}>AB-</option>
-          </select>
-        </li>
-            <li><span class="font-medium block">Height:</span>
-              <span id="heightInputDisplay" class="display-field ml-1">150</span>
-              <input id="heightInput" name="height" type="text" value="150" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-                <span id="heightError" class="text-red-500 text-xs hidden">Height must be numbers only</span>
-            </li>
-            <li><span class="font-medium block">Weight:</span>
-              <span id="weightInputDisplay" class="display-field ml-1">40</span>
-              <input id="weightInput" name="weight" type="text" value="40" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-                <span id="weightError" class="text-red-500 text-xs hidden">Weight must be numbers only</span>
-            </li>
-          </ul>
-        </form>
-        <form id="contactForm" onsubmit="event.preventDefault(); saveSectionChanges('contactForm')" class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Contact Information</h3>
-            <div class="flex space-x-3 absolute top-6 right-6">
-              <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out" onclick="toggleInlineEdit('contactForm')">
-                ✏️ Edit
-              </button>
-              <div class="save-cancel-container hidden flex space-x-3">
-                <button type="button" onclick="toggleInlineEdit('contactForm', true)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
-                <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
-              </div>
-            </div>
-          </div>
-
-          <ul class="space-y-3 text-gray-700 mt-4">
-            <!-- Cellphone -->
-        <li>
-          <span class="font-medium block">Cellphone:</span>
-          <span id="cellDisplay" class="display-field ml-1">{{ member.person_id.cellphone_no }}</span>
-          <input id="cellInput" name="cellphone" type="text" value="{{ member.person_id.cellphone_no }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-          <span id="cellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
-        </li>
-        <!-- Email -->
-        <li>
-          <span class="font-medium block">Email:</span>
-          <span id="emailDisplay" class="display-field ml-1">{{ member.person_id.contact_email_address }}</span>
-          <input id="emailInput" name="email" type="email" value="{{ member.person_id.contact_email_address|default:'' }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-          </li>
-        <!-- Residential Address -->
-        <li>
-          <span class="font-medium block">Residential Address:</span>
-          <span id="resAddressDisplay" class="display-field ml-1">{{ member.person_id.residential_address }}</span>
-          <input id="resAddressInput" name="residential_address" type="text" value="{{ member.person_id.residential_address }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-          <span id="resAddressError" class="text-red-500 text-xs hidden">Enter a valid residential address</span>
-        </li>
-        <!-- ZIP Code -->
-        <li>
-          <span class="font-medium block">Residential ZIP Code:</span>
-          <span id="resZipDisplay" class="display-field ml-1">{{ member.person_id.residential_address_zip_code }}</span>
-          <input id="resZipInput" name="residential_zip" type="text" value="{{ member.person_id.residential_address_zip_code }}" disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-          <span id="residentialZipError" class="text-red-500 text-xs hidden">Enter a valid residential zip code</span>
-        </li>
-            <li><span class="font-medium block">Permanent Address:</span> 
-              <span id="permanentInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address }}</span>
-              <input id="permanentInput" name="perm_address" type="text" value="{{ member.person_id.permanent_address }}" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-            </li>
-            <li><span class="font-medium block">Permanent ZIP Code:</span> 
-              <span id="permanentZipInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address_zip_code }}</span>
-              <input id="permanentZipInput" name="permanent_zip" type="text" value="{{ member.person_id.permanent_address_zip_code }}" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-                <span id="permanentZipError" class="text-red-500 text-xs hidden">Enter a valid permanent zip code</span>
-            </li>
-            <li><span class="font-medium block">Permanent Telephone No.:</span> 
-              <span id="telephoneInputDisplay" class="display-field ml-1">{{ member.person_id.permanent_address_telephone_no }}</span>
-              <input id="telephoneInput" name="telephone_no" type="text" value="{{ member.person_id.permanent_address_telephone_no }}" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-                <span id="permanentAddressTelephoneNoError" class="text-red-500 text-xs hidden">Enter a valid telephone number</span>
-            </li>
-            <li><span class="font-medium block">Agency Employee number:</span> 
-              <span id="agencyEmployeeNumberInputDisplay" class="display-field ml-1">{{ member.person_id.agency_employee_no }}</span>
-              <input id="agencyEmployeeNumberInput" name="agency_employee_number" type="text" value="{{ member.person_id.agency_employee_no }}" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
-            </li>
-          </ul>
-        </form>
-
-        <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
-          <h3 class="text-lg font-semibold text-red-700 border-b pb-2 mb-4 w-full">Account Security</h3>
-          <ul class="space-y-3 text-gray-700 mt-4">
-            <li class="flex justify-between items-center">
-                <div>
-                    <span class="font-medium block">Username:</span> 
-                    <span class="ml-1 font-semibold text-gray-900">{{ member.user_id.username }}</span>
-                </div>
-                <button type="button" onclick="openModal('usernameModal')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm py-1 px-3 rounded-md border border-blue-600 hover:bg-blue-50">Change Username</button>
-            </li>
-            <li class="flex justify-between items-center">
-                <div>
-                    <span class="font-medium block">Password:</span> 
-                    <span class="ml-1">********</span>
-                </div>
-                <button type="button" onclick="openModal('passwordModal')" class="text-red-600 hover:text-red-800 font-semibold text-sm py-1 px-3 rounded-md border border-red-600 hover:bg-red-50">Change Password</button>
-            </li>
-          </ul>
-        </div>
-
-        <form id="emergencyForm" onsubmit="event.preventDefault(); saveSectionChanges('emergencyForm')"
-  class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
-
-  <div class="flex justify-between items-center">
-    <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Emergency Contact</h3>
-
-    <div class="flex space-x-3 absolute top-6 right-6">
-      <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
-        onclick="toggleInlineEdit('emergencyForm')">✏️ Edit</button>
-
-      <div class="save-cancel-container hidden flex space-x-3">
-        <button type="button" onclick="toggleInlineEdit('emergencyForm', true)"
-          class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
-
-        <button type="submit"
-          class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
-    <div>
-      <span class="font-medium block">Name (Full Name):</span>
-      <span id="emergencyContactNameDisplay" class="display-field">{{ emergency_contact.emergency_contact_name }}</span>
-
-      <input id="emergencyContactNameInput" name="emergencyContactName" type="text"
-        value="{{ emergency_contact.emergency_contact_name }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="emergencyContactNameError" class="text-red-500 text-xs hidden">Name must not contain numbers or symbol</span>
-    </div>
-
-    <div>
-      <span class="font-medium block">Cellphone No.:</span>
-      <span id="emergencyContactCellphoneDisplay" class="display-field">{{ emergency_contact.emergency_contact_number }}</span>
-
-      <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text"
-        value="{{ emergency_contact.emergency_contact_number }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-        <span id="emergencyContactCellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
-    </div>
-
-    <div>
-      <span class="font-medium block">Address:</span>
-      <span id="emergencyContactAddressDisplay" class="display-field">{{ emergency_contact.emergency_contact_address }}</span>
-      <input id="emergencyContactAddressInput" name="emergencyContactAddress" type="text"
-        value="{{ emergency_contact.emergency_contact_address }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-        <span id="emergencyContactAddressError" class="text-red-500 text-xs hidden">Enter a valid address</span>
-    </div>
-  </div>
-</form>
-
-
-        <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')"
-  class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
-
-  <div class="flex justify-between items-center">
-    <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Government IDs</h3>
-
-    <div class="flex space-x-3 absolute top-6 right-6">
-      <button type="button" class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
-        onclick="toggleInlineEdit('govtIdForm')">✏️ Edit</button>
-
-      <div class="save-cancel-container hidden flex space-x-3">
-        <button type="button" onclick="toggleInlineEdit('govtIdForm', true)"
-          class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
-
-        <button type="submit"
-          class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
-<div>
-      <span class="font-medium block">GSIS:</span>
-      <span id="gsisDisplay" class="display-field">{{ member.person_id.gsis_id_no }}</span>
-
-      <input id="gsisInput" name="gsis" type="text" value="{{ member.person_id.gsis_id_no }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-        <span id="gsisError" class="text-red-500 text-xs hidden">Enter a valid GSIS number</span>
-    </div>
-
-    <div>
-      <span class="font-medium block">PAG-IBIG:</span>
-      <span id="pagibigDisplay" class="display-field">{{ member.person_id.pagibig_id_no }}</span>
-
-      <input id="pagibigInput" name="pagibig" type="text" value="{{ member.person_id.pagibig_id_no }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-        <span id="pagibigError" class="text-red-500 text-xs hidden">Enter a valid PAG-IBIG number</span>
-    </div>
-
-    <div>
-      <span class="font-medium block">PhilHealth:</span>
-      <span id="philhealthDisplay" class="display-field">{{ member.person_id.philhealth_id_no }}</span>
-
-      <input id="philhealthInput" name="philhealth" type="text" value="{{ member.person_id.philhealth_id_no }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-        <span id="philhealthError" class="text-red-500 text-xs hidden">Enter a valid PHILHEALTH number</span>
-    </div>
-
-    <div>
-      <span class="font-medium block">SSS:</span>
-      <span id="sssDisplay" class="display-field">{{ member.person_id.sss_id_no }}</span>
-
-      <input id="sssInput" name="sss" type="text" value="{{ member.person_id.sss_id_no }}" disabled
-        class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="sssError" class="text-red-500 text-xs hidden">Enter a valid SSS number</span>
-              </div>
-              <div>
-                <span class="font-medium block">TIN:</span>
-                <span id="tinDisplay" class="display-field">{{ member.person_id.tin_no }}</span>
-                <input id="tinInput" name="tin" type="text" value="{{ member.person_id.tin_no }}" disabled
-                class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
-                <span id="tinError" class="text-red-500 text-xs hidden">Enter a valid TIN number</span>
-              </div>
-            </div>
-          </form>
-
-      </div>
-
-      <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-lg p-6 w-96">
-          <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Change Username</h2>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">New Username</label>
-              <input id="newUsernameInput" type="text" placeholder="Enter new username"
-                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-            </div>
-          </div>
-          <div class="mt-6 flex justify-end space-x-3">
-            <button type="button" onclick="closeModal('usernameModal')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
-            <button type="button" onclick="updateUsername()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md">Update Username</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-lg p-6 w-96">
-          <h2 class="text-lg font-semibold text-red-700 mb-4 border-b pb-2">Change Password</h2>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Current Password</label>
-              <input id="currentPasswordInput" type="password" placeholder="Enter current password"
-                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">New Password</label>
-              <input id="newPasswordInput" type="password" placeholder="Enter new password"
-                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Confirm New Password</label>
-              <input id="confirmPasswordInput" type="password" placeholder="Confirm new password"
-                class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-red-500 focus:outline-none" />
-            </div>
-          </div>
-          <div class="mt-6 flex justify-end space-x-3">
-            <button type="button" onclick="closeModal('passwordModal')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
-            <button type="button" onclick="updatePassword()" class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-md">Update Password</button>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-// Toggle Edit/View mode
-function toggleInlineEdit(sectionId, isCancel=false){
-  const form = document.getElementById(sectionId);
-  const inputs = form.querySelectorAll(".editable-input");
-  const displays = form.querySelectorAll(".display-field");
-  const editBtn = form.querySelector(".edit-btn");
-  const saveCancel = form.querySelector(".save-cancel-container");
-
-  inputs.forEach(input=>{
-    if(isCancel){
-      // If cancelling, revert the input value to the stored original value
-      // This value was set when entering edit mode, or saved after a successful save.
-      if(input.dataset.original !== undefined) {
-        input.value = input.dataset.original;
-      }
-    } else if(input.disabled){ 
-      // Entering Edit Mode: Store the current value before it can be changed
-      input.dataset.original = input.value;
-    }
-    // Toggle the disabled state and visibility for all inputs
-    input.disabled = !input.disabled;
-    input.classList.toggle("hidden");
-  });
-
-  displays.forEach(span=>{
-    span.classList.toggle("hidden");
-  });
-
-  editBtn.classList.toggle("hidden");
-  saveCancel.classList.toggle("hidden");
-}
-
-// Placeholder save function
-function saveSectionChanges(sectionId){
-  const form = document.getElementById(sectionId);
-  const inputs = form.querySelectorAll(".editable-input");
-  const displays = form.querySelectorAll(".display-field");
-
-  inputs.forEach(input=>{
-    const displayId = input.id.replace("Input","Display");
-    document.getElementById(displayId).textContent = input.value;
-    input.dataset.original = input.value;
-    input.disabled = true;
-    input.classList.add("hidden");
-  });
-
-  displays.forEach(span=>{
-    span.classList.remove("hidden");
-  });
-
-  form.querySelector(".edit-btn").classList.remove("hidden");
-  form.querySelector(".save-cancel-container").classList.add("hidden");
-}
-</script>
-  </body>
-</html>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  // Validation rules
-  const rules = {
-    fullNameInput: {
-      regex: /^[A-Za-z\s]+$/,
-      errorId: "fullNameError"
-    },
-    citizenshipInput: {
-      regex: /^[A-Za-z\s]+$/,
-      errorId: "citizenshipError"
-    },
-    heightInput: {
-      regex: /^\d+$/,
-      errorId: "heightError"
-    },
-    weightInput: {
-      regex: /^\d+$/,
-      errorId: "weightError"
-    },
-    cellInput: {
-      regex: /^(?:\+639\d{9}|09\d{9})$/,
-      errorId: "cellphoneError"
-    },
-    resZipInput: {
-      regex: /^\d{4}$/,
-      errorId: "residentialZipError"
-    },
-    permanentZipInput:{
-      regex: /^\d{4}$/,
-      errorId: "permanentZipError"
-    },
-    telephoneInput: {
-      regex: /^\d{11,12}$/,
-      errorId: "permanentAddressTelephoneNoError"
-    },
-    emergencyContactNameInput: {
-      regex: /^[A-Za-z\s]+$/,
-      errorId: "emergencyContactNameError"
-    },
-    emergencyContactCellphoneInput: {
-      regex: /^(?:\+639\d{9}|09\d{9})$/,
-      errorId: "emergencyContactCellphoneError"
-    },
-    emergencyContactAddressInput: {
-      regex: /^[A-Za-z0-9\s,.-]+$/,
-      errorId: "emergencyContactAddressError"
-    },
-    residentialAddressTelephoneNo: {
-      regex: /^\d{11,12}$/,
-      errorId: "residentialAddressTelephoneNoError"
-    },
-    gsisInput: {
-      regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/,
-      errorId: "gsisError"
-    },
-    pagibigInput: {
-      regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/,
-      errorId: "pagibigError"
-    },
-    philhealthInput: {
-      regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/,
-      errorId: "philhealthError"
-    },
-    sssInput: {
-      regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/,
-      errorId: "sssError"
-    },
-    tinInput: {
-      regex: /^(\d{9}|\d{14}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/,
-      errorId: "tinError"
+    // Ensure current password is not empty
+    if (!currentPassword.trim()) {
+        showAlert('Please enter your current password.', 'error');
+        return;
     }
-  };
 
-  // Real-time validation
-  Object.keys(rules).forEach((field) => {
-    const input = document.getElementById(field);
-    const error = document.getElementById(rules[field].errorId);
-    if (!input || !error) return;
 
-    input.addEventListener("input", function () {
-      if (input.value === "" || rules[field].regex.test(input.value)) {
-        error.classList.add("hidden");
-      } else {
-        error.classList.remove("hidden");
+    const formData = new FormData();
+    formData.append('current_password', currentPassword);
+    // FIXED: The Django backend likely expects 'new_password1' and 'new_password2' for password change forms.
+    // However, since the script only sends 'new_password' and 'confirm_password', we must use those.
+    // If Django uses 'new_password1'/'new_password2', change these two lines.
+    formData.append('new_password', newPassword);
+    formData.append('confirm_password', confirmPassword); 
+    // If using Django's standard SetPasswordForm or PasswordChangeForm, you may need:
+    // formData.append('new_password1', newPassword);
+    // formData.append('new_password2', confirmPassword);
+
+
+    const result = await postData("{% url 'update_password' %}", formData);
+
+    if (result.status === 'success') {
+      closeModal('passwordModal');
+      // Clear inputs after successful change
+      document.getElementById('current_password').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('confirm_password').value = '';
+      showAlert(result.message, 'success');
+            setTimeout(() => {
+                window.location.href = "{% url 'login' %}";
+            }, 4000);
+    } else {
+      // Clear new password fields on failure for security
+      document.getElementById('password').value = '';
+      document.getElementById('confirm_password').value = '';
+      showAlert(`Failed to update password: ${result.message}`, 'error');
+    }
+  }
+
+
+  // --- INLINE EDITING FUNCTIONS ---
+
+  // Function to show/hide input fields and buttons (omitted for brevity)
+  function toggleInlineEdit(formId, isCancel = false) {
+    const form = document.getElementById(formId);
+    const displayFields = form.querySelectorAll('.display-field');
+    const inputFields = form.querySelectorAll('.editable-input');
+    const editBtn = form.querySelector('.edit-btn');
+    const saveCancelContainer = form.querySelector('.save-cancel-container');
+
+    if (!isCancel && editBtn.classList.contains('hidden')) {
+      // Already in edit mode, canceling
+      isCancel = true;
+    }
+
+    if (isCancel) {
+      // Hide inputs, show displays
+      displayFields.forEach(el => el.classList.remove('hidden'));
+      inputFields.forEach(el => {
+        el.classList.add('hidden');
+        el.disabled = true;
+      });
+      editBtn.classList.remove('hidden');
+      saveCancelContainer.classList.add('hidden');
+      // Hide errors if any
+      form.querySelectorAll('.text-red-500').forEach(el => el.classList.add('hidden'));
+    } else {
+      // Show inputs, hide displays (Enable edit mode)
+      displayFields.forEach(el => el.classList.add('hidden'));
+      inputFields.forEach(el => {
+        el.classList.remove('hidden');
+        el.disabled = false;
+        // Focus the first input field to improve UX
+        if (el === inputFields[0]) el.focus();
+      });
+      editBtn.classList.add('hidden');
+      saveCancelContainer.classList.remove('hidden');
+    }
+  }
+
+  // Function to perform client-side validation
+  function validateField(inputElement, regex, errorMessage) {
+    const errorElement = document.getElementById(inputElement.id.replace('Input', 'Error'));
+    const value = inputElement.value.trim();
+
+    // Check if the input is one of the dropdowns or non-required date field
+    if (inputElement.type === 'date' && !value) {
+      if (errorElement) errorElement.classList.add('hidden');
+      return true;
+    }
+    // Handle select elements (dropdowns)
+    if (inputElement.tagName === 'SELECT' && !value) {
+        if (errorElement) errorElement.classList.add('hidden'); // Assuming dropdowns have a default selection
+        return true;
+    }
+    
+    // All inputs here are required and must pass regex if provided
+    if (!value || (regex && !regex.test(value))) {
+      if (errorElement) {
+        errorElement.textContent = errorMessage;
+        errorElement.classList.remove('hidden');
+      }
+      // Add a red border to the input
+      inputElement.classList.add('border-red-500');
+      inputElement.classList.remove('focus:ring-blue-500');
+      return false;
+    } else {
+      if (errorElement) errorElement.classList.add('hidden');
+      // Remove red border
+      inputElement.classList.remove('border-red-500');
+      inputElement.classList.add('focus:ring-blue-500');
+      return true;
+    }
+  }
+
+  // Function to handle form submission and AJAX request
+  async function saveSectionChanges(formId) {
+    const form = document.getElementById(formId);
+    // Only get inputs that are not hidden (i.e., not disabled by the toggle function)
+    const inputs = form.querySelectorAll('.editable-input:not([disabled])'); 
+    let isValid = true;
+    const formData = new FormData();
+
+    // Define URL mapping and validation rules
+    const urlMap = {
+      'personalForm': "{% url 'update_personal_info' %}",
+      'contactForm': "{% url 'update_contact_info' %}",
+      'emergencyForm': "{% url 'update_emergency_contact' %}",
+      'govtIdForm': "{% url 'update_government_id' %}",
+    };
+
+    // FIXED/IMPROVED: Added specific error IDs for forms where the input ID doesn't directly map
+    const validationRules = {
+      'personalForm': [
+        { id: 'fullNameInput', regex: /^[A-Za-z\s.'-]{2,}$/, msg: 'Name must only contain letters, spaces, or basic punctuation.', errorId: 'fullNameError' },
+        { id: 'citizenshipInput', regex: /^[A-Za-z\s]{2,}$/, msg: 'Enter a valid citizenship (letters and spaces only).', errorId: 'citizenshipError' },
+        { id: 'heightInput', regex: /^\d+(\.\d+)?$/, msg: 'Height must be numbers only (e.g., 170.5).', errorId: 'heightError' },
+        { id: 'weightInput', regex: /^\d+(\.\d+)?$/, msg: 'Weight must be numbers only (e.g., 65).', errorId: 'weightError' },
+      ],
+      'contactForm': [
+        { id: 'emailInput', regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, msg: 'Enter a valid contact email address.', errorId: 'emailError' }, // ID is 'cellInput', Error ID is 'cellphoneError'
+        { id: 'cellInput', regex: /^(?:\+639\d{9}|09\d{9})$/, msg: 'Enter a valid cellphone number.', errorId: 'cellphoneError' }, // ID is 'cellInput', Error ID is 'cellphoneError'
+        { id: 'resZipInput', regex: /^\d{4}$/, msg: 'Enter a valid residential zip code.', errorId: 'residentialZipError' }, // ID is 'resZipInput', Error ID is 'residentialZipError'
+        { id: 'permanentZipInput', regex: /^\d{4}$/, msg: 'Enter a valid permanent zip code.', errorId: 'permanentZipError' },
+      ],
+      'emergencyForm': [
+        { id: 'emergencyContactNameInput', regex: /^[A-Za-z\s.'-]{2,}$/, msg: 'Name must only contain letters, spaces, or basic punctuation.', errorId: 'emergencyContactNameError' },
+        { id: 'emergencyContactCellphoneInput', regex: /^(?:\+639\d{9}|09\d{9})$/, msg: 'Enter a valid cellphone number.', errorId: 'emergencyContactCellphoneError' },
+      ],
+      'govtIdForm': [
+        { id: 'gsisInput', regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/, msg: 'Enter a valid GSIS number.', errorId: 'gsisError' },
+        { id: 'pagibigInput', regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/, msg: 'Enter a valid PAG-IBIG number.', errorId: 'pagibigError' },
+        { id: 'philhealthInput', regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/, msg: 'Enter a valid PHILHEALTH number.', errorId: 'philhealthError' },
+        { id: 'sssInput', regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/, msg: 'Enter a valid SSS number.', errorId: 'sssError' },
+        { id: 'tinInput', regex: /^(\d{9}|\d{14}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/, msg: 'Enter a valid TIN number.', errorId: 'tinError' },
+      ],
+    };
+
+    // Run client-side validation
+    validationRules[formId].forEach(rule => {
+      const input = document.getElementById(rule.id);
+      if (input && input.classList.contains('editable-input') && !input.disabled) {
+        // FIXED: Using the original validateField logic which correctly uses ID replacement
+        if (!validateField(input, rule.regex, rule.msg)) { 
+          isValid = false;
+        }
       }
     });
-  });
 
-  // Prevent submit if invalid
-  const form = document.getElementById("register1Form");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      let isValid = true;
+    if (!isValid) {
+      showAlert('Please correct the validation errors before saving.', 'error');
+      return;
+    }
 
-      Object.keys(rules).forEach((field) => {
-        const input = document.getElementById(field);
-        const error = document.getElementById(rules[field].errorId);
-        if (!input || !error) return;
+    // Gather form data and handle name splitting for personalForm
+    inputs.forEach(input => {
+      // FIXED: Only process inputs that are NOT disabled.
+      if (input.disabled) return; 
 
-        if (input.value && !rules[field].regex.test(input.value)) {
-          error.classList.remove("hidden");
-          isValid = false;
+      if (formId === 'personalForm' && input.name === 'full_name') {
+        // Assuming first word is first_name, the rest is surname
+        const parts = input.value.trim().split(/\s+/);
+        // FIX: The backend likely expects 'first_name' and 'surname' as separate fields.
+        formData.append('first_name', parts[0] || ''); 
+        formData.append('surname', parts.slice(1).join(' ') || '');
+      } else if (formId === 'contactForm' && input.name === 'cellphone') {
+         // FIX: HTML name is 'cellphone', Django probably expects 'cellphone_no' or similar. 
+         // Assuming the backend is written to accept 'cellphone' since you are appending that name.
+         // If Django expects 'cellphone_no', change the HTML name or this line:
+         formData.append(input.name, input.value); 
+      }
+      
+      // Handle all other fields directly, assuming HTML input name matches Django's field name
+      else {
+        formData.append(input.name, input.value);
+      }
+    });
+
+    const url = urlMap[formId];
+
+    // Perform AJAX save
+    const result = await postData(url, formData);
+
+    if (result.status === 'success') {
+      // Update display fields with new input values
+      inputs.forEach(input => {
+        const displayField = form.querySelector(`#${input.id.replace('Input', 'Display')}`);
+        if (displayField) {
+          if (input.id === 'dobInput') {
+            // Format date for display
+            const date = new Date(input.value + 'T00:00:00'); // Add time to fix timezone offset issues
+            displayField.textContent = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+          } else if (input.name === 'full_name') {
+             // Show full name back
+            displayField.textContent = input.value;
+          } else {
+             // For select fields, show the selected value (which is already the input value)
+             displayField.textContent = input.value;
+          }
         }
       });
 
-      if (!isValid) {
-        e.preventDefault(); // Stop form submission
-        const toast = document.getElementById("toast");
-        if (toast) {
-          toast.classList.remove("hidden");
-
-          // Hide after 4s
-          setTimeout(() => toast.classList.add("hidden"), 4000);
-        }
-      }
-    });
+      // Toggle back to display mode
+      toggleInlineEdit(formId);
+      showAlert(result.message, 'success');
+    } else {
+      showAlert(`Save failed: ${result.message}`, 'error');
+      // Remain in edit mode
+    }
   }
-});
+</script>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EWABB Member Profile</title>
+  {% tailwind_css %}
+
+</head>
+
+<body class="bg-gray-100 font-sans">
+  {# --- Dynamic Navigation --- #}
+  {% if request.user.groups.all.0.name == "Member" %}
+  {% include 'dashboard/partials/member_nav.html' %}
+  {% elif request.user.groups.all.0.name == "Bookkeeper" %}
+  {% include 'dashboard/partials/bookkeeper_nav.html' %}
+  {% elif request.user.groups.all.0.name == "Cashier" %}
+  {% include 'dashboard/partials/cashier_nav.html' %}
+  {% elif request.user.groups.all.0.name == "Admin" %}
+  {% include 'dashboard/partials/admin_nav.html' %}
+  {% endif %}
+
+  <div id="toast"
+    class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg"
+    role="status"></div>
+
+  <main class="p-6 ml-64 mr-4 mt-[72px] flex-1">
+    <div class="mx-auto mt-5">
+      <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-900 to-blue-600 h-40"></div>
+        <div class="px-6 -mt-16 flex items-end space-x-6">
+          <div class="pb-4">
+            {% if is_staff_user %}
+            {# Display Staff/Admin Header #}
+            <h2 class="text-3xl font-bold text-white">{{ full_name }}</h2>
+            <p class="text-white">Role: <span class="font-semibold">{{ user_obj.groups.all.0.name|default:'Staff'
+                }}</span></p>
+            {% else %}
+            {# Display Member Header #}
+            <h2 class="text-3xl font-bold text-white">{{ member.person_id.first_name }} {{ member.person_id.surname }}
+            </h2>
+            <p class="text-white">Account No.: <span class="font-semibold">#{{ member.account_number }}</span></p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 md:col-span-2 relative">
+        <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Account Security</h3>
+        <ul class="space-y-3 text-gray-700 mt-4">
+          <li class="flex justify-between items-center">
+            <div>
+              <span class="font-medium block">Username:</span>
+              <span class="ml-1 font-semibold text-gray-900">{{ user_obj.username }}</span>
+            </div>
+            <button type="button" onclick="openModal('usernameModal')"
+              class="text-blue-600 hover:text-blue-800 font-semibold text-sm py-1 px-3 rounded-md border border-blue-600 hover:bg-blue-50">Change
+              Username</button>
+          </li>
+          <li class="flex justify-between items-center">
+            <div>
+              <span class="font-medium block">Email:</span>
+              <span class="ml-1 font-semibold text-gray-900">{{ user_obj.email }}</span>
+            </div>
+            <button type="button" onclick="openModal('emailModal')"
+              class="text-blue-600 hover:text-blue-800 font-semibold text-sm py-1 px-3 rounded-md border border-blue-600 hover:bg-blue-50">Change
+              Email</button>
+          </li>
+          <li class="flex justify-between items-center">
+            <div>
+              <span class="font-medium block">Password:</span>
+              <span class="ml-1">********</span>
+            </div>
+            <button type="button" onclick="openModal('passwordModal')"
+              class="text-blue-600 hover:text-blue-800 font-semibold text-sm py-1 px-3 rounded-md border border-blue-600 hover:bg-blue-50">Change
+              Password</button>
+          </li>
+        </ul>
+      </div>
+      {# --- MEMBER-ONLY SECTIONS --- #}
+      {% if not is_staff_user %}
+
+      <form id="personalForm" onsubmit="event.preventDefault(); saveSectionChanges('personalForm')"
+        class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative w-full">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Personal Information</h3>
+          <div class="flex space-x-3 absolute top-6 right-6">
+            <button type="button"
+              class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
+              onclick="toggleInlineEdit('personalForm')">
+              ✏️ Edit
+            </button>
+            <div class="save-cancel-container hidden flex space-x-3">
+              <button type="button" onclick="toggleInlineEdit('personalForm', true)"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+              <button type="submit"
+                class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <ul class="space-y-3 text-gray-700 mt-4">
+          <li>
+            <span class="font-medium block">Full Name:</span>
+            <span id="fullNameDisplay" class="display-field ml-1">{{ member.person_id.first_name }} {{ member.person_id.surname }}</span>
+            <input id="fullNameInput" name="full_name" type="text"
+              value="{{ member.person_id.first_name }} {{ member.person_id.surname }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="fullNameError" class="text-red-500 text-xs hidden">Name must only contain letters, spaces, or
+              basic punctuation.</span>
+          </li>
+          <li>
+            <span class="font-medium block">Civil Status:</span>
+            <span id="civilStatusDisplay" class="display-field ml-1">{{ member.person_id.civil_status }}</span>
+            <select id="civilStatusInput" name="civil_status" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+              <option value="Single" {% if member.person_id.civil_status == "Single" %}selected{% endif %}>Single</option>
+              <option value="Married" {% if member.person_id.civil_status == "Married" %}selected{% endif %}>Married
+              </option>
+              <option value="Divorced" {% if member.person_id.civil_status == "Divorced" %}selected{% endif %}>Divorced
+              </option>
+              <option value="Widowed" {% if member.person_id.civil_status == "Widowed" %}selected{% endif %}>Widowed
+              </option>
+            </select>
+          </li>
+          <li>
+            <span class="font-medium block">Date of Birth:</span>
+            <span id="dobDisplay" class="display-field ml-1">{{ member.person_id.date_of_birth|date:"F j, Y" }}</span>
+            <input id="dobInput" name="date_of_birth" type="date"
+              value="{{ member.person_id.date_of_birth|date:'Y-m-d' }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          </li>
+          <li><span class="font-medium block">Place of Birth:</span>
+            <span id="pobDisplay" class="display-field ml-1">{{ member.person_id.place_of_birth|default:'N/A' }}</span>
+            <input id="pobInput" name="place_of_birth" type="text"
+              value="{{ member.person_id.place_of_birth|default:'' }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          </li>
+          <li>
+            <span class="font-medium block">Gender:</span>
+            <span id="genderDisplay" class="display-field ml-1">{{ member.person_id.gender }}</span>
+            <select id="genderInput" name="gender" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+              <option value="Male" {% if member.person_id.gender == "Male" %}selected{% endif %}>Male</option>
+              <option value="Female" {% if member.person_id.gender == "Female" %}selected{% endif %}>Female</option>
+              <option value="Other" {% if member.person_id.gender == "Other" %}selected{% endif %}>Other</option>
+            </select>
+          </li>
+          <li>
+            <span class="font-medium block">citizenship:</span>
+            <span id="citizenshipDisplay" class="display-field ml-1">{{ member.person_id.citizenship }}</span>
+            <input id="citizenshipInput" name="citizenship" type="text" value="{{ member.person_id.citizenship }}"
+              disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="citizenshipError" class="text-red-500 text-xs hidden">Enter a valid citizenship (letters and
+              spaces only)</span>
+          </li>
+          <li>
+            <span class="font-medium block">Blood Type:</span>
+            <span id="bloodTypeDisplay" class="display-field ml-1">{{ member.person_id.blood_type }}</span>
+            <select id="bloodTypeInput" name="blood_type" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+              <option value="A+" {% if member.person_id.blood_type == "A+" %}selected{% endif %}>A+</option>
+              <option value="A-" {% if member.person_id.blood_type == "A-" %}selected{% endif %}>A-</option>
+              <option value="B+" {% if member.person_id.blood_type == "B+" %}selected{% endif %}>B+</option>
+              <option value="B-" {% if member.person_id.blood_type == "B-" %}selected{% endif %}>B-</option>
+              <option value="O+" {% if member.person_id.blood_type == "O+" %}selected{% endif %}>O+</option>
+              <option value="O-" {% if member.person_id.blood_type == "O-" %}selected{% endif %}>O-</option>
+              <option value="AB+" {% if member.person_id.blood_type == "AB+" %}selected{% endif %}>AB+</option>
+              <option value="AB-" {% if member.person_id.blood_type == "AB-" %}selected{% endif %}>AB-</option>
+            </select>
+          </li>
+          <li><span class="font-medium block">Height (cm):</span>
+            <span id="heightDisplay" class="display-field ml-1">{{ member.person_id.height|default:'N/A' }}</span>
+            <input id="heightInput" name="height" type="text" value="{{ member.person_id.height|default:'' }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="heightError" class="text-red-500 text-xs hidden">Height must be numbers only</span>
+          </li>
+          <li><span class="font-medium block">Weight (kg):</span>
+            <span id="weightDisplay" class="display-field ml-1">{{ member.person_id.weight|default:'N/A' }}</span>
+            <input id="weightInput" name="weight" type="text" value="{{ member.person_id.weight|default:'' }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="weightError" class="text-red-500 text-xs hidden">Weight must be numbers only</span>
+          </li>
+        </ul>
+      </form>
+
+      <form id="contactForm" onsubmit="event.preventDefault(); saveSectionChanges('contactForm')"
+        class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 w-full relative">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Contact Information</h3>
+          <div class="flex space-x-3 absolute top-6 right-6">
+            <button type="button"
+              class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
+              onclick="toggleInlineEdit('contactForm')">
+              ✏️ Edit
+            </button>
+            <div class="save-cancel-container hidden flex space-x-3">
+              <button type="button" onclick="toggleInlineEdit('contactForm', true)"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+              <button type="submit"
+                class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <ul class="space-y-3 text-gray-700 mt-4">
+          <li>
+            <span class="font-medium block">Cellphone:</span>
+            <span id="cellDisplay" class="display-field ml-1">{{ member.person_id.cellphone_no }}</span>
+            <input id="cellInput" name="cellphone" type="text" value="{{ member.person_id.cellphone_no }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="cellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone number</span>
+          </li>
+          <li>
+            <span class="font-medium block">Contact Email:</span>
+            <span id="emailDisplay" class="display-field ml-1">{{ member.person_id.contact_email_address }}</span>
+            <input id="emailInput" name="email" type="email"
+              value="{{ member.person_id.contact_email_address|default:'' }}" disabled
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+              <span id="emailError" class="text-red-500 text-xs hidden">Enter a valid email address</span>
+          </li>
+          <li>
+            <span class="font-medium block">Residential Address:</span>
+            <span id="resAddressDisplay" class="display-field ml-1">{{ member.person_id.residential_address }}</span>
+            <input id="resAddressInput" name="residential_address" type="text"
+              value="{{ member.person_id.residential_address }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="resAddressError" class="text-red-500 text-xs hidden">Enter a valid residential address</span>
+          </li>
+          <li>
+            <span class="font-medium block">Residential ZIP Code:</span>
+            <span id="resZipDisplay" class="display-field ml-1">{{ member.person_id.residential_address_zip_code }}</span>
+            <input id="resZipInput" name="residential_zip" type="text"
+              value="{{ member.person_id.residential_address_zip_code }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="residentialZipError" class="text-red-500 text-xs hidden">Enter a valid residential zip code</span>
+          </li>
+          <li><span class="font-medium block">Permanent Address:</span>
+            <span id="permanentAddressDisplay" class="display-field ml-1">{{ member.person_id.permanent_address }}</span>
+            <input id="permanentAddressInput" name="perm_address" type="text"
+              value="{{ member.person_id.permanent_address }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          </li>
+          <li><span class="font-medium block">Permanent ZIP Code:</span>
+            <span id="permanentZipDisplay" class="display-field ml-1">{{ member.person_id.permanent_address_zip_code }}</span>
+            <input id="permanentZipInput" name="permanent_zip" type="text"
+              value="{{ member.person_id.permanent_address_zip_code }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+            <span id="permanentZipError" class="text-red-500 text-xs hidden">Enter a valid permanent zip code</span>
+          </li>
+          <li><span class="font-medium block">Agency Employee number:</span>
+            <span id="agencyEmployeeNumberDisplay" class="display-field ml-1">{{ member.person_id.agency_employee_no }}</span>
+            <input id="agencyEmployeeNumberInput" name="agency_employee_number" type="text"
+              value="{{ member.person_id.agency_employee_no }}" disabled
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md focus:ring-2 focus:ring-blue-500 disabled:border-none disabled:bg-transparent">
+          </li>
+        </ul>
+      </form>
+
+      <form id="emergencyForm" onsubmit="event.preventDefault(); saveSectionChanges('emergencyForm')"
+        class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Emergency Contact</h3>
+          <div class="flex space-x-3 absolute top-6 right-6">
+            <button type="button"
+              class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
+              onclick="toggleInlineEdit('emergencyForm')">✏️ Edit</button>
+            <div class="save-cancel-container hidden flex space-x-3">
+              <button type="button" onclick="toggleInlineEdit('emergencyForm', true)"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+              <button type="submit"
+                class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mt-4">
+          <div>
+            <span class="font-medium block">Name (Full Name):</span>
+            <span id="emergencyContactNameDisplay" class="display-field">{{ emergency_contact.emergency_contact_name }}</span>
+            <input id="emergencyContactNameInput" name="emergencyContactName" type="text"
+              value="{{ emergency_contact.emergency_contact_name }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="emergencyContactNameError" class="text-red-500 text-xs hidden">Name must only contain letters,
+              spaces, or basic punctuation.</span>
+          </div>
+
+          <div>
+            <span class="font-medium block">Cellphone No.:</span>
+            <span id="emergencyContactCellphoneDisplay" class="display-field">{{ emergency_contact.emergency_contact_number }}</span>
+            <input id="emergencyContactCellphoneInput" name="emergencyContactCellphone" type="text"
+              value="{{ emergency_contact.emergency_contact_number }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="emergencyContactCellphoneError" class="text-red-500 text-xs hidden">Enter a valid cellphone
+              number</span>
+          </div>
+
+          <div>
+            <span class="font-medium block">Address:</span>
+            <span id="emergencyContactAddressDisplay" class="display-field">{{ emergency_contact.emergency_contact_address }}</span>
+            <input id="emergencyContactAddressInput" name="emergencyContactAddress" type="text"
+              value="{{ emergency_contact.emergency_contact_address }}" disabled required
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="emergencyContactAddressError" class="text-red-500 text-xs hidden">Enter a valid address</span>
+          </div>
+        </div>
+      </form>
+
+
+      <form id="govtIdForm" onsubmit="event.preventDefault(); saveSectionChanges('govtIdForm')"
+        class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 relative">
+
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-blue-800 border-b pb-2 mb-4 w-full">Government IDs</h3>
+          <div class="flex space-x-3 absolute top-6 right-6">
+            <button type="button"
+              class="edit-btn text-blue-700 hover:text-blue-900 font-semibold transition duration-150 ease-in-out"
+              onclick="toggleInlineEdit('govtIdForm')">✏️ Edit</button>
+            <div class="save-cancel-container hidden flex space-x-3">
+              <button type="button" onclick="toggleInlineEdit('govtIdForm', true)"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-md text-sm">Cancel</button>
+              <button type="submit"
+                class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-gray-700 mt-4">
+          <div>
+            <span class="font-medium block">GSIS:</span>
+            <span id="gsisDisplay" class="display-field">{{ member.person_id.gsis_id_no }}</span>
+            <input id="gsisInput" name="gsis" type="text" value="{{ member.person_id.gsis_id_no }}" disabled
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="gsisError" class="text-red-500 text-xs hidden">Enter a valid GSIS number</span>
+          </div>
+
+          <div>
+            <span class="font-medium block">PAG-IBIG:</span>
+            <span id="pagibigDisplay" class="display-field">{{ member.person_id.pagibig_id_no }}</span>
+            <input id="pagibigInput" name="pagibig" type="text" value="{{ member.person_id.pagibig_id_no }}" disabled
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="pagibigError" class="text-red-500 text-xs hidden">Enter a valid PAG-IBIG number</span>
+          </div>
+
+          <div>
+            <span class="font-medium block">PhilHealth:</span>
+            <span id="philhealthDisplay" class="display-field">{{ member.person_id.philhealth_id_no }}</span>
+            <input id="philhealthInput" name="philhealth" type="text" value="{{ member.person_id.philhealth_id_no }}"
+              disabled class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="philhealthError" class="text-red-500 text-xs hidden">Enter a valid PHILHEALTH number</span>
+          </div>
+
+          <div>
+            <span class="font-medium block">SSS:</span>
+            <span id="sssDisplay" class="display-field">{{ member.person_id.sss_id_no }}</span>
+            <input id="sssInput" name="sss" type="text" value="{{ member.person_id.sss_id_no }}" disabled
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="sssError" class="text-red-500 text-xs hidden">Enter a valid SSS number</span>
+          </div>
+          <div>
+            <span class="font-medium block">TIN:</span>
+            <span id="tinDisplay" class="display-field">{{ member.person_id.tin_no }}</span>
+            <input id="tinInput" name="tin" type="text" value="{{ member.person_id.tin_no }}" disabled
+              class="editable-input hidden w-full border border-gray-300 bg-gray-50 p-2 rounded-md">
+            <span id="tinError" class="text-red-500 text-xs hidden">Enter a valid TIN number</span>
+          </div>
+        </div>
+      </form>
+      {# --- END MEMBER-ONLY SECTIONS --- #}
+      {% endif %}
+    </div>
+
+    <div id="usernameModal" class="fixed inset-0 bg-black/30 bg-opacity-40 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-lg p-6 w-96">
+        <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Change Username</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">New Username</label>
+            <input id="newUsernameInput" type="text" placeholder="Enter new username"
+              class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('usernameModal')"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+          <button type="button" onclick="updateUsername()"
+            class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md">Update Username</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="emailModal" class="fixed inset-0 bg-black/30 bg-opacity-40 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-lg p-6 w-96">
+        <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Change Email</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">New Email</label>
+            <input id="newEmailInput" type="email" placeholder="Enter new email"
+              class="w-full border rounded-md p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('emailModal')"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+          <button type="button" onclick="updateEmail()"
+            class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md">Update Email</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="passwordModal" class="fixed inset-0 bg-black/30 bg-opacity-40 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-lg p-6 w-96">
+        <h2 class="text-lg font-semibold text-blue-800 mb-4 border-b pb-2">Change Password</h2>
+        <div class="space-y-4">
+          <div class="relative text-left">
+            <label class="text-sm font-medium">Current Password</label>
+            <input id="current_password" name="current_password" type="password"
+              placeholder="Enter your current password"
+              class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 text-sm focus:ring-2 focus:ring-blue-400"
+              required />
+            <button type="button" onclick="togglePassword('current_password','eyeCur','eyeCurOff')"
+              class="absolute right-3 top-9 text-gray-500">
+              <svg id="eyeCur" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg id="eyeCurOff" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- New Password -->
+        <div class="relative text-left">
+          <label class="text-sm font-medium">New Password</label>
+          <input id="password" name="password" type="password" placeholder="Enter new password" minlength="8"
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+            title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
+            class="input validator w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required oninput="checkPasswordMatch()" />
+
+          <button type="button" onclick="togglePassword('password','eye1','eyeOff1')"
+            class="absolute right-3 top-9 text-gray-500 z-10">
+            <svg id="eye1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <svg id="eyeOff1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+            </svg>
+          </button>
+          <p class="validator-hint hidden">
+            Must be more than 8 characters, including
+            <br />At least one number
+            <br />At least one lowercase letter
+            <br />At least one uppercase letter
+          </p>
+        </div>
+
+          <div class="relative text-left">
+            <label class="text-sm font-medium">Confirm Password</label>
+            <input id="confirm_password" name="confirm_password" type="password" placeholder="Re-enter password"
+              class="w-full mt-1 border border-gray-300 rounded-md px-4 py-2 pr-10 text-sm focus:ring-2 focus:ring-blue-400"
+              required oninput="checkPasswordMatch()" />
+            <button type="button" onclick="togglePassword('confirm_password','eyeCon','eyeConOff')"
+              class="absolute right-3 top-9 text-gray-500">
+              <svg id="eyeCon" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg id="eyeConOff" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.969 9.969 0 012.868-4.592m3.791-2.426A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.958 9.958 0 01-4.043 5.197M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+          <p id="matchMessage" class="text-red-500 text-xs hidden text-left"></p>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('passwordModal')"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+          <button type="button" onclick="updatePassword()" disabled
+            class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md opacity-50 cursor-not-allowed">Update
+            Password</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</body>
+
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Validation rules
+    const rules = {
+      fullNameInput: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "fullNameError"
+      },
+      citizenshipInput: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "citizenshipError"
+      },
+      heightInput: {
+        regex: /^\d+$/,
+        errorId: "heightError"
+      },
+      weightInput: {
+        regex: /^\d+$/,
+        errorId: "weightError"
+      },
+      cellInput: {
+        regex: /^(?:\+639\d{9}|09\d{9})$/,
+        errorId: "cellphoneError"
+      },
+      emailInput: {
+        regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        errorId: "emailError"
+      },
+      resZipInput: {
+        regex: /^\d{4}$/,
+        errorId: "residentialZipError"
+      },
+      permanentZipInput: {
+        regex: /^\d{4}$/,
+        errorId: "permanentZipError"
+      },
+      emergencyContactNameInput: {
+        regex: /^[A-Za-z\s]+$/,
+        errorId: "emergencyContactNameError"
+      },
+      emergencyContactCellphoneInput: {
+        regex: /^(?:\+639\d{9}|09\d{9})$/,
+        errorId: "emergencyContactCellphoneError"
+      },
+      emergencyContactAddressInput: {
+        regex: /^[A-Za-z0-9\s,.-]+$/,
+        errorId: "emergencyContactAddressError"
+      },
+      gsisInput: {
+        regex: /^(\d{12}|\d{4}-\d{7}-\d{1})$/,
+        errorId: "gsisError"
+      },
+      pagibigInput: {
+        regex: /^(\d{12}|\d{4}-\d{4}-\d{4})$/,
+        errorId: "pagibigError"
+      },
+      philhealthInput: {
+        regex: /^(\d{12}|\d{2}-\d{9}-\d{1})$/,
+        errorId: "philhealthError"
+      },
+      sssInput: {
+        regex: /^(\d{10}|\d{2}-\d{7}-\d{1})$/,
+        errorId: "sssError"
+      },
+      tinInput: {
+        regex: /^(\d{9}|\d{14}|\d{3}-\d{3}-\d{3}(-\d{5})?)$/,
+        errorId: "tinError"
+      }
+    };
+
+    // Real-time validation
+    Object.keys(rules).forEach((field) => {
+      const input = document.getElementById(field);
+      const error = document.getElementById(rules[field].errorId);
+      if (!input || !error) return;
+
+      input.addEventListener("input", function () {
+        if (input.value === "" || rules[field].regex.test(input.value)) {
+          error.classList.add("hidden");
+        } else {
+          error.classList.remove("hidden");
+        }
+      });
+    });
+  });
 </script>

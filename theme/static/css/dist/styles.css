@@ -8,8 +8,8 @@
     --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
-    --color-red-50: oklch(97.1% 0.013 17.38);
     --color-red-100: oklch(93.6% 0.032 17.717);
+    --color-red-300: oklch(80.8% 0.114 19.571);
     --color-red-400: oklch(70.4% 0.191 22.216);
     --color-red-500: oklch(63.7% 0.237 25.331);
     --color-red-600: oklch(57.7% 0.245 27.325);
@@ -28,6 +28,7 @@
     --color-yellow-700: oklch(55.4% 0.135 66.442);
     --color-yellow-800: oklch(47.6% 0.114 61.907);
     --color-green-100: oklch(96.2% 0.044 156.743);
+    --color-green-300: oklch(87.1% 0.15 154.449);
     --color-green-400: oklch(79.2% 0.209 151.711);
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-600: oklch(62.7% 0.194 149.214);
@@ -3175,6 +3176,9 @@
     outline: 2px solid currentColor;
     outline-offset: 2px;
   }
+  .cursor-not-allowed {
+    cursor: not-allowed;
+  }
   .cursor-pointer {
     cursor: pointer;
   }
@@ -3436,6 +3440,9 @@
   .border-gray-400 {
     border-color: var(--color-gray-400);
   }
+  .border-green-300 {
+    border-color: var(--color-green-300);
+  }
   .border-green-400 {
     border-color: var(--color-green-400);
   }
@@ -3451,14 +3458,14 @@
   .border-indigo-300 {
     border-color: var(--color-indigo-300);
   }
+  .border-red-300 {
+    border-color: var(--color-red-300);
+  }
   .border-red-400 {
     border-color: var(--color-red-400);
   }
   .border-red-500 {
     border-color: var(--color-red-500);
-  }
-  .border-red-600 {
-    border-color: var(--color-red-600);
   }
   .border-yellow-400 {
     border-color: var(--color-yellow-400);
@@ -3590,9 +3597,6 @@
   }
   .bg-red-600 {
     background-color: var(--color-red-600);
-  }
-  .bg-red-700 {
-    background-color: var(--color-red-700);
   }
   .bg-transparent {
     background-color: transparent;
@@ -4005,6 +4009,9 @@
   .opacity-20 {
     opacity: 20%;
   }
+  .opacity-50 {
+    opacity: 50%;
+  }
   .opacity-100 {
     opacity: 100%;
   }
@@ -4240,11 +4247,6 @@
     }
   }
   @media (hover: hover) {
-    .hover\:bg-red-50:hover {
-      background-color: var(--color-red-50);
-    }
-  }
-  @media (hover: hover) {
     .hover\:bg-red-100:hover {
       background-color: var(--color-red-100);
     }
@@ -4252,11 +4254,6 @@
   @media (hover: hover) {
     .hover\:bg-red-700:hover {
       background-color: var(--color-red-700);
-    }
-  }
-  @media (hover: hover) {
-    .hover\:bg-red-800:hover {
-      background-color: var(--color-red-800);
     }
   }
   @media (hover: hover) {
@@ -4317,11 +4314,6 @@
   @media (hover: hover) {
     .hover\:text-red-700:hover {
       color: var(--color-red-700);
-    }
-  }
-  @media (hover: hover) {
-    .hover\:text-red-800:hover {
-      color: var(--color-red-800);
     }
   }
   @media (hover: hover) {
@@ -4388,9 +4380,6 @@
   .focus\:ring-blue-600:focus {
     --tw-ring-color: var(--color-blue-600);
   }
-  .focus\:ring-blue-800:focus {
-    --tw-ring-color: var(--color-blue-800);
-  }
   .focus\:ring-green-400:focus {
     --tw-ring-color: var(--color-green-400);
   }
@@ -4411,16 +4400,6 @@
     --tw-outline-style: none;
     outline-style: none;
   }
-  .enabled\:border:enabled {
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-  }
-  .enabled\:border-gray-300:enabled {
-    border-color: var(--color-gray-300);
-  }
-  .enabled\:bg-gray-50:enabled {
-    background-color: var(--color-gray-50);
-  }
   .disabled\:border-none:disabled {
     --tw-border-style: none;
     border-style: none;
@@ -4428,18 +4407,8 @@
   .disabled\:bg-transparent:disabled {
     background-color: transparent;
   }
-  .disabled\:p-0:disabled {
-    padding: calc(var(--spacing) * 0);
-  }
   .disabled\:opacity-60:disabled {
     opacity: 60%;
-  }
-  .disabled\:opacity-100:disabled {
-    opacity: 100%;
-  }
-  .disabled\:shadow-none:disabled {
-    --tw-shadow: 0 0 #0000;
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   @media (width >= 40rem) {
     .sm\:mx-4 {
@@ -4749,6 +4718,11 @@
   @media (width >= 64rem) {
     .lg\:max-w-\[1200px\] {
       max-width: 1200px;
+    }
+  }
+  @media (width >= 64rem) {
+    .lg\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   @media (width >= 64rem) {
