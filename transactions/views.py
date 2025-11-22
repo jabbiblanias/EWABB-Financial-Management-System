@@ -20,7 +20,6 @@ from itertools import chain
 from decimal import Decimal, InvalidOperation # Import Decimal and related tools
 from financial_reporting.models import Revenue, Funds
 from django.db.models import F
-from datetime import date, timedelta
 
 
 def member_details(request, member_id):
