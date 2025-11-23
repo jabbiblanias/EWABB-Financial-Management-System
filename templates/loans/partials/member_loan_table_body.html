@@ -1,6 +1,5 @@
 {% for loan in page.object_list %}
-<tr id="row-{{ loan.loan_application_id }}" ondblclick="window.location.href='details/{{ loan.loan_application_id }}/';"
-    class="cursor-pointer border-b border-gray-200 hover:bg-sky-100">
+<tr id="row-{{ loan.loan_application_id }}" class="border-b border-gray-200">
     
     <!-- Loan Amount -->
     <td class="px-6 py-3">{{ loan.loan_amount }}</td>
@@ -53,6 +52,12 @@
                 {{ loan.status }}
             </span>
         {% endif %}
+    </td>
+    <td class="px-6 py-3">
+        <!-- View Button -->
+        <a href="details/{{ loan.loan_application_id }}/" class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+            View
+        </a>
     </td>
 </tr>
 {% endfor %}

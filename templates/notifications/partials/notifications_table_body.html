@@ -2,7 +2,7 @@
 {% if notification.is_read %}
 <!-- Read -->
 <tr class="hover:bg-gray-50 transition">
-    <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
+    <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4 notif-checkbox" data-id="{{ notification.notification_id }}"></td>
     <td class="px-4 py-3">{{ forloop.counter|add:page.start_index|add:"-1" }}</td>
     <td class="px-4 py-3 max-w-sm ">
         <div data-id="{{ notification.notification_id }}"
@@ -23,7 +23,7 @@
 </tr>
 {% else %}
 <tr id="row-{{notification.notification_id}}" class="bg-blue-50 hover:bg-blue-100 transition">
-    <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4" /></td>
+    <td class="px-4 py-3"><input type="checkbox" class="h-4 w-4 notif-checkbox" data-id="{{ notification.notification_id }}"></td>
     <td class="px-4 py-3">{{ forloop.counter|add:page.start_index|add:"-1" }}</td>
     <td class="px-4 py-3 max-w-sm ">
         <div data-id="{{ notification.notification_id }}"

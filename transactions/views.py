@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from loans.utils import convert_date
 from .models import Transactions, Member
 from members.models import Savings
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Sum
 from django.http import JsonResponse, HttpResponseForbidden
 from decimal import Decimal
@@ -19,8 +19,7 @@ from django.utils.dateformat import DateFormat
 from itertools import chain
 from decimal import Decimal, InvalidOperation # Import Decimal and related tools
 from financial_reporting.models import Revenue, Funds
-from django.db.models import F
-
+from django.db.models import F, Q
 
 def member_details(request, member_id):
     # Fetch member
@@ -379,107 +378,149 @@ def record_payment(member_id, loan, payment_amount):
 def transaction_view(request):
     user = request.user
 
-    # detect ajax once here
+    # Detect ajax once here
     is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
-    # get shared data
+    # Get shared data (now handles user-specific filtering)
     context = transaction_data(request, ajax=is_ajax)
 
-    # if ajax, just return the JSON
+    # If ajax, just return the JSON
     if is_ajax:
-        return context  # this is your JsonResponse
+        # The JSON response is now handled entirely within transaction_data
+        return context  
     
-    # otherwise, render template normally
+    # Otherwise, render template normally
     if user.groups.filter(name='Admin').exists():
+        # NOTE: Make sure the context here has the correct data structure for this template
         return render(request, 'transactions/admin_transaction.html', context)
+        
     elif user.groups.filter(name='Member').exists():
-        return member_transaction_data(request)
+        # Render the member template using the context returned from transaction_data
+        # NOTE: Ensure member_transaction.html uses 'page' variable for transactions
+        return render(request, 'transactions/member_transaction.html', context)
+        
     elif user.groups.filter(name='Bookkeeper').exists():
         return render(request, 'transactions/bookkeeper_transaction.html', context)
+        
     elif user.groups.filter(name='Cashier').exists():
         return render(request, 'transactions/cashier_transaction.html', context)
+        
     else:
         return HttpResponseForbidden("Unauthorized user group.")
     
 def transaction_data(request, ajax=False, transaction=None, toast_message=None):
+    user = request.user
+    is_member = user.groups.filter(name='Member').exists()
+    
+    # --- 1. Get Filters and Prepare Query Params ---
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
+    
+    start_date = None
+    end_date = None
+    
+    # Build the query string for pagination links
+    current_query_params = ""
+    if start_date_str:
+        current_query_params += f"&start_date={start_date_str}"
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+            
+    if end_date_str:
+        current_query_params += f"&end_date={end_date_str}"
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+
+    # --- 2. Get Base Transactions QuerySet and Apply Filters ---
+    
     transactions = (
         Transactions.objects
         .select_related("member_id")
-        .values(
-            "transaction_id", 
-            "transaction_type", 
-            "member_id__account_number", 
-            "transaction_date", 
-            "amount",
-            "description"
-        )
         .order_by("-transaction_date")
     )
-    members = (
-        Member.objects
-        .select_related("person_id")
-        .values(
-            "account_number",
-            "person_id__first_name",
-            "person_id__middle_name",
-            "person_id__name_extension",
-            "person_id__surname"
-        )
-    )
-    programs = (
-        BusinessProgram.objects
-        .filter(status="Active")
-        .values('program_id', 'program_name')
-        )
     
+    table_partial_template = "transactions/partials/cashier_transaction_table_body.html"
+
+    if is_member:
+        # Apply mandatory member filter
+        transactions = transactions.filter(member_id__user_id=user)
+        
+        # Apply optional date filter
+        if start_date or end_date:
+            filter_query = Q()
+            if start_date:
+                filter_query &= Q(transaction_date__gte=start_date)
+            if end_date:
+                filter_query &= Q(transaction_date__lte=end_date) 
+            
+            transactions = transactions.filter(filter_query)
+        
+        # Select fields for the member view
+        transactions = transactions.values(
+            "transaction_id", "transaction_type", "transaction_date", "amount"
+        )
+        table_partial_template = "transactions/partials/member_transaction_table_body.html"
+        
+        # Set non-member context data to empty for simplicity
+        members = []
+        programs = []
+        
+    else:
+        # Select the full set of fields for Admin, Bookkeeper, Cashier views
+        transactions = transactions.values(
+            "transaction_id", "transaction_type", "member_id__account_number", 
+            "transaction_date", "amount", "description"
+        )
+        # --- 3. Get Other Data (Only needed for non-member views) ---
+        members = (
+            Member.objects
+            .select_related("person_id")
+            .values("account_number", "person_id__first_name", "person_id__middle_name", 
+                    "person_id__name_extension", "person_id__surname")
+        )
+        programs = (
+            BusinessProgram.objects
+            .filter(status="Active")
+            .values('program_id', 'program_name')
+        )
+
+    # --- 4. Pagination ---
     paginator = Paginator(transactions, 10)
-
     page_num = request.GET.get('page')
-
     page = paginator.get_page(page_num)
-    
+
+    # --- 5. AJAX Response ---
     if ajax:
-        html = render_to_string("transactions/partials/cashier_transaction_table_body.html", {"page": page})
-        pagination = render_to_string("partials/pagination.html", {"page": page})
+        html = render_to_string(table_partial_template, {"page": page})
+        
+        # Render pagination with the current query parameters embedded
+        pagination = render_to_string(
+            "partials/pagination.html", 
+            {
+                "page": page,
+                "current_query_params": current_query_params
+            }
+        )
+        
+        if is_member:
+             return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+        
         return JsonResponse({"success": True, "message": toast_message, "table_body_html": html, "pagination_html": pagination, "transaction": transaction})
     
-    context = {"members": members, "programs": programs, "page": page}
+    # --- 6. Initial Context for Template Rendering ---
+    context = {
+        "members": members, 
+        "programs": programs, 
+        "page": page, 
+        "start_date": start_date_str, 
+        "end_date": end_date_str
+    }
     return context
-
-
-def member_transaction_data(request):
-    user = request.user
-    transactions = (
-        Transactions.objects
-        .select_related("member_id")
-        .filter(member_id__user_id=user)  # filter only this user's transactions
-        .values(
-            "transaction_id", 
-            "transaction_type",  
-            "transaction_date", 
-            "amount"
-        )
-        .order_by("-transaction_date")
-    )
-    
-    paginator = Paginator(transactions, 10)
-
-    page_num = request.GET.get('page')
-
-    page = paginator.get_page(page_num)
-
-    is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
-              or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
-    
-    context = {"transactions": transactions, "page": page}
-    
-    if is_ajax:
-        html = render_to_string("transactions/partials/member_transaction_table_body.html", {"page": page})
-        pagination = render_to_string("partials/pagination.html", {"page": page})
-        return JsonResponse({"table_body_html": html, "pagination_html": pagination})
-    
-    return render(request, 'transactions/member_transaction.html', context)
 
 
 def balance(request):

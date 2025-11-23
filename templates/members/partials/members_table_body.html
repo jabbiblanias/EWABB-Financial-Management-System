@@ -1,4 +1,4 @@
-{% for member in members %}
+{% for member in page.object_list %}
 <tr id="row-{{ member.member_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ member.member_id}}</td>
   <td class="px-6 py-3">{{ member.account_number }}</td>

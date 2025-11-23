@@ -274,26 +274,31 @@ def member_dashboard_data(user):
     return context
 
 
-
 def bookkeeper_dashboard_data():
-    total_members = Member.objects.count()
-    pending_verification = LoanApplication.objects.filter(status="Pending").count()
-    total_loans = Loan.objects.aggregate(total=Sum('remaining_balance'))['total'] or 0
-    total_savings = Savings.objects.aggregate(total=Sum('balance'))['total'] or 0
-
     today = date.today()
-    start_of_week = today - timedelta(days=today.weekday() + 1)  # Sunday
-    end_of_week = start_of_week + timedelta(days=6)  # Saturday
+
+    # 1. FIX: Correctly calculate the start of the current Sunday-based week, like in member_data.
+    # Python weekday: Mon=0 to Sun=6. This formula sets Sunday (6) to 0 days back.
+    start_of_week = today - timedelta(days=(today.weekday() + 1) % 7)
+    end_of_week = start_of_week + timedelta(days=6)
 
     # --- DAILY (Sunday → Saturday cumulative including past members)
-    daily_labels = []
+    daily_labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     daily_counts = []
+    
+    # Use a safe variable name for the overall total later
+    overall_total_members = Member.objects.count()
 
     for i in range(7):
         day = start_of_week + timedelta(days=i)
-        daily_labels.append(day.strftime('%a'))  # Sun, Mon, Tue...
-        total_members = Member.objects.filter(membership_date__lte=day).count()
-        daily_counts.append(total_members)
+        
+        # 2. FIX: Stop the loop and plotting once we hit a future date, like in member_data.
+        if day > today:
+            break
+            
+        # Use a new variable for the daily count to avoid overwriting the overall total
+        members_on_day = Member.objects.filter(membership_date__lte=day).count()
+        daily_counts.append(members_on_day)
 
     # --- MONTHLY (Jan–Dec cumulative)
     monthly_data = (
@@ -330,6 +335,11 @@ def bookkeeper_dashboard_data():
     for item in yearly_data:
         cumulative += item['count']
         yearly_counts.append(cumulative)
+    
+    # Calculate key metrics
+    pending_verification = LoanApplication.objects.filter(status="Pending").count()
+    total_loans = Loan.objects.aggregate(total=Sum('remaining_balance'))['total'] or 0
+    total_savings = Savings.objects.aggregate(total=Sum('balance'))['total'] or 0
 
     context = {
         'daily_labels': json.dumps(daily_labels),
@@ -338,15 +348,24 @@ def bookkeeper_dashboard_data():
         'monthly_data': json.dumps(monthly_counts),
         'yearly_labels': json.dumps(yearly_labels),
         'yearly_data': json.dumps(yearly_counts),
-        "total_members": total_members,
+        # Using the correct total members variable
+        "total_members": overall_total_members,
         "total_loan": total_loans,
         "total_savings": total_savings,
         "verification": pending_verification
     }
     return context
 
+import json
+import calendar
+from datetime import date, timedelta
+from django.db.models import Sum, Count, F, Case, When, DecimalField
+from django.db.models.functions import TruncMonth, TruncDay, ExtractYear, TruncDate
+from django.utils import timezone
+# Ensure you have DecimalField imported from django.db.models if you use it in the Case statement
+
 def cashier_dashboard_data(request):
-    cashier = request.user  # Logged-in cashier
+    cashier = request.user
     today = timezone.localdate()
 
     loans = LoanApplication.objects.filter(status='Approved').count()
@@ -364,71 +383,94 @@ def cashier_dashboard_data(request):
     cashier_availability = cashier.cashierstatus.status if hasattr(cashier, 'cashierstatus') else 'unavailable'
 
     # === Get current week range (Sunday → Saturday) ===
-    today = timezone.localtime().date()
-    start_of_week = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
-    # (weekday(): 0=Mon, 6=Sun)
-    # Adjust to previous Sunday if today isn’t Sunday
-    start_of_week = start_of_week if start_of_week.weekday() == 6 else start_of_week - timedelta(days=start_of_week.weekday() + 1)
+    start_of_week = today - timedelta(days=(today.weekday() + 1) % 7)
     end_of_week = start_of_week + timedelta(days=6)
 
+    # Define the signed amount logic once for reuse
+    signed_amount_case = Case(
+        When(transaction_type__in=["Withdrawal", "Loan Release", "Operating Expenses"], then=-1),
+        default=1,
+        output_field=DecimalField(),
+    )
+
     # === DAILY TRANSACTIONS (Sunday–Saturday) ===
+    # 💡 FIX 1: Use signed_amount logic to calculate Net Change per day.
     daily_qs = (
         Transactions.objects.filter(
             cashier_id=cashier,
             transaction_date__date__gte=start_of_week,
-            transaction_date__date__lte=end_of_week,
+            transaction_date__date__lte=today,
         )
-        .annotate(day=TruncDay('transaction_date'))
+        .annotate(
+            day=TruncDay('transaction_date'),
+            signed_amount=F("amount") * signed_amount_case # Apply signed logic
+        )
         .values('day')
-        .annotate(total_amount=Sum('amount'))
+        .annotate(total_amount=Sum('signed_amount')) # Sum the signed amount
         .order_by('day')
     )
 
-    # Create dictionary for quick lookup
     daily_map = {item['day'].date(): float(item['total_amount']) for item in daily_qs}
-
-    # Generate ordered week labels (Sun–Sat)
     week_labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     daily_labels = []
     daily_data = []
 
+    # This daily chart will show the Net Change per day (Bar Chart style)
     for i in range(7):
         day = start_of_week + timedelta(days=i)
+        
+        if day > today:
+            break
+        
         daily_labels.append(week_labels[i])
-        daily_data.append(daily_map.get(day, 0.0))  # Fill missing days with 0
+        daily_data.append(daily_map.get(day, 0.0))
 
     # === MONTHLY TRANSACTIONS (Jan–Dec, this year) ===
     current_year = today.year
+    # 💡 FIX 2: Use signed_amount logic to calculate Net Change per month.
     monthly_qs = (
         Transactions.objects.filter(
             cashier_id=cashier,
             transaction_date__year=current_year
         )
-        .annotate(month=TruncMonth('transaction_date'))
+        .annotate(
+            month=TruncMonth('transaction_date'),
+            signed_amount=F("amount") * signed_amount_case # Apply signed logic
+        )
         .values('month')
-        .annotate(total_amount=Sum('amount'))
+        .annotate(total_amount=Sum('signed_amount')) # Sum the signed amount
         .order_by('month')
     )
 
-    # Initialize 12 months with zero
     monthly_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     monthly_data = [0.0] * 12
 
-    for item in monthly_qs:
-        month_index = item['month'].month - 1
-        monthly_data[month_index] = float(item['total_amount'])
+    # This monthly chart will be CUMULATIVE NET CHANGE
+    running_net_balance = 0 
+    for month_index in range(1, 13):
+        # Find the net amount for the current month
+        net_amount_this_month = next(
+            (item['total_amount'] for item in monthly_qs if item['month'].month == month_index),
+            0.0
+        )
+        
+        running_net_balance += float(net_amount_this_month)
+        
+        # Stop plotting future months
+        if month_index > today.month:
+            monthly_data[month_index - 1] = None 
+        else:
+            monthly_data[month_index - 1] = running_net_balance
 
-     # === YEARLY TRANSACTIONS (Running balance per year, up to 4 years) ===
+
+    # === YEARLY TRANSACTIONS (Running balance per year, up to 4 years) ===
+    # This section already had the correct signed_amount logic.
     yearly_qs = (
         Transactions.objects.filter(cashier_id=cashier)
         .annotate(
             year=ExtractYear("transaction_date"),
-            signed_amount=F("amount") * Case(
-                When(transaction_type="Withdrawal", then=-1),
-                default=1,
-                output_field=DecimalField(),
-            ),
+            signed_amount=F("amount") * signed_amount_case
         )
         .values("year")
         .annotate(total=Sum("signed_amount"))
@@ -444,28 +486,33 @@ def cashier_dashboard_data(request):
         min_year = date.today().year
         max_year = min_year
 
-    year_range = list(range(min_year, max_year + 1))[-4:]
-    while len(year_range) < 4:
-        year_range.append(year_range[-1] + 1)
+    year_range = list(range(min_year, max_year + 1))
+    year_range = year_range[-4:]
+    if len(year_range) < 4:
+         year_range = list(range(year_range[0] - (4 - len(year_range)), year_range[0])) + year_range
 
     running_balance = 0
     yearly_labels, yearly_data = [], []
 
     for y in year_range:
-        if y in yearly_dict:
-            running_balance += yearly_dict[y]
-            yearly_labels.append(str(y))
-            yearly_data.append(running_balance)
+        yearly_labels.append(str(y))
+        
+        if y <= today.year:
+             if y in yearly_dict:
+                 running_balance += yearly_dict[y]
+                 yearly_data.append(running_balance)
+             else:
+                 yearly_data.append(running_balance) 
         else:
-            yearly_labels.append(str(y))
-            yearly_data.append(None)
+             yearly_data.append(None) 
+
     context = {
         "daily_labels": json.dumps(daily_labels),
-        "daily_data": json.dumps(daily_data),
+        "daily_data": json.dumps(daily_data), # Shows Daily Net Change
         "monthly_labels": json.dumps(monthly_labels),
-        "monthly_data": json.dumps(monthly_data),
+        "monthly_data": json.dumps(monthly_data), # Shows Cumulative Monthly Net Change
         "yearly_labels": json.dumps(yearly_labels),
-        "yearly_data": json.dumps(yearly_data),
+        "yearly_data": json.dumps(yearly_data), # Shows Cumulative Yearly Net Change
         "loans": loans,
         "total_collection": total_collection,
         "total_payouts": total_payouts,

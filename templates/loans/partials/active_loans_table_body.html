@@ -1,45 +1,46 @@
 {% for loan in page.object_list %}
 <tr id="row-{{ loan.loan_id }}" class="border-b border-gray-200">
-  <td class="px-6 py-3">{{ loan.loan_id}}</td>
-  <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
-  <td class="px-6 py-3">{{ loan.remaining_balance }}</td>
-  <td class="px-6 py-3">{{ loan.amount_due|default:"0.00" }}</td>
-  <td class="px-6 py-3">{{ loan.due_date|date:"Y-m-d"|default:"N/A" }}</td>
-  <td class="px-6 py-3">
-    {% if loan.status == 'Pending' %}
+    <td class="px-6 py-3">{{ loan.loan_id}}</td>
+    <td class="px-6 py-3">{{ loan.member_id__account_number }}</td>
+    <td class="px-6 py-3">{{ loan.remaining_balance }}</td>
+    <td class="px-6 py-3">{{ loan.amount_due|default:"0.00" }}</td>
+    <td class="px-6 py-3">{{ loan.due_date|date:"Y-m-d"|default:"N/A" }}</td>
+    <td class="px-6 py-3">
+        {% if loan.status == 'Pending' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
             {{ loan.status }}
         </span>
-    {% elif loan.status == 'Upcoming' %}
+        {% elif loan.status == 'Upcoming' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-700">
             {{ loan.status }}
         </span>
-    {% elif loan.status == 'Paid' %}
+        {% elif loan.status == 'Paid' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">
             {{ loan.status }}
         </span>
-    {% elif loan.status == 'Partially Paid' %}
+        {% elif loan.status == 'Partially Paid' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-700">
             {{ loan.status }}
         </span>
-    {% elif loan.status == 'Due' %}
+        {% elif loan.status == 'Due' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-700">
             {{ loan.status }}
         </span>
-    {% elif loan.status == 'Overdue' %}
+        {% elif loan.status == 'Overdue' %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
             {{ loan.status }}
         </span>
-    {% elif loan.loan_status == "Completed" %}
+        {% elif loan.loan_status == "Completed" %}
         <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-700">
             {{ loan.loan_status }}
         </span>
-    {% endif %}
-  <td class="px-6 py-3">
-    <!-- View Button -->
-    <a href="details/{{ loan.loan_id }}/"
-       class="w-12 h-6 flex items-center justify-center rounded-2xl border border-blue-500 text-blue-500 hover:bg-blue-100">
-       View
-    </a>
+        {% endif %}
+    </td>
+    <td class="px-6 py-3">
+        <!-- View Button -->
+        <a href="details/{{ loan.loan_id }}/" class="btn w-15 h-6 flex items-center justify-center rounded-2xl">
+            View
+        </a>
+    </td>
 </tr>
 {% endfor %}

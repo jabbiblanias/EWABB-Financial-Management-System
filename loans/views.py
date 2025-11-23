@@ -125,10 +125,6 @@ def member_loan_home(request):
         return render(request, 'loans/member_loan.html', context)
     
 
-from django.core.paginator import Paginator
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-
 def member_loan_data(request, user, ajax=False):
     member = Member.objects.get(user_id=user)
 
@@ -197,9 +193,6 @@ def member_loan_data(request, user, ajax=False):
         return JsonResponse({"table_body_html": html, "pagination_html": pagination})
 
     return context
-
-
-
 
 
 @login_required
@@ -425,6 +418,71 @@ def loan_details_view(request, loan_id):
         'schedules': schedules
     }
     return render(request, 'loans/loan_details.html', context)
+
+
+@login_required
+def member_loan_details_view(request, loan_application_id):
+    loan_application_details = (
+        LoanApplication.objects
+        .select_related('member_id', 'verifier_id', 'approver_id')
+        .get(loan_application_id=loan_application_id)
+    )
+
+    verifier = (
+        loan_application_details.verifier_id.get_full_name()
+        if loan_application_details.verifier_id else None
+    )
+    approver = (
+        loan_application_details.approver_id.get_full_name()
+        if loan_application_details.approver_id else None
+    )
+
+    # ✅ Check if the loan application already has a loan
+    loan = (
+        Loan.objects
+        .select_related('member_id', 'released_by_id')
+        .filter(loan_application_id=loan_application_id)
+        .first()
+    )
+
+    # If loan exists, get schedules — otherwise skip
+    schedules = []
+    user_name = None
+    account_number = None
+
+    if loan:
+        user_name = loan.released_by_id.get_full_name()
+        account_number = loan.member_id.account_number
+
+        schedules = (
+            LoanRepaymentSchedule.objects
+            .select_related('loan_id__loan_application_id')
+            .filter(loan_id=loan)
+            .values(
+                "schedule_id",
+                "due_date",
+                "loan_id__loan_application_id__amortization",
+                "amount_due",
+                "status",
+                "paid_amount",
+                "paid_date",
+                "last_updated"
+            )
+            .order_by("due_date")
+        )
+
+    context = {
+        'loan_application_details': loan_application_details,
+        'verifier': verifier,
+        'approver': approver,
+        'loan': loan,
+        'user_name': user_name,
+        'account_number': account_number,
+        'schedules': schedules
+    }
+
+    return render(request, 'loans/member_loan_details.html', context)
+
 
 @transaction.atomic
 @login_required
