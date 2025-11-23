@@ -34,8 +34,8 @@ def login_view(request):
                 messages.warning(request, "Your application is still pending.")
                 return redirect("login")
             
-            #login(request, user)
-            #return redirect('dashboard')
+            login(request, user)
+            return redirect('dashboard')
             
             request.session["email"] = email
             request.session["user_id"] = user.id

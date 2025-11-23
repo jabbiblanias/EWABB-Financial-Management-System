@@ -349,6 +349,7 @@ def loan_applications_data(request, ajax=False):
         return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
     
     return context
+    
 
 @login_required
 def loan_application_details_view(request, loan_application_id):

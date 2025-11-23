@@ -97,10 +97,29 @@ def transactions(request):
             program_id = request.POST.get('programType') or None
             description = request.POST.get('description') or None
 
-            member = Member.objects.select_for_update().filter(account_number=account_number).first()
-            if not member:
-                return JsonResponse({'success': False, 'message': 'Invalid account number.'})
+            member = None 
 
+            member_required_types = ['Savings Deposit', 'Loan Payment', 'Withdrawal']
+
+            # 2. Perform Member Validation and Member-Specific Duplicate Check
+            if transaction_type in member_required_types:
+                if not account_number:
+                    return JsonResponse({'success': False, 'message': 'Account number is required for this transaction type.'})
+                
+                # Fetch and lock the member record
+                member = Member.objects.select_for_update().filter(account_number=account_number).first()
+                if not member:
+                    return JsonResponse({'success': False, 'message': 'Invalid account number.'})
+                
+                # 🧠 Check for recent duplicate transaction (Member-specific)
+                recent_time_limit = timezone.now() - timedelta(seconds=5)
+                if Transactions.objects.filter(
+                    member_id=member,
+                    transaction_type=transaction_type,
+                    amount=amount,
+                    transaction_date__gte=recent_time_limit
+                ).exists():
+                    return JsonResponse({'success': False, 'message': 'Duplicate transaction detected. Please wait a moment and try again.'})
             #Change computation
             change = amount_received - amount
 
