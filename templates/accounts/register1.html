@@ -211,13 +211,21 @@
                 <span id="middleNameError" class="text-red-500 text-xs hidden">Invalid middle name</span>
             </div>
         </div>
-        <div>
-            <label for="nameExtension" class="block text-sm font-medium text-gray-700 mb-1">Extension Name</label>
-            <input id="nameExtension" name="nameExtension" type="text" placeholder="e.g., Jr."
-                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-            <span id="nameExtensionError" class="text-red-500 text-xs hidden">Invalid extension name </span>
+        <div class="space-y-4 ml-2 md:ml-0">
+            <div>
+                <label for="nameExtension" class="block text-sm font-medium text-gray-700 mb-1">Suffix </label>
+                <select id ="nameExtension" name="nameExtension"
+                    class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+>
+                    <option value="" disabled selected>Select...</option>
+                    <option>Jr</option>
+                    <option >Sr</option>
+                    <option >Ma</option>
+                    <option>III</option>
+                    <option >IV</option> 
+                </select>
+            </div>
         </div>
-
         <div class="space-y-4 ml-2 md:ml-0">
             <div>
                 <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth <span
@@ -283,7 +291,7 @@
                 <label for="bloodType" class="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
                 <select id="bloodType" name="bloodType"
                     class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    required>
+                    >
                     <option value="" disabled selected>Select...</option>
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
