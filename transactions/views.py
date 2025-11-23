@@ -259,7 +259,11 @@ def transactions(request):
                 amount_received = None
                 change = None
 
-                Funds.objects.filter(fund_name='Expenses').update(balance=F('balance') - amount)
+                expense_fund = Funds.objects.select_for_update().get(fund_name='Expenses')
+                if amount > expense_fund.balance:
+                    return JsonResponse({"success": False, "message": "Operating fund has insufficient balance!."})
+                expense_fund.balance -= amount
+                expense_fund.save()
 
                 transaction_id = Transactions.objects.create(
                     cashier_id=cashier_id,
