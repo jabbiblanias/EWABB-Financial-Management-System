@@ -63,14 +63,14 @@ def fetch_notifications(request):
 def mark_notification_read(request):
     try:
         body = json.loads(request.body)
-        notif_id = body.get("notification_id")
+        ids = body.get("ids", [])
 
-        notification = Notification.objects.get(notification_id=notif_id, user_id=request.user)
-        notification.is_read = True
-        notification.save()
+        Notification.objects.filter(
+            notification_id__in=ids, 
+            user_id=request.user
+        ).update(is_read=True)
 
         return JsonResponse({"success": True})
-    except Notification.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Notification not found"}, status=404)
+
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=400)

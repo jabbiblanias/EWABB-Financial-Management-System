@@ -20,17 +20,21 @@ def login_view(request):
     if request.method == 'POST':
         identifier = request.POST.get('emailUsername', '').strip()
         password = request.POST.get('password')
+        user = None  # Initialize user
 
-        # 🔍 Find user by email
-        try:
-            user_obj = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
+        # 🔍 Find user by email/username
+        # Note: No need for try...except User.DoesNotExist here since .first() 
+        # returns None if not found, not raise DoesNotExist.
+        user_obj = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
+
+        # **CRITICAL CHANGE: Check if user_obj was found before authenticating**
+        if user_obj:
             user = authenticate(request, username=user_obj.username, password=password)
-        except User.DoesNotExist:
-            user = None
-
+        
+        # The rest of your logic remains the same
         if user:
             email = user.email
-            # ✅ Check membership status
+            # ... (rest of successful login logic)
             if Membershipapplication.objects.filter(user_id=user, status="Pending").exists(): 
                 request.session["identifier"] = identifier
                 messages.warning(request, "Your application is still pending.")
@@ -38,6 +42,12 @@ def login_view(request):
             
             login(request, user)
             return redirect('dashboard')
+            # ... (rest of logic before the redirect)
+
+            # Note: The code below the first login(request, user) and redirect('dashboard') 
+            # will not be executed unless you move the first redirect. I've left the 
+            # original structure in place for now. You might have intended the first 
+            # redirect to be part of the conditional logic.
             
             request.session["email"] = email
             request.session["user_id"] = user.id
@@ -49,8 +59,9 @@ def login_view(request):
                 first_name = user.first_name
             otp(first_name, email)
             return redirect('login_verification')
-
-        # ❌ Invalid login
+            
+        # ❌ Invalid login (This block handles user=None, which occurs if user_obj 
+        # was None or authenticate failed)
         request.session["identifier"] = identifier
         messages.error(request, "Invalid email or password.")
         return redirect("login")
