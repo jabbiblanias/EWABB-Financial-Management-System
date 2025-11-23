@@ -100,42 +100,42 @@
       <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
       <input name="spouseSurname" type="text" class="form-input"
              onblur="validateName(this, 'spouseSurnameError')" />
-      <span id="spouseSurnameError" class="text-red-500 text-xs error-message">Surname must contain only letters, spaces, hyphens, and apostrophes</span>
+      <span id="spouseSurnameError" class="text-red-500 text-xs error-message">Invalid surename </span>
     </div>
 
     <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">First Name</label>
       <input name="spouseFirstName" type="text" class="form-input"
              onblur="validateName(this, 'spouseFirstNameError')" />
-      <span id="spouseFirstNameError" class="text-red-500 text-xs error-message">First name must contain only letters, spaces, hyphens, and apostrophes</span>
+      <span id="spouseFirstNameError" class="text-red-500 text-xs error-message">Invalid first name</span>
     </div>
 
     <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">Middle Name</label>
       <input name="spouseMiddleName" type="text" class="form-input"
              onblur="validateName(this, 'spouseMiddleNameError')" />
-      <span id="spouseMiddleNameError" class="text-red-500 text-xs error-message">Middle name must contain only letters, spaces, hyphens, and apostrophes</span>
+      <span id="spouseMiddleNameError" class="text-red-500 text-xs error-message">Invalid middle name </span>
     </div>
 
     <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">Occupation</label>
       <input name="occupation" type="text" class="form-input"
              onblur="validateOccupation(this, 'occupationError')" />
-      <span id="occupationError" class="text-red-500 text-xs error-message">Occupation must contain only letters, spaces, and common punctuation</span>
+      <span id="occupationError" class="text-red-500 text-xs error-message">Please enter valid occupation </span>
     </div>
 
     <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">Employer / Business Name</label>
       <input name="employerBusinessName" type="text" class="form-input"
              onblur="validateBusinessName(this, 'employerBusinessNameError')" />
-      <span id="employerBusinessNameError" class="text-red-500 text-xs error-message">Business name can contain letters, numbers, spaces, and common punctuation</span>
+      <span id="employerBusinessNameError" class="text-red-500 text-xs error-message">Invalid Employer/ Bussiness name </span>
     </div>
 
     <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">Telephone No.</label>
       <input name="businessTelephoneNo" type="text" class="form-input"
              onblur="validatePhone(this, 'businessTelephoneNoError')" />
-      <span id="businessTelephoneNoError" class="text-red-500 text-xs error-message">Must be a valid phone number (7-15 digits, may include +, -, spaces, parentheses)</span>
+      <span id="businessTelephoneNoError" class="text-red-500 text-xs error-message">Please enter valid Telephone number</span>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
           <label class="block text-sm font-medium mb-1">Child Name (Full Name)</label>
           <input name="childName" type="text" class="child-name form-input"
                  onblur="validateChildName(this, 'childNameError')" />
-          <span id="childNameError" class="text-red-500 text-xs error-message">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
+          <span id="childNameError" class="text-red-500 text-xs error-message">invalid full name </span>
         </div>
         <div class="space-y-1">
           <label class="block text-sm font-medium mb-1">Date of Birth</label>
@@ -171,7 +171,7 @@
         <input name="emergencyContactName" type="text" placeholder="Enter Name"
                class="form-input" required
                onblur="validateRequiredName(this, 'emergencyContactNameError')" />
-        <span id="emergencyContactNameError" class="text-red-500 text-xs error-message">Full name is required and must contain only letters, spaces, hyphens, and apostrophes</span>
+        <span id="emergencyContactNameError" class="text-red-500 text-xs error-message">Invalid full name</span>
       </div>
 
       <div class="space-y-1">
@@ -179,7 +179,7 @@
         <input id="emergencyContactNumber" name="emergencyContactNumber" type="tel" placeholder="e.g.+639171234567/09171234567"
                class="form-input" required
                onblur="validateRequiredPhone(this, 'cellphoneError')" />
-        <span id="cellphoneError" class="text-red-500 text-xs error-message">Valid phone number is required (11-12 digits, starting with +63 or 09)</span>
+        <span id="cellphoneError" class="text-red-500 text-xs error-message">Please enter valid cellphone number</span>
       </div>
 
       <div class="space-y-1">
@@ -199,8 +199,7 @@
 </form>
 
 <div id="toast" class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600 text-sm md:text-base" role="status">
-  Some fields contain invalid information. Please fix the errors before proceeding.
-</div>
+  Some fields contain invalid information.</div>
 
 <script>
 // --- JS Functions updated to use Tailwind classes: error-input and error-message.show ---
