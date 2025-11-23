@@ -91,7 +91,7 @@
     <!-- Centered Title -->
     <div class="title" style="text-align: center; margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
       <h1 style="font-size: 16px; font-weight: bold; text-transform: uppercase; margin: 0;">EMPOWERED WOMEN'S ASSOCIATION OF BARANGAY BAÑADERO (EWABB)</h1>
-      <p style="font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 2px 0 0 0;">UPDATED FINANCIAL REPORT AS OF DECEMBER 2024, (DIVIDEND FY 2024)</p>
+      <p style="font-size: 12px; font-weight: bold; text-transform: uppercase; margin: 2px 0 0 0;">UPDATED FINANCIAL REPORT AS OF {{date|date:"F Y"}}, (DIVIDEND FY {{date|date:"Y"}})</p>
     </div>
   </div>
 </body>
@@ -109,8 +109,8 @@
           <th class="col-penalty">2% Penalty Charge</th>
           <th class="col-after">Savings After Deduction</th>
           <th class="col-total">Total Savings / Investment</th>
-          <th class="col-dividend">Dividend 2024 (9.35%)</th>
-          <th class="col-updated">Updated Savings / Investment as of Dec 2024</th>
+          <th class="col-dividend">Dividend {{date|date:"Y"}} ({{ rate }}%)</th>
+          <th class="col-updated">Updated Savings / Investment as of {{date|date:"F Y"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -123,9 +123,9 @@
           <td class="col-savings">{{ member.savings|default:"0.00" }}</td>
           <td class="col-penalty">{{ member.penalty_charge|default:"0.00" }}</td>
           <td class="col-after">{{ member.savings_after_deduction|default:"0.00" }}</td>
-          <td class="col-total">{{ member.total_investment|default:"0.00" }}</td>
-          <td class="col-dividend">{{ member.dividend_2024|default:"0.00" }}</td>
-          <td class="col-updated">{{ member.updated_investment_2024|default:"0.00" }}</td>
+          <td class="col-total">{{ member.total_savings_investment|default:"0.00" }}</td>
+          <td class="col-dividend">{{ member.dividend_amount|default:"0.00" }}</td>
+          <td class="col-updated">{{ member.updated_savings_investment|default:"0.00" }}</td>
         </tr>
         {% endfor %}
       </tbody>

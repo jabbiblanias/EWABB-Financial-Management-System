@@ -20,34 +20,22 @@ def login_view(request):
     if request.method == 'POST':
         identifier = request.POST.get('emailUsername', '').strip()
         password = request.POST.get('password')
-        user = None  # Initialize user
+        user = None  
 
-        # 🔍 Find user by email/username
-        # Note: No need for try...except User.DoesNotExist here since .first() 
-        # returns None if not found, not raise DoesNotExist.
         user_obj = User.objects.filter(Q(username=identifier) | Q(email=identifier)).first()
 
-        # **CRITICAL CHANGE: Check if user_obj was found before authenticating**
         if user_obj:
             user = authenticate(request, username=user_obj.username, password=password)
         
-        # The rest of your logic remains the same
         if user:
             email = user.email
-            # ... (rest of successful login logic)
             if Membershipapplication.objects.filter(user_id=user, status="Pending").exists(): 
                 request.session["identifier"] = identifier
                 messages.warning(request, "Your application is still pending.")
                 return redirect("login")
             
-            login(request, user)
-            return redirect('dashboard')
-            # ... (rest of logic before the redirect)
-
-            # Note: The code below the first login(request, user) and redirect('dashboard') 
-            # will not be executed unless you move the first redirect. I've left the 
-            # original structure in place for now. You might have intended the first 
-            # redirect to be part of the conditional logic.
+            #login(request, user)
+            #return redirect('dashboard')
             
             request.session["email"] = email
             request.session["user_id"] = user.id
@@ -60,8 +48,6 @@ def login_view(request):
             otp(first_name, email)
             return redirect('login_verification')
             
-        # ❌ Invalid login (This block handles user=None, which occurs if user_obj 
-        # was None or authenticate failed)
         request.session["identifier"] = identifier
         messages.error(request, "Invalid email or password.")
         return redirect("login")
@@ -80,7 +66,6 @@ def login_verification(request):
         elif otp.otp_code != input_code:
             messages.error(request, "Invalid OTP")
         else:
-            # ✅ Log in user
             user = User.objects.get(pk=user_id)
             login(request, user)
             return redirect('dashboard')
@@ -100,7 +85,6 @@ def profile_view(request):
 def fetch_profile(request):
     user = request.user
 
-    # MEMBER
     if user.groups.filter(name="Member").exists():
         profile = (
             Member.objects
@@ -118,7 +102,6 @@ def fetch_profile(request):
         )
         full_name = profile if profile else user.username
 
-    # BOOKKEEPER, CASHIER, ADMIN
     elif (
         user.groups.filter(name="Bookkeeper").exists() or
         user.groups.filter(name="Cashier").exists() or
@@ -139,42 +122,35 @@ def fetch_profile(request):
 @login_required
 def profile_information(request):
     user = request.user
-    context = {'user_obj': user} # Always pass the user object for email/username
+    context = {'user_obj': user}
 
-    # Determine if the user is a staff role (Admin, Bookkeeper, Cashier)
     is_staff = user.groups.filter(name__in=["Admin", "Bookkeeper", "Cashier"]).exists()
 
     if is_staff:
-        # Staff/Admin users only see Account Security.
         context['is_staff_user'] = True
         context['full_name'] = user.get_full_name() or user.username
-        # Note: We don't fetch Member data for staff.
-    
-    # MEMBER
+
     elif user.groups.filter(name="Member").exists():
         try:
             member = Member.objects.select_related('person_id','user_id').get(user_id=user)
         except Member.DoesNotExist:
-            member = None # Handle case where user is a member but no Member object exists
+            member = None
 
         if member:
-            # Fetch all related member data
             try:
                 emergency_contact = EmergencyContact.objects.get(person_id=member.person_id)
             except EmergencyContact.DoesNotExist:
                 emergency_contact = None
             
-            # Since the HTML uses these variables, we must include them in the context
             context['member'] = member
             context['emergency_contact'] = emergency_contact
-            context['spouse'] = None # Placeholder, implement fetching if necessary
-            context['children'] = [] # Placeholder, implement fetching if necessary
+            context['spouse'] = None
+            context['children'] = []
         
         context['is_staff_user'] = False
 
-    # OTHER USERS (Not staff, not member - shouldn't happen if roles are set, but safe)
     else:
-        context['is_staff_user'] = True # Treat as staff for minimal view
+        context['is_staff_user'] = True
         context['full_name'] = user.username
 
 
@@ -301,7 +277,7 @@ def register_step2(request):
         })
 
         request.session['register_data'] = data
-        request.session.modified = True  # ensures Django writes the session
+        request.session.modified = True
         return redirect('register3')
 
     return render(request, 'accounts/register2.html')
@@ -335,7 +311,7 @@ def register_step3(request):
                 'password': make_password(password),
             })
             request.session['register_data'] = data
-            request.session.modified = True  # ensures Django writes the session
+            request.session.modified = True
 
             otp(first_name, email)
             
@@ -369,7 +345,7 @@ def registration_otp_verification_view(request):
                             username=username,
                             email=email
                         )
-                        user.password = password  # assign directly, already hashed
+                        user.password = password
                         user.save()
 
                         personid = Personalinfo.objects.create(
@@ -438,7 +414,6 @@ def registration_otp_verification_view(request):
                         return redirect('complete_registration')
 
                 except IntegrityError as e:
-                    # Everything rolled back, but we know where it failed
                     messages.error(request, f"Registration failed: {str(e)}")
                     print(e)
                     
@@ -491,7 +466,6 @@ def update_timer(request):
     
 
 def resend_otp(request):
-    # Check both registration and login sessions
     email = None
     first_name = None
     if "register_data" in request.session:
@@ -518,7 +492,7 @@ def update_personal_information(request):
     if request.method == "POST":
         member = Member.objects.get(user_id=request.user)
         data = request.POST
-        # Example updates
+
         member.person_id.first_name = data.get("first_name", member.person_id.first_name)
         member.person_id.surname = data.get("surname", member.person_id.surname)
         member.person_id.civil_status = data.get("civil_status", member.person_id.civil_status)
@@ -599,7 +573,6 @@ def update_email(request):
         if not new_email:
             return JsonResponse({"status": "error", "message": "Email cannot be empty."})
         
-        # Optionally, validate email format here
         from django.core.validators import validate_email
         from django.core.exceptions import ValidationError
         try:
@@ -607,7 +580,6 @@ def update_email(request):
         except ValidationError:
             return JsonResponse({"status": "error", "message": "Invalid email format."})
 
-        # Update both User model and Member's Personalinfo if needed
         request.user.email = new_email
         request.user.save()
         
@@ -643,7 +615,6 @@ def forgot_password_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
 
-        # Try to find the actual user by email
         try:
             user = User.objects.get(email=email)
 
@@ -695,22 +666,18 @@ def password_reset(request):
 
         user = User.objects.get(pk=user_id)
 
-        # 🔒 1. Check if current password is correct
         if not check_password(current_password, user.password):
             messages.error(request, "Current password is incorrect.")
             return redirect('password_reset')
 
-        # ❌ 2. Prevent using same password
         if check_password(new_password, user.password):
             messages.error(request, "New password cannot be the same as the old password.")
             return redirect('password_reset')
 
-        # ❗ 3. Confirm new passwords match
         if new_password != confirm_password:
             messages.error(request, "Passwords do not match.")
             return redirect('password_reset')
 
-        # ✅ 4. Save the new password
         user.password = make_password(new_password)
         user.save()
 

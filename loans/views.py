@@ -21,21 +21,17 @@ from transactions.models import Transactions
 from financial_reporting.models import Funds, Revenue, Expense
 
 
-
 @login_required
 def loan_application_view(request):
     user = request.user
 
-    # detect ajax once here
     is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
-    # get shared data
     context = loan_applications_data(request, ajax=is_ajax)
 
-    # if ajax, just return the JSON
     if is_ajax:
-        return context  # this is your JsonResponse
+        return context
 
     if user.groups.filter(name='Admin').exists():
         return render(request, 'loans/admin_loan.html', context)
@@ -55,12 +51,10 @@ def apply_loan(request):
             loan_amount = Decimal(request.POST.get('loanAmount', 0))
             loan_term = request.POST.get('loanTerm')
 
-            # 🔁 Reuse the computation logic
             computed = compute_loan_breakdown(loan_amount, loan_term)
 
             years, months, days = parse_duration(loan_term)
 
-            # Determine member
             if user.groups.filter(name='Bookkeeper').exists():
                 account_number = request.POST.get('accountNumber')
                 member = Member.objects.get(account_number=account_number)
@@ -85,10 +79,8 @@ def apply_loan(request):
                     net_proceeds=computed["releaseAmount"]
                 )
             else:
-                # If not enough balance, handle accordingly (e.g., show error)
                 return JsonResponse({"success": False, "message": "Insufficient savings balance."})
 
-            # Render updated loan list
             is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest"
             if user.groups.filter(name='Bookkeeper').exists():
                 context = loan_applications_data(request, ajax=is_ajax)
@@ -115,12 +107,10 @@ def member_loan_home(request):
     is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
-    # get shared data
     context = member_loan_data(request,user, ajax=is_ajax)
 
-    # if ajax, just return the JSON
     if is_ajax:
-        return context  # this is your JsonResponse
+        return context
     if request.user.groups.filter(name='Member').exists():
         return render(request, 'loans/member_loan.html', context)
     
@@ -128,20 +118,17 @@ def member_loan_home(request):
 def member_loan_data(request, user, ajax=False):
     member = Member.objects.get(user_id=user)
 
-    # Loans for this member
     loans = Loan.objects.filter(member_id=member).select_related("loan_application_id")
     loan_app_ids = loans.values_list('loan_application_id__loan_application_id', flat=True)
 
-    # Loan Applications excluding ones that already have a loan
     loan_applications = LoanApplication.objects.filter(member_id=member).exclude(
         loan_application_id__in=loan_app_ids
     )
 
     combined = []
 
-    # Normalize Loan Applications
     for app in loan_applications:
-        # Map status for sorting
+
         if app.status in ['Approved', 'Verified', 'Pending']:
             display_status = app.status
         else:
@@ -159,10 +146,9 @@ def member_loan_data(request, user, ajax=False):
             "display_status": display_status,
         })
 
-    # Normalize Loans
     for loan in loans:
         app = loan.loan_application_id
-        # Map loan status for display
+
         display_status = 'Active' if loan.loan_status == 'Active' else 'Completed'
         combined.append({
             "loan_application_id": app.loan_application_id,
@@ -177,11 +163,9 @@ def member_loan_data(request, user, ajax=False):
             "display_status": display_status,
         })
 
-    # Sort combined list by custom order
     status_order = {'Approved': 1, 'Verified': 2, 'Pending': 3, 'Released': 4, 'Active': 5, 'Completed': 6, 'Other': 7}
     combined.sort(key=lambda x: status_order.get(x['display_status'], 99))
 
-    # Pagination
     paginator = Paginator(combined, 10)
     page = paginator.get_page(request.GET.get("page"))
 
@@ -198,16 +182,14 @@ def member_loan_data(request, user, ajax=False):
 @login_required
 def active_loans(request):
     user = request.user
-    # detect ajax once here
+
     is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
-    # get shared data
     context = active_loans_data(request, ajax=is_ajax)
 
-    # if ajax, just return the JSON
     if is_ajax:
-        return context  # this is your JsonResponse
+        return context
     
     if user.groups.filter(name='Bookkeeper').exists():
         return render(request, 'loans/bookkeeper_active_loans.html', context)
@@ -218,7 +200,6 @@ def active_loans(request):
 
 
 def active_loans_data(request, ajax=False):
-    # Subquery: get the earliest unpaid repayment for each loan
     latest_due = LoanRepaymentSchedule.objects.filter(
         loan_id=OuterRef('pk'),
     ).exclude(
@@ -331,7 +312,6 @@ def loan_applications_data(request, ajax=False):
             output_field=IntegerField(),
         )
 
-    # 🔍 Filter only Verified and Pending loans
     loan_applications = (
         LoanApplication.objects
         .select_related('member_id')
@@ -357,14 +337,12 @@ def loan_applications_data(request, ajax=False):
             loan['risk_percentage'] = risk_data.get('risk_percentage')
             loan['risk_level'] = risk_data.get('risk_level')
 
-    #Paginate
     paginator = Paginator(loan_applications, 10)
     page_num = request.GET.get('page')
     page = paginator.get_page(page_num)
 
     context = {'page': page}
 
-    #For AJAX refresh
     if ajax:
         html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
         pagination = render_to_string("partials/pagination.html", {"page": page})
@@ -625,14 +603,15 @@ def releasing(request):
                     amount_due=amount_due,
                 )
             
-            applicable_rebates = loan.loan_application_id.loan_type in [
-                'Motorcycle Loan',
-                'Appliances Loan',
-                'Gadget Loan'
-            ]
+        applicable_rebates = loan.loan_application_id.loan_type in [
+            'Motorcycle Loan',
+            'Appliances Loan',
+            'Gadget Loan'
+        ]
 
-            if applicable_rebates:
-                loan.rebates = loan.loan_application_id.cbu / total_months
+        if applicable_rebates:
+            loan.rebates = loan.loan_application_id.cbu / total_months
+            loan.save()
 
         # Update loan application status
         loan_application.status = "Released"

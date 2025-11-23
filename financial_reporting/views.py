@@ -572,13 +572,15 @@ def monthly_pdf_report_export(request, report_id):
     return response
 
 def dividend_pdf_report_export(request, report_id):
-    report = Financialreports.objects.filter(report_id=report_id).values("title", "status", "created_at").first()
+    report = Financialreports.objects.select_related('dividend_id').filter(report_id=report_id).first()
     financial_report = Memberfinancialdata.objects.filter(report_id=report_id).all()
+    rate_percentage = (report.dividend_id.rate * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    
     template_path = 'financial_reporting/dividend_pdf_report.html'
-    context = {'financial_report': financial_report, 'title': report["title"], 'status': report["status"], 'report_date': report["created_at"]}
+    context = {'financial_report': financial_report, 'title': report.title, 'status': report.status, 'report_id': report_id, "date": report.dividend_id.date_declared, "rate": rate_percentage}
 
     response = HttpResponse(content_type = 'application/pdf')
-    response ['Content-Disposition'] = F'attachment; filename = "{report["title"]}.pdf"'
+    response ['Content-Disposition'] = F'attachment; filename = "{report.title}.pdf"'
     
     template = get_template(template_path)
     html = template.render(context)
@@ -668,7 +670,9 @@ def dividend_report_csv(request, report_id):
             row.savings,
             row.penalty_charge,
             row.savings_after_deduction,
-            row.remarks,
+            row.total_savings_investment,
+            row.dividend_amount,
+            row.updated_savings_investment,
             "",
         ])
 

@@ -305,17 +305,30 @@ def record_payment(member_id, loan, payment_amount):
         ]
 
         if not has_overdue and applicable_rebates:
-            savings = Savings.objects.filter(member_id=member_id).update(balance=F('balance') + loan.rebates)
+            # 1. ATOMICALLY UPDATE the balance (returns the number of rows updated)
+            Savings.objects.filter(member_id=member_id).update(balance=F('balance') + loan.rebates)
+
+            # 2. RETRIEVE the Savings object to use as the Foreign Key
+            try:
+                # Assuming 'member_id' uniquely identifies the Savings record
+                savings_instance = Savings.objects.get(member_id=member_id) 
+            except Savings.DoesNotExist:
+                # Handle error if Savings record is somehow missing for the member
+                return f"Error: Savings account not found for member {member_id.member_id}.", -1
+
+
             Notification.objects.create(
                 user_id=member_id.user_id,
                 title="Loan Rebate Credited",
                 message=f"A rebate of ₱{loan.rebates:,} has been credited to your savings account for timely loan payments."
             )
+            
+            # 3. CREATE the Transaction, using the retrieved model instance
             Transactions.objects.create(
                 member_id=member_id,
                 amount=loan.rebates,
                 transaction_type="Loan Rebate Credit",
-                savings_id=savings
+                savings_id=savings_instance # Pass the actual Savings model instance
             )
 
         # update loan totals
