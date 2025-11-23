@@ -8,21 +8,18 @@
 <script>
   tailwind.config = {
     theme: {
-      extend: {
-        // Defines custom colors and other theme extensions here if needed
-      }
+      extend: {}
     },
     plugins: [
       function ({ addUtilities, addComponents }) {
-        // Custom component classes for common elements
+
         addComponents({
           '.form-input': {
             '@apply w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-400 text-base md:text-sm': {},
-            '@apply min-h-[44px]': {} // Increase touch target on mobile/desktop
+            '@apply min-h-[44px]': {}
           },
         });
 
-        // Utilities to replace custom validation CSS
         addUtilities({
           '.error-input': {
             '@apply border-red-500 ring-4 ring-red-100': {},
@@ -40,17 +37,10 @@
 </script>
 
 <style>
-/* For the custom JS validation style, we rely on the utility classes defined in tailwind.config.plugins */
-/* However, we must ensure the children entry is initially visible. */
-.child-entry {
-  display: block;
-}
+.child-entry { display: block; }
 
-/* Mobile-first tweaks to match original layout expectations */
 @media (max-width: 767px) {
-  /* Hide descriptive labels on small screens (only numbers remain) */
   .progress-bar-label { display: none; }
-  /* Make the main form use smaller side padding and larger touch areas */
   .registration-form {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
@@ -94,8 +84,8 @@
   <h2 class="text-2xl md:text-3xl font-bold text-center mb-2">Family Background</h2>
   <p class="text-center text-xs md:text-sm mb-6 md:mb-8 text-gray-600">• Please leave it blank if you do not have spouse and children</p>
 
+  <!-- SPOUSE INFORMATION -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 md:mb-8">
-    
     <div class="space-y-1">
       <label class="block text-sm font-medium mb-1">Spouse's Surname</label>
       <input name="spouseSurname" type="text" class="form-input"
@@ -139,6 +129,7 @@
     </div>
   </div>
 
+  <!-- CHILDREN -->
   <div id="children-container" class="mb-6 md:mb-8">
     <div class="flex justify-between items-center mb-3">
       <label class="font-semibold text-lg">Children</label>
@@ -153,6 +144,7 @@
                  onblur="validateChildName(this, 'childNameError')" />
           <span id="childNameError" class="text-red-500 text-xs error-message">invalid full name </span>
         </div>
+        
         <div class="space-y-1">
           <label class="block text-sm font-medium mb-1">Date of Birth</label>
           <input name="childDateOfBirth" type="date" class="form-input"
@@ -163,6 +155,7 @@
     </div>
   </div>
 
+  <!-- EMERGENCY CONTACT -->
   <div class="mb-6 md:mb-8">
     <h3 class="font-semibold text-lg mb-3">Emergency Person to Contact</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -201,14 +194,15 @@
 <div id="toast" class="pointer-events-none fixed inset-x-0 top-4 z-[60] mx-auto w-fit rounded-xl hidden px-4 py-2 text-white shadow-lg bg-red-600 text-sm md:text-base" role="status">
   Some fields contain invalid information.</div>
 
-<script>
-// --- JS Functions updated to use Tailwind classes: error-input and error-message.show ---
 
-// Validation functions
+
+
+<script>
+// BASIC VALIDATIONS
 function validateName(input, errorId) {
   const error = document.getElementById(errorId);
   const nameRegex = /^[A-Za-z\s\-']+$/;
-  
+
   if (input.value && !nameRegex.test(input.value)) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -223,7 +217,7 @@ function validateName(input, errorId) {
 function validateRequiredName(input, errorId) {
   const error = document.getElementById(errorId);
   const nameRegex = /^[A-Za-z\s\-']+$/;
-  
+
   if (!input.value || !nameRegex.test(input.value)) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -238,7 +232,7 @@ function validateRequiredName(input, errorId) {
 function validateOccupation(input, errorId) {
   const error = document.getElementById(errorId);
   const occupationRegex = /^[A-Za-z\s\-,.']+$/;
-  
+
   if (input.value && !occupationRegex.test(input.value)) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -253,7 +247,7 @@ function validateOccupation(input, errorId) {
 function validateBusinessName(input, errorId) {
   const error = document.getElementById(errorId);
   const businessRegex = /^[A-Za-z0-9\s\-,.&']+$/;
-  
+
   if (input.value && !businessRegex.test(input.value)) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -268,7 +262,7 @@ function validateBusinessName(input, errorId) {
 function validatePhone(input, errorId) {
   const error = document.getElementById(errorId);
   const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,15}$/;
-  
+
   if (input.value && !phoneRegex.test(input.value)) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -282,9 +276,8 @@ function validatePhone(input, errorId) {
 
 function validateRequiredPhone(input, errorId) {
   const error = document.getElementById(errorId);
-  // Updated regex to be more explicit for Philippine numbers based on original comment
-  const phoneRegex = /^(?:\+639\d{9}|09\d{9})$/; 
-  
+  const phoneRegex = /^(?:\+639\d{9}|09\d{9})$/;
+
   if (!input.value || !phoneRegex.test(input.value)) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -296,46 +289,9 @@ function validateRequiredPhone(input, errorId) {
   }
 }
 
-function validateChildName(input, errorId) {
-  const error = document.getElementById(errorId);
-  const nameRegex = /^[A-Za-z\s\-']+$/;
-  
-  if (input.value && !nameRegex.test(input.value)) {
-    // Note: Since child entries are dynamic, we use parentNode.querySelector to find the specific error span
-    input.parentNode.querySelector('.childNameError').classList.add('show');
-    input.classList.add('error-input');
-    return false;
-  } else {
-    if(input.parentNode.querySelector('.childNameError')) {
-      input.parentNode.querySelector('.childNameError').classList.remove('show');
-    }
-    input.classList.remove('error-input');
-    return true;
-  }
-}
-
-function validateDateOfBirth(input, errorId) {
-  const error = document.getElementById(errorId);
-  const today = new Date();
-  const selectedDate = new Date(input.value);
-  
-  if (input.value && selectedDate > today) {
-    // Note: Since child entries are dynamic, we use parentNode.querySelector to find the specific error span
-    input.parentNode.querySelector('.childDateOfBirthError').classList.add('show');
-    input.classList.add('error-input');
-    return false;
-  } else {
-    if(input.parentNode.querySelector('.childDateOfBirthError')) {
-      input.parentNode.querySelector('.childDateOfBirthError').classList.remove('show');
-    }
-    input.classList.remove('error-input');
-    return true;
-  }
-}
-
 function validateRequiredAddress(input, errorId) {
   const error = document.getElementById(errorId);
-  
+
   if (!input.value) {
     error.classList.add('show');
     input.classList.add('error-input');
@@ -347,51 +303,107 @@ function validateRequiredAddress(input, errorId) {
   }
 }
 
+
+
+// ✅ FIXED CHILD NAME VALIDATION (NO MORE ERRORS)
+function validateChildName(input, errorId) {
+  // Works for both: ID (first child) and class (dynamic children)
+  let error = input.parentNode.querySelector('.childNameError');
+
+  if (!error) {
+    error = document.getElementById(errorId);
+  }
+
+  const nameRegex = /^[A-Za-z\s\-']+$/;
+
+  if (input.value && !nameRegex.test(input.value)) {
+    if (error) error.classList.add('show');
+    input.classList.add('error-input');
+    return false;
+  } else {
+    if (error) error.classList.remove('show');
+    input.classList.remove('error-input');
+    return true;
+  }
+}
+
+
+
+
+// ✅ FIXED DATE OF BIRTH VALIDATION (ID + CLASS BOTH WORK)
+function validateDateOfBirth(input, errorId) {
+  let error = input.parentNode.querySelector('.childDateOfBirthError');
+
+  if (!error) {
+    error = document.getElementById(errorId);
+  }
+
+  const today = new Date();
+  const selected = new Date(input.value);
+
+  if (input.value && selected > today) {
+    if (error) error.classList.add('show');
+    input.classList.add('error-input');
+    return false;
+  } else {
+    if (error) error.classList.remove('show');
+    input.classList.remove('error-input');
+    return true;
+  }
+}
+
+
+
+// ADD CHILD FUNCTION
 function addChild() {
   const container = document.getElementById('children-container');
   const childCount = container.querySelectorAll('.child-entry').length + 1;
   const newChild = document.createElement('div');
+
   newChild.classList.add('child-entry', 'mt-3', 'border-t', 'border-gray-100', 'pt-3');
+
   newChild.innerHTML = `
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-    <div class="md:col-span-2 space-y-1">
-      <label class="block text-sm font-medium mb-1">Child Name (Full Name) #${childCount}</label>
-      <input name="childName" type="text" class="child-name form-input"
-             onblur="validateChildName(this, 'childNameError')" />
-      <span class="childNameError text-red-500 text-xs error-message">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="md:col-span-2 space-y-1">
+        <label class="block text-sm font-medium mb-1">Child Name (Full Name) #${childCount}</label>
+        <input name="childName" type="text" class="child-name form-input"
+               onblur="validateChildName(this, 'childNameError')" />
+        <span class="childNameError text-red-500 text-xs error-message">Child name must contain only letters, spaces, hyphens, and apostrophes</span>
+      </div>
+
+      <div class="space-y-1">
+        <label class="block text-sm font-medium mb-1">Date of Birth</label>
+        <input name="childDateOfBirth" type="date" class="form-input"
+               onblur="validateDateOfBirth(this, 'childDateOfBirthError')" 
+               max="${new Date().toISOString().split('T')[0]}" />
+        <span class="childDateOfBirthError text-red-500 text-xs error-message">Date of birth cannot be in the future</span>
+      </div>
     </div>
-    <div class="space-y-1">
-      <label class="block text-sm font-medium mb-1">Date of Birth</label>
-      <input name="childDateOfBirth" type="date" class="form-input"
-             onblur="validateDateOfBirth(this, 'childDateOfBirthError')" max="${new Date().toISOString().split('T')[0]}" />
-      <span class="childDateOfBirthError text-red-500 text-xs error-message">Date of birth cannot be in the future</span>
-    </div>
-  </div>
-  <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 text-xs font-medium mt-1 inline-block px-1">Remove</button>
+
+    <button type="button" onclick="this.parentElement.remove()" 
+            class="text-red-500 hover:text-red-700 text-xs font-medium mt-1 inline-block px-1">Remove</button>
   `;
+
   container.appendChild(newChild);
-  // Update the labels of existing children to keep numbering correct if needed, but not critical for function
 }
 
 
-// Comprehensive form validation
+
+// FORM VALIDATION
 function validateForm() {
   let isValid = true;
-  
-  // Validate required fields
+
   const requiredFields = [
     { input: document.querySelector('input[name="emergencyContactName"]'), validator: validateRequiredName, errorId: 'emergencyContactNameError' },
     { input: document.querySelector('input[name="emergencyContactNumber"]'), validator: validateRequiredPhone, errorId: 'cellphoneError' },
     { input: document.querySelector('input[name="emergencyContactAddress"]'), validator: validateRequiredAddress, errorId: 'emergencyContactAddressError' }
   ];
-  
-  requiredFields.forEach(field => {
-    if (!field.validator(field.input, field.errorId)) {
-      isValid = false;
-    }
+
+  requiredFields.forEach(f => {
+    if (!f.validator(f.input, f.errorId)) isValid = false;
   });
-  
-  // Validate optional fields if they have values
+
+
   const optionalFields = [
     { input: document.querySelector('input[name="spouseSurname"]'), validator: validateName, errorId: 'spouseSurnameError' },
     { input: document.querySelector('input[name="spouseFirstName"]'), validator: validateName, errorId: 'spouseFirstNameError' },
@@ -400,72 +412,50 @@ function validateForm() {
     { input: document.querySelector('input[name="employerBusinessName"]'), validator: validateBusinessName, errorId: 'employerBusinessNameError' },
     { input: document.querySelector('input[name="businessTelephoneNo"]'), validator: validatePhone, errorId: 'businessTelephoneNoError' }
   ];
-  
-  optionalFields.forEach(field => {
-    // Only validate if input exists and has a value
-    if (field.input && field.input.value && !field.validator(field.input, field.errorId)) {
+
+  optionalFields.forEach(f => {
+    if (f.input && f.input.value && !f.validator(f.input, f.errorId)) {
       isValid = false;
     }
   });
-  
-  // Validate child fields (using querySelectorAll on the container to get all entries)
+
+
   const childEntries = document.querySelectorAll('#children-container .child-entry');
 
   childEntries.forEach(entry => {
-    const nameInput = entry.querySelector('input[name="childName"]');
-    const dateInput = entry.querySelector('input[name="childDateOfBirth"]');
+    const cname = entry.querySelector('input[name="childName"]');
+    const dob = entry.querySelector('input[name="childDateOfBirth"]');
 
-    // Only validate if input has a value
-    if (nameInput && nameInput.value && !validateChildName(nameInput, 'childNameError')) {
-      isValid = false;
-    }
-    if (dateInput && dateInput.value && !validateDateOfBirth(dateInput, 'childDateOfBirthError')) {
-      isValid = false;
-    }
+    if (cname && cname.value && !validateChildName(cname, 'childNameError')) isValid = false;
+    if (dob && dob.value && !validateDateOfBirth(dob, 'childDateOfBirthError')) isValid = false;
   });
 
   return isValid;
 }
 
-// Form submission handler
+
+
+// SUBMIT HANDLER
 document.getElementById("familyBackgroundForm").addEventListener("submit", function(e) {
-  // Prevent default submission
   e.preventDefault();
-  
-  // Validate the entire form
-  const formIsValid = validateForm(); // Re-assigning to local variable is fine
-  
-  if (!formIsValid) {
-    // Show error toast
+
+  if (!validateForm()) {
     const toast = document.getElementById('toast');
     toast.classList.remove('hidden');
-    // Ensure visibility of the toast by removing any pointer-events class temporarily if needed
-    toast.classList.remove('pointer-events-none'); 
+    toast.classList.remove('pointer-events-none');
 
     setTimeout(() => {
       toast.classList.add('hidden');
-      toast.classList.add('pointer-events-none'); // Re-add after timeout
+      toast.classList.add('pointer-events-none');
     }, 5000);
-    
-    // Scroll to first error
-    const firstError = document.querySelector('.error-input');
-    if (firstError) {
-      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    
-    return false;
-  } else {
-    // If form is valid, allow submission
-    this.submit();
-  }
-});
 
-// Real-time validation for better UX
-document.querySelectorAll('input').forEach(input => {
-  input.addEventListener('blur', function() {
-    // Re-run the validation for the entire form on blur to update all error states
-    validateForm();
-  });
+    const firstError = document.querySelector('.error-input');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    return false;
+  }
+
+  this.submit();
 });
 
 document.getElementById("go-back").addEventListener("click", () => history.back());
