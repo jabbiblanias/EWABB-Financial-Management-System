@@ -41,6 +41,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
+    "channels",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,6 +60,15 @@ INSTALLED_APPS = [
     'programs',
     'notifications',
 ]
+
+ASGI_APPLICATION = "ewabb_financial_management_system_with_forecasting.asgi.application"
+
+# No Redis, use in-memory layer
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 if DEBUG:
     # Add django_browser_reload only in DEBUG mode
@@ -214,8 +224,8 @@ LOCAL_BACKUP_DIR = os.path.join(Path.home(), "EWABB", "Backups")
 system_name = platform.system()  # 'Windows', 'Linux', 'Darwin'
 
 if system_name == "Windows":
-    PG_DUMP_PATH = r"C:\Program Files\PostgreSQL\17\bin\pg_dump.exe"
-    PSQL_PATH = r"C:\Program Files\PostgreSQL\17\bin\psql.exe"
+    PG_DUMP_PATH = r"C:\Program Files\PostgreSQL\18\bin\pg_dump.exe"
+    PSQL_PATH = r"C:\Program Files\PostgreSQL\18\bin\psql.exe"
 elif system_name == "Linux":
     PG_DUMP_PATH = "/usr/bin/pg_dump"
     PSQL_PATH = "/usr/bin/psql"

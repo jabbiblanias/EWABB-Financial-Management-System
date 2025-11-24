@@ -30,6 +30,7 @@
           </g>
         </svg> </span>
       Loans</a>
+
   </nav>
 </aside>
 
@@ -53,12 +54,13 @@
 
   <div class="flex items-center space-x-4">
     <div id="notif" class="dropdown dropdown-end">
-      <button tabindex="0" role="button" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600" fill="currentColor">
-        <path
-          d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
-      </svg>
-    </button>
+      <button tabindex="0" role="button" id="notifButton" class="w-8 h-8 bg-[#e0e7ff] rounded-full flex items-center justify-center relative">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 text-blue-600" fill="currentColor">
+          <path
+            d="M10.146 3.248a2 2 0 0 1 3.708 0A7.003 7.003 0 0 1 19 10v4.697l1.832 2.748A1 1 0 0 1 20 19h-4.535a3.501 3.501 0 0 1-6.93 0H4a1 1 0 0 1-.832-1.555L5 14.697V10c0-3.224 2.18-5.94 5.146-6.752zM10.586 19a1.5 1.5 0 0 0 2.829 0h-2.83zM12 5a5 5 0 0 0-5 5v5a1 1 0 0 1-.168.555L5.869 17H18.13l-.963-1.445A1 1 0 0 1 17 15v-5a5 5 0 0 0-5-5z" />
+        </svg>
+        <span id="unreadBadge" class="absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-white hidden"></span>
+      </button>
       {% include 'partials/popup_notification.html' %}
     </div>
     <div class="flex items-center space-x-2 ">
@@ -117,23 +119,185 @@
   </div>
 </div>
 {% include 'partials/notification_message.html' %}
+<div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-96 p-6 relative">
+    <button id="closeModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-2xl leading-none">&times;</button>
+    
+    <h3 id="modalTitle" class="text-xl font-bold mb-2 text-gray-900">Notification Detail</h3>
+    <p id="modalMessage" class="text-gray-700">Full notification message.</p>
+  </div>
+</div>
+
+<div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col space-y-3 pointer-events-none">
+    </div>
+
 
 <script>
-  // Sidebar toggle
-  const burger = document.getElementById("burger");
-  const mobileSidebar = document.getElementById("mobileSidebar");
-  const closeSidebar = document.getElementById("closeSidebar");
+    // --- 3.1 Sidebar Handlers ---
+    const burger = document.getElementById("burger");
+    const mobileSidebar = document.getElementById("mobileSidebar");
+    const closeSidebar = document.getElementById("closeSidebar");
 
-  burger.addEventListener("click", () => {
-    mobileSidebar.classList.remove("hidden");
-  });
-  closeSidebar.addEventListener("click", () => {
-    mobileSidebar.classList.add("hidden");
-  });
-  mobileSidebar.addEventListener("click", (e) => {
-    if (e.target === mobileSidebar) {
-      mobileSidebar.classList.add("hidden");
+    burger.addEventListener("click", () => {
+        mobileSidebar.classList.remove("hidden");
+    });
+    closeSidebar.addEventListener("click", () => {
+        mobileSidebar.classList.add("hidden");
+    });
+    mobileSidebar.addEventListener("click", (e) => {
+        if (e.target === mobileSidebar) {
+            mobileSidebar.classList.add("hidden");
+        }
+    });
+
+    // --- 3.2 Modal Handlers ---
+    const modal = document.getElementById("notificationModal");
+    const closeBtn = document.getElementById("closeModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMessage = document.getElementById("modalMessage");
+
+    // Close modal when clicking close button
+    closeBtn.onclick = () => {
+        modal.classList.add("hidden");
+    };
+
+    // Close modal when clicking outside modal content
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.classList.add("hidden");
+        }
+    };
+
+    // Function to manually show the static modal (e.g., for detail view)
+    function showModal(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modal.classList.remove("hidden");
     }
-  });
+
+    // --- 3.3 Real-Time Toast Logic ---
+
+    const toastContainer = document.getElementById("toast-container");
+
+    /**
+     * Creates and displays the App-Style Toast Notification (Tailwind-only).
+     */
+    function showToastNotification(title, message, notificationId, date, is_read, appName = "App System", duration = 8000) {
+        const toast = document.createElement('div');
+        
+        // Tailwind classes for the toast (Initial state: Hidden/Off-screen)
+        const toastClasses = "bg-white text-gray-800 p-4 rounded-xl shadow-lg w-80 " + 
+                           "transition-all duration-500 ease-in-out transform opacity-0 translate-x-full pointer-events-auto " +
+                           "flex flex-col gap-2";
+
+        toast.className = toastClasses;
+
+        const detailLink = notificationId ? `/transactions/${notificationId}/` : '#';
+
+        toast.innerHTML = `
+            <div class="flex items-center justify-between text-sm text-gray-500">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M2.25 2.25a.75.75 0 000 1.5H3v10.5a3 3 0 003 3h1.372c.516 1.154 1.34 2.158 2.386 2.973.593.468 1.355.811 2.192.969v.75a.75.75 0 001.5 0v-.75c.837-.158 1.6-.501 2.192-.969.447-.352.806-.757 1.093-1.196A3 3 0 0018 15.75V3.75h-.75a.75.75 0 000-1.5H2.25zM12 15.75a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="font-medium text-gray-700">${appName}</span>
+                </div>
+                <button onclick="openNotifPopup(${notificationId}, '${title}', '${message}', '${date}', '${is_read}')" class="text-blue-600 hover:text-blue-800 font-medium">Open Notification</button>
+            </div>
+            
+            <p class="text-base font-medium text-gray-800 leading-tight">
+                ${title}
+            </p>
+            <p class="text-sm text-gray-600 leading-snug">
+                ${message}
+            </p>
+        `;
+
+        // 1. Append the new toast
+        toastContainer.prepend(toast); 
+
+        // 2. Trigger slide-in animation
+        setTimeout(() => {
+            toast.classList.remove('opacity-0', 'translate-x-full');
+            toast.classList.add('opacity-100', 'translate-x-0');
+        }, 50); 
+
+        // 3. Set Auto-Dismissal Timer
+        setTimeout(() => {
+            // Trigger slide-out animation
+            toast.classList.remove('opacity-100', 'translate-x-0');
+            toast.classList.add('opacity-0', 'translate-x-full'); 
+            
+            // Remove the element after transition
+            setTimeout(() => {
+                toast.remove();
+            }, 500); 
+        }, duration); 
+
+        
+        // 4. Manual click-to-dismiss (if clicked anywhere on the toast, except the link)
+        toast.addEventListener('click', (e) => {
+            if (!e.target.closest('a')) {
+                 toast.classList.remove('opacity-100', 'translate-x-0');
+                 toast.classList.add('opacity-0', 'translate-x-full');
+                 setTimeout(() => toast.remove(), 500);
+            }
+        });
+    }
+
+    // --- 3.4 WebSocket Connection ---
+
+    // NOTE: Replace 'window.location.host' if you run Daphne on a different port (e.g., 8001)
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/notifications/");
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        
+        // Assuming Django Channel Signal sends data in this format:
+        // { type: 'popup_notification', payload: { title: "Deposit Alert", message: "New savings deposit of $500 received.", id: 123 } }
+        
+        if (data.type === 'send_notification' && data.payload) {
+            showToastNotification(
+                data.payload.title,
+                data.payload.message,
+                data.payload.id,
+                data.payload.date,
+                data.payload.is_read,
+                "App System",
+                8000
+            );
+        } else {
+            console.warn("Received unexpected WebSocket message format:", data);
+            // Fallback for previous simple message format
+            if (data.message) {
+                 showToastNotification("New Alert", data.message, null, null, null, "App System", 4000);
+            }
+        }
+        checkUnreadNotifications()
+    };
+
+    const unreadBadge = document.getElementById("unreadBadge");
+
+    async function checkUnreadNotifications() {
+        try {
+            const response = await fetch("{% url 'check_unread_notifications' %}");
+            const data = await response.json();
+            updateUnreadBadge(data.has_unread);
+        } catch (error) {
+            console.error("Error checking unread notifications:", error);
+        }
+    }
+
+    function updateUnreadBadge(show) {
+    if (show) {
+        unreadBadge.classList.remove("hidden");
+    } else {
+        unreadBadge.classList.add("hidden");
+    }
+}
+
+    // Initial check on page load
+    checkUnreadNotifications();
 </script>
+
 

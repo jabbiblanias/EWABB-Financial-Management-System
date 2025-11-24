@@ -251,10 +251,10 @@ def member_dashboard_data(user):
         if next_due:
             next_due = LoanRepaymentSchedule.objects.filter(
                 loan_id=active_loan
-            ).order_by("due_date").first().due_date
+            ).order_by("due_date").exclude(status="Paid").first().due_date
             due_amount = LoanRepaymentSchedule.objects.filter(
                 loan_id=active_loan
-            ).order_by("due_date").first().amount_due
+            ).order_by("due_date").exclude(status="Paid").first().amount_due
 
 
 
@@ -270,7 +270,10 @@ def member_dashboard_data(user):
         "loan_balance": loan_balance,
         "next_due": next_due,
         "due_amount": due_amount
-    }
+    }   
+
+    print(next_due)
+    print(due_amount)
     return context
 
 

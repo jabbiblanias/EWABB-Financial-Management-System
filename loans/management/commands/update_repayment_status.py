@@ -10,10 +10,11 @@ from members.models import Savings
 from notifications.models import Notification
 from django.db.models import F
 from django.utils.dateformat import DateFormat
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
-# Define constants
-MONTHLY_PENALTY_RATE = 0.02 # Example: 2% monthly rate on the unpaid amount
+MONTHLY_PENALTY_RATE = 0.02
 EXCLUDE_STATUSES = ['Paid', 'Canceled']
 
 
@@ -36,15 +37,13 @@ class Command(BaseCommand):
             due_date=today,
             status='Due'
         ).select_related(
-            'loan_id', # Optimize to fetch related objects (Loan, Member, User)
+            'loan_id',
         )
 
-        # --- 3. Iterate and create a notification for each schedule ---
         for schedule in due_schedules:
-            # Ensure you have access to the necessary data (e.g., loan, member, user ID)
             
-            Notification.objects.create(
-                user_id=schedule.loan_id.member_id.user_id, # Assuming 'member' has a 'user' relationship
+            notification = Notification.objects.create(
+                user_id=schedule.loan_id.member_id.user_id,
                 title="Friendly Reminder: Loan Payment Due Today",
                 message=(
                     f"Your loan payment (ID: {schedule.loan_id.pk}) is due today, "
@@ -54,46 +53,48 @@ class Command(BaseCommand):
                 )
             )
 
-        # --- 2. Identify Schedules with DueDate < Today to 'Overdue' (Bulk Update for efficiency) ---
-        # This flags *all* past-due, non-final schedules to Overdue in one query.
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "notifications",
+                {
+                    "type": "send_notification",
+                    "payload": {
+                        "id": notification.notification_id,
+                        "message": notification.message,
+                        "title": notification.title,
+                        "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                        "is_read": notification.is_read,
+                    }
+                }
+            )
+
         updated_overdue_bulk = LoanRepaymentSchedule.objects.filter(
             due_date__lt=today
         ).exclude(
             status__in=EXCLUDE_STATUSES
         ).update(status='Overdue')
         
-        # Note: We'll use a filtered set for penalties, as bulk update doesn't return objects.
-
-        # --- 3. Identify and Process Schedules for Monthly Penalties (Iteration) ---
         with transaction.atomic():
-            # Get the schedules that are now marked 'Overdue' or were already 'Overdue'
-            # and need a penalty check. We exclude 'Paid' and 'Canceled' statuses.
             schedules_for_penalty = (
                 LoanRepaymentSchedule.objects
                 .select_related("loan_id")
                 .filter(
                     due_date__lt=today, 
-                    status='Overdue', # Only check already flagged 'Overdue'
+                    status='Overdue',
                 )
                 .all()
             )
 
             for schedule in schedules_for_penalty:
-                # Get the last penalty for this schedule
                 last_penalty = LoanPenalty.objects.filter(
                     schedule_id=schedule
                 ).order_by('-date_evaluated').first()
                 
-                # Determine the date for the next penalty check
                 if last_penalty:
-                    # Next penalty is due one month after the last penalty was *created*
                     penalty_due_date = last_penalty.date_evaluated + relativedelta(months=+1)
                 else:
-                    # If no previous penalty, next penalty is due one month after the original due date
                     penalty_due_date = schedule.due_date
                 
-                
-                # A. Check if the monthly penalty is due
                 is_penalty_due = (today >= penalty_due_date)
 
                 if is_penalty_due:
@@ -138,7 +139,7 @@ class Command(BaseCommand):
                             savings_id=savings
                         )
 
-                        Notification.objects.create(
+                        notification = Notification.objects.create(
                             user_id=member.user_id,
                             title="Penalty Deducted from Savings",
                             message=(
@@ -147,6 +148,21 @@ class Command(BaseCommand):
                                 f"Penalty Amount: ₱{penalty_amount:,.2f}. "
                                 f"Your updated savings balance is ₱{savings.balance:,.2f}."
                             )
+                        )
+
+                        channel_layer = get_channel_layer()
+                        async_to_sync(channel_layer.group_send)(
+                            "notifications",
+                            {
+                                "type": "send_notification",
+                                "payload": {
+                                    "id": notification.notification_id,
+                                    "message": notification.message,
+                                    "title": notification.title,
+                                    "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                                    "is_read": notification.is_read,
+                                }
+                            }
                         )
 
                     else:
@@ -189,7 +205,7 @@ class Command(BaseCommand):
                             penalty_id=penalty
                         )
 
-                        Notification.objects.create(
+                        notification = Notification.objects.create(
                             user_id=member.user_id,
                             title="Penalty Added to Loan Due",
                             message=(
@@ -200,14 +216,25 @@ class Command(BaseCommand):
                             )
                         )
 
+                        channel_layer = get_channel_layer()
+                        async_to_sync(channel_layer.group_send)(
+                            "notifications",
+                            {
+                                "type": "send_notification",
+                                "payload": {
+                                    "id": notification.notification_id,
+                                    "message": notification.message,
+                                    "title": notification.title,
+                                    "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                                    "is_read": notification.is_read,
+                                }
+                            }
+                        )
+
                     penalties_created_count += 1
                         
-                # Count schedules processed for reporting
                 updated_overdue_count += 1 
 
-
-        # --- Report Results ---
-        # Count schedules processed for reporting
         self.stdout.write(self.style.SUCCESS(
             f'Updated {updated_due} schedules to Due.'
         ))

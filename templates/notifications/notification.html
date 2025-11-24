@@ -62,55 +62,55 @@
   </div>
 </body>
 <script>
-document.getElementById("mark-read-btn").addEventListener("click", function () {
+  document.getElementById("mark-read-btn").addEventListener("click", function () {
     const selected = [...document.querySelectorAll(".notif-checkbox:checked")].map(cb => cb.dataset.id);
 
     if (selected.length === 0) {
-        alert("Please select a notification.");
-        return;
+      alert("Please select a notification.");
+      return;
     }
 
-    fetch("{% url 'mark_notification_read' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": '{{ csrf_token }}',
-        },
-        body: JSON.stringify({ ids: selected }),
+    fetch("{% url 'selected_mark_notification_read' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": '{{ csrf_token }}',
+      },
+      body: JSON.stringify({ ids: selected }),
     })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                selected.forEach(id => {
-                const row = document.getElementById(`row-${id}`);
-                if (row) {
-                    // Remove unread styling
-                    row.classList.remove("bg-blue-50", "hover:bg-blue-100");
-                    row.classList.add("hover:bg-gray-50");
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          selected.forEach(id => {
+            const row = document.getElementById(`row-${id}`);
+            if (row) {
+              // Remove unread styling
+              row.classList.remove("bg-blue-50", "hover:bg-blue-100");
+              row.classList.add("hover:bg-gray-50");
 
-                    // Update badge to "Read"
-                    const badge = row.querySelector("span");
-                    if (badge) {
-                        badge.className =
-                            "px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium";
-                        badge.textContent = "Read";
-                    }
+              // Update badge to "Read"
+              const badge = row.querySelector("span");
+              if (badge) {
+                badge.className =
+                  "px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium";
+                badge.textContent = "Read";
+              }
 
-                    // Remove bold date
-                    const dateCell = row.querySelector("td.text-left.font-semibold");
-                    if (dateCell) dateCell.classList.remove("font-semibold");
-                }
-
-                // Uncheck the checkbox AFTER marking read
-                const checkbox = document.querySelector(`input.notif-checkbox[data-id="${id}"]`);
-                if (checkbox) checkbox.checked = false;
-            });
-
-            } else {
-                alert("Error marking notifications as read.");
+              // Remove bold date
+              const dateCell = row.querySelector("td.text-left.font-semibold");
+              if (dateCell) dateCell.classList.remove("font-semibold");
             }
-        });
-});
+
+            // Uncheck the checkbox AFTER marking read
+            const checkbox = document.querySelector(`input.notif-checkbox[data-id="${id}"]`);
+            if (checkbox) checkbox.checked = false;
+          });
+          checkUnreadNotifications();
+        } else {
+          alert("Error marking notifications as read.");
+        }
+      });
+  });
 </script>
 
 </html>

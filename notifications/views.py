@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.shortcuts import render
 from .models import Notification
 from django.contrib.auth.decorators import login_required
@@ -53,14 +54,15 @@ def fetch_notifications(request):
             "title": n.title,
             "message": n.message,
             "is_read": n.is_read,
-            "created_at": n.created_at.strftime("%b %d, %Y %I:%M %p"),
+            "created_at": timezone.localtime(n.created_at).strftime("%b %d, %Y %I:%M %p"),
+            
         }
         for n in notifications
     ]
     return JsonResponse({"notifications": data})
 
 
-def mark_notification_read(request):
+def selected_mark_notification_read(request):
     try:
         body = json.loads(request.body)
         ids = body.get("ids", [])
@@ -74,3 +76,22 @@ def mark_notification_read(request):
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=400)
+    
+def mark_notification_read(request):
+    try:
+        body = json.loads(request.body)
+        notif_id = body.get("notification_id")
+
+        notification = Notification.objects.get(notification_id=notif_id, user_id=request.user)
+        notification.is_read = True
+        notification.save()
+
+        return JsonResponse({"success": True})
+    except Notification.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Notification not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=400)
+    
+def check_unread_notifications(request):
+    has_unread = Notification.objects.filter(user_id=request.user, is_read=False).exists()
+    return JsonResponse({"has_unread": has_unread})

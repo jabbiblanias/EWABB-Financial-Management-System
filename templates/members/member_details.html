@@ -23,11 +23,29 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-3xl font-semibold text-blue-700">Member Details</h1>
                     <a href="{% url 'members' %}" class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-700">Back</a>
+                    
                 </div>
 
                 <!-- Application Info Section -->
                 <section class="mb-6 p-6 border border-gray-300 rounded-lg shadow-sm space-y-4">
-                    <h2 class="text-blue-700 text-lg font-semibold mb-4">Membership Information</h2>
+                    <div class="flex justify-between items-center mb-4"> 
+        <h2 class="text-blue-700 text-lg font-semibold m-0">Membership Information</h2>
+        <div id="member-status-area"> 
+            {% if member.user_id.is_active %}
+                <button id="toggleStatusBtn"
+                    data-url="{% url 'toggle_member_status' member.member_id %}"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    Deactivate
+                </button>
+            {% else %}
+                <button id="toggleStatusBtn"
+                    data-url="{% url 'toggle_member_status' member.member_id %}"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Activate
+                </button>
+            {% endif %}
+        </div>
+    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-gray-600">Member ID:</p>
@@ -41,6 +59,10 @@
                             <div>
                                 <p class="text-gray-600">Membership Date:</p>
                                 <p class="font-medium">{{ member.membership_date|date:"m/d/Y" }}</p> <br>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Membership Status:</p>
+                                <p id="member-status" class="font-medium">{% if member.user_id.is_active %}Active{% else %}Inactive{% endif %}</p> <br>
                             </div>
                         </div>
                     </div>
@@ -187,6 +209,36 @@
             </main>
         </div>
     </div>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("toggleStatusBtn");
+
+    btn.addEventListener("click", () => {
+        const url = btn.getAttribute("data-url");
+
+        fetch(url, {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                if (data.is_active) {
+                    btn.textContent = "Deactivate";
+                    btn.classList.remove("bg-green-600", "hover:bg-green-700");
+                    btn.classList.add("bg-red-600", "hover:bg-red-700");
+                    document.getElementById("member-status").textContent = "Active";
+                } else {
+                    btn.textContent = "Activate";
+                    btn.classList.remove("bg-red-600", "hover:bg-red-700");
+                    btn.classList.add("bg-green-600", "hover:bg-green-700");
+                    document.getElementById("member-status").textContent = "Inactive";
+                }
+            }
+        });
+    });
+});
+</script>
 </body>
 
 </html>

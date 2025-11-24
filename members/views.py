@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from accounts.models import Personalinfo, Membershipapplication, Spouse, Children, EmergencyContact
 from members.models import Savings
 from .models import Member
@@ -195,7 +195,7 @@ def members_view(request):
 
 
 def member_details(request, member_id):
-    member = Member.objects.select_related('person_id').get(member_id=member_id)
+    member = Member.objects.select_related('person_id', 'user_id').get(member_id=member_id)
     # Handle spouse safely
     try:
         spouse = Spouse.objects.get(person_id=member.person_id)
@@ -217,3 +217,17 @@ def member_details(request, member_id):
         'emergency_contact': emergency_contact
     }
     return render(request, 'members/member_details.html', context)
+
+@login_required
+def toggle_member_status(request, member_id):
+    if request.method == "POST":
+        member = Member.objects.get(member_id=member_id)
+        member.user_id.is_active = not member.user_id.is_active
+        member.user_id.save()
+
+        return JsonResponse({
+            "status": "success",
+            "is_active": member.user_id.is_active
+        })
+
+    return JsonResponse({"status": "error"})

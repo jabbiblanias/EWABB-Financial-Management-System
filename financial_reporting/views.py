@@ -22,6 +22,8 @@ from datetime import date, timedelta
 from django.db.models import Sum, Max
 from django.db.models.functions import Round
 from notifications.models import Notification
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 def member_loan_report(request):
@@ -461,11 +463,26 @@ def submit_dividend_report(request):
                 savings_id=savings
             )
 
-            Notification.objects.create(
+            notification = Notification.objects.create(
                 member=member,
                 title="Dividend Credit",
                 message=f"You received ₱{dividend_amount:.2f} as your dividend for the Fiscal Year "
                         f"{current_year}.",
+            )
+
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "notifications",
+                {
+                    "type": "send_notification",
+                    "payload": {
+                        "id": notification.notification_id,
+                        "message": notification.message,
+                        "title": notification.title,
+                        "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                        "is_read": notification.is_read,
+                    }
+                }
             )
 
         # Deduct total from Revenue fund once (after all members)

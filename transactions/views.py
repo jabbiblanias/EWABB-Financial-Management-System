@@ -20,6 +20,8 @@ from itertools import chain
 from decimal import Decimal, InvalidOperation # Import Decimal and related tools
 from financial_reporting.models import Revenue, Funds
 from django.db.models import F, Q
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 def member_details(request, member_id):
     # Fetch member
@@ -150,14 +152,29 @@ def transactions(request):
                 )
 
                 # 🔔 Member notification (different wording)
-                Notification.objects.create(
+                notification = Notification.objects.create(
                     user_id=member.user_id,
                     title="Savings Deposit",
                     message=(
                         f"You deposited ₱{amount:,} into your savings account on "
-                        f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}. "
+                        f"{timezone.localtime().strftime('%b %d, %Y %I:%M %p')}. "
                         f"Your new balance is ₱{savings.balance:,}."
                     )
+                )
+
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    "notifications",
+                    {
+                        "type": "send_notification",
+                        "payload": {
+                            "id": notification.notification_id,
+                            "message": notification.message,
+                            "title": notification.title,
+                            "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                            "is_read": notification.is_read,
+                        }
+                    }
                 )
                 
                 toast_message = f"Savings deposit of ₱{amount} from Account #{member.account_number} completed successfully."
@@ -201,7 +218,7 @@ def transactions(request):
                     toast_message = f"Withdrawal of ₱{amount} from Account #{member.account_number} processed successfully."
 
                     # 🔔 Member notification (different wording)
-                    Notification.objects.create(
+                    notification = Notification.objects.create(
                         user_id=member.user_id,
                         title="Withdrawal",
                         message=(
@@ -209,6 +226,21 @@ def transactions(request):
                             f"{timezone.now().strftime('%b %d, %Y %I:%M %p')}. "
                             f"Remaining balance: ₱{savings.balance:,}."
                         )
+                    )
+
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                        "notifications",
+                        {
+                            "type": "send_notification",
+                            "payload": {
+                                "id": notification.notification_id,
+                                "message": notification.message,
+                                "title": notification.title,
+                                "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                                "is_read": notification.is_read,
+                            }
+                        }
                     )
                     transaction_id = Transactions.objects.create(
                         member_id=member,
@@ -297,6 +329,7 @@ def transactions(request):
     except Exception as e:
         return JsonResponse({"success": False, "message": f"An unexpected error occurred: {str(e)}"})
 
+
 @transaction.atomic
 def record_payment(member_id, loan, payment_amount):
 
@@ -340,10 +373,25 @@ def record_payment(member_id, loan, payment_amount):
                 return f"Error: Savings account not found for member {member_id.member_id}.", -1
 
 
-            Notification.objects.create(
+            notification = Notification.objects.create(
                 user_id=member_id.user_id,
                 title="Loan Rebate Credited",
                 message=f"A rebate of ₱{loan.rebates:,} has been credited to your savings account for timely loan payments."
+            )
+
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "notifications",
+                {
+                    "type": "send_notification",
+                    "payload": {
+                        "id": notification.notification_id,
+                        "message": notification.message,
+                        "title": notification.title,
+                        "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                        "is_read": notification.is_read,
+                    }
+                }
             )
             
             # 3. CREATE the Transaction, using the retrieved model instance
@@ -363,10 +411,25 @@ def record_payment(member_id, loan, payment_amount):
         if loan.remaining_balance == 0:
             loan.loan_status = "Completed"
             loan.save()
-            Notification.objects.create(
+            notification = Notification.objects.create(
                 user_id=member_id.user_id,
                 title="Loan Fully Paid",
                 message=f"Your due on {repayment.due_date.strftime('%b %d, %Y')} has been paid. Congratulations, your loan is fully paid!"
+            )
+
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "notifications",
+                {
+                    "type": "send_notification",
+                    "payload": {
+                        "id": notification.notification_id,
+                        "message": notification.message,
+                        "title": notification.title,
+                        "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                        "is_read": notification.is_read,
+                    }
+                }
             )
         else:
             # Next due
@@ -374,10 +437,25 @@ def record_payment(member_id, loan, payment_amount):
             note = f"Your due on {repayment.due_date.strftime('%b %d, %Y')} has been paid."
             if next_due:
                 note += f" Next due: {next_due.due_date.strftime('%b %d, %Y')} amount ₱{next_due.amount_due:,}."
-            Notification.objects.create(
+            notification = Notification.objects.create(
                 user_id=member_id.user_id,
                 title="Loan Due Paid",
                 message=note
+            )
+
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "notifications",
+                {
+                    "type": "send_notification",
+                    "payload": {
+                        "id": notification.notification_id,
+                        "message": notification.message,
+                        "title": notification.title,
+                        "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                        "is_read": notification.is_read,
+                    }
+                }
             )
 
         # If there’s excess, apply it to the next repayment
@@ -402,10 +480,25 @@ def record_payment(member_id, loan, payment_amount):
         loan.save()
 
         # 🔔 Create partial payment notification
-        Notification.objects.create(
+        notification = Notification.objects.create(
             user_id=member_id.user_id,
             title="Partial Loan Payment",
             message=f"Payment of ₱{payment_amount:,} recorded for due {repayment.due_date.strftime('%b %d, %Y')}. Remaining due: ₱{repayment.amount_due:,}."
+        )
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "notifications",
+            {
+                "type": "send_notification",
+                "payload": {
+                    "id": notification.notification_id,
+                    "message": notification.message,
+                    "title": notification.title,
+                    "date": timezone.localtime(notification.created_at).strftime('%b %d, %Y %I:%M %p'),
+                    "is_read": notification.is_read,
+                }
+            }
         )
 
     return f"Payment of ₱{payment_amount} from Account #{member_id.account_number} recorded successfully.", 0
@@ -414,26 +507,18 @@ def record_payment(member_id, loan, payment_amount):
 def transaction_view(request):
     user = request.user
 
-    # Detect ajax once here
     is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
 
-    # Get shared data (now handles user-specific filtering)
     context = transaction_data(request, ajax=is_ajax)
 
-    # If ajax, just return the JSON
     if is_ajax:
-        # The JSON response is now handled entirely within transaction_data
         return context  
     
-    # Otherwise, render template normally
     if user.groups.filter(name='Admin').exists():
-        # NOTE: Make sure the context here has the correct data structure for this template
         return render(request, 'transactions/admin_transaction.html', context)
         
     elif user.groups.filter(name='Member').exists():
-        # Render the member template using the context returned from transaction_data
-        # NOTE: Ensure member_transaction.html uses 'page' variable for transactions
         return render(request, 'transactions/member_transaction.html', context)
         
     elif user.groups.filter(name='Bookkeeper').exists():
@@ -449,14 +534,12 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
     user = request.user
     is_member = user.groups.filter(name='Member').exists()
     
-    # --- 1. Get Filters and Prepare Query Params ---
     start_date_str = request.GET.get('start_date', '')
     end_date_str = request.GET.get('end_date', '')
     
     start_date = None
     end_date = None
     
-    # Build the query string for pagination links
     current_query_params = ""
     if start_date_str:
         current_query_params += f"&start_date={start_date_str}"
@@ -472,8 +555,6 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
         except ValueError:
             pass
 
-    # --- 2. Get Base Transactions QuerySet and Apply Filters ---
-    
     transactions = (
         Transactions.objects
         .select_related("member_id")
@@ -483,10 +564,8 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
     table_partial_template = "transactions/partials/cashier_transaction_table_body.html"
 
     if is_member:
-        # Apply mandatory member filter
         transactions = transactions.filter(member_id__user_id=user)
         
-        # Apply optional date filter
         if start_date or end_date:
             filter_query = Q()
             if start_date:
@@ -496,23 +575,20 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
             
             transactions = transactions.filter(filter_query)
         
-        # Select fields for the member view
         transactions = transactions.values(
             "transaction_id", "transaction_type", "transaction_date", "amount"
         )
         table_partial_template = "transactions/partials/member_transaction_table_body.html"
         
-        # Set non-member context data to empty for simplicity
         members = []
         programs = []
         
     else:
-        # Select the full set of fields for Admin, Bookkeeper, Cashier views
         transactions = transactions.values(
             "transaction_id", "transaction_type", "member_id__account_number", 
             "transaction_date", "amount", "description"
         )
-        # --- 3. Get Other Data (Only needed for non-member views) ---
+
         members = (
             Member.objects
             .select_related("person_id")
@@ -525,16 +601,13 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
             .values('program_id', 'program_name')
         )
 
-    # --- 4. Pagination ---
     paginator = Paginator(transactions, 10)
     page_num = request.GET.get('page')
     page = paginator.get_page(page_num)
 
-    # --- 5. AJAX Response ---
     if ajax:
         html = render_to_string(table_partial_template, {"page": page})
         
-        # Render pagination with the current query parameters embedded
         pagination = render_to_string(
             "partials/pagination.html", 
             {
@@ -548,7 +621,6 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
         
         return JsonResponse({"success": True, "message": toast_message, "table_body_html": html, "pagination_html": pagination, "transaction": transaction})
     
-    # --- 6. Initial Context for Template Rendering ---
     context = {
         "members": members, 
         "programs": programs, 
@@ -563,7 +635,6 @@ def balance(request):
     account_number = request.GET.get("accountNumber")
     transaction_type = request.GET.get("transactionType")
 
-    # 🟢 CASE 1: Operating Expenses — no member lookup needed
     if transaction_type == "Operating Expenses":
         fund = Funds.objects.filter(fund_name__iexact='Expenses').first()
         if not fund:
@@ -578,12 +649,10 @@ def balance(request):
             "balance": float(fund.balance)
         })
 
-    # 🟡 CASE 2: Member-related transactions
     member = Member.objects.select_related("person_id").filter(account_number=account_number).first()
     if not member:
         return JsonResponse({"exists": False, "balance": None})
 
-    # Build full name
     person = member.person_id
     member_name = ", ".join(
         part for part in [person.surname, person.first_name, person.middle_name, person.name_extension] if part
@@ -644,10 +713,8 @@ def passbook_print(request, account_number):
             
         t.savings_balance = current_savings_balance
 
-    # 4. Calculate Running Loan Balance
     for t in loan_transactions:
         try:
-            # Ensure amount is a Decimal
             amount = t.amount if t.amount is not None else Decimal('0.00')
         except InvalidOperation:
             amount = Decimal('0.00')
@@ -659,11 +726,8 @@ def passbook_print(request, account_number):
             
         t.loan_balance = current_loan_balance
 
-    # 5. Combine and Prepare for Template
     all_transactions = list(chain(savings_transactions, loan_transactions))
     
-    # *** FIX FOR ASCENDING ORDER (OLDEST AT TOP) ***
-    # By removing reverse=True, the transactions are sorted oldest-to-newest.
     all_transactions.sort(key=lambda t: t.transaction_date) 
 
     paginator = Paginator(all_transactions, 8)
