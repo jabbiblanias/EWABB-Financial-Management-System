@@ -21,10 +21,23 @@
     <div class="p-6 ml-64 mr-4 mt-[72px] flex-1">
 
       <!-- Tabs -->
-      <div class="px-6 pt-4">
+      <div class="px-6 pt-4 flex justify-between items-center">
         <div class="flex border-b border-gray-200">
           <a href="{% url 'membershipApplication' %}" class="px-4 py-2 text-gray-500 hover:text-blue-600">Member Applications</a>
           <a href="{% url 'members' %}" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Approved Members</a>
+        </div>
+        <div class="mb-4 flex space-x-2 items-center">
+          <input type="text" id="loanSearch" placeholder="Search Name/Account no."
+            class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+
+          <button id="searchButton"
+            class="px-3 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 transition duration-150 sm:text-sm">
+            Search
+          </button>
+          <button id="clearButton"
+            class="px-3 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md shadow hover:bg-gray-400 transition duration-150 sm:text-sm">
+            Clear
+          </button>
         </div>
       </div>
 
@@ -34,14 +47,41 @@
           <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Member ID</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Account No.</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Name</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Date of Birth</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Gender</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Civil Status</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600"></th>
-              </tr>
+    <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer">
+        Member ID
+    </th>
+
+    <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+        data-sort="account_number">
+        Account No.
+        <span class="sort-icon inline-flex items-center ml-1" data-field="account_number">
+            <svg class="h-5 w-5 asc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+            </svg>
+            <svg class="h-5 w-5 desc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
+            </svg>
+        </span>
+    </th>
+
+    <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+        data-sort="person_id__first_name">
+        Name
+        <span class="sort-icon inline-flex items-center ml-1" data-field="person_id__first_name">
+            <svg class="h-5 w-5 asc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+            </svg>
+            <svg class="h-5 w-5 desc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
+            </svg>
+        </span>
+    </th>
+
+    <th class="px-6 py-3 text-left font-medium text-gray-600">Date of Birth</th>
+    <th class="px-6 py-3 text-left font-medium text-gray-600">Gender</th>
+    <th class="px-6 py-3 text-left font-medium text-gray-600">Civil Status</th>
+    <th class="px-6 py-3 text-left font-medium text-gray-600"></th>
+</tr>
             </thead>
             <tbody id="table-body" class="bg-white">
               {% include 'members/partials/members_table_body.html' %}

@@ -26,24 +26,81 @@
       <div class="flex justify-end">
         <button onclick="document.getElementById('popup-form').classList.remove('hidden')" class="rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700">Add new</button>
       </div>
+      
       {% elif request.user.groups.all.0.name == "Admin" %}
         {% include 'dashboard/partials/admin_nav.html' %}
       {% endif %}
+      <div class="mt-6 mb-4 flex space-x-2 items-center justify-end">
+          <input type="text" id="loanSearch" placeholder="Search by Business Program"
+            class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+
+          <select id="statusFilter"
+            class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <option value="">Filter by Status (All)</option>
+            <option>Active</option>
+            <option>Ended</option>
+          </select>
+
+          <button id="searchButton"
+            class="px-3 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 transition duration-150 sm:text-sm">
+            Search
+          </button>
+          <button id="clearButton"
+            class="px-3 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md shadow hover:bg-gray-400 transition duration-150 sm:text-sm">
+            Clear
+          </button>
+        </div>
 
       <!-- Table -->
       <div class="py-4">
         <div class="border border-gray-200 rounded-md overflow-hidden">
           <table id="myTable" class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">ID</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Bussiness Program</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Date Start</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Date End</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Status</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Profits</th>
-              </tr>
-            </thead>
+    <tr>
+        <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer" 
+            data-sort="id">
+            ID
+            <span class="sort-icon inline-flex items-center ml-1" data-field="id">
+                {% include 'partials/sort_icons.html' %}
+            </span>
+        </th>
+        <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+            data-sort="program_name">
+            Business Program
+            <span class="sort-icon inline-flex items-center ml-1" data-field="program_name">
+                {% include 'partials/sort_icons.html' %}
+            </span>
+        </th>
+        <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+            data-sort="date_start">
+            Date Start
+            <span class="sort-icon inline-flex items-center ml-1" data-field="date_start">
+                {% include 'partials/sort_icons.html' %}
+            </span>
+        </th>
+        <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+            data-sort="date_end">
+            Date End
+            <span class="sort-icon inline-flex items-center ml-1" data-field="date_end">
+                {% include 'partials/sort_icons.html' %}
+            </span>
+        </th>
+        <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+            data-sort="status">
+            Status
+            <span class="sort-icon inline-flex items-center ml-1" data-field="status">
+                {% include 'partials/sort_icons.html' %}
+            </span>
+        </th>
+        <th class="px-6 py-3 text-left font-medium text-gray-600 cursor-pointer"
+            data-sort="profits">
+            Profits
+            <span class="sort-icon inline-flex items-center ml-1" data-field="profits">
+                {% include 'partials/sort_icons.html' %}
+            </span>
+        </th>
+    </tr>
+</thead>
             <tbody id="table-body" class="bg-white">
               {% include 'programs/partials/programs_table_body.html' %}
             </tbody>

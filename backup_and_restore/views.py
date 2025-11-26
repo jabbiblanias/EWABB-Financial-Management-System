@@ -6,6 +6,8 @@ from django.http import JsonResponse
 import json
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
+from .models import BackupSetting
+from django.core.management import call_command
 
 
 def backup_and_restore_view(request):
@@ -79,3 +81,25 @@ def backup_data(request, ajax=False, message=None):
         return JsonResponse({"status": "success", "message": message, "table_body_html": html, "pagination_html": pagination})
     
     return context
+
+def auto_backup_setting(request):
+    try:
+        if request.method == "POST":
+            user = request.user
+            frequency = request.POST.get("frequency")
+            storage_location = request.POST.get("storage_location")
+            backup_type = request.POST.get("backup_type")
+
+            backup_setting = BackupSetting.objects.filter(user_id=user).first()
+            if backup_setting:
+                backup_setting.frequency = frequency
+                backup_setting.storage_location = storage_location
+                backup_setting.backup_type = backup_type
+                backup_setting.save()
+            return JsonResponse({"status": "success", "message": "Backup settings updated successfully."})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": print(e)})
+    
+def run_automatic_backup(request):
+    call_command('create_automatic_backup')
+    return JsonResponse({'status': 'success', 'job': 'automatic backup executed'})

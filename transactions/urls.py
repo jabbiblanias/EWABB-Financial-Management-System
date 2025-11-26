@@ -7,4 +7,5 @@ urlpatterns = [
     path('loan_balance/', views.balance, name="balance"),
     path('passbook/<str:account_number>/', views.passbook_print, name='passbook'),
     path('member-ledger/<int:member_id>/', views.member_details, name='member_ledger'),
+    path('transaction-history-pdf/<int:member_id>/', views.member_transaction_pdf_export, name='member_transaction_history_pdf'),
 ]

@@ -530,6 +530,13 @@ def transaction_view(request):
     else:
         return HttpResponseForbidden("Unauthorized user group.")
     
+from datetime import datetime, timedelta # <-- Added timedelta
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+# Assuming Member, Transactions, BusinessProgram are imported
+
 def transaction_data(request, ajax=False, transaction=None, toast_message=None):
     user = request.user
     is_member = user.groups.filter(name='Member').exists()
@@ -562,6 +569,7 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
     )
     
     table_partial_template = "transactions/partials/cashier_transaction_table_body.html"
+    member_id = None
 
     if is_member:
         transactions = transactions.filter(member_id__user_id=user)
@@ -570,9 +578,13 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
             filter_query = Q()
             if start_date:
                 filter_query &= Q(transaction_date__gte=start_date)
-            if end_date:
-                filter_query &= Q(transaction_date__lte=end_date) 
             
+            if end_date:
+                # FIX: Use __lt (less than) and add one day to end_date
+                # This ensures the filter includes the entire end_date (up to 23:59:59)
+                adjusted_end_date = end_date + timedelta(days=1)
+                filter_query &= Q(transaction_date__lt=adjusted_end_date) 
+                
             transactions = transactions.filter(filter_query)
         
         transactions = transactions.values(
@@ -582,8 +594,24 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
         
         members = []
         programs = []
+
+        member = Member.objects.filter(user_id=user).first()
+        member_id = member.member_id
         
     else:
+        # Cashier/Admin logic (assuming you want to apply the same filter here)
+        if start_date or end_date:
+            filter_query = Q()
+            if start_date:
+                filter_query &= Q(transaction_date__gte=start_date)
+            
+            if end_date:
+                # FIX APPLIED FOR NON-MEMBER CASE TOO
+                adjusted_end_date = end_date + timedelta(days=1)
+                filter_query &= Q(transaction_date__lt=adjusted_end_date) 
+                
+            transactions = transactions.filter(filter_query)
+        
         transactions = transactions.values(
             "transaction_id", "transaction_type", "member_id__account_number", 
             "transaction_date", "amount", "description"
@@ -617,11 +645,14 @@ def transaction_data(request, ajax=False, transaction=None, toast_message=None):
         )
         
         if is_member:
-             return JsonResponse({"table_body_html": html, "pagination_html": pagination})
+            return JsonResponse({"table_body_html": html, "pagination_html": pagination})
         
         return JsonResponse({"success": True, "message": toast_message, "table_body_html": html, "pagination_html": pagination, "transaction": transaction})
     
+    
+    
     context = {
+        "member_id": member_id or None,
         "members": members, 
         "programs": programs, 
         "page": page, 
@@ -743,3 +774,86 @@ def passbook_print(request, account_number):
     }
 
     return render(request, 'transactions/partials/passbook.html', context)
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.db.models import F
+from django.utils import timezone
+from datetime import datetime
+from xhtml2pdf import pisa
+from django.db.models import Q # For filtering by date
+
+# Assuming Transactions, Member, Person, and get_template/pisa are imported
+
+def member_transaction_pdf_export(request, member_id):
+    
+    # 1. Fetch the Member's Name and Account Info
+    try:
+        member = Member.objects.select_related('person_id').get(pk=member_id)
+        member_full_name = f"{member.person_id.first_name} {member.person_id.surname}"
+        member_account_number = member.account_number
+    except Member.DoesNotExist:
+        return HttpResponse("Member not found.", status=404)
+
+    # 2. Base QuerySet: Filter by Member ID
+    transactions_queryset = Transactions.objects.filter(
+        member_id=member_id
+    ).select_related("member_id__person_id").order_by("transaction_date")
+    
+    # 3. Date Filtering (Optional)
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
+    
+    report_date = timezone.localdate()
+    report_title = f"{member_full_name}'s Transactions Report"
+    
+    if start_date_str or end_date_str:
+        filter_query = Q()
+        try:
+            if start_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                filter_query &= Q(transaction_date__gte=start_date)
+            
+            if end_date_str:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                # Use timedelta to include the entire end day
+                adjusted_end_date = end_date + timedelta(days=1)
+                filter_query &= Q(transaction_date__lt=adjusted_end_date)
+                
+            transactions_queryset = transactions_queryset.filter(filter_query)
+            
+            # Update title to reflect the date range
+            if start_date_str and end_date_str:
+                 report_title += f" ({start_date_str} to {end_date_str})"
+            
+        except ValueError:
+            pass
+            
+    # 4. Final Data Preparation
+    transactions = transactions_queryset.values(
+        'transaction_id', 'transaction_type', 'transaction_date', 'amount'
+    )
+    
+    template_path = 'transactions/member_transactions_pdf_report.html' # New template path
+    
+    context = {
+        'transactions': transactions, 
+        'title': report_title, 
+        'member_name': member_full_name,
+        'account_number': member_account_number,
+        'report_date': report_date,
+    }
+
+    # 5. PDF Generation
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = F'attachment; filename="{report_title}.pdf"'
+    
+    template = get_template(template_path)
+    html = template.render(context)
+
+    pisa_status = pisa.CreatePDF(
+        html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF.', status=500)
+    return response

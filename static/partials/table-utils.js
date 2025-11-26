@@ -158,4 +158,215 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Initial setup
     attachPaginationListeners();
+
+    // Run initial padding
+    fillTableRows('myTable', 10); 
+    attachPaginationListeners(); 
+
+    // --- Loan Application Search/Filter Handlers ---
+    const searchInput = document.getElementById("loanSearch");
+    const statusFilter = document.getElementById("statusFilter");
+    const searchButton = document.getElementById("searchButton");
+    const clearButton = document.getElementById("clearButton");
+    
+    // --- NEW SORTING VARIABLES AND SETUP ---
+    const tableHeaders = document.querySelectorAll('th[data-sort]');
+    let currentSortField = ''; // Stores the field currently being sorted (e.g., 'member_id__account_number')
+    let currentSortOrder = ''; // Stores the current order ('asc' or 'desc')
+
+    /**
+     * Constructs the full query string, including search, filter, and sorting.
+     */
+    function constructLoanQuery(pageNum = 1) {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        const filterStatus = statusFilter ? statusFilter.value : '';
+        
+        let query = `?page=${pageNum}`;
+        
+        // 1. Add Search & Filter parameters
+        if (searchTerm) {
+            query += `&account=${encodeURIComponent(searchTerm)}`;
+        }
+        
+        if (filterStatus) {
+            query += `&status=${encodeURIComponent(filterStatus)}`;
+        }
+        
+        // 2. Add Sorting parameters
+        if (currentSortField) {
+            query += `&sort_by=${encodeURIComponent(currentSortField)}`;
+            query += `&order=${encodeURIComponent(currentSortOrder)}`;
+        }
+        
+        return query;
+    }
+    
+    // --- SORTING HANDLERS ---
+
+    /**
+     * Handles the click event on sortable table headers.
+     */
+    function handleSortClick(e) {
+        const field = e.currentTarget.getAttribute('data-sort');
+        let order = 'asc';
+
+        if (field === currentSortField) {
+            // If the same field is clicked, toggle the order
+            order = currentSortOrder === 'asc' ? 'desc' : 'asc';
+        }
+
+        currentSortField = field;
+        currentSortOrder = order;
+
+        // Apply new sort logic and reload data (starting from page 1)
+        const newQuery = constructLoanQuery(1); 
+        loadData(newQuery);
+        // Note: You would call a function here to update the visual sort icons/arrows
+        updateSortIcons(currentSortField, currentSortOrder);
+    }
+    
+    /**
+     * Attaches click listeners to all sortable table headers.
+     */
+    tableHeaders.forEach(header => {
+        header.addEventListener('click', handleSortClick);
+    });
+    
+    // NOTE: You would define a function named 'updateSortIcons' 
+    // elsewhere to handle visual feedback.
+    function updateSortIcons(field, order) {
+    // 1. Clear ALL icons on ALL headers first
+    document.querySelectorAll('th[data-sort] .asc-icon, th[data-sort] .desc-icon').forEach(icon => {
+        icon.classList.add('hidden'); // Hide all icons
+    });
+    
+    // 2. If a field and order are provided, show the correct icon
+    if (field && order) {
+        // Find the specific sort-icon span for the current field
+        const sortIconContainer = document.querySelector(`th[data-sort="${field}"] .sort-icon`);
+        
+        if (sortIconContainer) {
+            if (order === 'asc') {
+                // Find and SHOW the ascending icon
+                sortIconContainer.querySelector('.asc-icon').classList.remove('hidden');
+                sortIconContainer.querySelector('.desc-icon').classList.add('hidden');
+                // Optional: Highlight the text color for the sorted column
+                sortIconContainer.closest('th').classList.add('text-indigo-600'); 
+            } else if (order === 'desc') {
+                // Find and SHOW the descending icon
+                sortIconContainer.querySelector('.asc-icon').classList.add('hidden');
+                sortIconContainer.querySelector('.desc-icon').classList.remove('hidden');
+                // Optional: Highlight the text color for the sorted column
+                sortIconContainer.closest('th').classList.add('text-indigo-600');
+            }
+        }
+    }
+    
+    // 3. Clear text color from headers that are NOT currently sorted
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+        if (th.getAttribute('data-sort') !== field) {
+            th.classList.remove('text-indigo-600');
+        }
+    });
+}
+
+
+    // --- SEARCH/FILTER HANDLERS (UNCHANGED, but now calls constructLoanQuery with sort state) ---
+
+    if (searchButton) {
+        searchButton.addEventListener('click', function () {
+            // New search always starts at page 1
+            const newQuery = constructLoanQuery(1); 
+            loadData(newQuery); 
+        });
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener('click', function() {
+            // Clear search/filter inputs
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = ''; 
+            
+            // OPTIONAL: Clear sort state on clear (if desired)
+            currentSortField = '';
+            currentSortOrder = '';
+            updateSortIcons('', ''); // Clear visual icons
+            
+            const newQuery = constructLoanQuery(1); 
+            loadData(newQuery); 
+        });
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchButton.click();
+            }
+        });
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    const filterButton = document.getElementById('filter-button');
+    const clearFilterButton = document.getElementById('clear-filter-button');
+    
+    // Base URL for the PDF export (without query parameters)
+    const baseExportUrl = exportPdfBtn.getAttribute('href');
+
+    /**
+     * Function to generate and update the PDF export link with current date filters.
+     */
+    function updateExportLink() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+        let params = [];
+        
+        if (startDate) {
+            params.push(`start_date=${startDate}`);
+        }
+        if (endDate) {
+            params.push(`end_date=${endDate}`);
+        }
+        
+        // Construct the new URL
+        let newExportUrl = baseExportUrl;
+        if (params.length > 0) {
+            newExportUrl += `?${params.join('&')}`;
+        }
+        
+        // Update the link's href
+        exportPdfBtn.setAttribute('href', newExportUrl);
+    }
+
+    // --- Event Listeners ---
+    
+    // 1. Update the link whenever a filter button is clicked
+    if (filterButton) {
+        filterButton.addEventListener('click', updateExportLink);
+    }
+    
+    if (clearFilterButton) {
+        clearFilterButton.addEventListener('click', function() {
+            // Clear inputs first
+            startDateInput.value = '';
+            endDateInput.value = '';
+            
+            // Then update the link to remove parameters
+            updateExportLink();
+        });
+    }
+
+    // 2. Also update the link on input changes (optional, but robust)
+    if (startDateInput) {
+        startDateInput.addEventListener('change', updateExportLink);
+    }
+    if (endDateInput) {
+        endDateInput.addEventListener('change', updateExportLink);
+    }
+
+    // 3. Initial call to set the link if dates are already present on load
+    updateExportLink();
 });

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'financial_reporting',
     'programs',
     'notifications',
+    'backup_and_restore',
 ]
 
 ASGI_APPLICATION = "ewabb_financial_management_system_with_forecasting.asgi.application"

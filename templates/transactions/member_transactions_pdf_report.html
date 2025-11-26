@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>MemberTransactionsReportPdf</title>
+    <style>
+        @page {
+            size: 612pt 792pt;
+            margin: 72pt 36pt;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+        }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .title h1 {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+        .title p {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+        .member-info {
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            padding: 8px;
+            font-size: 11px;
+        }
+        .member-info strong {
+            display: inline-block;
+            width: 120px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: left;
+        }
+        thead th {
+            border: 1px solid black;
+            padding: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+        tbody td {
+            border: 1px solid black;
+            padding: 3px;
+            white-space: normal; 
+        }
+        /* Adjusted Column widths for 4 columns */
+        .col-id { width: 15%; text-align: center; }
+        .col-date { width: 25%; text-align: center; }
+        .col-type { width: 30%; text-align: center; }
+        .col-amount { width: 30%; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <h1>{{ "Empowered Women's Association of Barangay Bañadero (EWABB)"|upper }}</h1>
+            <p>{{ title|upper }}</p>
+            <p>Generated on {{ report_date|date:"F d, Y"|upper }}</p>
+        </div>
+
+        <div class="member-info">
+            <p><strong>Member Name:</strong> {{ member_name }}</p>
+            <p><strong>Account Number:</strong> {{ account_number }}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-id">Txn ID</th>
+                    <th class="col-date">Date & Time</th>
+                    <th class="col-type">Transaction Type</th>
+                    <th class="col-amount">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td class="col-id">{{ txn.transaction_id }}</td>
+                    <td class="col-date">{{ txn.transaction_date|date:"M j, Y g:i A" }}</td>
+                    <td class="col-type">{{ txn.transaction_type }}</td>
+                    <td class="col-amount">{{ txn.amount|default:"0.00" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align:center;">No transactions found for this period.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

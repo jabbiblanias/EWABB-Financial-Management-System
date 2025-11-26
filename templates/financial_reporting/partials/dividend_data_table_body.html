@@ -1,40 +1,4 @@
-{% if report_id and status == "Submitted" %}
-{% for member in financial_report %}
-<tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
-    <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
-        {{ member.account_number }}
-    </td>
-    <td class="px-5 py-3" data-name="{{ member.name }}">
-        {{ member.name }}
-    </td>
-    <td class="px-5 py-3" data-loan-balance="{{ member.outstanding_balance|default:'0.00' }}">
-        {{ member.outstanding_balance|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-released-date="{{ member.date_loaned|date:'Y-m-d'|default:'' }}">
-        {{ member.date_loaned|date:"M j, Y"|default:"" }}
-    </td>
-    <td class="px-5 py-3" data-savings-balance="{{ member.savings }}">
-        {{ member.savings }}
-    </td>
-    <td class="px-5 py-3" data-penalty-amount="{{ member.penalty_charge|default:'0.00' }}">
-        {{ member.penalty_charge|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-savings-after-deduction="{{ member.savings_after_deduction|default:'0.00' }}">
-        {{ member.savings_after_deduction|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-total-savings-investment="{{ member.total_savings_investment|default:'0.00' }}">
-        {{ member.total_savings_investment|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-dividend-amount="{{ member.dividend_amount|default:'0.00' }}">
-        {{ member.dividend_amount|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-updated-savings-investment="{{ member.updated_savings_investment|default:'0.00' }}">
-        {{ member.updated_savings_investment|default:"0.00" }}
-    </td>
-</tr>
-{% endfor %}
-{% else %}
-{% for member in financial_report %}
+{% for member in dividend_report %}
 <tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
     <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
         {{ member.account_number }}
@@ -68,4 +32,3 @@
     </td>
 </tr>
 {% endfor %}
-{% endif %}
