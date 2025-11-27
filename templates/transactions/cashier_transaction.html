@@ -253,7 +253,7 @@
 
       // Open confirmation modal here if needed
       document.getElementById("confirmType").textContent = pendingFormData.get("transactionType")
-      document.getElementById("confirmAmount").textContent = pendingFormData.get("amount");
+      document.getElementById("confirmAmount").textContent = `₱${pendingFormData.get("amount")}`
       openTransactionModal();
     });
 
@@ -369,141 +369,49 @@
     })
 
     document.getElementById("amount").addEventListener("input", function () {
+      
       clearTimeout(timeout);
       timeout = setTimeout(checkAmount, 500);
     })
 
+    document.getElementById("amount").addEventListener("blur", function () {
+    let value = this.value.replace(/,/g, "").trim();
+
+    if (value === "" || isNaN(value)) {
+        this.value = "";
+        return;
+    }
+
+    this.value = parseFloat(value).toFixed(2);
+});
+    document.getElementById("amountReceived").addEventListener("blur", function () {
+    let value = this.value.replace(/,/g, "").trim();
+    if (value === "" || isNaN(value)) {
+        this.value = "";
+        return;
+    }
+
+    this.value = parseFloat(value).toFixed(2);
+});
+    
     function checkAmount() {
-    const transaction_type = document.getElementById("transactionType").value;
-    const error = document.getElementById("typeMessage");
+      const transaction_type = document.getElementById("transactionType").value;
 
-    // Skip validation for these types
-    if (transaction_type === "Withdrawal" || transaction_type === "Operating Expenses") {
-        error.classList.add("hidden");
-        return false;
+      if (transaction_type !== "Withdrawal" && transaction_type !== "Operating Expenses") {
+        const amount_received = document.getElementById("amountReceived").value;
+        const amount = document.getElementById("amount").value;
+        const error = document.getElementById("typeMessage");
+
+        if (amount > amount_received) {
+          error.classList.remove("hidden")
+          return true
+        } else {
+          error.classList.add("hidden")
+          return false
+        }
+      }
     }
-
-    const received = getNumericValue("amountReceived");
-    const amount = getNumericValue("amount");
-
-    if (amount > received) {
-        error.classList.remove("hidden");
-        return true;
-    } else {
-        error.classList.add("hidden");
-        return false;
-    }
-}
-// =========================
-// FORMAT NUMBER (LIVE)
-// =========================
-function formatNumberLive(value) {
-    if (!value) return "";
-
-    value = value.replace(/[₱,]/g, "");
-
-    // Allow only digits + decimal
-    if (!/^\d*\.?\d*$/.test(value)) return "";
-
-    if (value === ".") return "0.";
-
-    let parts = value.split(".");
-    let whole = parts[0];
-    let decimal = parts[1] ?? "";
-
-    // --- FIXED COMMA PLACEMENT ---
-    whole = whole
-        .split("")               // turn into array
-        .reverse()               // reverse it
-        .join("")
-        .replace(/(\d{3})(?=\d)/g, "$1,") // add commas every 3 digits
-        .split("")
-        .reverse()               // reverse back
-        .join("");
-    // -----------------------------
-
-    return decimal ? `₱${whole}.${decimal}` : `₱${whole}`;
-}
-
-
-// =========================
-// FORMAT FINAL (.00)
-// =========================
-function formatNumberFinal(value) {
-    if (!value) return "";
-
-    value = value.replace(/[₱,]/g, "");
-
-    let num = parseFloat(value);
-    if (isNaN(num)) return "";
-
-    return "₱" + num.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
-// =========================
-// CONVERT TO PLAIN NUMBER
-// =========================
-function getNumericValue(id) {
-    let v = document.getElementById(id).value;
-    if (!v) return 0;
-    return Number(v.replace(/[₱,]/g, ""));
-}
-
-// =========================
-// REAL-TIME VALIDATION
-// =========================
-function validateAmounts() {
-    const error = document.getElementById("typeMessage");
-    const type = document.getElementById("transactionType").value;
-
-    // Skip validation for these types
-    if (type === "Withdrawal" || type === "Operating Expenses") {
-        error.classList.add("hidden");
-        return false;
-    }
-
-    const received = getNumericValue("amountReceived");
-    const amount = getNumericValue("amount");
-
-    if (amount > received) {
-        error.classList.remove("hidden");
-        return true;
-    } else {
-        error.classList.add("hidden");
-        return false;
-    }
-}
-
-// =========================
-// ATTACH FORMAT + VALIDATION
-// =========================
-function setupPesoField(id) {
-    const input = document.getElementById(id);
-
-    // Formatting while typing
-    input.addEventListener("input", function () {
-        let raw = this.value.replace(/[^0-9.]/g, "");
-        this.value = formatNumberLive(raw);
-        validateAmounts();
-    });
-
-    // Final formatting on blur
-    input.addEventListener("blur", function () {
-        this.value = formatNumberFinal(this.value);
-        validateAmounts();
-    });
-
-    // Remove peso + commas when focusing (to allow editing)
-    input.addEventListener("focus", function () {
-        this.value = this.value.replace(/[₱,]/g, "");
-    });
-}
-// Apply to both fields
-setupPesoField("amountReceived");
-setupPesoField("amount");
-</script>
+  </script>
 </body>
+
 </html>

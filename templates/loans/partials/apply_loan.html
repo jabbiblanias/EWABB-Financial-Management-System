@@ -402,12 +402,24 @@
     if (!/^\d*\.?\d*$/.test(value)) {
       e.target.value = value.slice(0, -1);
     }
+    
     clearTimeout(timeout);
     timeout = setTimeout(function () {
       loanAmountAvailability(e.target);
       updateLoanDetails();
     }, 500);
   });
+
+  document.getElementById("amount").addEventListener("blur", function () {
+    let value = this.value.replace(/,/g, "").trim();
+
+    if (value === "" || isNaN(value)) {
+        this.value = "";
+        return;
+    }
+
+    this.value = parseFloat(value).toFixed(2);
+});
 
   // UPDATED: Simplified event listener for accountNumber
   const accountNumberInput = document.getElementById('accountNumber');
