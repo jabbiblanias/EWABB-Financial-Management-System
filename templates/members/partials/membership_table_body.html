@@ -2,10 +2,7 @@
 <tr id="row-{{ member.application_id }}" class="border-b border-gray-200">
   <td class="px-6 py-3">{{ member.application_id}}</td>
   <td class="px-6 py-3">
-    {{ member.person_id__surname }},
     {{ member.person_id__first_name }}
-    {% if member.person_id__name_extension %} {{ member.person_id__name_extension }}{% endif %}
-    {% if member.person_id__middle_name %} {{ member.person_id__middle_name }}{% endif %}
   </td>
   <td class="px-6 py-3">{{ member.person_id__date_of_birth }}</td>
   <td class="px-6 py-3">{{ member.person_id__gender }}</td>

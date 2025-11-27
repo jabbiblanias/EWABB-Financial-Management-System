@@ -1,0 +1,182 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EWABB Dashboard - Financial Report</title>
+    {% tailwind_css %}
+    <script src="{% static 'partials/table-utils.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fillTableRows('myTable', 10);
+        });
+    </script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+        {% if request.user.groups.all.0.name == "Admin" %}
+        {% include 'dashboard/partials/admin_nav.html' %}
+        {% elif request.user.groups.all.0.name == "Bookkeeper" %}
+        {% include 'dashboard/partials/bookkeeper_nav.html' %}
+        {% endif %}
+
+        <div class="p-6 ml-64 mr-4 mt-[72px] flex-1 pb-8">
+
+            <div class="pb-10">
+                <div class="px-8 py-4">
+                    <div class="flex items-center justify-between px-2 md:px-6">
+                        <div class="text-lg font-semibold text-gray-700">
+                            Financial Report
+                        </div>
+
+                        <div class="flex space-x-2 items-center">
+                            <input type="text" id="loanSearch" placeholder="Search Name/Account no."
+                                class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+
+                            <button id="searchButton"
+                                class="px-3 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 transition duration-150 sm:text-sm">
+                                Search
+                            </button>
+                            <button id="clearButton"
+                                class="px-3 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md shadow hover:bg-gray-400 transition duration-150 sm:text-sm">
+                                Clear
+                            </button>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <a id="exportPdfBtn" href="{% url 'monthly_pdf' %}"
+                                class="flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5 4a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2h-3a1 1 0 00-1-1H9a1 1 0 00-1 1H5zM5 7a1 1 0 011-1h8a1 1 0 011 1v6a1 1 0 01-1 1H6a1 1 0 01-1-1V7z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Export to PDF</span>
+                            </a>
+                            <a id="exportCsvBtn" href="{% url 'monthly_csv' %}"
+                                class="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 3a1 1 0 011 1v5.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L9 9.586V4a1 1 0 011-1z"
+                                        clip-rule="evenodd" />
+                                    <path
+                                        d="M4 14v1a3 3 0 003 3h6a3 3 0 003-3v-1a1 1 0 112 0v1a5 5 0 01-5 5H7a5 5 0 01-5-5v-1a1 1 0 112 0z" />
+                                </svg>
+                                <span>Export to CSV</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table id="myTable" class="min-w-full text-sm">
+                        <thead class="bg-white border-b border-gray-200">
+                            <tr>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500 cursor-pointer"
+                                    data-sort="account_number">
+                                    Account No.
+                                    <span class="sort-icon inline-flex items-center ml-1" data-field="account_number">
+                                        {% include 'partials/sort_icons.html' %}
+                                    </span>
+                                </th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500 cursor-pointer"
+                                    data-sort="surname_for_sort">
+                                    Name
+                                    <span class="sort-icon inline-flex items-center ml-1" data-field="surname_for_sort">
+                                        {% include 'partials/sort_icons.html' %}
+                                    </span>
+                                </th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Amount of loan Balance</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500 cursor-pointer"
+                                    data-sort="released_date">
+                                    Date loaned
+                                    <span class="sort-icon inline-flex items-center ml-1" data-field="released_date">
+                                        {% include 'partials/sort_icons.html' %}
+                                    </span>
+                                </th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Savings</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Penalty charge</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Savings After Deduction</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            {% include 'financial_reporting/partials/member_data_table_body.html' %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagination-controls">
+  {% include 'partials/pagination.html' %}
+</div>
+            </div>
+
+            {% if dividend_report %}
+            <div class="pb-10">
+                <div class="px-6 py-4 mt-8">
+                    <div class="flex items-center justify-between px-2 md:px-6 py-4">
+                        <div class="text-lg font-semibold text-gray-700">
+                            Dividend Report
+                        </div>
+
+                        <div class="flex gap-4">
+                            <a id="exportPdfBtn" href="{% url 'monthly_pdf' %}"
+                                class="flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5 4a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2h-3a1 1 0 00-1-1H9a1 1 0 00-1 1H5zM5 7a1 1 0 011-1h8a1 1 0 011 1v6a1 1 0 01-1 1H6a1 1 0 01-1-1V7z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Export to PDF</span>
+                            </a>
+
+                            <a id="exportCsvBtn" href="{% url 'monthly_csv' %}"
+                                class="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 3a1 1 0 011 1v5.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414L9 9.586V4a1 1 0 011-1z"
+                                        clip-rule="evenodd" />
+                                    <path
+                                        d="M4 14v1a3 3 0 003 3h6a3 3 0 003-3v-1a1 1 0 112 0v1a5 5 0 01-5 5H7a5 5 0 01-5-5v-1a1 1 0 112 0z" />
+                                </svg>
+                                <span>Export to CSV</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-10">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-white border-b border-gray-200">
+                            <tr>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Account No.</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Name</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Amount of loan Balance</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Date loaned</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Savings</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Penalty charge</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Savings After Deduction</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Total Savings / Investment
+                                </th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Dividend {{ date|date:"F Y" }}
+                                    at {{ rate_percentage }}%</th>
+                                <th class="px-5 py-3 text-left font-medium text-blue-500">Updated Savings / Investment
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="member-dividend-report-table-body">
+                            {% include 'financial_reporting/partials/dividend_data_table_body.html' %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

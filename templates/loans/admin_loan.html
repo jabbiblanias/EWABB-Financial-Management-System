@@ -22,29 +22,92 @@
       <main class="ml-64 mr-4 mt-[72px] flex-1">
         <!-- Financial Report Section -->
         <!-- Tabs -->
-      <div class="px-6 pt-4">
+      <div class="px-6 pt-4 flex justify-between items-center">
         <div class="flex border-b border-gray-200">
           <a href="{% url 'loan_applications' %}" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">Loan Applications</a>
           <a href="{% url 'active_loans' %}" class="px-4 py-2 text-gray-500 hover:text-blue-600">Active loans</a>
         </div>
+
+        <div class="mb-4 flex space-x-2 items-center">
+        <input type="text" id="loanSearch" placeholder="Search by Account Number..."
+               class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+
+        <select id="statusFilter"
+                class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <option value="">Filter by Status (All)</option>
+            <option value="Released">Released</option>
+            <option value="Pending">Pending</option>
+            <option value="Verified">Verified</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+        
+        <button id="searchButton"
+            class="px-3 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 transition duration-150 sm:text-sm">
+            Apply
+        </button>
+        <button id="clearButton"
+            class="px-3 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md shadow hover:bg-gray-400 transition duration-150 sm:text-sm">
+            Clear
+        </button>
+    </div>
       </div>
 
       <!-- Table -->
       <div class="px-6 py-4">
         <div class="border border-gray-200 rounded-md overflow-hidden">
           <table id="myTable" class="min-w-full text-sm">
-            <thead class="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">ID</th>
-                <th class="px-3 py-3 text-left font-medium text-gray-600">Account Number</th>
-                <th class="px-3 py-3 text-left font-medium text-gray-600">Loan Terms</th>
-                <th class="px-3 py-3 text-left font-medium text-gray-600">Release Amount</th>
-                <th class="px-3 py-3 text-left font-medium text-gray-600">Installment</th>
-                <th class="px-3 py-3 text-left font-medium text-gray-600">Status</th>
-                <th class="px-3 py-3 text-left font-medium text-gray-600">Risk Forecast</th>
-                <th class="px-6 py-3 text-left font-medium text-gray-600">Action</th>
-              </tr>
-            </thead>
+            <thead>
+    <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            ID
+        </th>
+        
+        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" 
+            data-sort="member_id__account_number">
+            Account No.
+            <span class="sort-icon inline-flex items-center ml-1" data-field="member_id__account_number">
+                <svg class="h-5 w-5 asc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                </svg>
+                <svg class="h-5 w-5 desc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
+                </svg>
+            </span>
+        </th>
+
+        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Terms
+        </th>
+        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Amount
+        </th>
+        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Installment
+        </th>
+
+        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" 
+            data-sort="status_priority"> 
+            Status
+            <span class="sort-icon inline-flex items-center ml-1" data-field="status_priority">
+                <svg class="h-5 w-5 asc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                </svg>
+                <svg class="h-5 w-5 desc-icon text-gray-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
+                </svg>
+            </span>
+        </th>
+        
+        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Risk
+        </th>
+
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+        </th>
+    </tr>
+</thead>
             <tbody id="table-body" class="bg-white">
               {% include 'loans/partials/loan_applications_table_body.html' %}
             </tbody>

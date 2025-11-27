@@ -101,13 +101,13 @@
         {% for member in financial_report %}
         <tr>
           <td class="col-account">{{ member.account_number }}</td>
-          <td class="col-name">{{ member.name }}</td>
-          <td class="col-loan">{{ member.outstanding_balance|default:"0.00" }}</td>
-          <td class="col-date">{{ member.date_loaned|date:"M j, Y"|default:" " }}</td>
-          <td class="col-savings">{{ member.savings }}</td>
-          <td class="col-penalty">{{ member.penalty_charge|default:"0.00" }}</td>
+          <td class="col-name">{{ member.person_id.first_name|upper }} {{ member.person_id.surname|upper }}</td>
+          <td class="col-loan">{{ member.loan_balance|default:"0.00" }}</td>
+          <td class="col-date">{{ member.released_date|date:"M j, Y"|default:"" }}</td>
+          <td class="col-savings">{{ member.savings_balance_with_penalty }}</td>
+          <td class="col-penalty">{{ member.penalty_amount|default:"0.00" }}</td>
           <td class="col-after">{{ member.savings_after_deduction|default:"0.00" }}</td>
-          <td class="col-remarks">{{ member.remarks|default:"" }}</td>
+          <td class="col-remarks"></td>
           <td class="col-signature"></td>
         </tr>
         {% endfor %}

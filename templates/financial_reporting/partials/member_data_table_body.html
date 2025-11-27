@@ -1,63 +1,3 @@
-{% if report_id and status == "Submitted" %}
-{% for member in financial_report %}
-<tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
-    <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
-        {{ member.account_number }}
-    </td>
-    <td class="px-5 py-3" data-name="{{ member.name }}">
-        {{ member.name }}
-    </td>
-    <td class="px-5 py-3" data-loan-balance="{{ member.outstanding_balance|default:'0.00' }}">
-        {{ member.outstanding_balance|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-released-date="{{ member.date_loaned|date:'Y-m-d'|default:'' }}">
-        {{ member.date_loaned|date:"M j, Y"|default:"" }}
-    </td>
-    <td class="px-5 py-3" data-savings-balance="{{ member.savings }}">
-        {{ member.savings }}
-    </td>
-    <td class="px-5 py-3" data-penalty-amount="{{ member.penalty_charge|default:'0.00' }}">
-        {{ member.penalty_charge|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-savings-after-deduction="{{ member.savings_after_deduction|default:'0.00' }}">
-        {{ member.savings_after_deduction|default:"0.00" }}
-    </td>
-    <td class="px-5 py-2">
-        {{ member.remarks|default:"--" }}
-    </td>
-</tr>
-{% endfor %}
-{% elif report_id and status == "Draft" %}
-{% for member in financial_report %}
-<tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
-    <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
-        {{ member.account_number }}
-    </td>
-    <td class="px-5 py-3" data-name="{{ member.name }}">
-        {{ member.name }}
-    </td>
-    <td class="px-5 py-3" data-loan-balance="{{ member.outstanding_balance|default:'0.00' }}">
-        {{ member.outstanding_balance|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-released-date="{{ member.date_loaned|date:'Y-m-d'|default:'' }}">
-        {{ member.date_loaned|date:"M j, Y"|default:"" }}
-    </td>
-    <td class="px-5 py-3" data-savings-balance="{{ member.savings }}">
-        {{ member.savings }}
-    </td>
-    <td class="px-5 py-3" data-penalty-amount="{{ member.penalty_charge|default:'0.00' }}">
-        {{ member.penalty_charge|default:"0.00" }}
-    </td>
-    <td class="px-5 py-3" data-savings-after-deduction="{{ member.savings_after_deduction|default:'0.00' }}">
-        {{ member.savings_after_deduction|default:"0.00" }}
-    </td>
-    <td class="px-5 py-2">
-        <textarea rows="1" placeholder="Enter remarks..."
-            class="remark-input w-full resize-none rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none p-2 text-sm shadow-sm">{{ member.remarks|default:"" }}</textarea>
-    </td>
-</tr>
-{% endfor %}
-{% else %}
 {% for member in financial_report %}
 <tr id="row-{{forloop.counter}}" class="border-b border-gray-200">
     <td class="px-5 py-3" data-account-number="{{ member.account_number }}">
@@ -81,10 +21,5 @@
     <td class="px-5 py-3" data-savings-after-deduction="{{ member.savings_after_deduction|default:'0.00' }}">
         {{ member.savings_after_deduction|default:"0.00" }}
     </td>
-    <td class="px-5 py-2">
-        <textarea rows="1" placeholder="Enter remarks..."
-            class="remark-input w-full resize-none rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none p-2 text-sm shadow-sm"></textarea>
-    </td>
 </tr>
 {% endfor %}
-{% endif %}

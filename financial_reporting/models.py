@@ -20,9 +20,7 @@ class Dividend(models.Model):
 
 class Financialreports(models.Model):
     report_id = models.AutoField(primary_key=True, db_column='reportid')
-    title = models.CharField(max_length=255, db_column='title')
     created_at = models.DateTimeField(auto_now_add=True, db_column='createdat')
-    status = models.CharField(max_length=20, db_column='status')
     last_updated = models.DateTimeField(auto_now_add=True, db_column='lastupdated')
     report_type = models.CharField(max_length=50, db_column='report_type')  # e.g., 'monthly', 'dividend'
     dividend_id = models.ForeignKey(Dividend, models.DO_NOTHING, db_column='dividend_id', null=True, blank=True)

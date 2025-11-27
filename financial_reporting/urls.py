@@ -9,9 +9,10 @@ urlpatterns = [
     path("dividend-report/new/", views.dividend_report, name="dividend_report"),
     path("monthly/submit/", views.submit_monthly_report, name="submit_monthly_report"),
     path("dividend/submit/", views.submit_dividend_report, name="submit_dividend_report"),
-    path('monthlyPdf/<int:report_id>/', views.monthly_pdf_report_export, name ='monthly_pdf'),
+    path('monthlyPdf/', views.monthly_pdf_report_export, name ='monthly_pdf'),
     path('dividendPdf/<int:report_id>/', views.dividend_pdf_report_export, name ='dividend_pdf'),
-    path("monthly/csv/<int:report_id>/", views.monthly_report_csv, name="monthly_csv"),
+    path("monthly/csv/", views.monthly_report_csv, name="monthly_csv"),
     path("dividend/csv/<int:report_id>/", views.dividend_report_csv, name="dividend_csv"),
     path("check-last-dividend-date/", views.check_last_dividend_date, name="check_last_dividend_date"),
+    path("annual-dividend-distribution/", views.run_annual_dividend_distribution, name="run_annual_dividend_distribution"),
 ]

@@ -14,32 +14,45 @@ from notifications.models import Notification
 from django.utils.dateformat import DateFormat
 from django.core.paginator import Paginator 
 from django.core.management import call_command
-from django.db.models import Case, When, Value, IntegerField, Sum, Max, F
+from django.db.models import Case, When, Value, IntegerField, Sum, Max, F, Q
 from decimal import ROUND_HALF_UP, Decimal
 from members.models import Savings
 from transactions.models import Transactions
 from financial_reporting.models import Funds, Revenue, Expense
+from django.core.paginator import Paginator
+from urllib.parse import urlencode
 
 
 @login_required
 def loan_application_view(request):
     user = request.user
-
     is_ajax = request.headers.get("x-requested-with", "").lower() == "xmlhttprequest" \
               or request.META.get("HTTP_X_REQUESTED_WITH", "").lower() == "xmlhttprequest"
+    
+    # --- 1. Determine User Group and Call Appropriate Data Function ---
+    if user.groups.filter(name='Admin').exists() or user.groups.filter(name='Bookkeeper').exists():
+        template_name = 'loans/admin_loan.html' if user.groups.filter(name='Admin').exists() else 'loans/bookkeeper_loan.html'
+        
+        # Call the generic data function for Admin/Bookkeeper
+        context = loan_applications_data(request, ajax=is_ajax)
+        
+    elif user.groups.filter(name='Cashier').exists():
+        template_name = 'loans/cashier_loan.html'
+        
+        # Call the specific Cashier data function
+        context = cashier_approved_loans(request, ajax=is_ajax)
+        
+    else:
+        # Handle users with no relevant group (e.g., redirect or error)
+        return render(request, 'error_page.html', {'message': 'Unauthorized access'})
 
-    context = loan_applications_data(request, ajax=is_ajax)
-
+    # --- 2. Handle AJAX or Full Render ---
     if is_ajax:
+        # This will return the JsonResponse object from whichever data function was called above.
         return context
 
-    if user.groups.filter(name='Admin').exists():
-        return render(request, 'loans/admin_loan.html', context)
-    elif user.groups.filter(name='Bookkeeper').exists():
-        return render(request, 'loans/bookkeeper_loan.html', context)
-    elif user.groups.filter(name='Cashier').exists():
-        context = cashier_approved_loans(request, ajax=is_ajax)
-        return render(request, 'loans/cashier_loan.html', context)
+    # If not AJAX, render the appropriate full page template.
+    return render(request, template_name, context)
 
 @transaction.atomic
 @login_required
@@ -199,7 +212,7 @@ def active_loans(request):
         return render(request, 'loans/cashier_active_loans.html', context)
 
 
-def active_loans_data(request, ajax=False):
+"""def active_loans_data(request, ajax=False):
     latest_due = LoanRepaymentSchedule.objects.filter(
         loan_id=OuterRef('pk'),
     ).exclude(
@@ -240,10 +253,134 @@ def active_loans_data(request, ajax=False):
         pagination = render_to_string("partials/pagination.html", {"page": page})
         return JsonResponse({"success": True ,"table_body_html": html, "pagination_html": pagination})
 
+    return context"""
+
+
+def active_loans_data(request, ajax=False):
+    
+    # --- 1. Retrieve Parameters ---
+    search_account = request.GET.get('account', '').strip() 
+    filter_status = request.GET.get('status', '').strip() 
+    sort_by = request.GET.get('sort_by', '').strip()
+    order = request.GET.get('order', '').strip()
+    page_num = request.GET.get('page')
+    
+    # --- 2. Base Subquery Setup (Unpaid/Future Repayments) ---
+    # Finds the soonest UNPAID repayment item from LoanRepaymentSchedule
+    latest_due = LoanRepaymentSchedule.objects.filter(
+        loan_id=OuterRef('pk'),
+    ).exclude(
+        status='Paid'
+    ).order_by('due_date')
+
+    # --- 3. Custom Status Order Priority for Sorting ---
+    # This Case handles both the repayment status (status) and the final loan status (loan_status).
+    status_order_case = Case(
+        # Repayment Schedule Statuses (from the subquery/annotation)
+        When(status='Overdue', then=Value(1)), 
+        When(status='Due', then=Value(2)),
+        When(status='Pending', then=Value(3)),
+        When(status='Partially Paid', then=Value(4)),
+        
+        # Overall Loan Status (from the parent Loan model)
+        When(loan_status='Completed', then=Value(5)), # <--- ADDED CONDITION
+        
+        default=Value(6),
+        output_field=IntegerField(),
+    )
+    
+    # --- 4. Base QuerySet and Annotation ---
+    loans_qs = (
+        Loan.objects
+        # .filter(loan_status='Active') # Filter to only truly active loans if desired
+        .select_related('member_id', 'loan_application_id')
+        .annotate(
+            # Annotate the fields coming from the subquery
+            amount_due=Subquery(latest_due.values('amount_due')[:1]),
+            due_date=Subquery(latest_due.values('due_date')[:1]),
+            status=Subquery(latest_due.values('status')[:1]),
+            
+            # Annotate status priority for custom sorting/filtering
+            status_priority=status_order_case
+        )
+    )
+
+    # --- 5. APPLY SEARCH AND FILTER ---
+    final_filter = Q()
+    
+    # A. Account Number Search
+    if search_account:
+        final_filter &= Q(member_id__account_number__icontains=search_account)
+    
+    # B. Status Filter 
+    if filter_status:
+        # Check against both repayment status and overall loan status
+        if filter_status.lower() == 'completed':
+            final_filter &= Q(loan_status__iexact='Completed')
+        else:
+            # Filters based on the annotated 'status' from the latest due item
+            final_filter &= Q(status__iexact=filter_status)
+    
+    loans_qs = loans_qs.filter(final_filter)
+
+    # --- 6. APPLY SORTING ---
+    order_fields = []
+    
+    # Define allowed sortable fields (using the annotated field for status)
+    ALLOWED_SORT_FIELDS = ['member_id__account_number', 'loan_application_id__loan_amount', 'remaining_balance', 'due_date', 'status']
+
+    if sort_by in ALLOWED_SORT_FIELDS:
+        db_sort_field = sort_by
+        
+        # If sorting by 'status', use the custom priority integer
+        if sort_by == 'status':
+            db_sort_field = 'status_priority' 
+            
+        sort_key = f'-{db_sort_field}' if order == 'desc' else db_sort_field
+        order_fields.append(sort_key)
+
+    # Default sort order: Use the custom status priority, then due date
+    if not order_fields:
+        order_fields.extend(['status_priority', 'due_date'])
+
+    loans_qs = loans_qs.order_by(*order_fields)
+    
+    # --- 7. Final Values and Pagination ---
+    loans = loans_qs.values(
+        'loan_id',
+        'loan_status',
+        'member_id__account_number',
+        'loan_application_id__loan_amount',
+        'remaining_balance',
+        'amount_due',
+        'due_date',
+        'status',
+    )
+    
+    # ... (Paginator and AJAX response logic remains the same) ...
+    paginator = Paginator(loans, 10)
+    page = paginator.get_page(page_num)
+
+    get_params = request.GET.copy()
+    if 'page' in get_params:
+        del get_params['page']
+        
+    current_query_params = '&' + urlencode(get_params) if get_params else ''
+
+    context = {
+        'loans': loans, 
+        'page': page,
+        'current_query_params': current_query_params,
+    }
+
+    if ajax:
+        html = render_to_string("loans/partials/active_loans_table_body.html", context, request=request)
+        pagination = render_to_string("partials/pagination.html", context)
+        return JsonResponse({"success": True ,"table_body_html": html, "pagination_html": pagination})
+
     return context
 
-
-def cashier_approved_loans(request, ajax=False):
+"""def cashier_approved_loans(request, ajax=False):
     loans = (
         LoanApplication.objects.filter(status='Approved')
         .select_related('member_id')
@@ -272,15 +409,109 @@ def cashier_approved_loans(request, ajax=False):
         pagination = render_to_string("partials/pagination.html", {"page": page})
         return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
     
+    return context"""
+
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+from urllib.parse import urlencode
+
+def cashier_approved_loans(request, ajax=False):
+    
+    # --- 1. Retrieve Parameters ---
+    search_account = request.GET.get('account', '').strip() 
+    sort_by = request.GET.get('sort_by', '').strip()     # e.g., 'member_id__account_number'
+    order = request.GET.get('order', '').strip()         # 'asc' or 'desc'
+    page_num = request.GET.get('page')
+    
+    # --- 2. Base QuerySet Setup and Filtering ---
+    loans_qs = (
+        LoanApplication.objects.filter(status='Approved')
+        .select_related('member_id')
+    )
+    
+    # Apply Account Number Search Filter
+    if search_account:
+        loans_qs = loans_qs.filter(
+            Q(member_id__account_number__icontains=search_account)
+        )
+        
+    # --- 3. APPLY SORTING (Account Number Only) ---
+    order_fields = []
+    
+    # Only allow sorting by account number
+    if sort_by == 'member_id__account_number':
+        # Construct the order string: '-field_name' for descending, 'field_name' for ascending
+        sort_field = f'-{sort_by}' if order == 'desc' else sort_by
+        order_fields.append(sort_field)
+
+    # Default sort order: Newest applications first
+    if not order_fields:
+        order_fields.append('-application_date')
+
+    loans_qs = loans_qs.order_by(*order_fields)
+
+    # --- 4. Final Values and Pagination ---
+    loans = loans_qs.values(
+        'loan_application_id',
+        'member_id__account_number',
+        'loan_amount',
+        'loan_term_years',
+        'loan_term_months',
+        'loan_term_days',
+        'amortization',
+        'status'
+    )
+    
+    # Paginator operates on the filtered and sorted QuerySet
+    paginator = Paginator(loans, 10)
+    page = paginator.get_page(page_num)
+
+    # Calculate query parameters for pagination links, retaining filters/sorts
+    get_params = request.GET.copy()
+    if 'page' in get_params:
+        del get_params['page']
+        
+    current_query_params = '&' + urlencode(get_params) if get_params else ''
+
+    context = {
+        'loans': loans, 
+        'page': page,
+        'current_query_params': current_query_params, # Pass parameters for pagination links
+    }
+
+    if ajax:
+        html = render_to_string("loans/partials/cashier_loan_table_body.html", context, request=request)
+        pagination = render_to_string("partials/pagination.html", context)
+        return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
+    
     return context
 
- 
+
+"""from django.core.paginator import Paginator
+from django.db.models import Case, Value, When, IntegerField, Q, F 
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+from urllib.parse import urlencode
+
+# NOTE: You must ensure 'LoanApplication', 'Member', and 'calculate_member_loan_risk' 
+# are imported or defined elsewhere in your application.
+
 def loan_applications_data(request, ajax=False):
+    
+    # --- 1. Retrieve Search and Filter Parameters ---
+    # Retrieve Account Number search term (used by the 'loanSearch' input)
+    search_account = request.GET.get('account', '').strip() 
+    # Retrieve Status filter term (used by the 'statusFilter' select)
+    filter_status = request.GET.get('status', '').strip()  
+    page_num = request.GET.get('page')
+    
     user = request.user
     is_bookkeeper = user.groups.filter(name='Bookkeeper').exists()
     is_admin = user.groups.filter(name='Admin').exists()
 
-    #Order priority based on role
+    # --- 2. Define Status Order Priority based on role ---
     if is_bookkeeper:
         status_order_case = Case(
             When(status='Pending', then=Value(1)),
@@ -312,40 +543,224 @@ def loan_applications_data(request, ajax=False):
             output_field=IntegerField(),
         )
 
-    loan_applications = (
+    # --- 3. Base QuerySet Setup ---
+    loan_applications_qs = (
         LoanApplication.objects
-        .select_related('member_id')
+        .select_related('member_id', 'member_id__person_id') 
         .annotate(status_order=status_order_case)
         .order_by('status_order', '-application_date')
-        .values(
-            'loan_application_id',
-            'member_id',
-            'member_id__account_number',
-            'loan_term_years',
-            'loan_term_months',
-            'loan_term_days',
-            'loan_amount',
-            'amortization',
-            'status'
-        )
     )
 
-    for loan in loan_applications:
+    # --- 4. APPLY SEARCH AND FILTER ---
+    final_filter = Q()
+    
+    # A. Apply Account Number Search
+    if search_account:
+        # Filter by the member's account number (case-insensitive partial match)
+        final_filter &= Q(member_id__account_number__icontains=search_account)
+    
+    # B. Apply Status Filter
+    if filter_status:
+        # Filter by the selected status (case-insensitive exact match)
+        final_filter &= Q(status__iexact=filter_status)
+
+    # Apply the combined filter to the queryset
+    loan_applications_qs = loan_applications_qs.filter(final_filter)
+
+    # --- 5. Prepare final values and apply risk calculation ---
+    loan_applications = loan_applications_qs.values(
+        'loan_application_id',
+        'member_id',
+        'member_id__account_number',
+        # Include person name fields if they are needed for the template, 
+        # even if not searched on in this simplified version
+        'member_id__person_id__first_name', 
+        'member_id__person_id__surname',
+        'loan_term_years',
+        'loan_term_months',
+        'loan_term_days',
+        'loan_amount',
+        'amortization',
+        'status'
+    )
+    
+    # Convert to list before iterating to prevent multiple database queries (if not done correctly)
+    loan_list_with_risk = list(loan_applications) 
+
+    for loan in loan_list_with_risk:
+        # Assuming 'calculate_member_loan_risk' is a defined function
         if loan['status'] == "Pending" or loan['status'] == "Verified":
             member_id = loan['member_id']
-            risk_data = calculate_member_loan_risk(member_id)
+            risk_data = calculate_member_loan_risk(member_id) 
             loan['risk_percentage'] = risk_data.get('risk_percentage')
             loan['risk_level'] = risk_data.get('risk_level')
 
-    paginator = Paginator(loan_applications, 10)
-    page_num = request.GET.get('page')
+    # --- 6. Paginate ---
+    paginator = Paginator(loan_list_with_risk, 10)
     page = paginator.get_page(page_num)
 
-    context = {'page': page}
+    # Calculate query parameters for pagination links
+    get_params = request.GET.copy()
+    if 'page' in get_params:
+        del get_params['page']
+        
+    current_query_params = '&' + urlencode(get_params) if get_params else ''
 
+    context = {
+        'page': page,
+        'current_query_params': current_query_params,
+    }
+
+    # --- 7. AJAX Refresh or Initial Load ---
     if ajax:
-        html = render_to_string("loans/partials/loan_applications_table_body.html", {"page": page}, request=request)
-        pagination = render_to_string("partials/pagination.html", {"page": page})
+        html = render_to_string("loans/partials/loan_applications_table_body.html", context, request=request)
+        pagination = render_to_string("partials/pagination.html", context)
+        return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
+    
+    return context"""
+
+def loan_applications_data(request, ajax=False):
+    
+    # --- 1. Retrieve Parameters ---
+    search_account = request.GET.get('account', '').strip() 
+    filter_status = request.GET.get('status', '').strip()  
+    sort_by = request.GET.get('sort_by', '').strip()     # e.g., 'member_id__account_number' or 'status_priority'
+    order = request.GET.get('order', '').strip()         # 'asc' or 'desc'
+    page_num = request.GET.get('page')
+    
+    user = request.user
+    # Assuming user groups are available through request.user
+    is_bookkeeper = user.groups.filter(name='Bookkeeper').exists()
+    is_admin = user.groups.filter(name='Admin').exists()
+
+    # --- 2. Define Status Order Priority based on role ---
+    # This calculation is annotated as 'status_order'
+    if is_bookkeeper:
+        status_order_case = Case(
+            When(status='Pending', then=Value(1)),
+            When(status='Verified', then=Value(2)),
+            When(status='Approved', then=Value(3)),
+            When(status='Released', then=Value(4)),
+            When(status='Rejected', then=Value(5)),
+            default=Value(6),
+            output_field=IntegerField(),
+        )
+    elif is_admin:
+        status_order_case = Case(
+            When(status='Verified', then=Value(1)),
+            When(status='Pending', then=Value(2)),
+            When(status='Approved', then=Value(3)),
+            When(status='Released', then=Value(4)),
+            When(status='Rejected', then=Value(5)),
+            default=Value(6),
+            output_field=IntegerField(),
+        )
+    else:
+        status_order_case = Case(
+            When(status='Pending', then=Value(1)),
+            When(status='Verified', then=Value(2)),
+            When(status='Approved', then=Value(3)),
+            When(status='Released', then=Value(4)),
+            When(status='Rejected', then=Value(5)),
+            default=Value(6),
+            output_field=IntegerField(),
+        )
+
+    # --- 3. Base QuerySet Setup and Annotation ---
+    loan_applications_qs = (
+        LoanApplication.objects
+        .select_related('member_id', 'member_id__person_id')
+        # CRITICAL: Annotate status_order BEFORE ordering by it
+        .annotate(status_order=status_order_case) 
+    )
+
+    # --- 4. APPLY SEARCH AND FILTER ---
+    final_filter = Q()
+    if search_account:
+        final_filter &= Q(member_id__account_number__icontains=search_account)
+    if filter_status:
+        final_filter &= Q(status__iexact=filter_status)
+    
+    # CRITICAL: Apply the filter to the queryset
+    loan_applications_qs = loan_applications_qs.filter(final_filter)
+
+    # --- 5. APPLY SORTING (Your provided block goes here) ---
+    order_fields = []
+    
+    # Logic to maintain both sorts:
+    # 1. Primary Sort (Based on user selection)
+    if sort_by == 'member_id__account_number':
+        # Account Number sort
+        sort_field = f'-{sort_by}' if order == 'desc' else sort_by
+        order_fields.append(sort_field)
+        
+        # Secondary Sort (Status Priority)
+        secondary_sort = '-status_order' if order == 'desc' else 'status_order'
+        order_fields.append(secondary_sort)
+
+    elif sort_by == 'status_priority':
+        # Status Priority sort
+        sort_field = '-status_order' if order == 'desc' else 'status_order'
+        order_fields.append(sort_field)
+        
+        # Secondary Sort (Account Number)
+        secondary_sort = f'-member_id__account_number' if order == 'desc' else 'member_id__account_number'
+        order_fields.append(secondary_sort)
+
+    # 2. Default Sort (If no explicit sort is chosen)
+    if not order_fields:
+        order_fields.extend(['status_order', '-application_date'])
+
+    # CRITICAL: Apply the final order
+    loan_applications_qs = loan_applications_qs.order_by(*order_fields)
+    
+    # --- 6. Prepare final values and apply risk calculation ---
+    loan_applications = loan_applications_qs.values(
+        'loan_application_id',
+        'member_id',
+        'member_id__account_number',
+        'member_id__person_id__first_name', 
+        'member_id__person_id__surname',
+        'loan_term_years',
+        'loan_term_months',
+        'loan_term_days',
+        'loan_amount',
+        'amortization',
+        'status'
+    )
+    
+    # Convert to list to apply Python-based risk calculation
+    loan_list_with_risk = list(loan_applications) 
+
+    for loan in loan_list_with_risk:
+        # Assuming 'calculate_member_loan_risk' is a defined function
+        if loan['status'] in ["Pending", "Verified"]:
+            member_id = loan['member_id']
+            # Risk calculation is done here
+            risk_data = calculate_member_loan_risk(member_id) 
+            loan['risk_percentage'] = risk_data.get('risk_percentage')
+            loan['risk_level'] = risk_data.get('risk_level')
+
+    # --- 7. Paginate ---
+    paginator = Paginator(loan_list_with_risk, 10)
+    page = paginator.get_page(page_num)
+
+    # Calculate query parameters for pagination links, retaining filters/sorts
+    get_params = request.GET.copy()
+    if 'page' in get_params:
+        del get_params['page']
+        
+    current_query_params = '&' + urlencode(get_params) if get_params else ''
+
+    context = {
+        'page': page,
+        'current_query_params': current_query_params,
+    }
+
+    # --- 8. AJAX Refresh or Initial Load ---
+    if ajax:
+        html = render_to_string("loans/partials/loan_applications_table_body.html", context, request=request)
+        pagination = render_to_string("partials/pagination.html", context)
         return JsonResponse({"success": True, "table_body_html": html, "pagination_html": pagination})
     
     return context
