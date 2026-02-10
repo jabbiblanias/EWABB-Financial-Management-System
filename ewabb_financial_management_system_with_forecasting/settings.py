@@ -67,7 +67,10 @@ ASGI_APPLICATION = "ewabb_financial_management_system_with_forecasting.asgi.appl
 # No Redis, use in-memory layer
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_URL", "127.0.0.1:6379")],
+        },
     },
 }
 
