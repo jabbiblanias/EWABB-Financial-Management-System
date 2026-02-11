@@ -26,7 +26,7 @@ class Financialreports(models.Model):
     dividend_id = models.ForeignKey(Dividend, models.DO_NOTHING, db_column='dividend_id', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} ({self.account_number})"
+        return f"{self.report_id} ({self.report_type})"
     
     class Meta:
         managed = False

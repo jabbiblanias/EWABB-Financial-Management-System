@@ -48,7 +48,7 @@ function fillTableRows(tableId, requiredRows) {
 
 document.addEventListener("DOMContentLoaded", function () {
     // 1. Define ALL DOM element variables HERE for guaranteed access
-    const tableBody = document.getElementById("table-body");
+    const tableBody = document.getElementById("table-body") || document.getElementById("data-table");
     const paginationControls = document.getElementById("pagination-controls");
     const startDateInput = document.getElementById("start_date");
     const endDateInput = document.getElementById("end_date");

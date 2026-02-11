@@ -35,7 +35,8 @@ def member_loan_report(request):
         sort_by=sort_by,
         order=order
     )
-    # dividend_report = dividend_report_data() # Assuming this function exists and is imported
+    
+    dividend_report = dividend_report_data() # Assuming this function exists and is imported
 
     # --- 3. Pagination ---
     paginator = Paginator(financial_report_qs, 10)
@@ -51,7 +52,7 @@ def member_loan_report(request):
     context = {
         'financial_report': page.object_list, # Only pass the current page's objects
         'page': page,                          # Pass the page object for pagination partial
-        # 'dividend_report': dividend_report, # Uncomment when dividend_report_data is available
+        'dividend_report': dividend_report, # Uncomment when dividend_report_data is available
         'current_query_params': current_query_params,
     }
 
@@ -310,6 +311,8 @@ def dividend_report_data():
         .order_by('-dividend_id__period_end')
         .first()
     )
+    print("Dividend Report Data - Report:", report)
+    print("Dividend Report Data - Dividend:", report.dividend_id if report else "No report found")
 
     if not report:
         return None
@@ -332,8 +335,6 @@ def dividend_report_data():
 
     context = {
         "financial_report": financial_report,
-        "title": report.title,
-        "status": report.status,
         "report_id": report.report_id,
         "date": report.dividend_id.date_declared,
         "rate": rate_percentage,
