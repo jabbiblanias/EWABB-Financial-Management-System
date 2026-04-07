@@ -251,13 +251,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 sortIconContainer.querySelector('.asc-icon').classList.remove('hidden');
                 sortIconContainer.querySelector('.desc-icon').classList.add('hidden');
                 // Optional: Highlight the text color for the sorted column
-                sortIconContainer.closest('th').classList.add('text-indigo-600'); 
+                sortIconContainer.closest('th').classList.add('text-blue-600'); 
             } else if (order === 'desc') {
                 // Find and SHOW the descending icon
                 sortIconContainer.querySelector('.asc-icon').classList.add('hidden');
                 sortIconContainer.querySelector('.desc-icon').classList.remove('hidden');
                 // Optional: Highlight the text color for the sorted column
-                sortIconContainer.closest('th').classList.add('text-indigo-600');
+                sortIconContainer.closest('th').classList.add('text-blue-600');
             }
         }
     }
@@ -265,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3. Clear text color from headers that are NOT currently sorted
     document.querySelectorAll('th[data-sort]').forEach(th => {
         if (th.getAttribute('data-sort') !== field) {
-            th.classList.remove('text-indigo-600');
+            th.classList.remove('text-blue-600');
         }
     });
 }

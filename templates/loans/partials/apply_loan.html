@@ -4,7 +4,7 @@
     class="bg-white rounded-2xl shadow-2xl p-6 md:p-10 w-full max-w-4xl max-h-[100vh] overflow-y-auto">
 
     <!-- Header -->
-    <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b border-b-gray-200 pb-2">Loan Application</h2>
+    <h2 class="text-3xl font-extrabold text-blue-700 mb-6 border-b border-b-gray-200 pb-2">Loan Application</h2>
 
     <!-- Main Content Grid -->
     <div class="grid md:grid-cols-2 gap-8">
@@ -14,7 +14,7 @@
         <div class="form-group relative">
           <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
           <input name="accountNumber" id="accountNumber" type="text" required
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
             placeholder="Enter account number" />
           <!-- Suggestions Dropdown -->
           <div id="nameSuggestions"
@@ -26,7 +26,7 @@
 
         <div class="flex justify-between items-center py-2 border-b border-gray-200">
           <span class="text-sm font-medium text-gray-700">Your Current Savings:</span>
-          <span id="currentSavingsDisplay" class="text-lg font-extrabold text-indigo-600 tabular-nums">
+          <span id="currentSavingsDisplay" class="text-lg font-extrabold text-blue-600 tabular-nums">
             ₱ 0.00
           </span>
         </div>
@@ -35,7 +35,7 @@
         <div class="form-group">
           <label for="loanType" class="block text-sm font-medium text-gray-700 mb-1">Loan Type</label>
           <select required id="loanType" name="loanType"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 appearance-none bg-white">
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 appearance-none bg-white">
             <option value="" selected hidden>-- Choose Loan Type --</option>
             <option>Personal Loan</option>
             <option>Business Loan</option>
@@ -52,7 +52,7 @@
           <div class="relative">
             <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">₱</span>
             <input name="loanAmount" id="amount" type="text" required
-              class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 text-right"
+              class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 text-right"
               placeholder="0.00" />
           </div>
           <div id="amountError" class="hidden text-xs text-red-500 mt-1">
@@ -67,7 +67,7 @@
           </label>
           <div class="slider-container relative mb-4">
             <input type="range" id="loan-term"
-              class="w-full accent-indigo-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" min="0"
+              class="w-full accent-blue-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" min="0"
               max="21" step="1" value="0" oninput="updateValue(this.value)" required />
 
             <!-- Value Display integrated below the slider -->
@@ -79,28 +79,28 @@
           <!-- Central Display for current term -->
           <div class="flex justify-center -mt-2">
             <input type="text" id="term-value" name="loanTerm"
-              class="text-indigo-700 font-bold text-lg text-center bg-indigo-50 border border-indigo-300 py-1 rounded-full shadow-inner w-fit outline-none"
+              class="text-blue-700 font-bold text-lg text-center bg-blue-50 border border-blue-300 py-1 rounded-full shadow-inner w-fit outline-none"
               value="0 Months" readonly />
           </div>
         </div>
       </div>
 
       <!-- RIGHT COLUMN: Financial Details/Calculations -->
-      <div class="space-y-4 p-6 bg-indigo-50/70 rounded-xl border border-indigo-200 shadow-inner h-fit">
-        <h3 class="text-xl font-bold text-indigo-700 border-b border-indigo-300 pb-2 mb-4">Financial Breakdown</h3>
+      <div class="space-y-4 p-6 bg-blue-50/70 rounded-xl border border-blue-200 shadow-inner h-fit">
+        <h3 class="text-xl font-bold text-blue-700 border-b border-blue-300 pb-2 mb-4">Financial Breakdown</h3>
 
         <!-- Detail Items -->
 
-        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+        <div class="flex justify-between items-center py-2 border-b border-blue-100">
           <span class="text-gray-700 font-medium">Amortization</span>
           <div class="flex items-center text-lg">
             <span name="amortization" id="amortization"
               class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36 pr-1">0.00</span>
-            <span id="displayValue" class="text-indigo-600 font-bold"> / Daily</span>
+            <span id="displayValue" class="text-blue-600 font-bold"> / Daily</span>
           </div>
         </div>
 
-        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+        <div class="flex justify-between items-center py-2 border-b border-blue-100">
           <span class="text-gray-700 font-medium">Total Payable</span>
           <span name="totalPayable" id="totalPayable"
             class="text-gray-900 font-extrabold text-right tabular-nums bg-transparent outline-none w-36">
@@ -108,7 +108,7 @@
           </span>
         </div>
 
-        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+        <div class="flex justify-between items-center py-2 border-b border-blue-100">
           <span class="text-gray-700 text-sm">Service Charge (-)</span>
           <span name="serviceCharge" id="serviceCharge"
             class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
@@ -116,7 +116,7 @@
           </span>
         </div>
 
-        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+        <div class="flex justify-between items-center py-2 border-b border-blue-100">
           <span class="text-gray-700 text-sm">CBU Deduction (-)</span>
           <span name="cbu" id="cbu"
             class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
@@ -124,7 +124,7 @@
           </span>
         </div>
 
-        <div class="flex justify-between items-center py-2 border-b border-indigo-100">
+        <div class="flex justify-between items-center py-2 border-b border-blue-100">
           <span class="text-gray-700 text-sm">Insurance Fee (-)</span>
           <span name="insurance" id="insurance"
             class="text-red-600 font-medium text-right tabular-nums bg-transparent outline-none w-36">
@@ -133,10 +133,10 @@
         </div>
 
         <!-- Release Amount (Highlighted) -->
-        <div class="flex justify-between items-center pt-4 border-t border-indigo-300">
-          <span class="text-indigo-800 font-bold text-lg">Net Release Amount</span>
+        <div class="flex justify-between items-center pt-4 border-t border-blue-300">
+          <span class="text-blue-800 font-bold text-lg">Net Release Amount</span>
           <span name="releaseAmount" id="releaseAmount"
-            class="text-indigo-900 font-extrabold text-2xl text-right tabular-nums bg-transparent outline-none w-44">
+            class="text-blue-900 font-extrabold text-2xl text-right tabular-nums bg-transparent outline-none w-44">
             0.00
           </span>
         </div>
@@ -150,7 +150,7 @@
         Cancel
       </button>
       <button id="submitLoanApplication" type="submit"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        class="bg-[#3d5af1] hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
         Submit Application
       </button>
     </div>

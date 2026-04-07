@@ -5,4 +5,8 @@
 @plugin "daisyui";
 
 /* 5. Template scan path */
-@source "../../../**/*.{html,py,js}";
+@source "../../../**/*.html";
+@source "../../../**/*.py";
+@source "../../../**/*.js";
+@source "../../../templates/**/*.html";
+@source "../../../**/templates/**/*.html";

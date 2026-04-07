@@ -12,11 +12,10 @@
   <div class="flex h-screen">
     {% include 'dashboard/partials/bookkeeper_nav.html' %}
 
-    <!-- Main Content -->
-    <div class="ml-64 mr-4 mt-[72px] flex-1">
-      <section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-4 sm:p-6">
+    <main class="ml-64 mr-4 mt-[72px] flex-1 flex flex-col h-[calc(100vh-72px)] overflow-y-auto">
+      <div class="mt-6 flex flex-row flex-nowrap gap-6 p-4 sm:p-6 overflow-x-auto">
           <!-- 👥 Total Members -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+<div class="flex-1 min-w-[200px] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
   <div>
     <h3 class="text-sm text-gray-500">Total Members</h3>
     <p class="text-2xl font-bold text-blue-700 mt-1">{{ total_members }}</p>
@@ -29,7 +28,7 @@
 </div>
 
        <!-- 💰 Total Loans -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+<div class="flex-1 min-w-[200px] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
   <div>
     <h3 class="text-sm text-gray-500">Total Loans</h3>
     <p class="text-2xl font-bold text-green-600 mt-1">₱{{ total_loan }}</p>
@@ -42,7 +41,7 @@
 </div>
 
        <!-- 💰 Total Savings -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+<div class="flex-1 min-w-[200px] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
   <div>
     <h3 class="text-sm text-gray-500">Total Savings</h3>
     <p class="text-2xl font-bold text-purple-600 mt-1">₱{{ total_savings }}</p>
@@ -55,7 +54,7 @@
 </div>
 
         <!-- 🧾 Pending Verifications -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+<div class="flex-1 min-w-[200px] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
   <div>
     <h3 class="text-sm text-gray-500">Pending Verifications</h3>
     <p class="text-3xl font-bold text-red-500 mt-1">{{ verification }}</p>
@@ -67,10 +66,10 @@
   </div>
 </div>
 
-        </section>    
+      </div>    
 
         <!-- Members Growth -->
-      <div class="mt-5 mx-2 sm:mx-6 bg-white p-4 sm:p-6 rounded-2xl shadow border border-gray-100">
+      <div class="m-6 p-6 rounded-2xl shadow border border-gray-100 flex-1 flex flex-col">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-5">
           <div>
@@ -90,7 +89,7 @@
         </div>
 
         <!-- Chart container -->
-        <div class="relative w-full h-[260px] sm:h-[320px] md:h-[380px]">
+        <div class="relative w-full flex-1 min-h-[450px]">
           <canvas id="savingsChart"></canvas>
         </div>
       </div>
@@ -168,5 +167,7 @@
           savingsChart.update();
         });
       </script>
-</body>
+      </main>
+    </div>
+  </div>
 </html>

@@ -16,16 +16,15 @@
   <div class="flex h-screen">
 
 
-    <!-- Main Content -->
-    <main class="ml-64 mr-4 mt-[72px] flex-1">
+    <main class="ml-64 mr-4 mt-[72px] flex-1 flex flex-col h-[calc(100vh-72px)] overflow-y-auto">
       <!-- Dashboard Stats -->
-      <section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-4 sm:p-6">
+      <div class="mt-6 flex flex-row flex-nowrap gap-6 p-6 overflow-x-auto">
         <!-- Total Savings -->
         <div
-          class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer transition">
+          class="flex-1 min-w-[200px] group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer transition">
           <div>
             <h3 class="text-sm text-gray-500">{{ current_year }} Revenue</h3>
-            <p class="text-3xl font-bold text-purple-600 mt-1">₱{{ revenue }}</p>
+            <p class="text-3xl font-bold text-purple-600 mt-1">₱{{ revenue|default:"0.00" }}</p>
           </div>
 
           <div class="p-4 bg-purple-100 text-purple-600 rounded-full">
@@ -38,10 +37,10 @@
         </div>
 
         <div
-          class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer transition">
+          class="flex-1 min-w-[200px] group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer transition">
           <div>
             <h3 class="text-sm text-gray-500">Operating Fund</h3>
-            <p class="text-3xl font-bold text-blue-700 mt-1">{{ available_operating_expenses }}</p>
+            <p class="text-3xl font-bold text-blue-700 mt-1">₱{{ available_operating_expenses|default:"0.00" }}</p>
           </div>
           <div class="p-4 bg-blue-100 text-blue-700 rounded-full shadow-[0_0_25px_5px_rgba(186,85,211,0.4)]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 transition group-active:fill-white"
@@ -57,10 +56,10 @@
 
         <!-- Total Loans -->
         <div
-          class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition cursor-pointer">
+          class="flex-1 min-w-[200px] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between transition cursor-pointer">
           <div>
             <h3 class="text-sm text-gray-500">Total Loans</h3>
-            <p class="text-2xl font-bold text-green-600 mt-1">₱{{ total_loan }}</p>
+            <p class="text-2xl font-bold text-green-600 mt-1">₱{{ total_loan|default:"0.00" }}</p>
           </div>
 
           <div class="p-4 bg-green-100 text-green-600 rounded-full">
@@ -73,7 +72,7 @@
 
         <!-- Pending Approvals -->
         <div
-          class="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer transition">
+          class="flex-1 min-w-[200px] group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer transition">
           <div>
             <h3 class="text-sm text-gray-500 group-active:text-white">Pending Approvals</h3>
             <p class="text-2xl font-bold text-red-500 mt-1 group-active:text-white">{{ approvals }}</p>
@@ -89,11 +88,10 @@
         </div>
 
 
-      </section>
+      </div>
 
 
-      <!-- Revenue Growth Chart -->
-      <div class="mt-5 mx-2 sm:mx-6 bg-white p-4 sm:p-6 rounded-2xl shadow border border-gray-100">
+      <div class="m-6 p-6 rounded-2xl shadow border border-gray-100 flex-1 flex flex-col">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-5">
           <div>
@@ -113,7 +111,7 @@
         </div>
 
         <!-- Chart Container -->
-        <div class="relative w-full h-[260px] sm:h-[320px] md:h-[380px]">
+        <div class="relative w-full flex-1 min-h-[450px]">
           <canvas id="revenueChart"></canvas>
         </div>
       </div>
